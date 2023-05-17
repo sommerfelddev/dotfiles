@@ -1,0 +1,4 @@
+hrtf = true
+
+[pulse]
+allow-moves=true

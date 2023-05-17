@@ -1,0 +1,25 @@
+# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
+pkgname=strisemarx-cpp
+pkgver=11
+pkgrel=1
+pkgdesc="strisemarx's cpp metapackage"
+arch=('any')
+url="https://strisemarx.com"
+license=('GPL3')
+depends=(
+  'ccache'
+  'clang'
+  'cmake'
+  'cmake-format'
+  'doxygen'
+  'include-what-you-use'
+  'inferno'
+  'gdb'
+  'lld'
+  'lldb'
+  'mold'
+  'ninja'
+  'perf'
+  'valgrind'
+)
+# vim: ts=2 sw=2 et:

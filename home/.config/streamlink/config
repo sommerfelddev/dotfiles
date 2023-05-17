@@ -1,0 +1,5 @@
+player=mpv
+default-stream=best
+twitch-disable-hosting
+twitch-disable-ads
+twitch-disable-reruns

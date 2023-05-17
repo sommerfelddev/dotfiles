@@ -1,0 +1,119 @@
+[user]
+    email = sommerfeld@strisemarx.com
+    name = Arnold Sommerfeld
+    signingkey = 47C5F04AC8C65531
+[push]
+    autoSetupRemote = true
+    followTags = false
+    gpgSign = if-asked
+[core]
+    whitespace = fix,trailing-space,cr-at-eol
+    autocrlf = input
+    pager = delta
+[branch]
+    autoSetupMerge = false
+    sort=-committerdate
+[web]
+    browser = librewolf
+[diff]
+    tool = nvimdiff
+    algorithm = histogram
+    colorMoved = default
+    mnemonicPrefix = true
+    relative = true
+    renameLimit = 10000
+[difftool]
+    prompt = false
+    trustExitCode = true
+[difftool "nvimdiff"]
+    cmd = $EDITOR -d $LOCAL $REMOTE
+[rebase]
+    autoStash = true
+[fetch]
+    recurseSubmodules = on-demand
+    prune = true
+[pull]
+    ff = only
+[merge]
+    tool = conflictmarker
+    conflictstyle = diff3
+[mergetool "conflictmarker"]
+    cmd = $EDITOR "$MERGED"
+[commit]
+    gpgsign = true
+[status]
+    showUntrackedFiles = all
+    submoduleSummary = true
+[help]
+    autocorrect = 1
+[log]
+    abbrevCommit = true
+[interactive]
+    singleKey = true
+    diffFilter = delta --color-only
+#[remote "origin"]
+#    fetch = +refs/pull/*/head:refs/remotes/origin/pr/*
+[sendemail]
+    smtpServer = localhost
+    smtpUser = sommerfeld@strisemarx.com
+    smtpEncryption = tls
+    smtpServerPort = 1025
+    annotate = true
+[format]
+    signOff = true
+[advice]
+    detachedHead = false
+    skippedCherryPicks = false
+[delta]
+    navigate = true
+    syntax-theme = gruvbox-dark
+    relative-paths = true
+[alias]
+    cl = clone
+    br = branch -vv
+    c = commit
+    ca = commit --amend --no-edit
+    cp = cherry-pick
+    sw = switch --recurse-submodules
+    swc = switch --recurse-submodules -c
+    swd = switch --recurse-submodules -d
+    rt = restore
+    res = reset
+    s = status --branch --short
+    m = merge
+    mt = mergetool
+    ff = merge --ff-only
+    r = rebase
+    rb = rebase
+    ri = rebase -i
+    p = push
+    fp = push --force-with-lease
+    f = fetch
+    fa = fetch --all
+    d = diff
+    staged = diff --cached
+    dt = difftool
+    a = add
+    stage = add
+    st = add
+    sub = submodule
+    subf = submodule foreach
+    re = remote -v
+    ra = remote add
+    rs = remote set-url
+    rr = remote remove
+    st = stash
+    sp = stash pop
+    sd = stash drop
+    sl = stash list
+    ss = stash show
+    del = branch -D
+    unstage = reset HEAD --
+    last = log -1 HEAD
+    undo = reset --hard
+    l = log --abbrev-commit -200 --graph --date=short --pretty=oneline
+    update=!git fetch && git merge --ff-only
+    fr=!git fetch && git rebase
+    find-merge = "!sh -c 'commit=$0 && branch=${1:-HEAD} && (git rev-list $commit..$branch --ancestry-path | cat -n; git rev-list $commit..$branch --first-parent | cat -n) | sort -k2 -s | uniq -f1 -d | sort -n | tail -1 | cut -f2'"
+    gone = !git for-each-ref --format '%(refname:short) %(upstream:track)' | awk '$2 == \"[gone]\" {print $1}' | xargs -r git branch -D
+    ab=absorb --and-rebase

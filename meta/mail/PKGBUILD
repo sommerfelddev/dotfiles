@@ -1,0 +1,17 @@
+# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
+pkgname=strisemarx-mail
+pkgver=6
+pkgrel=1
+pkgdesc="strisemarx's mail metapackage"
+arch=('any')
+url="https://strisemarx.com"
+license=('GPL3')
+depends=(
+  'aerc'
+  'khal'
+  'khard'
+  'protonmail-bridge-nogui'
+  'vdirsyncer'
+)
+
+# vim: ts=2 sw=2 et:

@@ -1,0 +1,19 @@
+# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
+pkgname=strisemarx-btc
+pkgver=5
+pkgrel=1
+pkgdesc="strisemarx's btc dev metapackage"
+arch=('any')
+url="https://strisemarx.com"
+license=('GPL3')
+depends=(
+  'python-bitbox02'
+  'python-hidapi'
+  'python-hwilib'
+  'python-qdarkstyle'
+  'sparrow-wallet'
+  'tor'
+  'zbar'
+)
+
+# vim: ts=2 sw=2 et:

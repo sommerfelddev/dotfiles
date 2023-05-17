@@ -1,0 +1,49 @@
+#!/usr/bin/env sh
+
+# If refreshing bspwm, remove all previous rules to prevent doubling up.
+bspc rule -r "*"
+
+if [ "$(uname -n)" = "garry" ] && xrandr --query | grep "HDMI-0 connected"; then
+    bspc monitor 'eDP-1-1' --remove
+    bspc config pointer_motion_interval 7
+elif [ "$(uname -n)" = "hercules" ] && xrandr --query | grep "HDMI-0 connected"; then
+    bspc monitor 'eDP-1-1' --remove
+fi
+
+bspc config border_width 1
+bspc config window_gap 0
+# top_padding I set equal to polybar's height
+bspc config top_padding 24
+bspc config right_padding 0
+
+bspc config focus_follows_pointer true
+bspc config pointer_follows_focus true
+bspc config pointer_follows_monitor true
+bspc config borderless_monocle true
+bspc config gapless_monocle true
+bspc config removal_adjustment true
+bspc config remove_disabled_monitors true
+bspc config remove_unplugged_monitors true
+bspc config merge_overlapping_monitors true
+bspc config presel_feedback true
+
+# bspc rule -a mpv sticky=on
+bspc rule -a Zathura state=tiled
+bspc rule -a "Tor Browser" state=floating
+bspc rule -a "feh" state=floating
+# bspc rule -a Steam desktop="9"
+# bspc rule -a discord desktop="9"
+bspc rule -a csgo_linux64 desktop="10"
+bspc rule -a hl2_linux desktop="10"
+bspc rule -a "origin.exe" state=floating desktop="10"
+bspc rule -a "fifa19_demo.exe" desktop="10"
+bspc rule -a "fifa20_demo.exe" desktop="10"
+bspc rule -a "fifa19.exe" desktop="10"
+bspc rule -a "Wine" state=floating desktop="10"
+bspc rule -a "fifaconfig.exe" state=floating desktop="10"
+bspc rule -a "launcher.exe" state=floating desktop="10"
+bspc rule -a "socialclubhelper.exe" state=floating desktop="10"
+bspc rule -a "gta5.exe" desktop="10"
+bspc rule -a "*.exe" desktop="10"
+
+bspc monitor -d 1 2 3 4 5 6 7 8 9 10

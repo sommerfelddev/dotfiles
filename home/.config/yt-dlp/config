@@ -1,0 +1,9 @@
+# ignore unavailable videos
+-i
+# not interested in getting videos with a resolution higher than 1080p
+-f bv*[height<=1080]+ba/b[height<=1080]
+--sub-lang en,eng,pt,pt_pt,es,es_es
+--embed-subs
+
+--embed-thumbnail
+--embed-metadata

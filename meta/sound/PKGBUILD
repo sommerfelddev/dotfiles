@@ -1,0 +1,22 @@
+# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
+pkgname=strisemarx-sound
+pkgver=9
+pkgrel=1
+pkgdesc="strisemarx's sound metapackage"
+arch=('any')
+url="https://strisemarx.com"
+license=('GPL3')
+depends=(
+  'alsa-utils'
+  'playerctl'
+  'pipewire'
+  'pipewire-alsa'
+  'pipewire-pulse'
+  'pipewire-jack'
+  'pulsemixer'
+)
+optdepends=(
+  'noisetorch'
+)
+
+# vim: ts=2 sw=2 et:

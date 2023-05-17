@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+text="$(zbarcam -q -1 --raw | xclip -selection clipboard -f)"
+
+echo "$text"
+notify-send "$text"

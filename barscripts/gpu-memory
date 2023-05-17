@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+command -v nvidia-smi > /dev/null 2>&1 && nvidia-smi > /dev/null 2>&1 && printf "VRAM:%s%%" "$(nvidia-smi --query-gpu=utilization.memory --format=csv,noheader,nounits 2> /dev/null)"

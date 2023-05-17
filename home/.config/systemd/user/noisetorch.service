@@ -1,0 +1,14 @@
+[Unit]
+Description=Noisetorch Noise Cancelling
+Requires=pipewire.socket
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/noisetorch -i -s "alsa_input.usb-SteelSeries_SteelSeries_Arctis_7-00.mono-chat" -t 95
+ExecStop=/usr/bin/noisetorch -u
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

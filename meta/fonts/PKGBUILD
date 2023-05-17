@@ -1,0 +1,19 @@
+# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
+pkgname=strisemarx-fonts
+pkgver=3
+pkgrel=1
+pkgdesc="strisemarx's fonts metapackage"
+arch=('any')
+url="https://strisemarx.com"
+license=('GPL3')
+depends=(
+  'noto-fonts-emoji'
+  'otf-font-awesome'
+  'otf-latinmodern-math'
+  'ttf-dejavu'
+  'ttf-fira-code'
+  'ttf-font-awesome'
+  'ttf-noto-nerd'
+)
+
+# vim: ts=2 sw=2 et:

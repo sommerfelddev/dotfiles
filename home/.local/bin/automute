@@ -1,0 +1,123 @@
+#!/usr/bin/env sh
+
+pid_file="/tmp/automutepid"
+
+pid_exists() {
+    test -r "$pid_file"
+}
+
+is_running() {
+    if pid_exists; then
+        ps "$(cat "$pid_file")" >/dev/null 2>&1 || return 1
+    else
+        return 1
+    fi
+}
+
+mute() {
+    pw-cli set-param "$1" Props '{mute: true}'
+}
+
+unmute() {
+    pw-cli set-param "$1" Props '{mute: false}'
+}
+
+pid2index() {
+    pw-dump | jq --argjson targetid "$1" 'map(select(.info.props."application.process.id" == $targetid and .info.params.PropInfo != null)) | .[].id'
+}
+
+list_sink_input_ids() {
+    pw-dump | jq 'map(select(.info.params.PropInfo != null and .info.params.PropInfo[].id=="mute"  and .info.props."application.process.id" != null)) | .[].id'
+}
+
+unmute_all() {
+    for i in $(list_sink_input_ids); do
+        unmute "$i"
+    done
+    exit
+}
+
+trap unmute_all INT TERM
+
+mute_all() {
+    for i in $(list_sink_input_ids); do
+        mute "$i"
+    done
+}
+
+do_automute() {
+    while :; do
+        focus_pid="$(xdotool getwindowfocus getwindowpid)"
+        if [ "$focus_pid" ] && [ "$unfocus_pid" != "$focus_pid" ]; then
+            focus_index=$(pid2index "$focus_pid")
+            if [ "$unfocus_pid" ]; then
+                unfocus_index=$(pid2index "$unfocus_pid")
+            fi
+            if [ "$focus_index" ]; then
+                if [ "$unfocus_index" ]; then
+                    mute "$unfocus_index"
+                else
+                    mute_all
+                fi
+                unmute "$focus_index"
+                unfocus_pid="$focus_pid"
+            fi
+        fi
+        sleep 0.25
+    done
+}
+
+start() {
+    do_automute &
+    echo "$!" >"$pid_file"
+    notify-send "Automute started!"
+}
+
+stop() {
+    pid_exists || exit 1
+    pid="$(cat "$pid_file")"
+    # kill with SIGTERM, allowing finishing touches.
+    kill "$pid"
+    # even after SIGTERM, ffmpeg may still run, so SIGKILL it.
+    sleep 3
+    is_running && kill -9 "$pid"
+    rm -f "$pid_file"
+    notify-send "Automute stopped!"
+}
+
+toggle() {
+    if is_running; then
+        echo "Stopping automute"
+        stop
+    else
+        echo "Starting automute"
+        start
+    fi
+    echo
+    status
+}
+
+status() {
+    if is_running; then
+        echo "Automuting is running with PID $(cat "$pid_file")"
+    else
+        echo "Automute inactive"
+    fi
+}
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    toggle)
+        toggle
+        ;;
+    status)
+        status
+        ;;
+    *)
+        toggle
+        ;;
+esac

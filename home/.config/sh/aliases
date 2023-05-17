@@ -1,0 +1,73 @@
+#!/usr/bin/env sh
+
+alias l='lsd -l'
+alias la='lsd -lA'
+alias lt='lsd --tree'
+
+whichkey() {
+    xev | awk -F'[ )]+' '/^KeyPress/ { a[NR+2] } NR in a { printf "%-3s %s\n", $5, $8 }'
+}
+
+alias sudo='sudo -v; sudo '
+alias sudoedit='sudo nvim'
+
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias diff='diff --color=auto'
+alias dmesg='dmesg --color=auto'
+alias dm='dmesg --color=always | less -r'
+alias ip="ip -color=auto"
+alias lsip="ip -human -color=auto --brief address show"
+alias ipa="ip -stats -details -human -color=auto address show"
+
+alias g='git'
+
+alias sys='systemctl'
+alias ssys='sudo systemctl'
+alias sysu='systemctl --user'
+alias sst='systemctl status'
+alias syse='sudo systemctl edit'
+
+alias gimme='sudo chown $USER:$(id -gn $USER)'
+alias free='free -h'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias mkdir='mkdir -p'
+alias du='du -h'
+alias df='df -h'
+alias visudo='sudo visudo'
+alias pacdiff='sudo pacdiff'
+alias stow='stow -R --no-folding --adopt'
+
+alias pacopt='comm -13 <(pacman -Qqdt | sort) <(pacman -Qqdtt | sort)'
+
+alias ipecho='curl ipecho.net/plain'
+alias xclip="xclip -selection clipboard -f"
+
+alias cpr='rsync --archive -hh --partial --info=stats1,progress2 --modify-window=1'
+alias mvr='rsync --archive -hh --partial --info=stats1,progress2 --modify-window=1 --remove-source-files'
+alias sub='subliminal download -l en'
+alias ss='sudo ss -tupnl'
+alias c='clear'
+
+alias n='nvim'
+alias ndiff='nvim -d'
+alias nd='nvim -d'
+alias nview='nvim -R'
+alias nv='nvim -R'
+alias ngit='nvim +Neogit'
+alias ng='nvim +Neogit'
+
+alias ta='tmux new-session -A'
+alias tas='tmux new-session -A -s'
+
+alias nj='ninja -C build'
+
+alias ncmake='cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_FLAGS="$DEV_CFLAGS" -DCMAKE_CXX_FLAGS="$DEV_CFLAGS" -DCMAKE_INSTALL_PREFIX=build/install -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build'
+
+alias ircc='clang -S -emit-llvm -fno-discard-value-names -O0 -Xclang -disable-O0-optnone -o -'
+alias irfc='flang-new -S -emit-llvm -fno-discard-value-names -O0 -Xclang -disable-O0-optnone -o -'
+alias astcc='clang -Xclang -ast-dump -fsyntax-only'
+alias astfc='flang-new -fc1 -fdebug-dump-parse-tree'

@@ -1,0 +1,50 @@
+#!/usr/bin/env sh
+
+[ -r ~/.config/X11/Xkeymap ] && xkbcomp ~/.config/X11/Xkeymap "$DISPLAY"
+
+setlayout() {
+    ids=$(xinput --list | sed -ne '/Virtual core keyboard/{:a' -e 'n;p;ba' -e '}' | grep "$1" | sed -n 's/.*id=\([0-9]\+\).*/\1/p')
+    for i in $ids; do
+        setxkbmap -device "$i" -layout "$2"
+    done
+}
+
+setmodmap() {
+    kbds=$(xinput --list | sed -ne '/Virtual core keyboard/{:a' -e 'n;p;ba' -e '}' | grep "$1" | sed -n 's/.*id=\([0-9]\+\).*/\1/p')
+    if [ "$kbds" ]; then
+        xmodmap ~/.config/X11/Xmodmap
+    fi
+}
+
+if [ "$(uname -n)" = "halley" ]; then
+    setxkbmap -layout no
+elif [ "$(uname -n)" = "hercules" ]; then
+    setxkbmap -layout es
+fi
+
+setxkbmap -option "caps:escape"
+xset r rate 250 30
+
+setlayout "Kingston HyperX Alloy FPS Pro Mechanical Gaming Keyboard" us
+# setlayout "SONiX USB DEVICE" us
+
+setlayout "SEMITEK USB-HID Gaming Keyboard" us
+# setmodmap "SEMITEK USB-HID Gaming Keyboard"
+
+setlayout "Dierya DK61 Keyboard" us
+# setmodmap "Dierya DK61 Keyboard"
+
+xmodmap ~/.config/X11/Xmodmap
+
+if [ "$(uname -n)" = "hercules" ]; then
+    xinput set-prop "ETPS/2 Elantech Touchpad" "libinput Tapping Enabled" 1
+    xinput set-prop "ETPS/2 Elantech Touchpad" "libinput Natural Scrolling Enabled" 1
+    ids=$(xinput --list | sed -ne '/Virtual core pointer/{:a' -e 'n;p;ba' -e '}' | grep "Kingsis Peripherals ZOWIE Gaming mouse" | sed -n 's/.*id=\([0-9]\+\).*/\1/p')
+    for i in $ids; do
+        xinput --set-prop "$i" 'libinput Accel Profile Enabled' 0, 1
+    done
+elif [ "$(uname -n)" = "halley" ]; then
+    xinput set-prop "SynPS/2 Synaptics TouchPad" "libinput Tapping Enabled" 1
+    xinput set-prop "SynPS/2 Synaptics TouchPad" "libinput Natural Scrolling Enabled" 1
+    xinput set-prop "ELAN Touchscreen" "Device Enabled" 0
+fi

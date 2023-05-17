@@ -1,0 +1,21 @@
+# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
+pkgname=strisemarx-nvidia
+pkgver=11
+pkgrel=1
+pkgdesc="strisemarx's nvidia metapackage"
+arch=('any')
+url="https://strisemarx.com"
+license=('GPL3')
+depends=(
+  'nvtop'
+  'nvidia-container-toolkit'
+  'nvidia-dkms'
+  'nvidia-settings'
+  'nvidia-utils'
+  'lib32-nvidia-utils'
+  'libva-vdpau-driver'
+  'linux-headers'
+  'opencl-nvidia'
+)
+
+# vim: ts=2 sw=2 et:

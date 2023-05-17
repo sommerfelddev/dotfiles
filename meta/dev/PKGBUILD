@@ -1,0 +1,23 @@
+# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
+pkgname=strisemarx-dev
+pkgver=35
+pkgrel=1
+pkgdesc="strisemarx's dev metapackage"
+arch=('any')
+url="https://strisemarx.com"
+license=('GPL3')
+depends=(
+  'bash-language-server'
+  'git-absorb'
+  'git-delta'
+  'ipython'
+  'hyperfine'
+  'lua-language-server'
+  'namcap'
+  'shellcheck'
+  'shfmt'
+  'sloccount'
+  'strace'
+)
+
+# vim: ts=2 sw=2 et:

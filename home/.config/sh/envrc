@@ -1,0 +1,220 @@
+#! /bin/sh
+
+safesource() {
+    # shellcheck source=/dev/null
+    [ -r "$1" ] && . "$1"
+}
+
+exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+ifexists() {
+    exists "$1" && "$@"
+}
+
+if [ -z "$ENV_SOURCED" ]; then
+    PATH="$HOME"/.local/bin:"$PATH"
+    export PATH
+    export ENV_SOURCED="$0"
+fi
+
+case $TERM in
+    *256color|*truecolor)
+        export COLORTERM=24bit
+        ;;
+esac
+
+# tell gpg which tty one is using so that it can prompt for pw
+GPG_TTY=$(tty)
+export GPG_TTY
+export GPG_AGENT_INFO=1
+# set XDG env vars
+export XDG_CONFIG_HOME="$HOME"/.config
+export XDG_DATA_HOME="$HOME"/.local/share
+export XDG_STATE_HOME="$HOME"/.local/state
+export XDG_CACHE_HOME="$HOME"/.cache
+# set ENV var to tell sh shell where its config file is
+export ENV="$XDG_CONFIG_HOME"/sh/shinit
+export EDITOR='nvim'
+export DIFFPROG='nvim -d'
+export VISUAL="$EDITOR"
+export MANPAGER='nvim +Man!'
+export MANWIDTH=999
+
+# # Get color support for 'less'
+[ -r /usr/bin/source-highlight-esc.sh ] && export LESSOPEN="| /usr/bin/source-highlight-esc.sh %s"
+export LESS="--RAW-CONTROL-CHARS"
+LESS_TERMCAP_mb="$(
+    tput bold
+    tput setaf 2
+)" # green
+export LESS_TERMCAP_mb
+LESS_TERMCAP_md="$(
+    tput bold
+    tput setaf 6
+)" # cyan
+export LESS_TERMCAP_md
+LESS_TERMCAP_me="$(tput sgr0)"
+export LESS_TERMCAP_me
+LESS_TERMCAP_so="$(
+    tput bold
+    tput setaf 3
+    tput setab 4
+)" # yellow on blue
+export LESS_TERMCAP_so
+LESS_TERMCAP_se="$(
+    tput rmso
+    tput sgr0
+)"
+export LESS_TERMCAP_se
+LESS_TERMCAP_us="$(
+    tput smul
+    tput bold
+    tput setaf 7
+)" # white
+export LESS_TERMCAP_us
+LESS_TERMCAP_ue="$(
+    tput rmul
+    tput sgr0
+)"
+export LESS_TERMCAP_ue
+LESS_TERMCAP_mr="$(tput rev)"
+export LESS_TERMCAP_mr
+LESS_TERMCAP_mh="$(tput dim)"
+export LESS_TERMCAP_mh
+LESS_TERMCAP_ZN="$(tput ssubm)"
+export LESS_TERMCAP_ZN
+LESS_TERMCAP_ZV="$(tput rsubm)"
+export LESS_TERMCAP_ZV
+LESS_TERMCAP_ZO="$(tput ssupm)"
+export LESS_TERMCAP_ZO
+LESS_TERMCAP_ZW="$(tput rsupm)"
+export LESS_TERMCAP_ZW
+
+export LESS="-F -X $LESS"
+
+export LANG=en_US.UTF-8
+export OPENER='xdg-open'
+export FZF_DEFAULT_COMMAND="fd --type file --follow --hidden --exclude .git"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_DIRS_COMMAND="fd --type d --follow --hidden --exclude .git"
+export FZF_DEFAULT_OPTS="--layout=reverse --inline-info --cycle --color=dark --color=fg:-1,bg:-1,hl:#5fff87,fg+:-1,bg+:-1,hl+:#ffaf5f --color=info:#af87ff,prompt:#5fff87,pointer:#ff87d7,marker:#ff87d7,spinner:#ff87d7"
+export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200' --select-1 --exit-0"
+export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview' --sort --exact"
+export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
+
+if [ "$TMUX" ]; then
+    export FZF_TMUX=1
+fi
+
+export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+export BROWSER='linkhandler'
+export TERMINAL='alacritty'
+# Suppress Gnome Accessibility bus warnings in gtk apps
+export NO_AT_BRIDGE=1
+# Enable Webrender in firefox for video decode hw acceleration
+export MOZ_WEBRENDER=1
+export MOZ_X11_EGL=1
+# set in new intel iris HD driver for VA-API video hw decoding
+if [ "$(uname -n)" = "halley" ] || [ "$(uname -n)" = "halley2" ]; then
+    export LIBVA_DRIVER_NAME="iHD"
+    export MESA_LOADER_DRIVER_OVERRIDE="iris"
+    export VAAPI_MPEG4_ENABLED=true
+fi
+
+# set sxhkd shell to sh for faster response times
+export SXHKD_SHELL="sh"
+# Java: use system anti-aliased fonts and make swing use the GTK look and feel:
+export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel -Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java -Djdk.gtk.version=2"
+
+export QT_QPA_PLATFORMTHEME=qt5ct
+
+# always prevent vsync
+export vblank_mode=0
+
+# detailed git PS1
+export GIT_PS1_SHOWDIRTYSTATE=1
+export GIT_PS1_SHOWSTASHSTATE=1
+export GIT_PS1_SHOWUNTRACKEDFILES=1
+export GIT_PS1_SHOWUPSTREAM="auto"
+
+export DEV_CFLAGS="-fno-omit-frame-pointer -O1 -fsanitize=address -fsanitize=undefined -fno-sanitize=vptr,function -fno-sanitize-recover=all -fuse-ld=mold -Werror=unguarded-availability-new -Wall -Wextra -Wwrite-strings -Wcast-qual -Wmissing-field-initializers -pedantic -Wc++98-compat-extra-semi -Wimplicit-fallthrough -Wcovered-switch-default -Wnon-virtual-dtor -Wdelete-non-virtual-dtor -Wsuggest-override -Wno-comment -Wstring-conversion -Wmisleading-indentation -Werror -fdiagnostics-color -g-fPIC -fno-semantic-interposition -fvisibility-inlines-hidden -D_DEBUG -D_GNU_SOURCE"
+
+# only set XAUTHORITY when not logging from ssh, since it breaks xauth
+[ "$XDG_RUNTIME_DIR" ] && export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
+
+export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/podman/podman.sock"
+
+if [ "$(uname -n)" = "hercules" ]; then
+    export OCL_ICD_VENDORS=nvidia
+    # shellcheck source=/dev/null
+    [ -r  ~/.config/sh/envrc ] && . ~/.config/sh/work-envrc
+fi
+
+# https://github.com/sparrowwallet/sparrow/issues/170#issuecomment-896866817
+export GDK_DISPLAY=1
+
+# cleanup ~
+export NOTMUCH_CONFIG="$XDG_CONFIG_HOME/notmuch/config"
+export NMBGIT="$XDG_DATA_HOME/notmuch/nmbug"
+export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
+export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc-2.0"
+export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc"
+export INPUTRC="$XDG_CONFIG_HOME/sh/inputrc"
+export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
+export PASSWORD_STORE_DIR="$XDG_DATA_HOME/password-store"
+export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+export MBSYNCRC="$XDG_CONFIG_HOME/isync/mbsyncrc"
+export LESSHISTFILE="-"
+export ASPELL_CONF="per-conf $XDG_CONFIG_HOME/aspell/aspell.conf; personal $XDG_CONFIG_HOME/aspell/en.pws; repl $XDG_CONFIG_HOME/aspell/en.prepl"
+export BASH_COMPLETION_USER_FILE="$XDG_CONFIG_HOME/bash-completion/bash_completion"
+export CARGO_HOME="$XDG_DATA_HOME/cargo"
+export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
+export LESSKEY="$XDG_CONFIG_HOME/less/lesskey"
+export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo":/usr/share/terminfo
+export IPYTHONDIR="$XDG_CONFIG_HOME/ipython"
+export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME/jupyter"
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
+export PYTHON_EGG_CACHE="$XDG_CACHE_HOME/python-eggs"
+export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
+export WEECHAT_HOME="$XDG_CONFIG_HOME/weechat"
+export WINEPREFIX="$XDG_DATA_HOME/wineprefixes/default"
+export XINITRC="$XDG_CONFIG_HOME/X11/xinitrc"
+export XSERVERRC="$XDG_CONFIG_HOME/X11/xserverrc"
+export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME/bundle"
+export BUNDLE_USER_CACHE="$XDG_CACHE_HOME/bundle"
+export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME/bundle"
+export CCACHE_CONFIGPATH="$XDG_CONFIG_HOME/ccache.config"
+export CCACHE_DIR="$XDG_CACHE_HOME/ccache"
+export MATHEMATICA_USERBASE="$XDG_CONFIG_HOME/mathematica"
+export GEM_HOME="$XDG_DATA_HOME/gem"
+export GEM_SPEC_CACHE="$XDG_CACHE_HOME/gem"
+export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+export UNCRUSTIFY_CONFIG="$XDG_CONFIG_HOME/uncrustify/uncrustify.cfg"
+export WEECHAT_HOME="$XDG_CONFIG_HOME/weechat"
+export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
+export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/ripgrep/ripgreprc"
+export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
+export MACHINE_STORAGE_PATH="$XDG_DATA_HOME/docker-machine"
+export GOPATH="$XDG_DATA_HOME/go"
+export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
+export XCOMPOSEFILE="$XDG_CONFIG_HOME/X11/xcompose"
+export XCOMPOSECACHE="$XDG_CACHE_HOME/X11/xcompose"
+export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
+export NVM_DIR="$XDG_DATA_HOME/nvm"
+export PYLINTHOME="$XDG_CACHE_HOME/pylint"
+export TEXMFHOME="$XDG_DATA_HOME/texmf"
+export TEXMFVAR="$XDG_CACHE_HOME/texlive/texmf-var"
+export TEXMFCONFIG="$XDG_CONFIG_HOME/texlive/texmf-config"
+export WORKON_HOME="$XDG_DATA_HOME/virtualenvs"
+export USERXSESSION="$XDG_CACHE_HOME/x11/xsession"
+export USERXSESSIONRC="$XDG_CACHE_HOME/x11/xsessionrc"
+export ALTUSERXSESSION="$XDG_CACHE_HOME/x11/Xsession"
+export ERRFILE="$XDG_CACHE_HOME/x11/xsession-errors"
+export NUGET_PACKAGES="$XDG_CACHE_HOME/NuGetPackages"
+
+unset SSH_AGENT_PID
+SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+export SSH_AUTH_SOCK

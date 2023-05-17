@@ -1,0 +1,32 @@
+# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
+pkgname=strisemarx-x-de
+pkgver=13
+pkgrel=1
+pkgdesc="strisemarx's DE metapackage"
+arch=('any')
+url="https://strisemarx.com"
+license=('GPL3')
+depends=(
+  'alacritty'
+  'bspwm-git'
+  'dunst'
+  'feh'
+  'i3lock-fancy-rapid-git'
+  'libnotify'
+  'perl-file-mimeinfo'
+  'polybar'
+  'qt5ct'
+  'rofi'
+  'rofimoji'
+  'scrot'
+  'sxhkd-git'
+  'sxiv'
+  'xdg-user-dirs'
+  'xdotool'
+  'xorg-xdpyinfo'
+  'xorg-xev'
+  'xorg-xwininfo'
+  'zbar'
+)
+
+# vim: ts=2 sw=2 et:

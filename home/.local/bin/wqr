@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+if [ -z "$1" ]; then
+    text=$(xclip -o -selection clipboard)
+elif [ "$1" = "-" ]; then
+    read -r text
+else
+    text="$1"
+fi
+
+printf '%s' "$text" | qrencode -t SVG -o - | feh - --conversion-timeout 1

@@ -1,0 +1,16 @@
+configuration {
+	modi: "window,run,drun";
+	font: "mono 18";
+	terminal: "alacritty";
+	disable-history: false;
+	sort: true;
+	sorting-method: "fzf";
+	parse-hosts: true;
+	combi-modi: "window,run,drun";
+	matching: "fuzzy";
+	kb-remove-to-eol: "Control+Shift+k";
+	kb-accept-entry: "Return,KP_Enter";
+	kb-row-up: "Up,Control+p,Control+k";
+	kb-row-down: "Down,Control+n,Control+j";
+}
+@theme "gruvbox-dark-hard"

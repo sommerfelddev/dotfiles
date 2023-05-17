@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+eval "$@" &
+pid="$!"
+echo "$pid"
+kill -STOP "$pid"
+tail --pid=$pid -f /dev/null

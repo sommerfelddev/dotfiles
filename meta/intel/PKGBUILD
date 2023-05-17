@@ -1,0 +1,20 @@
+# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
+pkgname=strisemarx-intel
+pkgver=5
+pkgrel=1
+pkgdesc="strisemarx's intel metapackage"
+arch=('any')
+url="https://strisemarx.com"
+license=('GPL3')
+depends=(
+  'intel-gpu-tools'
+  'intel-ucode'
+  'libvdpau-va-gl'
+  'mesa'
+  'intel-media-sdk'
+  'libva-intel-driver'
+  'mesa-vdpau'
+  'vulkan-intel'
+)
+
+# vim: ts=2 sw=2 et:

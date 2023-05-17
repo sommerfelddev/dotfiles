@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+# If not running interactively, don't do anything
+case $- in
+    *i*) stty -ixon
+        ;;
+      *) return
+          ;;
+esac
+
+# shellcheck source=/dev/null
+[ -r  ~/.config/sh/envrc ] && . ~/.config/sh/envrc
+
+gpg-connect-agent updatestartuptty /bye >/dev/null
+
+_fzf_compgen_path() {
+  eval "$FZF_DEFAULT_COMMAND" "$1"
+}
+
+_fzf_compgen_dir() {
+  eval "$FZF_DIRS_COMMAND" "$1"
+}
+
+safesource "$XDG_CONFIG_HOME"/sh/aliases
+
+# numlock
+tput smkx
+
+PS1="[\$?]\$ "
+export PS1
+
+if [ "$TERM" = "linux" ]; then
+    _SEDCMD='s/.*\*color\([0-9]\{1,\}\).*#\([0-9a-fA-F]\{6\}\).*/\1 \2/p'
+    mkfifo mypipe
+    sed -n "$_SEDCMD" "$HOME"/.Xresources | awk '$1 < 16 {printf "\\e]P%X%s", $1, $2}' > mypipe &
+    while IFS= read -r i
+    do
+        printf "%s" "$i"
+    done < mypipe
+    rm mypipe
+    clear
+fi

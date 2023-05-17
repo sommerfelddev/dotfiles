@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+# shellcheck source=/dev/null
+[ -r  ~/.config/sh/envrc ] && . ~/.config/sh/envrc
+display-setup
+
+systemctl --user import-environment PATH DISPLAY XAUTHORITY
+
+[ -r ~/.config/X11/Xresources ] && xrdb ~/.config/X11/Xresources
+
+xsetroot -cursor_name left_ptr &
+input-setup &
+unclutter &
+keynav &
+if [ "$(uname -n)" != "tau" ]; then
+    launch-polybar &
+    dunst &
+    sxhkd &
+fi

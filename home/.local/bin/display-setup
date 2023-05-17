@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+
+if [ "$(uname -n)" = "hercules" ]; then
+    xrandr --setprovideroutputsource modesetting NVIDIA-G0
+    nvidia-settings --load-config-only &
+    nvidia-settings -a '[gpu:0]/GPUPowerMizerMode=1' &
+fi
+xrandr --auto
+
+if [ "$(uname -n)" = "hercules" ] && xrandr --query | grep "HDMI-1 connected"; then
+    xrandr --output eDP-1 --off
+    xrandr --output HDMI-1 --primary --mode 1920x1080 --rate 144
+    # xrandr --output HDMI-1 --primary --mode 1920x1080
+    # xrandr --output HDMI-1 --primary --mode 2560x1080 --rate 75
+    # xrandr --output HDMI-1 --primary --mode 3840x2160
+    # xrandr --output HDMI-1 --mode 1920x1080 --sameas eDP-1
+elif [ "$(uname -n)" = "halley" ] && xrandr --query | grep "HDMI-1 connected"; then
+    xrandr --output HDMI-1 --mode 1920x1080 --same-as eDP-1
+fi
+
+bspc wm -r
+launch-polybar

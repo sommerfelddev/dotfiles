@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+playerctl pause
+# i3lock-fancy -t "" -- scrot -z -o
+i3lock-fancy-rapid 5 2 -e -f

@@ -1,0 +1,14 @@
+[Unit]
+Description=Fake camera
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/repos/Linux-Fake-Background-Webcam
+ExecStart=%h/repos/Linux-Fake-Background-Webcam/env/bin/python fake.py -c %h/.config/fakecam/config.ini
+# fake.py exits when pressing Ctrl + \ which corresponds to SIGQUIT
+# so we need to specify this kill signal instead of SIGINT
+KillSignal=SIGQUIT
+
+[Install]
+WantedBy=default.target
