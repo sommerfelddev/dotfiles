@@ -8,8 +8,8 @@ whichkey() {
     xev | awk -F'[ )]+' '/^KeyPress/ { a[NR+2] } NR in a { printf "%-3s %s\n", $5, $8 }'
 }
 
-alias sudo='sudo -v; sudo '
-alias sudoedit='sudo nvim'
+alias sudo='doas'
+alias sudoedit='doas nvim'
 
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
@@ -24,12 +24,12 @@ alias ipa="ip -stats -details -human -color=auto address show"
 alias g='git'
 
 alias sys='systemctl'
-alias ssys='sudo systemctl'
+alias ssys='doas systemctl'
 alias sysu='systemctl --user'
 alias sst='systemctl status'
-alias syse='sudo systemctl edit'
+alias syse='doas systemctl edit'
 
-alias gimme='sudo chown $USER:$(id -gn $USER)'
+alias gimme='doas chown $USER:$(id -gn $USER)'
 alias free='free -h'
 alias ...='cd ../..'
 alias ....='cd ../../..'
@@ -37,8 +37,7 @@ alias .....='cd ../../../..'
 alias mkdir='mkdir -p'
 alias du='du -h'
 alias df='df -h'
-alias visudo='sudo visudo'
-alias pacdiff='sudo pacdiff'
+alias pacdiff='doas pacdiff'
 alias stow='stow -R --no-folding --adopt'
 
 alias pacopt='comm -13 <(pacman -Qqdt | sort) <(pacman -Qqdtt | sort)'
@@ -49,7 +48,7 @@ alias xclip="xclip -selection clipboard -f"
 alias cpr='rsync --archive -hh --partial --info=stats1,progress2 --modify-window=1'
 alias mvr='rsync --archive -hh --partial --info=stats1,progress2 --modify-window=1 --remove-source-files'
 alias sub='subliminal download -l en'
-alias ss='sudo ss -tupnl'
+alias ss='doas ss -tupnl'
 alias c='clear'
 
 alias n='nvim'
