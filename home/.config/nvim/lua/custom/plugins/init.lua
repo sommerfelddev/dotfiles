@@ -18,31 +18,6 @@ return {
     "dstein64/vim-startuptime",
     cmd = "StartupTime",
   },
-  {
-    "folke/persistence.nvim",
-    config = true,
-    event = "BufReadPre",
-    keys = {
-      {
-        "<leader>qs",
-        require("persistence").load,
-        desc =
-        "Restore Session"
-      },
-      {
-        "<leader>ql",
-        function() require("persistence").load({ last = true }) end,
-        desc =
-        "Restore Last Session"
-      },
-      {
-        "<leader>qd",
-        require("persistence").stop,
-        desc =
-        "Don't Save Current Session"
-      },
-    },
-  },
   "xiyaowong/nvim-cursorword",
   {
     "sainnhe/gruvbox-material",
