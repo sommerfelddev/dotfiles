@@ -1,6 +1,6 @@
 # Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
 pkgname=strisemarx-x-extra
-pkgver=22
+pkgver=23
 pkgrel=1
 pkgdesc="strisemarx's Xorg apps metapackage"
 arch=('any')
@@ -9,7 +9,7 @@ license=('GPL3')
 depends=(
   'arkenfox-user.js'
   'chromium'
-  'librewolf'
+  'librewolf-bin'
   'libfido2'
   'libreoffice-still'
   'okular'

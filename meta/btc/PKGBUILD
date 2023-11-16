@@ -1,6 +1,6 @@
 # Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
 pkgname=strisemarx-btc
-pkgver=5
+pkgver=7
 pkgrel=1
 pkgdesc="strisemarx's btc dev metapackage"
 arch=('any')
