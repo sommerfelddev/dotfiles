@@ -16,8 +16,8 @@ setmodmap() {
     fi
 }
 
-if [ "$(uname -n)" = "halley" ]; then
-    setxkbmap -layout no
+if [ "$(uname -n)" = "halley2" ]; then
+    setxkbmap -layout pt
 elif [ "$(uname -n)" = "hercules" ]; then
     setxkbmap -layout es
 fi
@@ -43,8 +43,7 @@ if [ "$(uname -n)" = "hercules" ]; then
     for i in $ids; do
         xinput --set-prop "$i" 'libinput Accel Profile Enabled' 0, 1
     done
-elif [ "$(uname -n)" = "halley" ]; then
+elif [ "$(uname -n)" = "halley2" ]; then
     xinput set-prop "SynPS/2 Synaptics TouchPad" "libinput Tapping Enabled" 1
     xinput set-prop "SynPS/2 Synaptics TouchPad" "libinput Natural Scrolling Enabled" 1
-    xinput set-prop "ELAN Touchscreen" "Device Enabled" 0
 fi
