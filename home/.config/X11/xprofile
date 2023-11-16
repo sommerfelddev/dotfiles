@@ -8,6 +8,7 @@ systemctl --user import-environment PATH DISPLAY XAUTHORITY
 [ -r ~/.config/X11/Xresources ] && xrdb ~/.config/X11/Xresources
 
 xsetroot -cursor_name left_ptr &
+xset -b
 input-setup &
 unclutter &
 keynav &
