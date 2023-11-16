@@ -4,6 +4,7 @@ perf.data*
 # Vim
 .exrc
 .doit.lua
+.luarc.json
 
 # Swap
 [._]*.s[a-v][a-z]
