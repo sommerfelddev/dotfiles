@@ -1,6 +1,6 @@
 # Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
 pkgname=strisemarx-base
-pkgver=29
+pkgver=30
 pkgrel=1
 pkgdesc="strisemarx's base metapackage"
 arch=('any')
@@ -12,7 +12,9 @@ depends=(
   'base-devel'
   'bash-completion'
   'bat'
+  'choose'
   'cpupower'
+  'curlie'
   'dashbinsh'
   'doas-sudo-shim'
   'dog'
