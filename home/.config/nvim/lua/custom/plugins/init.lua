@@ -48,17 +48,21 @@ return {
   },
   {
     "lewis6991/hover.nvim",
-    keys = { { "K", require "hover".hover }, { "gK", require "hover"
-        .hover_select }, { "gh", require "hover".hover },
-      { "gH", require "hover".hover_select } },
-    opts = {
-      init = function()
-        require("hover.providers.lsp")
-        require('hover.providers.gh')
-        require('hover.providers.man')
-        -- require('hover.providers.dictionary')
-      end,
-    },
+    config = function()
+      require("hover").setup {
+        init = function()
+          require("hover.providers.lsp")
+          require('hover.providers.gh')
+          require('hover.providers.man')
+          -- require('hover.providers.dictionary')
+        end,
+      }
+
+      vim.keymap.set("n", "K", require("hover").hover, { desc = "hover.nvim" })
+      vim.keymap.set("n", "gh", require("hover").hover, { desc = "hover.nvim" })
+      vim.keymap.set("n", "gK", require("hover").hover_select,
+        { desc = "hover.nvim (select)" })
+    end
   },
   { 'akinsho/git-conflict.nvim', config = true },
   {
