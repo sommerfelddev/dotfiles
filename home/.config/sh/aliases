@@ -43,6 +43,7 @@ alias stow='stow -R --no-folding --adopt'
 alias pacopt='comm -13 <(pacman -Qqdt | sort) <(pacman -Qqdtt | sort)'
 
 alias ipecho='curl ipecho.net/plain'
+alias curl='curlie'
 alias xclip="xclip -selection clipboard -f"
 
 alias cpr='rsync --archive -hh --partial --info=stats1,progress2 --modify-window=1'
