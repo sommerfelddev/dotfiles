@@ -934,6 +934,7 @@ return {
         },
         ruff_lsp = {},
         pyright = {},
+        rust_analyzer = {},
         clangd = {
           cmd = {
             "clangd",
