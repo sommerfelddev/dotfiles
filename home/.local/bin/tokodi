@@ -10,4 +10,4 @@ fi
 
 payload="$(printf '{"jsonrpc":"2.0", "id": 1, "method":"Player.Open","params": {"item": {"file":"%s"}}}' "$url")"
 
-curl -u kodi:kodi 'http://xbox.pulpo:8080/jsonrpc' -X POST --data-raw "$payload" -H 'Content-Type: application/json'
+curl -u kodi:kodi 'http://ruiflix.pulpo:8080/jsonrpc' -X POST --data-raw "$payload" -H 'Content-Type: application/json'
