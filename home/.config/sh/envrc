@@ -139,8 +139,6 @@ export GIT_PS1_SHOWSTASHSTATE=1
 export GIT_PS1_SHOWUNTRACKEDFILES=1
 export GIT_PS1_SHOWUPSTREAM="auto"
 
-export DEV_CFLAGS="-fno-omit-frame-pointer -O1 -fsanitize=address -fsanitize=undefined -fno-sanitize=vptr,function -fno-sanitize-recover=all -fuse-ld=mold -Werror=unguarded-availability-new -Wall -Wextra -Wwrite-strings -Wcast-qual -Wmissing-field-initializers -pedantic -Wc++98-compat-extra-semi -Wimplicit-fallthrough -Wcovered-switch-default -Wnon-virtual-dtor -Wdelete-non-virtual-dtor -Wsuggest-override -Wno-comment -Wstring-conversion -Wmisleading-indentation -Werror -fdiagnostics-color -g-fPIC -fno-semantic-interposition -fvisibility-inlines-hidden -D_DEBUG -D_GNU_SOURCE"
-
 # only set XAUTHORITY when not logging from ssh, since it breaks xauth
 [ "$XDG_RUNTIME_DIR" ] && export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
 
