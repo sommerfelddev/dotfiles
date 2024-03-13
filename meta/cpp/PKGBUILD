@@ -1,6 +1,6 @@
 # Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
 pkgname=strisemarx-cpp
-pkgver=11
+pkgver=12
 pkgrel=1
 pkgdesc="strisemarx's cpp metapackage"
 arch=('any')
@@ -12,7 +12,6 @@ depends=(
   'cmake'
   'cmake-format'
   'doxygen'
-  'include-what-you-use'
   'inferno'
   'gdb'
   'lld'
