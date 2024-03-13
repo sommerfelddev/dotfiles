@@ -1,6 +1,6 @@
 # Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
 pkgname=strisemarx-work
-pkgver=18
+pkgver=19
 pkgrel=1
 pkgdesc="strisemarx's work dev metapackage"
 arch=('any')
@@ -24,8 +24,6 @@ depends=(
   'nasm'
   'openmp'
   'podman-docker'
-  'qemu-user-static'
-  'qemu-user-static-binfmt'
   'xdot'
 )
 # vim: ts=2 sw=2 et:
