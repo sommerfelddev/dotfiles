@@ -129,15 +129,17 @@ return {
     "NeogitOrg/neogit",
     dependencies = {
       "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim",
     },
     config = function()
-      require("neogit").setup({
+      local neogit = require("neogit")
+      neogit.setup({
         disable_commit_confirmation = true,
         kind = "split",
         console_timeout = 5000,
         auto_show_console = false,
       })
-      map.n("<leader>ng", require "neogit".open)
+      map.n("<leader>ng", neogit.open)
     end,
   },
   {
