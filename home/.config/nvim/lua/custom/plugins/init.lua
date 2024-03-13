@@ -1085,6 +1085,7 @@ return {
         end,
         sources = {
           nls.builtins.formatting.black,
+          nls.builtins.diagnostics.hadolint,
         }
       })
     end,
