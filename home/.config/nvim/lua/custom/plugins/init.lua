@@ -108,16 +108,9 @@ return {
   },
   {
     "iamcco/markdown-preview.nvim",
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
     build = "cd app && yarn install",
-    ft = "markdown",
-    config = function()
-      vim.api.nvim_command([[
-          function! g:OpenNewWindow(url)
-              silent exec "Start! librewolf --new-window " . a:url
-          endfunction
-          ]])
-      vim.g.mkdp_browserfunc = "g:OpenNewWindow"
-    end,
+    ft = { "markdown" },
   },
   "gpanders/editorconfig.nvim",
   {
