@@ -63,6 +63,7 @@ image/x-nikon-nef=sxiv.desktop
 image/jpeg=sxiv.desktop
 image/png=sxiv.desktop
 image/gif=mpv.desktop
+image/svg+xml=librewolf.desktop
 text/markdown=nvim.desktop
 text/plain=nvim.desktop
 text/x-python=nvim.desktop
