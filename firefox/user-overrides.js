@@ -76,3 +76,11 @@ user_pref("browser.eme.ui.enabled", false);
  * [1] https://www.internetsociety.org/tag/ipv6-security/ (Myths 2,4,5,6) ***/
 // user_pref("network.dns.disableIPv6", true);
 user_pref("network.dns.disableIPv6", false);
+
+user_pref("privacy.resistFingerprinting.testGranularityMask", 4);
+/* 4505: experimental RFP [FF91+]
+ * [WARNING] DO NOT USE unless testing, see [1] comment 12
+ * [1] https://bugzilla.mozilla.org/1635603 ***/
+user_pref("privacy.resistFingerprinting.exemptedDomains", "meet.google.com");
+
+user_pref("browser.fixup.domainsuffixwhitelist.i2p", true);
