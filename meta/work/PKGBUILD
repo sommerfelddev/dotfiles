@@ -1,6 +1,6 @@
 # Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
 pkgname=strisemarx-work
-pkgver=19
+pkgver=20
 pkgrel=1
 pkgdesc="strisemarx's work dev metapackage"
 arch=('any')
@@ -9,17 +9,19 @@ license=('GPL3')
 depends=(
   'bear'
   'boost'
-  'code-marketplace'
   'compiledb'
   'creduce'
   'cuda'
   'cvise'
+  'dockerfile-language-server-bin'
   'fortls'
   'fuse-overlayfs'
   'intel-oneapi-dpcpp-cpp'
+  'hadolint-bin'
   'hdf5'
   'llvm'
   'gcc-fortran'
+  'git-lfs'
   'meson'
   'nasm'
   'openmp'
