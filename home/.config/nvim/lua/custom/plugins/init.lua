@@ -906,6 +906,7 @@ return {
 
       local servers = {
         bashls = {},
+        dockerls = {},
         fortls = {},
         lua_ls = {
           on_attach = function(client, bufnr)
