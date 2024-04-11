@@ -1,5 +1,9 @@
 #! /bin/sh
 
+if [ -z "$ENV_SOURCED" ]; then
+    export ENV_SOURCED="$0"
+fi
+
 safesource() {
     # shellcheck source=/dev/null
     [ -r "$1" ] && . "$1"
@@ -13,11 +17,7 @@ ifexists() {
     exists "$1" && "$@"
 }
 
-if [ -z "$ENV_SOURCED" ]; then
-    PATH="$HOME"/.local/bin:"$PATH"
-    export PATH
-    export ENV_SOURCED="$0"
-fi
+export PATH="$HOME"/.local/bin:"$PATH"
 
 case $TERM in
     *256color|*truecolor)
@@ -117,7 +117,7 @@ export NO_AT_BRIDGE=1
 export MOZ_WEBRENDER=1
 export MOZ_X11_EGL=1
 # set in new intel iris HD driver for VA-API video hw decoding
-if [ "$(uname -n)" = "halley" ] || [ "$(uname -n)" = "halley2" ]; then
+if [ "$(uname -n)" = "halley2" ]; then
     export LIBVA_DRIVER_NAME="iHD"
     export MESA_LOADER_DRIVER_OVERRIDE="iris"
     export VAAPI_MPEG4_ENABLED=true
@@ -154,8 +154,6 @@ fi
 export GDK_DISPLAY=1
 
 # cleanup ~
-export NOTMUCH_CONFIG="$XDG_CONFIG_HOME/notmuch/config"
-export NMBGIT="$XDG_DATA_HOME/notmuch/nmbug"
 export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc-2.0"
 export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc"
@@ -163,36 +161,23 @@ export INPUTRC="$XDG_CONFIG_HOME/sh/inputrc"
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 export PASSWORD_STORE_DIR="$XDG_DATA_HOME/password-store"
 export GNUPGHOME="$XDG_DATA_HOME/gnupg"
-export MBSYNCRC="$XDG_CONFIG_HOME/isync/mbsyncrc"
 export LESSHISTFILE="-"
-export ASPELL_CONF="per-conf $XDG_CONFIG_HOME/aspell/aspell.conf; personal $XDG_CONFIG_HOME/aspell/en.pws; repl $XDG_CONFIG_HOME/aspell/en.prepl"
 export BASH_COMPLETION_USER_FILE="$XDG_CONFIG_HOME/bash-completion/bash_completion"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
 export LESSKEY="$XDG_CONFIG_HOME/less/lesskey"
 export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo":/usr/share/terminfo
 export IPYTHONDIR="$XDG_CONFIG_HOME/ipython"
-export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME/jupyter"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 export PYTHON_EGG_CACHE="$XDG_CACHE_HOME/python-eggs"
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
 export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
-export WEECHAT_HOME="$XDG_CONFIG_HOME/weechat"
 export WINEPREFIX="$XDG_DATA_HOME/wineprefixes/default"
 export XINITRC="$XDG_CONFIG_HOME/X11/xinitrc"
 export XSERVERRC="$XDG_CONFIG_HOME/X11/xserverrc"
-export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME/bundle"
-export BUNDLE_USER_CACHE="$XDG_CACHE_HOME/bundle"
-export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME/bundle"
 export CCACHE_CONFIGPATH="$XDG_CONFIG_HOME/ccache.config"
 export CCACHE_DIR="$XDG_CACHE_HOME/ccache"
-export MATHEMATICA_USERBASE="$XDG_CONFIG_HOME/mathematica"
-export GEM_HOME="$XDG_DATA_HOME/gem"
-export GEM_SPEC_CACHE="$XDG_CACHE_HOME/gem"
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
-export UNCRUSTIFY_CONFIG="$XDG_CONFIG_HOME/uncrustify/uncrustify.cfg"
-export WEECHAT_HOME="$XDG_CONFIG_HOME/weechat"
-export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
 export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/ripgrep/ripgreprc"
 export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
 export MACHINE_STORAGE_PATH="$XDG_DATA_HOME/docker-machine"
@@ -202,16 +187,11 @@ export XCOMPOSEFILE="$XDG_CONFIG_HOME/X11/xcompose"
 export XCOMPOSECACHE="$XDG_CACHE_HOME/X11/xcompose"
 export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
 export NVM_DIR="$XDG_DATA_HOME/nvm"
-export PYLINTHOME="$XDG_CACHE_HOME/pylint"
-export TEXMFHOME="$XDG_DATA_HOME/texmf"
-export TEXMFVAR="$XDG_CACHE_HOME/texlive/texmf-var"
-export TEXMFCONFIG="$XDG_CONFIG_HOME/texlive/texmf-config"
 export WORKON_HOME="$XDG_DATA_HOME/virtualenvs"
 export USERXSESSION="$XDG_CACHE_HOME/x11/xsession"
 export USERXSESSIONRC="$XDG_CACHE_HOME/x11/xsessionrc"
 export ALTUSERXSESSION="$XDG_CACHE_HOME/x11/Xsession"
 export ERRFILE="$XDG_CACHE_HOME/x11/xsession-errors"
-export NUGET_PACKAGES="$XDG_CACHE_HOME/NuGetPackages"
 
 unset SSH_AGENT_PID
 SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
