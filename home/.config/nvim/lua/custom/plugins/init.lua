@@ -931,7 +931,6 @@ return {
         },
         ruff_lsp = {},
         pyright = {},
-        rust_analyzer = {},
         clangd = {
           cmd = {
             "clangd",
@@ -1044,6 +1043,23 @@ return {
         end
       },
     },
+  },
+  {
+    'mrcjkb/rustaceanvim',
+    config = function()
+      vim.g.rustaceanvim = {
+        server = {
+          on_attach = function(client, bufnr)
+            require("cfg.lsp").on_attach_wrapper(
+              client,
+              bufnr,
+              { auto_format = true }
+            )
+          end,
+        },
+      }
+    end,
+    ft = { 'rust' },
   },
   {
     'nvim-lualine/lualine.nvim',
