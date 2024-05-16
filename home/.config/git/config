@@ -1,7 +1,7 @@
 [user]
-    email = sommerfeld@strisemarx.com
-    name = Arnold Sommerfeld
-    signingkey = 47C5F04AC8C65531
+    email = sommerfeld@sommerfeld.dev
+    name = sommerfeld
+    signingkey = 3298945F717C85F8
 [push]
     autoSetupRemote = true
     followTags = false
