@@ -1,6 +1,6 @@
 # Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
 pkgname=strisemarx-x-base
-pkgver=4
+pkgver=5
 pkgrel=1
 pkgdesc="strisemarx's Xorg base metapackage"
 arch=('any')
@@ -9,6 +9,7 @@ license=('GPL3')
 depends=(
   'sx'
   'unclutter-xfixes-git'
+  'wmname'
   'xclip'
   'xorg-xinput'
   'xorg-xmodmap'
