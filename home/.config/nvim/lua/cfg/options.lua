@@ -50,11 +50,11 @@ opt.wildmode = { "longest", "full" }
 opt.cpoptions:remove({ "_" })
 
 opt.listchars = {
-    tab = "> ",
-    trail = "·",
-    extends = ">",
-    precedes = "<",
-    nbsp = "+",
+  tab = "> ",
+  trail = "·",
+  extends = ">",
+  precedes = "<",
+  nbsp = "+",
 }
 opt.list = true
 
@@ -87,11 +87,11 @@ vim.g.loaded_matchparen = 1
 vim.g.loaded_spec = 1
 
 opt.diffopt:append({
-    ["indent-heuristic"] = true,
-    hiddenoff = true,
-    iblank = true,
-    iwhiteall = true,
-    algorithm = "histogram",
+  ["indent-heuristic"] = true,
+  hiddenoff = true,
+  iblank = true,
+  iwhiteall = true,
+  algorithm = "histogram",
 })
 
 if vim.fn.executable("rg") then
@@ -111,11 +111,11 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = ","
 
 vim.diagnostic.config({
-    virtual_text = {
-        source = "if_many",
-        severity = vim.diagnostic.severity.ERROR,
-    },
-    signs = true,
-    underline = true,
-    update_in_insert = false,
+  virtual_text = {
+    source = "if_many",
+    severity = vim.diagnostic.severity.ERROR,
+  },
+  signs = true,
+  underline = true,
+  update_in_insert = false,
 })
