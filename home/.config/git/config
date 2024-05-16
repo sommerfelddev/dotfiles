@@ -40,6 +40,8 @@
     cmd = $EDITOR "$MERGED"
 [commit]
     gpgsign = true
+[tag]
+    gpgSign = true
 [status]
     showUntrackedFiles = all
     submoduleSummary = true
