@@ -31,9 +31,6 @@ opt.textwidth = 80
 opt.colorcolumn = "+1"
 opt.formatoptions:remove("t")
 
-opt.spelllang:append({ "pt_pt", "es_es" })
-opt.spellfile = vim.fn.stdpath("config") .. "/spell/en.utf-8.add"
-
 opt.cmdheight = 2
 opt.updatetime = 300
 
