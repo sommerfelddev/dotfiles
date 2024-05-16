@@ -57,7 +57,6 @@ alias ndiff='nvim -d'
 alias nd='nvim -d'
 alias nview='nvim -R'
 alias nv='nvim -R'
-alias ngit='nvim +Neogit'
 alias ng='nvim +Neogit'
 
 alias ta='tmux new-session -A'
