@@ -4,7 +4,7 @@
     signingkey = 3298945F717C85F8
 [push]
     autoSetupRemote = true
-    followTags = false
+    followTags = true
     gpgSign = if-asked
 [core]
     whitespace = fix,trailing-space,cr-at-eol
