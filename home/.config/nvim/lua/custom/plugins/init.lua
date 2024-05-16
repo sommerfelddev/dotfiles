@@ -40,7 +40,6 @@ return {
     "Julian/vim-textobj-variable-segment",
     dependencies = { "kana/vim-textobj-user" },
   },
-  { "mzlogin/vim-markdown-toc",  ft = "markdown" },
   {
     "norcalli/nvim-colorizer.lua",
     event = "BufRead",
