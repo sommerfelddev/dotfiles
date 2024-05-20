@@ -1,64 +1,53 @@
-return {
-  on_attach_wrapper = function(client, bufnr, opts)
-    local map = require("mapper")
-    local autocmd = vim.api.nvim_create_autocmd
+local M = {}
+local map = require("mapper")
+local lspconfig = require("lspconfig")
 
-    opts = vim.tbl_extend("force", { auto_format = false }, opts or {})
+function M.on_attach_wrapper(client, bufnr, opts)
+  local autocmd = vim.api.nvim_create_autocmd
 
-    if client.supports_method("textDocument/codeLens") then
-      require("virtualtypes").on_attach(client, bufnr)
-      autocmd(
-        { "CursorHold", "CursorHoldI", "InsertLeave" },
-        { buffer = bufnr, callback = vim.lsp.codelens.refresh }
-      )
-      map.n("gl", vim.lsp.codelens.run, { buffer = bufnr })
-    end
-
-    if client.supports_method("textDocument/definition") then
-      map.n("<c-]>", vim.lsp.buf.definition, { buffer = bufnr })
-    end
-    if client.supports_method("textDocument/declaration") then
-      map.n("gD", vim.lsp.buf.declaration, { buffer = bufnr })
-    end
-    if client.supports_method("textDocument/signatureHelp") then
-      require("lsp_signature").on_attach(client, bufnr)
-      map.n("gs", vim.lsp.buf.signature_help, { buffer = bufnr })
-    end
-    if client.supports_method("textDocument/rename") then
-      map.n("gR", vim.lsp.buf.rename, { buffer = bufnr })
-    end
-    if client.supports_method("textDocument/codeAction") then
-      map.n("ga", vim.lsp.buf.code_action, { buffer = bufnr })
-      map.v("ga", vim.lsp.buf.code_action, { buffer = bufnr })
-    end
-
-    local buf_async_format = function()
-      vim.lsp.buf.format(
-        { bufnr = bufnr, async = true, id = client.id })
-    end
-    local buf_sync_format = function()
-      vim.lsp.buf.format(
-        { bufnr = bufnr, async = false, id = client.id })
-    end
-    local buf_async_format_hunks = function()
-      require("cfg.utils").format_hunks(
-        { bufnr = bufnr, async = true, id = client.id })
-    end
-
-    if client.supports_method("textDocument/formatting") then
-      map.n("<leader>f", buf_async_format, { buffer = bufnr })
-      if opts.auto_format then
-        autocmd(
-          "BufWritePre",
-          { buffer = bufnr, callback = buf_sync_format }
-        )
-      end
-    end
-    if client.supports_method("textDocument/rangeFormatting") then
-      map.v("<leader>f", buf_async_format, { buffer = bufnr })
-      map.n("<leader>hf", buf_async_format_hunks, { buffer = bufnr })
-    end
-
-    require("lsp-inlayhints").on_attach(client, bufnr, false)
+  if client.supports_method("textDocument/codeLens") then
+    autocmd(
+      { "CursorHold", "CursorHoldI", "InsertLeave" },
+      { buffer = bufnr, callback = vim.lsp.codelens.refresh }
+    )
+    map.n("gl", vim.lsp.codelens.run, { buffer = bufnr })
   end
-}
+
+  map.n("<c-]>", vim.lsp.buf.definition, { buffer = bufnr })
+  map.n("gD", vim.lsp.buf.declaration, { buffer = bufnr })
+  map.n("gR", vim.lsp.buf.rename, { buffer = bufnr })
+  map.n("ga", vim.lsp.buf.code_action, { buffer = bufnr })
+  map.v("ga", vim.lsp.buf.code_action, { buffer = bufnr })
+end
+
+function M.switch_source_header_splitcmd(bufnr, splitcmd)
+  bufnr = lspconfig.util.validate_bufnr(bufnr)
+  local clangd_client = lspconfig.util.get_active_client_by_name(
+    bufnr,
+    "clangd"
+  )
+  local params = { uri = vim.uri_from_bufnr(bufnr) }
+  if clangd_client then
+    clangd_client.request(
+      "textDocument/switchSourceHeader",
+      params,
+      function(err, result)
+        if err then
+          error(tostring(err))
+        end
+        if not result then
+          print("Corresponding file cannot be determined")
+          return
+        end
+        vim.api.nvim_command(splitcmd .. " " .. vim.uri_to_fname(result))
+      end,
+      bufnr
+    )
+  else
+    print(
+      "method textDocument/switchSourceHeader is not supported by any servers active on the current buffer"
+    )
+  end
+end
+
+return M

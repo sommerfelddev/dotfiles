@@ -46,10 +46,6 @@ map.ncmd("<localleader>x", "update")
 
 map.t("<Esc>", "<c-\\><c-n>", { silent = true, noremap = true, expr = true })
 
-map.n("gw", vim.diagnostic.open_float)
-map.n("gW", vim.diagnostic.setloclist)
-map.n("[w", vim.diagnostic.goto_prev)
-map.n("]w", vim.diagnostic.goto_next)
 map.n("[e", function()
   vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })
 end)

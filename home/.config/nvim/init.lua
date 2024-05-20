@@ -1,10 +1,6 @@
 vim.loader.enable()
 
-function docfg(name)
-  dofile(vim.fn.stdpath("config") .. "/lua/cfg/" .. name .. ".lua")
-end
-
-docfg("options")
+dofile(vim.fn.stdpath("config") .. "/lua/cfg/options.lua")
 
 function P(v)
   print(vim.inspect(v))
@@ -23,4 +19,8 @@ if not vim.loop.fs_stat(lazypath) then
   })
 end
 vim.opt.rtp:prepend(lazypath)
-require("lazy").setup("custom.plugins")
+require("lazy").setup({ import = "custom/plugins" }, {
+  change_detection = {
+    notify = false,
+  },
+})

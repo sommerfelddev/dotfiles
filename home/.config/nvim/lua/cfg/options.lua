@@ -2,16 +2,11 @@ local opt = vim.opt
 
 opt.undofile = true
 opt.swapfile = false
-vim.opt.shadafile = "NONE"
-vim.g.ts_highlight_lua = true
-vim.g.ts_highlight_c = true
-vim.g.ts_highlight_vim = true
+opt.shadafile = "NONE"
 
-opt.showmode = true
 opt.number = true
 opt.cursorline = true
 opt.signcolumn = "auto:2"
-opt.showtabline = 2
 opt.showmatch = true
 
 opt.expandtab = true
@@ -19,8 +14,6 @@ opt.shiftround = true
 opt.shiftwidth = 0
 opt.softtabstop = -1
 opt.tabstop = 4
-
-opt.foldenable = false
 
 opt.splitbelow = true
 opt.splitright = true
@@ -32,7 +25,6 @@ opt.colorcolumn = "+1"
 opt.formatoptions:remove("t")
 
 opt.cmdheight = 2
-opt.updatetime = 300
 
 opt.shortmess:append({ a = true })
 
@@ -106,7 +98,6 @@ opt.foldmethod = "expr"
 opt.foldexpr = "nvim_treesitter#foldexpr()"
 opt.foldenable = false
 
-opt.laststatus = 2
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
 
@@ -114,8 +105,5 @@ vim.diagnostic.config({
   virtual_text = {
     source = "if_many",
     severity = vim.diagnostic.severity.ERROR,
-  },
-  signs = true,
-  underline = true,
-  update_in_insert = false,
+  }
 })
