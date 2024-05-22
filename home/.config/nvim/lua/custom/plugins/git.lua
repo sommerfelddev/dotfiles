@@ -1,7 +1,15 @@
 local map = require("mapper")
 
 return {
-  { 'akinsho/git-conflict.nvim', config = true },
+  {
+    'akinsho/git-conflict.nvim',
+    opts = {
+      default_mappings = {
+        next = ']x',
+        prev = '[x',
+      },
+    }
+  },
   {
     "NeogitOrg/neogit",
     dependencies = {
