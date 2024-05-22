@@ -1,7 +1,7 @@
 local map = require("mapper")
 local ncmd = map.ncmd
 local vcmd = map.vcmd
-local bufnr = vim.api.nvim_buf_get_number(0)
+local bufnr = 0
 
 ncmd("gc", "Cycle", nil, bufnr)
 ncmd("gp", "Pick", nil, bufnr)
