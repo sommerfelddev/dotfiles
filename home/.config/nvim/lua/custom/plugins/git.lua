@@ -45,14 +45,6 @@ return {
     config = function()
       require "gitlinker".setup({
         callbacks = {
-          ["personal"] = function(url_data)
-            url_data.host = "github.com"
-            return require "gitlinker.hosts".get_github_type_url(url_data)
-          end,
-          ["work"] = function(url_data)
-            url_data.host = "github.com"
-            return require "gitlinker.hosts".get_github_type_url(url_data)
-          end,
           ["git.strisemarx.com"] = function(url_data)
             local url = require "gitlinker.hosts".get_base_https_url(url_data)
             url = url .. "/tree/" .. url_data.file .. "?id=" .. url_data.rev
