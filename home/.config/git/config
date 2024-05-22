@@ -52,14 +52,6 @@
 [interactive]
     singleKey = true
     diffFilter = delta --color-only
-#[remote "origin"]
-#    fetch = +refs/pull/*/head:refs/remotes/origin/pr/*
-[sendemail]
-    smtpServer = localhost
-    smtpUser = sommerfeld@strisemarx.com
-    smtpEncryption = tls
-    smtpServerPort = 1025
-    annotate = true
 [format]
     signOff = true
 [advice]
