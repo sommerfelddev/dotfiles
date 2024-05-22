@@ -24,6 +24,7 @@ setopt appendhistory autocd extendedglob nomatch notify
 unsetopt beep
 bindkey -e
 
+fpath=($XDG_DATA_HOME/zsh/completion $fpath)
 autoload -Uz compinit
 compinit
 zstyle ':completion:*' menu select
