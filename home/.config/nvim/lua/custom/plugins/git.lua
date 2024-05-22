@@ -45,7 +45,7 @@ return {
     config = function()
       require "gitlinker".setup({
         callbacks = {
-          ["git.strisemarx.com"] = function(url_data)
+          ["git.sommerfeld.dev"] = function(url_data)
             local url = require "gitlinker.hosts".get_base_https_url(url_data)
             url = url .. "/tree/" .. url_data.file .. "?id=" .. url_data.rev
             if url_data.lstart then
