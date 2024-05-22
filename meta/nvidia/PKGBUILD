@@ -1,11 +1,8 @@
-# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
-pkgname=strisemarx-nvidia
-pkgver=12
+pkgname=sommerfeld-nvidia
+pkgver=1
 pkgrel=1
-pkgdesc="strisemarx's nvidia metapackage"
 arch=('any')
-url="https://strisemarx.com"
-license=('GPL3')
+license=('MIT')
 depends=(
   'nvtop'
   'nvidia-dkms'
@@ -16,5 +13,3 @@ depends=(
   'linux-headers'
   'opencl-nvidia'
 )
-
-# vim: ts=2 sw=2 et:

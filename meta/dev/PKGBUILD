@@ -1,11 +1,8 @@
-# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
-pkgname=strisemarx-dev
-pkgver=36
+pkgname=sommerfeld-dev
+pkgver=1
 pkgrel=1
-pkgdesc="strisemarx's dev metapackage"
 arch=('any')
-url="https://strisemarx.com"
-license=('GPL3')
+license=('MIT')
 depends=(
   'bash-language-server'
   'git-absorb'
@@ -19,6 +16,5 @@ depends=(
   'shfmt'
   'sloccount'
   'strace'
+  'yarn'
 )
-
-# vim: ts=2 sw=2 et:

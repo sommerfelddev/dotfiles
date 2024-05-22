@@ -1,11 +1,8 @@
-# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
-pkgname=strisemarx-gaming
-pkgver=8
+pkgname=sommerfeld-gaming
+pkgver=1
 pkgrel=1
-pkgdesc="strisemarx's gaming metapackage"
 arch=('any')
-url="https://strisemarx.com"
-license=('GPL3')
+license=('MIT')
 depends=(
   'discord'
   'gamemode'
@@ -23,5 +20,3 @@ optdepends=(
   'proton-ge-custom-bin'
   'supertuxkart'
 )
-
-# vim: ts=2 sw=2 et:

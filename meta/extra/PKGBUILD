@@ -1,16 +1,11 @@
-# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
-pkgname=strisemarx-extra
-pkgver=15
+pkgname=sommerfeld-extra
+pkgver=1
 pkgrel=1
-pkgdesc="strisemarx's extra metapackage"
 arch=('any')
-url="https://strisemarx.com"
-license=('GPL3')
+license=('MIT')
 depends=(
   'gpg-tui'
   'pandoc-bin'
   'syncthing'
   'udisks2'
 )
-
-# vim: ts=2 sw=2 et:

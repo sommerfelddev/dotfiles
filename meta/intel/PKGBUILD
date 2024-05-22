@@ -1,11 +1,8 @@
-# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
-pkgname=strisemarx-intel
-pkgver=5
+pkgname=sommerfeld-intel
+pkgver=1
 pkgrel=1
-pkgdesc="strisemarx's intel metapackage"
 arch=('any')
-url="https://strisemarx.com"
-license=('GPL3')
+license=('MIT')
 depends=(
   'intel-gpu-tools'
   'intel-ucode'
@@ -16,5 +13,3 @@ depends=(
   'mesa-vdpau'
   'vulkan-intel'
 )
-
-# vim: ts=2 sw=2 et:

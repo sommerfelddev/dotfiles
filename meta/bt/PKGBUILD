@@ -1,15 +1,10 @@
-# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
-pkgname=strisemarx-bt
-pkgver=3
+pkgname=sommerfeld-bt
+pkgver=1
 pkgrel=1
-pkgdesc="strisemarx's bluetooth metapackage"
 arch=('any')
-url="https://strisemarx.com"
-license=('GPL3')
+license=('MIT')
 depends=(
   'bluez'
   'bluez-utils'
   'ell'
 )
-
-# vim: ts=2 sw=2 et:

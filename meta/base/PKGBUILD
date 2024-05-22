@@ -1,11 +1,8 @@
-# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
-pkgname=strisemarx-base
-pkgver=30
+pkgname=sommerfeld-base
+pkgver=1
 pkgrel=1
-pkgdesc="strisemarx's base metapackage"
 arch=('any')
-url="https://strisemarx.com"
-license=('GPL3')
+license=('MIT')
 depends=(
   'acpid'
   'base'
@@ -68,5 +65,3 @@ depends=(
   'zsh-history-substring-search'
   'zsh-syntax-highlighting'
 )
-
-# vim: ts=2 sw=2 et:

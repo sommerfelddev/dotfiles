@@ -1,11 +1,8 @@
-# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
-pkgname=strisemarx-x-de
-pkgver=13
+pkgname=sommerfeld-x-de
+pkgver=1
 pkgrel=1
-pkgdesc="strisemarx's DE metapackage"
 arch=('any')
-url="https://strisemarx.com"
-license=('GPL3')
+license=('MIT')
 depends=(
   'alacritty'
   'bspwm-git'
@@ -28,5 +25,3 @@ depends=(
   'xorg-xwininfo'
   'zbar'
 )
-
-# vim: ts=2 sw=2 et:

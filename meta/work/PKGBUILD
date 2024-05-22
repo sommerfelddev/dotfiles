@@ -1,11 +1,8 @@
-# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
-pkgname=strisemarx-work
-pkgver=20
+pkgname=sommerfeld-work
+pkgver=1
 pkgrel=1
-pkgdesc="strisemarx's work dev metapackage"
 arch=('any')
-url="https://strisemarx.com"
-license=('GPL3')
+license=('MIT')
 depends=(
   'bear'
   'boost'
@@ -28,4 +25,3 @@ depends=(
   'podman-docker'
   'xdot'
 )
-# vim: ts=2 sw=2 et:

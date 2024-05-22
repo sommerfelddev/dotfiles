@@ -1,11 +1,8 @@
-# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
-pkgname=strisemarx-python
-pkgver=16
+pkgname=sommerfeld-python
+pkgver=1
 pkgrel=1
-pkgdesc="strisemarx's python metapackage"
 arch=('any')
-url="https://strisemarx.com"
-license=('GPL3')
+license=('MIT')
 depends=(
   'pyright'
   'python-black'
@@ -14,5 +11,3 @@ depends=(
   'python-poetry'
   'ruff-lsp'
 )
-
-# vim: ts=2 sw=2 et:

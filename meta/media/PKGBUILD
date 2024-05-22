@@ -1,15 +1,10 @@
-# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
-pkgname=strisemarx-media
-pkgver=13
+pkgname=sommerfeld-media
+pkgver=1
 pkgrel=1
-pkgdesc="strisemarx's media metapackage"
 arch=('any')
-url="https://strisemarx.com"
-license=('GPL3')
+license=('MIT')
 depends=(
   'mpv'
   'streamlink'
   'yt-dlp'
 )
-
-# vim: ts=2 sw=2 et:

@@ -1,11 +1,8 @@
-# Maintainer: Arnold Sommerfeld <arch@strisemarx.com>
-pkgname=strisemarx-cpp
-pkgver=12
+pkgname=sommerfeld-cpp
+pkgver=1
 pkgrel=1
-pkgdesc="strisemarx's cpp metapackage"
 arch=('any')
-url="https://strisemarx.com"
-license=('GPL3')
+license=('MIT')
 depends=(
   'ccache'
   'clang'
@@ -21,4 +18,3 @@ depends=(
   'perf'
   'valgrind'
 )
-# vim: ts=2 sw=2 et:
