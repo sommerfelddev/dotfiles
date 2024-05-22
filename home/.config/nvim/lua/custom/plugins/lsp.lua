@@ -1,5 +1,40 @@
 local map = require("mapper")
 
+local function handler_splitcmd(_, uri, splitcmd)
+  if not uri or uri == "" then
+    vim.api.nvim_echo({ { "Corresponding file cannot be determined" } }, false, {})
+    return
+  end
+  local file_name = vim.uri_to_fname(uri)
+  vim.api.nvim_cmd({
+    cmd = splitcmd,
+    args = { file_name },
+  }, {})
+end
+
+local function switch_source_header_splitcmd(bufnr, splitcmd)
+  bufnr = bufnr or 0
+  vim.lsp.buf_request(bufnr, "textDocument/switchSourceHeader", {
+    uri = vim.uri_from_bufnr(bufnr),
+  }, function(err, uri) return handler_splitcmd(err, uri, splitcmd) end)
+end
+
+local function edit_source_header(bufnr)
+  switch_source_header_splitcmd(bufnr, "edit")
+end
+
+local function split_source_header(bufnr)
+  switch_source_header_splitcmd(bufnr, "split")
+end
+
+local function vsplit_source_header(bufnr)
+  switch_source_header_splitcmd(bufnr, "vsplit")
+end
+
+local function tabedit_source_header(bufnr)
+  switch_source_header_splitcmd(bufnr, "tabedit")
+end
+
 return {
   {
     "lewis6991/hover.nvim",
@@ -23,7 +58,6 @@ return {
     'neovim/nvim-lspconfig',
     config = function()
       local lspconfig = require("lspconfig")
-      local cfg_lsp = require "cfg.lsp"
       -- Enable (broadcasting) snippet capability for completion
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities.textDocument.completion.completionItem.snippetSupport = true
@@ -61,37 +95,11 @@ return {
             "--function-arg-placeholders",
             "--pch-storage=memory",
           },
-          commands = {
-            ClangdSwitchSourceHeader = {
-              function()
-                cfg_lsp.switch_source_header_splitcmd(0, "edit")
-              end,
-              description = "Open source/header in current buffer",
-            },
-            ClangdSwitchSourceHeaderVSplit = {
-              function()
-                cfg_lsp.switch_source_header_splitcmd(0, "vsplit")
-              end,
-              description = "Open source/header in a new vsplit",
-            },
-            ClangdSwitchSourceHeaderSplit = {
-              function()
-                cfg_lsp.lsp.switch_source_header_splitcmd(0, "split")
-              end,
-              description = "Open source/header in a new split",
-            },
-            ClangdSwitchSourceHeaderTab = {
-              function()
-                cfg_lsp.lsp.switch_source_header_splitcmd(0, "tabedit")
-              end,
-              description = "Open source/header in a new tab",
-            },
-          },
           on_attach = function(_, bufnr)
-            map.ncmd("gH", "ClangdSwitchSourceHeader", { buffer = bufnr })
-            map.ncmd("gvH", "ClangdSwitchSourceHeaderVSplit", { buffer = bufnr })
-            map.ncmd("gxH", "ClangdSwitchSourceHeaderSplit", { buffer = bufnr })
-            map.ncmd("gtH", "ClangdSwitchSourceHeaderSplit", { buffer = bufnr })
+            map.n("gH", edit_source_header, { buffer = bufnr })
+            map.n("gvH", vsplit_source_header, { buffer = bufnr })
+            map.n("gxH", split_source_header, { buffer = bufnr })
+            map.n("gtH", tabedit_source_header, { buffer = bufnr })
 
             require("clangd_extensions.inlay_hints").setup_autocmd()
             require("clangd_extensions.inlay_hints").set_inlay_hints()
@@ -114,8 +122,21 @@ return {
       vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(args)
           local bufnr = args.buf
-          local client = vim.lsp.get_client_by_id(args.data.client_id)
-          cfg_lsp.on_attach_wrapper(client, bufnr)
+          local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+
+          if client.supports_method("textDocument/codeLens") then
+            vim.api.nvim_create_autocmd(
+              { "CursorHold", "CursorHoldI", "InsertLeave" },
+              { buffer = bufnr, callback = vim.lsp.codelens.refresh }
+            )
+            map.n("gl", vim.lsp.codelens.run, { buffer = bufnr })
+          end
+
+          map.n("<c-]>", vim.lsp.buf.definition, { buffer = bufnr })
+          map.n("gD", vim.lsp.buf.declaration, { buffer = bufnr })
+          map.n("gR", vim.lsp.buf.rename, { buffer = bufnr })
+          map.n("ga", vim.lsp.buf.code_action, { buffer = bufnr })
+          map.v("ga", vim.lsp.buf.code_action, { buffer = bufnr })
         end,
       })
     end,
@@ -166,8 +187,6 @@ return {
     opts = {
       formatters_by_ft = {
         python = { "ruff_format" },
-        c = { "clang-format" },
-        cpp = { "clang-format" },
         cmake = { "cmake_format" },
         json = { "jq" },
         rust = { "rustfmt" },
