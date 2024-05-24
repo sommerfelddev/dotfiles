@@ -82,19 +82,6 @@ return {
         ruff_lsp = {},
         pyright = {},
         clangd = {
-          cmd = {
-            "clangd",
-            "--enable-config",
-            "--completion-parse=auto",
-            "--completion-style=bundled",
-            "--header-insertion=iwyu",
-            "--header-insertion-decorators",
-            "--inlay-hints",
-            "--suggest-missing-includes",
-            "--folding-ranges",
-            "--function-arg-placeholders",
-            "--pch-storage=memory",
-          },
           on_attach = function(_, bufnr)
             map.n("gH", edit_source_header, { buffer = bufnr })
             map.n("gvH", vsplit_source_header, { buffer = bufnr })
@@ -105,8 +92,6 @@ return {
             require("clangd_extensions.inlay_hints").set_inlay_hints()
           end,
           init_options = {
-            usePlaceholders = true,
-            completeUnimported = true,
             clangdFileStatus = true,
           },
         },
