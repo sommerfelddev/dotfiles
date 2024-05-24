@@ -1,5 +1,4 @@
 return {
-  "xiyaowong/nvim-cursorword",
   {
     "sainnhe/gruvbox-material",
     priority = 1000,
@@ -68,9 +67,9 @@ return {
         lualine_z = { 'diagnostics' }
       },
       inactive_sections = {
-        lualine_a = { 'filename' },
+        lualine_a = {},
         lualine_b = {},
-        lualine_c = {},
+        lualine_c = { 'filename' },
         lualine_x = {},
         lualine_y = {},
         lualine_z = {}
