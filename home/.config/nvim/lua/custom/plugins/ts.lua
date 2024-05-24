@@ -4,7 +4,7 @@ return {
     dependencies = {
       'nvim-treesitter/nvim-treesitter-textobjects',
       "nvim-treesitter/nvim-treesitter-refactor",
-      "RRethy/nvim-treesitter-textsubjects",
+      "theHamsta/crazy-node-movement",
       "theHamsta/nvim-treesitter-pairs",
       "RRethy/nvim-treesitter-endwise",
     },
@@ -18,39 +18,44 @@ return {
           "comment",
           "cpp",
           "css",
-          "cuda",
           "diff",
           "dockerfile",
+          "doxygen",
           "fortran",
+          "git_config",
           "git_rebase",
           "gitattributes",
           "gitcommit",
           "gitignore",
-          "go",
+          "gpg",
           "html",
+          "http",
+          "ini",
           "javascript",
           "jsdoc",
           "json",
           "llvm",
           "lua",
+          "luadoc",
+          "luap",
           "make",
           "markdown",
           "markdown_inline",
-          "ninja",
           "python",
           "regex",
           "rust",
           "sql",
+          "tablegen",
           "todotxt",
           "toml",
           "typescript",
           "vim",
           "vimdoc",
-          "yaml"
+          "xml",
+          "yaml",
         },
-        -- ignore_install = { "phpdoc" },
         highlight = {
-          enable = true, -- false will disable the whole extension
+          enable = true,
           additional_vim_regex_highlighting = false,
         },
         incremental_selection = {
@@ -66,17 +71,6 @@ return {
         refactor = {
           highlight_definitions = { enable = true },
           highlight_current_scope = { enable = true },
-          smart_rename = { enable = true, keymaps = { smart_rename = "grr" } },
-          navigation = {
-            enable = true,
-            keymaps = {
-              goto_definition = "gnd",
-              list_definitions = "gnD",
-              list_definitions_toc = "gO",
-              goto_next_usage = "<a-*>",
-              goto_previous_usage = "<a-#>",
-            },
-          },
         },
         textobjects = {
           select = {
@@ -132,9 +126,20 @@ return {
           goto_right_end = false,
           keymaps = { goto_partner = "%" },
         },
-        textsubjects = {
+        node_movement = {
           enable = true,
-          keymaps = { ["."] = "textsubjects-smart", [";"] = "textsubjects-big" },
+          keymaps = {
+            move_up = "<a-k>",
+            move_down = "<a-j>",
+            move_left = "<a-h>",
+            move_right = "<a-l>",
+            swap_left = "<s-a-h>", -- will only swap when one of "swappable_textobjects" is selected
+            swap_right = "<s-a-l>",
+            select_current_node = "<leader><Cr>",
+          },
+          swappable_textobjects = { '@function.outer', '@parameter.inner', '@statement.outer' },
+          allow_switch_parents = true, -- more craziness by switching parents while staying on the same level, false prevents you from accidentally jumping out of a function
+          allow_next_parent = true, -- more craziness by going up one level if next node does not have children
         },
         tree_docs = {
           enable = true,
@@ -145,4 +150,5 @@ return {
       })
     end
   },
+  "nvim-treesitter/nvim-treesitter-context",
 }
