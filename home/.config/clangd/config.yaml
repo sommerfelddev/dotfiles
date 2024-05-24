@@ -1,8 +1,10 @@
+Index:
+  StandardLibrary: Yes
 Diagnostics:
-  UnusedIncludes: Strict
+  ClangTidy:
+    FastCheckFilter: None
 InlayHints:
   Enabled: Yes
-  ParameterNames: Yes
-  DeducedTypes: Yes
+  BlockEnd: Yes
 Hover:
   ShowAKA: Yes
