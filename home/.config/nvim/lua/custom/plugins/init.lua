@@ -14,7 +14,11 @@ return {
   { "kylechui/nvim-surround", config = true },
   {
     "aserowy/tmux.nvim",
-    config = true,
+    opts = {
+      resize = {
+        enable_default_keybindings = false,
+      },
+    },
   },
   {
     "Julian/vim-textobj-variable-segment",
