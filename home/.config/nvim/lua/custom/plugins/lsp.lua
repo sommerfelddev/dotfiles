@@ -87,9 +87,6 @@ return {
             map.n("gvH", vsplit_source_header, { buffer = bufnr })
             map.n("gxH", split_source_header, { buffer = bufnr })
             map.n("gtH", tabedit_source_header, { buffer = bufnr })
-
-            require("clangd_extensions.inlay_hints").setup_autocmd()
-            require("clangd_extensions.inlay_hints").set_inlay_hints()
           end,
           init_options = {
             clangdFileStatus = true,
@@ -127,13 +124,6 @@ return {
     end,
     dependencies = {
       { 'folke/neodev.nvim', opts = {} },
-      {
-        "p00f/clangd_extensions.nvim",
-        config = function()
-          require("clangd_extensions").setup({
-          })
-        end
-      },
     },
   },
   {
