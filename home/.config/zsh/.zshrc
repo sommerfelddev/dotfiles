@@ -44,6 +44,7 @@ zstyle ':completion:*:functions' ignored-patterns '_*'
 zstyle ':completion:*:*:kill:*' menu yes select
 zstyle ':completion:*:kill:*'   force-list always
 zstyle ':completion:*:cd:*' ignore-parents parent pwd
+setopt no_complete_aliases
 
 rationalise-dot() {
   if [[ $LBUFFER = *.. ]]; then
