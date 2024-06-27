@@ -4,6 +4,12 @@ return {
   {
     'akinsho/git-conflict.nvim',
     opts = {
+      disable_diagnostics = true,
+      highlights = {
+        current = nil,
+        incoming = nil,
+        ancestor = nil,
+      },
       default_mappings = {
         next = ']x',
         prev = '[x',
