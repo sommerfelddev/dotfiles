@@ -74,28 +74,33 @@ return {
         changedelete = { show_count = true },
       },
       numhl = true,
-      _extmark_signs = true,
       _threaded_diff = true,
-      _signs_staged_enable = true,
+      _refresh_staged_on_update = true,
       on_attach = function(bufnr)
-        local gs = package.loaded.gitsigns
+        local gs = require('gitsigns')
 
         -- Navigation
         map.n(']c', function()
-          if vim.wo.diff then return ']c' end
-          vim.schedule(function() gs.next_hunk() end)
-          return '<Ignore>'
-        end, { expr = true }, bufnr)
+          if vim.wo.diff then
+            vim.cmd.normal({ ']c', bang = true })
+          else
+            gs.nav_hunk('next')
+          end
+        end, nil, bufnr)
 
         map.n('[c', function()
-          if vim.wo.diff then return '[c' end
-          vim.schedule(function() gs.prev_hunk() end)
-          return '<Ignore>'
-        end, { expr = true }, bufnr)
+          if vim.wo.diff then
+            vim.cmd.normal({ '[c', bang = true })
+          else
+            gs.nav_hunk('prev')
+          end
+        end, nil, bufnr)
 
         -- Actions
-        map.nvcmd('<leader>hs', "Gitsigns stage_hunk", nil, bufnr)
-        map.nvcmd('<leader>hr', "Gitsigns reset_hunk", nil, bufnr)
+        map.n('<leader>hs', gs.stage_hunk, nil, bufnr)
+        map.n('<leader>hr', gs.reset_hunk, nil, bufnr)
+        map.v('<leader>hs', function() gs.stage_hunk { vim.fn.line('.'), vim.fn.line('v') } end, nil, bufnr)
+        map.v('<leader>hr', function() gs.reset_hunk { vim.fn.line('.'), vim.fn.line('v') } end, nil, bufnr)
         map.n('<leader>hS', gs.stage_buffer, nil, bufnr)
         map.n('<leader>hu', gs.undo_stage_hunk, nil, bufnr)
         map.n('<leader>hR', gs.reset_buffer, nil, bufnr)
