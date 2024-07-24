@@ -1,23 +1,15 @@
 /* override recipe: enable session restore ***/
 user_pref("browser.startup.page", 3); // 0102
-user_pref("browser.sessionstore.privacy_level", 0); // 1003 optional to restore cookies/formdata
-user_pref("privacy.clearOnShutdown.history", false); // 2811
-user_pref("privacy.cpd.history", false); // 2820 optional to match when you use Ctrl-Shift-Del
+  // user_pref("browser.privatebrowsing.autostart", false); // 0110 required if you had it set as true
+  // user_pref("browser.sessionstore.privacy_level", 0); // 1003 optional to restore cookies/formdata
+user_pref("privacy.clearOnShutdown.history", false); // 2811 FF127 or lower
+user_pref("privacy.clearOnShutdown_v2.historyFormDataAndDownloads", false); // 2811 FF128+
 
 /* 1601: control when to send a cross-origin referer
  * 0=always (default), 1=only if base domains match, 2=only if hosts match
  * [SETUP-WEB] Breakage: older modems/routers and some sites e.g banks, vimeo, icloud, instagram
  * If "2" is too strict, then override to "0" and use Smart Referer extension (Strict mode + add exceptions) ***/
 user_pref("network.http.referer.XOriginPolicy", 0);
-
-/** SANITIZE ON SHUTDOWN: IGNORES "ALLOW" SITE EXCEPTIONS ***/
-/* 2811: set/enforce what items to clear on shutdown (if 2810 is true) [SETUP-CHROME]
- * [NOTE] If "history" is true, downloads will also be cleared
- * [NOTE] "sessions": Active Logins: refers to HTTP Basic Authentication [1], not logins via cookies
- * [1] https://en.wikipedia.org/wiki/Basic_access_authentication ***/
-user_pref("privacy.clearOnShutdown.downloads", false); // [DEFAULT: true]
-user_pref("privacy.clearOnShutdown.history", false);   // [DEFAULT: true]
-user_pref("privacy.clearOnShutdown.sessions", false);  // [DEFAULT: true]
 
 /* 0801: disable location bar using search
  * Don't leak URL typos to a search engine, give an error message instead
