@@ -44,6 +44,11 @@ map.ncmd("<leader>z", "wqall")
 map.ncmd("<leader>q", "quitall")
 map.ncmd("<localleader>x", "update")
 
+map.n("<c-h>", "<c-w>h")
+map.n("<c-j>", "<c-w>j")
+map.n("<c-k>", "<c-w>k")
+map.n("<c-l>", "<c-w>l")
+
 map.t("<Esc>", "<c-\\><c-n>", { silent = true, noremap = true, expr = true })
 
 map.n("[e", function()
