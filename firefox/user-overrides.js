@@ -76,3 +76,21 @@ user_pref("privacy.resistFingerprinting.testGranularityMask", 4);
 user_pref("privacy.resistFingerprinting.exemptedDomains", "meet.google.com");
 
 user_pref("browser.fixup.domainsuffixwhitelist.i2p", true);
+
+/* 4504: enable letterboxing [FF67+]
+ * Dynamically resizes the inner window by applying margins in stepped ranges [2]
+ * If you use the dimension pref, then it will only apply those resolutions.
+ * The format is "width1xheight1, width2xheight2, ..." (e.g. "800x600, 1000x1000")
+ * [SETUP-WEB] This is independent of RFP (4501). If you're not using RFP, or you are but
+ * dislike the margins, then flip this pref, keeping in mind that it is effectively fingerprintable
+ * [WARNING] DO NOT USE: the dimension pref is only meant for testing
+ * [1] https://bugzilla.mozilla.org/1407366
+ * [2] https://hg.mozilla.org/mozilla-central/rev/6d2d7856e468#l2.32 ***/
+user_pref("privacy.resistFingerprinting.letterboxing", true); // [HIDDEN PREF]
+
+/* 4506: disable RFP spoof english prompt [FF59+]
+ * 0=prompt, 1=disabled, 2=enabled
+ * [NOTE] When changing from value 2, preferred languages ('intl.accept_languages') is not reset.
+ * [SETUP-WEB] when enabled, sets 'en-US, en' for displaying pages and 'en-US' as locale.
+ * [SETTING] General>Language>Choose your preferred language for displaying pages>Choose>Request English... ***/
+user_pref("privacy.spoof_english", 2);
