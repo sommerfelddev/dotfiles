@@ -557,3 +557,5 @@ pythontex-files-*/
 *.tar.gz
 *.zip
 *.tar.zst
+
+node_modules/
