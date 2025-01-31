@@ -36,8 +36,6 @@ setlayout "SEMITEK USB-HID Gaming Keyboard" us
 setlayout "Dierya DK61 Keyboard" us
 # setmodmap "Dierya DK61 Keyboard"
 
-xmodmap ~/.config/X11/Xmodmap
-
 if [ "$(uname -n)" = "hercules" ]; then
     xinput set-prop "ETPS/2 Elantech Touchpad" "libinput Tapping Enabled" 1
     xinput set-prop "ETPS/2 Elantech Touchpad" "libinput Natural Scrolling Enabled" 1
