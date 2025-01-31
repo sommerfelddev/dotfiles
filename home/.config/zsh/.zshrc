@@ -6,13 +6,14 @@ case $- in
 esac
 
 ttyctl -f
+# Enable colors and change prompt:
+autoload -U colors
+
 # shellcheck source=/dev/null
 [ -r  ~/.config/sh/shinit ] && . ~/.config/sh/shinit
 
 safesource /usr/share/git/completion/git-prompt.sh
 
-# Enable colors and change prompt:
-autoload -U colors
 colors
 setopt PROMPT_SUBST
 PROMPT='%B%{$fg[green]%}%n%{$reset_color%}@%{$fg[cyan]%}%m%{$reset_color%}:%b%{$fg[yellow]%}%~%{$reset_color%}$(__git_ps1 " (%s)")%(?..[%{$fg[red]%}%?%{$reset_color%}]) %(!.#.>) '
