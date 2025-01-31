@@ -51,9 +51,9 @@ map.n("<c-l>", "<c-w>l")
 
 map.t("<Esc>", "<c-\\><c-n>", { silent = true, noremap = true, expr = true })
 
-map.n("[e", function()
+map.n("[w", function()
   vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })
 end)
-map.n("]e", function()
+map.n("]w", function()
   vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })
 end)
