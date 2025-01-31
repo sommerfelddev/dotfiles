@@ -35,7 +35,10 @@
     ff = only
 [merge]
     tool = conflictmarker
-    conflictstyle = diff3
+    conflictstyle = zdiff3
+[merge "mergiraf"]
+    name = mergiraf
+    driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P
 [mergetool "conflictmarker"]
     cmd = $EDITOR "$MERGED"
 [commit]
