@@ -79,7 +79,7 @@ return {
         dockerls = {},
         fortls = {},
         lua_ls = {},
-        ruff_lsp = {},
+        ruff = {},
         pyright = {},
         clangd = {
           on_attach = function(_, bufnr)
