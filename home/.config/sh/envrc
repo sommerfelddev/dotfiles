@@ -139,8 +139,12 @@ export vblank_mode=0
 # detailed git PS1
 export GIT_PS1_SHOWDIRTYSTATE=1
 export GIT_PS1_SHOWSTASHSTATE=1
-export GIT_PS1_SHOWUNTRACKEDFILES=1
-export GIT_PS1_SHOWUPSTREAM="auto"
+unset GIT_PS1_SHOWUNTRACKEDFILES
+export GIT_PS1_SHOWUPSTREAM="verbose"
+export GIT_PS1_SHOWCONFLICTSTATE="yes"
+export GIT_PS1_DESCRIBE_STYLE="branch"
+export GIT_PS1_SHOWCOLORHINTS=1
+export GIT_PS1_HIDE_IF_PWD_IGNORED=1
 
 # only set XAUTHORITY when not logging from ssh, since it breaks xauth
 [ "$XDG_RUNTIME_DIR" ] && export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
