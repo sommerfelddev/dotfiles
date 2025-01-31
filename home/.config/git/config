@@ -66,8 +66,12 @@
     skippedCherryPicks = false
 [delta]
     navigate = true
-    syntax-theme = gruvbox-dark
+    features = gruvmax-fang zebra-dark
+    dark = true
+    #side-by-side = true
+    line-numbers = true
     relative-paths = true
+    hyperlinks = true
 [alias]
     cl = clone
     br = branch -vv
