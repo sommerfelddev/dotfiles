@@ -1,27 +1,25 @@
 pkgname=sommerfeld-work
-pkgver=1
+pkgver=3
 pkgrel=1
 arch=('any')
 license=('MIT')
 depends=(
   'bear'
-  'boost'
   'compiledb'
-  'creduce'
   'cuda'
   'cvise'
+  'devcontainer-cli'
   'dockerfile-language-server-bin'
   'fortls'
   'fuse-overlayfs'
   'intel-oneapi-dpcpp-cpp'
   'hadolint-bin'
-  'hdf5'
   'llvm'
   'gcc-fortran'
   'git-lfs'
-  'meson'
-  'nasm'
+  'npm'
   'openmp'
   'podman-docker'
+  'typescript-language-server'
   'xdot'
 )

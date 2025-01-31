@@ -1,5 +1,5 @@
 pkgname=sommerfeld-base
-pkgver=1
+pkgver=2
 pkgrel=1
 arch=('any')
 license=('MIT')
@@ -47,6 +47,7 @@ depends=(
   'pkgstats'
   'procs'
   'qrencode'
+  'rebuild-detector'
   'reflector'
   'ripgrep'
   'rsync'

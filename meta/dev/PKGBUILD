@@ -1,15 +1,17 @@
 pkgname=sommerfeld-dev
-pkgver=1
+pkgver=2
 pkgrel=1
 arch=('any')
 license=('MIT')
 depends=(
   'bash-language-server'
+  'difftastic'
   'git-absorb'
   'git-delta'
   'ipython'
   'hyperfine'
   'lua-language-server'
+  'mergiraf'
   'namcap'
   'samply'
   'shellcheck'
