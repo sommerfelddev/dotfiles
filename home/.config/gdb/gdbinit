@@ -1,0 +1,5 @@
+set debuginfod enabled on
+set logging enabled on
+set logging file /tmp/trace.log
+thread apply all backtrace full
+set confirm off
