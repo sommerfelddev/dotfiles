@@ -208,23 +208,26 @@ return {
         desc = "Format buffer",
       },
     },
-    opts = {
-      formatters_by_ft = {
-        python = { "ruff_format" },
-        cmake = { "cmake_format" },
-        json = { "jq" },
-        rust = { "rustfmt" },
-        sh = { "shfmt" },
-        bash = { "shfmt" },
-        zsh = { "shfmt" },
-      },
-      formatters = {
-        shfmt = {
-          prepend_args = { "-i", "2" },
+    config = function()
+      require("conform").setup({
+        formatters_by_ft = {
+          python = { "ruff_format" },
+          cmake = { "cmake_format" },
+          json = { "jq" },
+          rust = { "rustfmt" },
+          sh = { "shfmt" },
+          bash = { "shfmt" },
+          zsh = { "shfmt" },
         },
-      },
-    },
-    init = function()
+        default_format_opts = {
+          lsp_format = "fallback",
+        },
+        formatters = {
+          shfmt = {
+            prepend_args = { "-i", "2" },
+          },
+        },
+      })
       vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
       vim.api.nvim_create_autocmd("BufWritePre", {
         callback = require "cfg.utils".format_hunks,
