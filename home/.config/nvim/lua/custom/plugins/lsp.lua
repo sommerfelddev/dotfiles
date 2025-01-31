@@ -165,7 +165,7 @@ return {
           if client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
             map.n('<leader>th', function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({}))
-            vim.lsp.inlay_hint.enable()
+              vim.lsp.inlay_hint.enable()
             end, { buffer = bufnr })
           end
         end,
