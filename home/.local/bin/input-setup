@@ -39,8 +39,8 @@ setlayout "Dierya DK61 Keyboard" us
 setlayout "ZSA Technology Labs ErgoDox EZ" us
 
 if [ "$(uname -n)" = "hercules" ]; then
-    xinput set-prop "ETPS/2 Elantech Touchpad" "libinput Tapping Enabled" 1
-    xinput set-prop "ETPS/2 Elantech Touchpad" "libinput Natural Scrolling Enabled" 1
+  xinput set-prop "ELAN1205:00 04F3:30E9 Touchpad" "libinput Tapping Enabled" 1
+  xinput set-prop "ELAN1205:00 04F3:30E9 Touchpad" "libinput Natural Scrolling Enabled" 1
   ids=$(xinput --list | sed -ne '/Virtual core pointer/{:a' -e 'n;p;ba' -e '}' | grep "Kingsis Peripherals ZOWIE Gaming mouse" | sed -n 's/.*id=\([0-9]\+\).*/\1/p')
   for i in $ids; do
     xinput --set-prop "$i" 'libinput Accel Profile Enabled' 0, 1
