@@ -96,10 +96,19 @@ return {
       }
 
       for server, config in pairs(servers) do
-        local default_config = lspconfig[server].default_config or
-            lspconfig[server].document_config.default_config
-        local cmd = config.cmd or default_config.cmd
-        if vim.fn.executable(cmd[1]) == 1 then lspconfig[server].setup(config) end
+        local cmd = config.cmd
+        local config_def = lspconfig[server].config_def
+        if not cmd and config_def then
+          local default_config = config_def.default_config
+          if default_config then
+            cmd = default_config.cmd
+          end
+        end
+        if cmd then
+          if vim.fn.executable(cmd[1]) == 1 then
+            lspconfig[server].setup(config)
+          end
+        end
       end
 
       vim.api.nvim_create_autocmd("LspAttach", {
