@@ -80,6 +80,7 @@ return {
         fortls = {},
         lua_ls = {},
         ruff = {},
+        ts_ls = {},
         pyright = {},
         clangd = {
           on_attach = function(_, bufnr)
