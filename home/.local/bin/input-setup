@@ -3,23 +3,25 @@
 [ -r ~/.config/X11/Xkeymap ] && xkbcomp ~/.config/X11/Xkeymap "$DISPLAY"
 
 setlayout() {
-    ids=$(xinput --list | sed -ne '/Virtual core keyboard/{:a' -e 'n;p;ba' -e '}' | grep "$1" | sed -n 's/.*id=\([0-9]\+\).*/\1/p')
-    for i in $ids; do
-        setxkbmap -device "$i" -layout "$2"
-    done
+  ids=$(xinput --list | sed -ne '/Virtual core keyboard/{:a' -e 'n;p;ba' -e '}' | grep "$1" | sed -n 's/.*id=\([0-9]\+\).*/\1/p')
+  for i in $ids; do
+    setxkbmap -device "$i" -layout "$2"
+  done
 }
 
 setmodmap() {
-    kbds=$(xinput --list | sed -ne '/Virtual core keyboard/{:a' -e 'n;p;ba' -e '}' | grep "$1" | sed -n 's/.*id=\([0-9]\+\).*/\1/p')
-    if [ "$kbds" ]; then
-        xmodmap ~/.config/X11/Xmodmap
-    fi
+  kbds=$(xinput --list | sed -ne '/Virtual core keyboard/{:a' -e 'n;p;ba' -e '}' | grep "$1" | sed -n 's/.*id=\([0-9]\+\).*/\1/p')
+  if [ "$kbds" ]; then
+    xmodmap ~/.config/X11/Xmodmap
+  fi
 }
 
 if [ "$(uname -n)" = "halley2" ]; then
-    setxkbmap -layout pt
+  setxkbmap -layout pt
+  xmodmap ~/.config/X11/Xmodmap
 elif [ "$(uname -n)" = "hercules" ]; then
-    setxkbmap -layout es
+  setxkbmap -layout es
+  xmodmap ~/.config/X11/Xmodmap
 fi
 
 setxkbmap -option "caps:escape"
@@ -39,11 +41,11 @@ xmodmap ~/.config/X11/Xmodmap
 if [ "$(uname -n)" = "hercules" ]; then
     xinput set-prop "ETPS/2 Elantech Touchpad" "libinput Tapping Enabled" 1
     xinput set-prop "ETPS/2 Elantech Touchpad" "libinput Natural Scrolling Enabled" 1
-    ids=$(xinput --list | sed -ne '/Virtual core pointer/{:a' -e 'n;p;ba' -e '}' | grep "Kingsis Peripherals ZOWIE Gaming mouse" | sed -n 's/.*id=\([0-9]\+\).*/\1/p')
-    for i in $ids; do
-        xinput --set-prop "$i" 'libinput Accel Profile Enabled' 0, 1
-    done
+  ids=$(xinput --list | sed -ne '/Virtual core pointer/{:a' -e 'n;p;ba' -e '}' | grep "Kingsis Peripherals ZOWIE Gaming mouse" | sed -n 's/.*id=\([0-9]\+\).*/\1/p')
+  for i in $ids; do
+    xinput --set-prop "$i" 'libinput Accel Profile Enabled' 0, 1
+  done
 elif [ "$(uname -n)" = "halley2" ]; then
-    xinput set-prop "SynPS/2 Synaptics TouchPad" "libinput Tapping Enabled" 1
-    xinput set-prop "SynPS/2 Synaptics TouchPad" "libinput Natural Scrolling Enabled" 1
+  xinput set-prop "SynPS/2 Synaptics TouchPad" "libinput Tapping Enabled" 1
+  xinput set-prop "SynPS/2 Synaptics TouchPad" "libinput Natural Scrolling Enabled" 1
 fi
