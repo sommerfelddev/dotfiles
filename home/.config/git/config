@@ -127,6 +127,7 @@
     dl = -c diff.external=difft log -p --ext-diff
     ds = -c diff.external=difft show --ext-diff
     dft = -c diff.external=difft diff
+[includeIf "gitdir:/devspace/"]
     path = config-work
 [includeIf "gitdir:~/doxfiles/.git"]
     path = config-personal
