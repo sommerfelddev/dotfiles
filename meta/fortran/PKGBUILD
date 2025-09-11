@@ -1,0 +1,11 @@
+pkgname=sommerfeld-fortran
+pkgver=1
+pkgrel=1
+arch=('any')
+license=('MIT')
+depends=(
+  'flang'
+  'fortitude-bin'
+  'fortran-fpm-bin'
+  'gcc-fortran'
+)

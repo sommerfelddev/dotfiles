@@ -1,10 +1,16 @@
+---
 Index:
   StandardLibrary: Yes
 Diagnostics:
   ClangTidy:
     FastCheckFilter: None
+  UnusedIncludes: Strict
+  # MissingIncludes: Strict
+  Includes:
+    AnalyzeAngledIncludes: Yes
 InlayHints:
   Enabled: Yes
   BlockEnd: Yes
+  DefaultArguments: Yes
 Hover:
   ShowAKA: Yes

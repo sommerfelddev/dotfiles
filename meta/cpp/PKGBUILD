@@ -1,5 +1,5 @@
 pkgname=sommerfeld-cpp
-pkgver=1
+pkgver=2
 pkgrel=1
 arch=('any')
 license=('MIT')
@@ -7,9 +7,7 @@ depends=(
   'ccache'
   'clang'
   'cmake'
-  'cmake-format'
   'doxygen'
-  'inferno'
   'gdb'
   'lld'
   'lldb'

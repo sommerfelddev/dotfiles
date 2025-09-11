@@ -1,22 +1,32 @@
 pkgname=sommerfeld-dev
-pkgver=2
+pkgver=4
 pkgrel=1
 arch=('any')
 license=('MIT')
 depends=(
-  'bash-language-server'
+  'curl'
   'difftastic'
+  'flamelens'
+  'git'
   'git-absorb'
   'git-delta'
-  'ipython'
+  'go'
   'hyperfine'
-  'lua-language-server'
+  'jdk-openjdk'
+  'just'
+  'luarocks'
   'mergiraf'
-  'namcap'
+  'npm'
+  'podman-compose'
+  'podman-docker'
+  'python-pipenv'
+  'rustup'
   'samply'
-  'shellcheck'
-  'shfmt'
   'sloccount'
   'strace'
+  't-rec'
+  'unzip'
+  'uv'
+  'wget'
   'yarn'
 )

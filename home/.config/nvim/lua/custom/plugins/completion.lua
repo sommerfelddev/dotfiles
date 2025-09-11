@@ -1,115 +1,95 @@
 return {
   {
-    "hrsh7th/nvim-cmp",
+    "zbirenbaum/copilot.lua",
+    cmd = "Copilot",
+    build = ":Copilot auth",
     event = "InsertEnter",
-    config = function()
-      local cmp = require("cmp")
-
-      local has_words_before = function()
-        local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-        return col ~= 0
-            and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]
-            :sub(col, col)
-            :match("%s")
-            == nil
-      end
-
-      local luasnip = require("luasnip")
-
-      cmp.setup({
-        snippet = {
-          expand = function(args)
-            require("luasnip").lsp_expand(args.body)
-          end,
-        },
-        mapping = {
-          ["<Tab>"] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-              cmp.select_next_item()
-            elseif luasnip.expand_or_jumpable() then
-              luasnip.expand_or_jump()
-            elseif has_words_before() then
-              cmp.complete()
-            else
-              fallback()
-            end
-          end, {
-            "i",
-            "s",
-          }),
-          ["<S-Tab>"] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-              cmp.select_prev_item()
-            elseif luasnip.jumpable(-1) then
-              luasnip.jump(-1)
-            else
-              fallback()
-            end
-          end, {
-            "i",
-            "s",
-          }),
-          ["<CR>"] = cmp.mapping.confirm({
-            behavior = cmp.ConfirmBehavior.Replace,
-            select = true,
-          }),
-        },
-        formatting = {
-          format = function(entry, vim_item)
-            -- set a name for each source
-            vim_item.menu = ({
-              path = "[Path]",
-              nvim_lsp = "[LSP]",
-              luasnip = "[LuaSnip]",
-              dap = "[dap]",
-            })[entry.source.name]
-            return vim_item
-          end,
-        },
-        sources = {
-          { name = "nvim_lsp" },
-          { name = "luasnip" },
-          { name = "path" },
-          { name = "nvim_lsp_signature_help" },
-        },
-      })
-
-      require "cmp".setup.filetype(
-        { "dap-repl", "dapui_watches", "dapui_hover" }, {
-          sources = {
-            { name = "dap" },
-          },
-        })
-
-      local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
-      cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
-    end,
-    dependencies = {
-      "hrsh7th/cmp-nvim-lsp",
-      "hrsh7th/cmp-path",
-      "hrsh7th/cmp-nvim-lsp-signature-help",
-      "rcarriga/cmp-dap",
-      "windwp/nvim-autopairs",
+    keys = {
       {
-        "saadparwaiz1/cmp_luasnip",
-        dependencies = {
-          {
-            "L3MON4D3/LuaSnip",
-            event = "InsertCharPre",
-            keys = {
-              { "<c-j>", function() require "luasnip".jump(1) end,  mode = "i" },
-              { "<c-k>", function() require "luasnip".jump(-1) end, mode = "i" },
-            },
-            config = function()
-              require("luasnip/loaders/from_vscode").lazy_load()
+        "<leader>tc",
+        function()
+          require("copilot.command").toggle()
+        end,
+        desc = "[T]oggle [C]opilot attachment",
+      },
+    },
+    opts = {
+      suggestion = { enabled = false },
+      panel = { enabled = false },
+    },
+  },
+  {
+    "saghen/blink.compat",
+    opts = {},
+  },
+  {
+    "saghen/blink.cmp",
+    dependencies = {
+      "rafamadriz/friendly-snippets",
+      "fang2hou/blink-copilot",
+      "rcarriga/cmp-dap",
+    },
+    opts = {
+      keymap = {
+        preset = "cmdline",
+        ["<CR>"] = { "accept", "fallback" },
+      },
+      appearance = {
+        use_nvim_cmp_as_default = true,
+      },
+      completion = {
+        list = {
+          selection = {
+            preselect = function()
+              return not require("blink.cmp").snippet_active({ direction = 1 })
             end,
-            dependencies = {
-              "kitagry/vs-snippets",
-              "rafamadriz/friendly-snippets",
-              "kkonghao/snippet-dog",
-            },
-          }
+          },
         },
+        documentation = { auto_show = true },
+      },
+      signature = {
+        enabled = true,
+        trigger = {
+          enabled = true,
+          show_on_keyword = true,
+          show_on_insert = true,
+        },
+      },
+      sources = {
+        default = { "lazydev", "lsp", "copilot", "snippets", "path", "buffer" },
+        per_filetype = {
+          ["dap-repl"] = { "dap" },
+        },
+        providers = {
+          path = {
+            opts = {
+              get_cwd = vim.fn.getcwd,
+            },
+          },
+          copilot = {
+            name = "copilot",
+            module = "blink-copilot",
+            score_offset = 100,
+            async = true,
+          },
+          lazydev = {
+            name = "LazyDev",
+            module = "lazydev.integrations.blink",
+            -- make lazydev completions top priority (see `:h blink.cmp`)
+            score_offset = 100,
+          },
+          dap = { name = "dap", module = "blink.compat.source" },
+        },
+      },
+    },
+  },
+  {
+    "saghen/blink.pairs",
+    version = "*",
+    dependencies = "saghen/blink.download",
+    opts = {
+      mappings = {
+        disabled_filetypes = { "TelescopePrompt" },
       },
     },
   },

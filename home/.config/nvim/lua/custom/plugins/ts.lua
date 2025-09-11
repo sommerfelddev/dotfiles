@@ -1,155 +1,155 @@
 return {
   {
-    'nvim-treesitter/nvim-treesitter',
+    "aaronik/treewalker.nvim",
+    keys = {
+      {
+        "<a-k>",
+        "<cmd>Treewalker Up<cr>",
+        { "n", "v" },
+        silent = true,
+        desc = "Moves up to the previous neighbor node",
+      },
+      {
+        "<a-j>",
+        "<cmd>Treewalker Down<cr>",
+        { "n", "v" },
+        silent = true,
+        desc = "Moves up to the next neighbor node",
+      },
+      {
+        "<a-h>",
+        "<cmd>Treewalker Left<cr>",
+        { "n", "v" },
+        silent = true,
+        desc = "Moves to the first ancestor node that's on a different line from the current node",
+      },
+      {
+        "<a-l>",
+        "<cmd>Treewalker Right<cr>",
+        { "n", "v" },
+        silent = true,
+        desc = "Moves to the next node down that's indented further than the current node",
+      },
+      {
+        "<cmd>Treewalker SwapUp<cr>",
+        "<s-a-k>",
+        silent = true,
+        desc = "Swaps the highest node on the line upwards in the document",
+      },
+      {
+        "<s-a-j>",
+        "<cmd>Treewalker SwapDown<cr>",
+        silent = true,
+        desc = "Swaps the biggest node on the line downward in the document",
+      },
+      {
+        "<s-a-h>",
+        "<cmd>Treewalker SwapLeft<cr>",
+        silent = true,
+        desc = "Swap the node under the cursor with its previous neighbor",
+      },
+      {
+        "<s-a-l>",
+        "<cmd>Treewalker SwapRight<cr>",
+        silent = true,
+        desc = "Swap the node under the cursor with its next neighbor",
+      },
+    },
+    opts = {},
+  },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    branch = "main",
+    lazy = false,
     dependencies = {
-      'nvim-treesitter/nvim-treesitter-textobjects',
-      "nvim-treesitter/nvim-treesitter-refactor",
-      "theHamsta/crazy-node-movement",
-      "theHamsta/nvim-treesitter-pairs",
-      "RRethy/nvim-treesitter-endwise",
+      -- "theHamsta/nvim-treesitter-pairs", -- Reneable once main branch is supported
+      {
+        "LiadOz/nvim-dap-repl-highlights",
+        opts = {},
+      },
     },
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter.configs").setup({
-        ensure_installed = {
-          "bash",
-          "c",
-          "cmake",
-          "comment",
-          "cpp",
-          "css",
-          "diff",
-          "dockerfile",
-          "doxygen",
-          "fortran",
-          "git_config",
-          "git_rebase",
-          "gitattributes",
-          "gitcommit",
-          "gitignore",
-          "gpg",
-          "html",
-          "http",
-          "ini",
-          "javascript",
-          "jsdoc",
-          "json",
-          "jsonc",
-          "llvm",
-          "lua",
-          "luadoc",
-          "luap",
-          "make",
-          "markdown",
-          "markdown_inline",
-          "python",
-          "regex",
-          "rust",
-          "sql",
-          "tablegen",
-          "todotxt",
-          "toml",
-          "typescript",
-          "vim",
-          "vimdoc",
-          "xml",
-          "yaml",
-        },
-        highlight = {
-          enable = true,
-          additional_vim_regex_highlighting = false,
-        },
-        incremental_selection = {
-          enable = true,
-          keymaps = {
-            init_selection = "gnn",
-            node_incremental = "grn",
-            scope_incremental = "grc",
-            node_decremental = "grm",
-          },
-        },
-        indent = { enable = true },
-        refactor = {
-          highlight_definitions = { enable = true },
-          highlight_current_scope = { enable = true },
-        },
-        textobjects = {
-          select = {
-            enable = true,
-            -- Automatically jump forward to textobj, similar to targets.vim
-            lookahead = true,
-            keymaps = {
-              -- You can use the capture groups defined in textobjects.scm
-              ["af"] = "@function.outer",
-              ["if"] = "@function.inner",
-              ["ac"] = "@class.outer",
-              ["ic"] = "@class.inner",
-            },
-          },
-          swap = {
-            enable = true,
-            swap_next = { ["<leader>a"] = "@parameter.inner" },
-            swap_previous = { ["<leader>A"] = "@parameter.inner" },
-          },
-          move = {
-            enable = true,
-            set_jumps = true, -- whether to set jumps in the jumplist
-            goto_next_start = {
-              ["]m"] = "@function.outer",
-              ["]]"] = "@class.outer",
-            },
-            goto_next_end = {
-              ["]M"] = "@function.outer",
-              ["]["] = "@class.outer",
-            },
-            goto_previous_start = {
-              ["[m"] = "@function.outer",
-              ["[["] = "@class.outer",
-            },
-            goto_previous_end = {
-              ["[M"] = "@function.outer",
-              ["[]"] = "@class.outer",
-            },
-          },
-          lsp_interop = {
-            enable = true,
-            peek_definition_code = {
-              ["df"] = "@function.outer",
-              ["dF"] = "@class.outer",
-            },
-          },
-        },
-        matchup = {
-          enable = true,
-        },
-        pairs = {
-          enable = true,
-          goto_right_end = false,
-          keymaps = { goto_partner = "%" },
-        },
-        node_movement = {
-          enable = true,
-          keymaps = {
-            move_up = "<a-k>",
-            move_down = "<a-j>",
-            move_left = "<a-h>",
-            move_right = "<a-l>",
-            swap_left = "<s-a-h>", -- will only swap when one of "swappable_textobjects" is selected
-            swap_right = "<s-a-l>",
-            select_current_node = "<leader><Cr>",
-          },
-          swappable_textobjects = { '@function.outer', '@parameter.inner', '@statement.outer' },
-          allow_switch_parents = true, -- more craziness by switching parents while staying on the same level, false prevents you from accidentally jumping out of a function
-          allow_next_parent = true, -- more craziness by going up one level if next node does not have children
-        },
-        tree_docs = {
-          enable = true,
-        },
-        endwise = {
-          enable = true,
-        },
+      require("nvim-treesitter").install({
+        "awk",
+        "bash",
+        "c",
+        "cmake",
+        "comment",
+        "cpp",
+        "css",
+        "csv",
+        "diff",
+        "dockerfile",
+        "dap_repl",
+        "doxygen",
+        "editorconfig",
+        "fortran",
+        "git_config",
+        "git_rebase",
+        "gitattributes",
+        "gitcommit",
+        "gitignore",
+        "groovy",
+        "gpg",
+        "hlsplaylist",
+        "html",
+        "http",
+        "ini",
+        "javascript",
+        "jq",
+        "jsdoc",
+        "json",
+        "jsonc",
+        "just",
+        "llvm",
+        "lua",
+        "luadoc",
+        "luap",
+        "make",
+        "markdown",
+        "markdown_inline",
+        "query",
+        "passwd",
+        "printf",
+        "python",
+        "regex",
+        "readline",
+        "requirements",
+        "rust",
+        "sql",
+        "ssh_config",
+        "strace",
+        "sxhkdrc",
+        "tablegen",
+        "tmux",
+        "todotxt",
+        "toml",
+        "typescript",
+        "vim",
+        "vimdoc",
+        "xcompose",
+        "xml",
+        "xresources",
+        "yaml",
       })
-    end
+    end,
   },
-  "nvim-treesitter/nvim-treesitter-context",
+  "RRethy/nvim-treesitter-endwise",
+  { "nvim-treesitter/nvim-treesitter-context", opts = {} },
+  {
+    "JoosepAlviste/nvim-ts-context-commentstring",
+    config = function()
+      require("ts_context_commentstring").setup({
+        enable_autocmd = false,
+      })
+      local get_option = vim.filetype.get_option
+
+      vim.filetype.get_option = function(filetype, option)
+        return option == "commentstring"
+            and require("ts_context_commentstring.internal").calculate_commentstring()
+          or get_option(filetype, option)
+      end
+    end,
+  },
 }

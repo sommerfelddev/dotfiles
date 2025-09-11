@@ -1,24 +1,16 @@
 return {
   {
-    "sainnhe/gruvbox-material",
+    "ellisonleao/gruvbox.nvim",
     priority = 1000,
     config = function()
-      vim.g.gruvbox_material_background = "hard"
-      vim.g.gruvbox_material_enable_bold = 1
-      vim.g.gruvbox_material_enable_italic = 1
-      vim.g.gruvbox_material_better_performance = 1
-      vim.g.gruvbox_material_palette = "original"
-
-      vim.cmd([[ colorscheme  gruvbox-material]])
-    end
-  },
-  {
-    "norcalli/nvim-colorizer.lua",
-    event = "BufRead",
-    config = true
+      require("gruvbox").setup({})
+      vim.o.background = "dark"
+      vim.cmd([[colorscheme gruvbox]])
+    end,
   },
   {
     "lukas-reineke/indent-blankline.nvim",
+    event = "BufRead",
     config = function()
       local highlight = {
         "RainbowRed",
@@ -29,7 +21,7 @@ return {
         "RainbowViolet",
         "RainbowCyan",
       }
-      local hooks = require "ibl.hooks"
+      local hooks = require("ibl.hooks")
       -- create the highlight groups in the highlight setup hook, so they are reset
       -- every time the colorscheme changes
       hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
@@ -43,38 +35,57 @@ return {
       end)
 
       vim.g.rainbow_delimiters = { highlight = highlight }
-      require("ibl").setup { scope = { highlight = highlight } }
+      require("ibl").setup({
+        scope = { highlight = highlight },
+      })
 
-      hooks.register(hooks.type.SCOPE_HIGHLIGHT,
-        hooks.builtin.scope_highlight_from_extmark)
-    end
+      hooks.register(
+        hooks.type.SCOPE_HIGHLIGHT,
+        hooks.builtin.scope_highlight_from_extmark
+      )
+    end,
   },
   {
-    'nvim-lualine/lualine.nvim',
+    "nvim-lualine/lualine.nvim",
     opts = {
       options = {
         icons_enabled = false,
-        theme = 'gruvbox_dark',
-        component_separators = '',
-        section_separators = '|',
+        theme = "gruvbox_dark",
+        component_separators = "",
+        section_separators = "|",
+        disabled_filetypes = {
+          winbar = {
+            "dap-view",
+            "dap-repl",
+            "dap-view-term",
+          },
+        },
       },
       sections = {
-        lualine_a = { 'filetype', { 'filename', path = 1 } },
-        lualine_b = { '%l/%L:%c:%o' },
-        lualine_c = { 'diff' },
-        lualine_x = { 'searchcount, selectioncount' },
-        lualine_y = {},
-        lualine_z = { 'diagnostics' }
+        lualine_a = { "filetype", { "filename", path = 1 } },
+        lualine_b = { "%l/%L:%c:%o" },
+        lualine_c = { "diff" },
+        lualine_x = { "searchcount, selectioncount" },
+        lualine_y = { "overseer", "copilot" },
+        lualine_z = { "diagnostics" },
       },
       inactive_sections = {
         lualine_a = {},
         lualine_b = {},
-        lualine_c = { 'filename' },
+        lualine_c = { "filename" },
         lualine_x = {},
         lualine_y = {},
-        lualine_z = {}
+        lualine_z = {},
       },
     },
+    dependencies = {
+      "AndreM222/copilot-lualine",
+    },
   },
-  "https://gitlab.com/HiPhish/rainbow-delimiters.nvim",
+  {
+    "jake-stewart/auto-cmdheight.nvim",
+    lazy = false,
+    opts = {},
+  },
+  -- "https://gitlab.com/HiPhish/rainbow-delimiters.nvim",
 }

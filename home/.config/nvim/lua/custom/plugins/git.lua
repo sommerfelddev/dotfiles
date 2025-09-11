@@ -1,8 +1,7 @@
-local map = require("mapper")
-
 return {
   {
-    'akinsho/git-conflict.nvim',
+    "akinsho/git-conflict.nvim",
+    event = "BufRead",
     opts = {
       disable_diagnostics = true,
       highlights = {
@@ -11,10 +10,10 @@ return {
         ancestor = nil,
       },
       default_mappings = {
-        next = ']x',
-        prev = '[x',
+        next = "]x",
+        prev = "[x",
       },
-    }
+    },
   },
   {
     "NeogitOrg/neogit",
@@ -22,46 +21,55 @@ return {
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope.nvim",
     },
-    config = function()
-      local neogit = require("neogit")
-      neogit.setup({
-        disable_commit_confirmation = true,
-        kind = "split",
-        console_timeout = 5000,
-        auto_show_console = false,
-      })
-      map.n("<leader>ng", neogit.open)
-    end,
+    keys = {
+      {
+        "<leader>go",
+        function()
+          require("neogit").open()
+        end,
+        desc = "neo[G]it [O]pen",
+      },
+    },
+    cmd = "Neogit",
+    opts = {
+      disable_commit_confirmation = true,
+      kind = "split",
+      console_timeout = 5000,
+      auto_show_console = false,
+    },
   },
   {
     "ruifm/gitlinker.nvim",
     keys = {
-      { "<leader>gy", function() require 'gitlinker'.get_buf_range_url("n") end },
       {
         "<leader>gy",
         function()
-          require 'gitlinker'.get_buf_range_url("v")
+          require("gitlinker").get_buf_range_url("n")
         end,
-        mode = "v"
+      },
+      {
+        "<leader>gy",
+        function()
+          require("gitlinker").get_buf_range_url("v")
+        end,
+        mode = "v",
       },
     },
     dependencies = {
       "nvim-lua/plenary.nvim",
     },
-    config = function()
-      require "gitlinker".setup({
-        callbacks = {
-          ["git.sommerfeld.dev"] = function(url_data)
-            local url = require "gitlinker.hosts".get_base_https_url(url_data)
-            url = url .. "/tree/" .. url_data.file .. "?id=" .. url_data.rev
-            if url_data.lstart then
-              url = url .. "#n" .. url_data.lstart
-            end
-            return url
+    opts = {
+      callbacks = {
+        ["git.sommerfeld.dev"] = function(url_data)
+          local url = require("gitlinker.hosts").get_base_https_url(url_data)
+          url = url .. "/tree/" .. url_data.file .. "?id=" .. url_data.rev
+          if url_data.lstart then
+            url = url .. "#n" .. url_data.lstart
           end
-        },
-      })
-    end,
+          return url
+        end,
+      },
+    },
   },
   {
     "lewis6991/gitsigns.nvim",
@@ -77,48 +85,80 @@ return {
       _threaded_diff = true,
       _refresh_staged_on_update = true,
       on_attach = function(bufnr)
-        local gs = require('gitsigns')
-
+        local gs = require("gitsigns")
+        local function map(mode, l, r, desc)
+          vim.keymap.set(mode, l, r, { buffer = bufnr, desc = desc })
+        end
+        local function nmap(l, r, desc)
+          map("n", l, r, desc)
+        end
+        local function vmap(l, r, desc)
+          map("v", l, r, desc)
+        end
         -- Navigation
-        map.n(']c', function()
+        nmap("]c", function()
           if vim.wo.diff then
-            vim.cmd.normal({ ']c', bang = true })
+            vim.cmd.normal({ "]c", bang = true })
           else
-            gs.nav_hunk('next')
+            gs.nav_hunk("next")
           end
-        end, nil, bufnr)
+        end, "Jump to next git [c]hange")
 
-        map.n('[c', function()
+        nmap("[c", function()
           if vim.wo.diff then
-            vim.cmd.normal({ '[c', bang = true })
+            vim.cmd.normal({ "[c", bang = true })
           else
-            gs.nav_hunk('prev')
+            gs.nav_hunk("prev")
           end
-        end, nil, bufnr)
+        end, "Jump to previous git [c]hange")
 
         -- Actions
-        map.n('<leader>hs', gs.stage_hunk, nil, bufnr)
-        map.n('<leader>hr', gs.reset_hunk, nil, bufnr)
-        map.v('<leader>hs', function() gs.stage_hunk { vim.fn.line('.'), vim.fn.line('v') } end, nil, bufnr)
-        map.v('<leader>hr', function() gs.reset_hunk { vim.fn.line('.'), vim.fn.line('v') } end, nil, bufnr)
-        map.n('<leader>hS', gs.stage_buffer, nil, bufnr)
-        map.n('<leader>hu', gs.undo_stage_hunk, nil, bufnr)
-        map.n('<leader>hR', gs.reset_buffer, nil, bufnr)
-        map.n('<leader>hp', gs.preview_hunk, nil, bufnr)
-        map.n('<leader>hb', function() gs.blame_line { full = true } end, nil,
-          bufnr)
-        map.n('<leader>tb', gs.toggle_current_line_blame, nil, bufnr)
-        map.n('<leader>hd', gs.diffthis, nil, bufnr)
-        map.n('<leader>hD', function() gs.diffthis('~') end, nil, bufnr)
-        map.n('<leader>hc', gs.change_base, nil, bufnr)
-        map.n('<leader>hC', function() gs.change_base('~') end, nil, bufnr)
-        map.n('<leader>td', gs.toggle_deleted, nil, bufnr)
-        map.n('<leader>tw', gs.toggle_word_diff, nil, bufnr)
-        map.n('<leader>tl', gs.toggle_linehl, nil, bufnr)
-
+        nmap("<leader>hs", gs.stage_hunk, "git [s]tage hunk")
+        nmap("<leader>hr", gs.reset_hunk, "git [r]eset hunk")
+        vmap("<leader>hs", function()
+          gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
+        end, "git [s]tage hunk")
+        vmap("<leader>hr", function()
+          gs.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
+        end, "git [r]eset hunk")
+        nmap("<leader>hS", gs.stage_buffer, "git [S]tage buffer")
+        nmap("<leader>hR", gs.reset_buffer, "git [R]eset buffer")
+        nmap("<leader>hp", gs.preview_hunk, "git [p]review hunk")
+        nmap("<leader>hb", function()
+          gs.blame_line({ full = true })
+        end, "git [b]lame line")
+        nmap(
+          "<leader>tb",
+          gs.toggle_current_line_blame,
+          "[T]oggle git show [b]lame line"
+        )
+        nmap("<leader>hd", gs.diffthis, "git [d]iff against index")
+        nmap("<leader>hD", function()
+          gs.diffthis("~")
+        end, "git [D]iff against last commit")
+        nmap("<leader>hc", gs.change_base, "git [C]hange base to index")
+        nmap("<leader>hC", function()
+          gs.change_base("~")
+        end, "git [C]hange base to HEAD")
+        nmap(
+          "<leader>tgd",
+          gs.preview_hunk_inline,
+          "[T]oggle [G]it show [D]eleted"
+        )
+        nmap("<leader>tgw", gs.toggle_word_diff, "[T]oggle [G]it [W]ord diff")
+        nmap(
+          "<leader>tgl",
+          gs.toggle_linehl,
+          "[T]oggle [G]it [L]ine highlighting"
+        )
         -- Text object
-        map.map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', nil, bufnr)
-      end
+        map(
+          { "o", "x" },
+          "ih",
+          ":<C-U>Gitsigns select_hunk<CR>",
+          "git [H]unk text object"
+        )
+      end,
     },
     dependencies = {
       "nvim-lua/plenary.nvim",

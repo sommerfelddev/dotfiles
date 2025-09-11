@@ -1,4 +1,6 @@
-local opt = vim.opt
+local opt = vim.o
+
+opt.termguicolors = true
 
 opt.undofile = true
 opt.swapfile = false
@@ -8,6 +10,7 @@ opt.number = true
 opt.cursorline = true
 opt.signcolumn = "auto:2"
 opt.showmatch = true
+opt.laststatus = 3
 
 opt.expandtab = true
 opt.shiftround = true
@@ -15,50 +18,62 @@ opt.shiftwidth = 0
 opt.softtabstop = -1
 opt.tabstop = 4
 
+opt.gdefault = true
+opt.ignorecase = true
+opt.smartcase = true
+
 opt.splitbelow = true
 opt.splitright = true
+opt.splitkeep = "screen"
 
 opt.linebreak = true
 opt.breakindent = true
 opt.textwidth = 80
 opt.colorcolumn = "+1"
-opt.formatoptions:remove("t")
+vim.opt.formatoptions:remove("t")
 
 opt.cmdheight = 2
+-- vim.o.messagesopt = "wait:5000,history:500"
 
-opt.shortmess:append({ a = true })
+vim.opt.shortmess:append({ a = true })
 
-opt.gdefault = true
+opt.updatetime = 250
+opt.timeoutlen = 300
 opt.synmaxcol = 500
 
-opt.completeopt = { "menu", "menuone", "noselect" }
+vim.opt.completeopt = { "menuone", "noselect", "popup", "fuzzy" }
 opt.scrolloff = 999
 opt.sidescrolloff = 5
 
-opt.clipboard = "unnamedplus"
+vim.schedule(function()
+  opt.clipboard = vim.env.SSH_TTY and "" or "unnamedplus"
+end)
 
-opt.wildmode = { "longest", "full" }
+vim.o.mouse = "a"
 
-opt.cpoptions:remove({ "_" })
+vim.opt.wildmode = { "longest", "full" }
 
-opt.listchars = {
+vim.opt.cpoptions:remove({ "_" })
+
+vim.opt.listchars = {
   tab = "> ",
-  trail = "·",
+  space = "·",
   extends = ">",
   precedes = "<",
   nbsp = "+",
 }
 opt.list = true
 
+opt.confirm = true
+
 opt.virtualedit = "block"
 opt.spelloptions = "camel"
 
-vim.g.is_posix = 1
-vim.g.python_host_prog = 0
-vim.g.python3_host_prog = 0
-vim.g.netrw_home = vim.fn.stdpath("data")
+vim.g.loaded_node_provider = 0
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_python3_provider = 0
 
-opt.diffopt:append({
+vim.opt.diffopt:append({
   ["indent-heuristic"] = true,
   hiddenoff = true,
   iblank = true,
@@ -68,22 +83,25 @@ opt.diffopt:append({
 
 if vim.fn.executable("rg") then
   opt.grepprg = "rg\\ --vimgrep"
-  opt.grepformat:append("f:%l:%c:%m")
+  opt.grepformat = "f:%l:%c:%m"
 end
 
-opt.termguicolors = true
 opt.pumblend = 20
 
-opt.foldmethod = "expr"
-opt.foldexpr = "nvim_treesitter#foldexpr()"
-opt.foldenable = false
+vim.wo.foldmethod = "expr"
+vim.wo.foldenable = false
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
 
 vim.diagnostic.config({
-  virtual_text = {
-    source = "if_many",
-    severity = vim.diagnostic.severity.ERROR,
-  }
+  virtual_text = false,
+  virtual_lines = false,
 })
+
+opt.sessionoptions =
+  "blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"
+
+vim.o.exrc = true
+
+

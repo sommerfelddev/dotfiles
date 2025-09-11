@@ -1,22 +1,48 @@
-local map = require("mapper")
+local function map(mode, l, r, desc)
+  vim.keymap.set(mode, l, r, { desc = desc })
+end
+local function cmd(mode, l, r, desc)
+  map(mode, l, "<cmd>" .. r .. "<cr>", desc)
+end
+local function cmdi(mode, l, r, desc)
+  map(mode, l, ":" .. r, desc)
+end
+local function nmap(l, r, desc)
+  map("n", l, r, desc)
+end
+local function vmap(l, r, desc)
+  map("v", l, r, desc)
+end
+local function nvmap(l, r, desc)
+  map({ "n", "v" }, l, r, desc)
+end
+local function ncmd(l, r, desc)
+  cmd("n", l, r, desc)
+end
+local function ncmdi(l, r, desc)
+  cmdi("n", l, r, desc)
+end
+local function vcmdi(l, r, desc)
+  cmdi("v", l, r, desc)
+end
 
-map.n("<Space>", "<Nop>")
+ncmd("<esc>", "nohlsearch")
+
+nmap("<Space>", "<Nop>")
 
 -- make an accidental ; press also enter command mode
 -- temporarily disabled to to vim-sneak plugin
-map.n(";", ":")
+nmap(";", ":")
 
 -- highlight last inserted text
-map.n("gV", "`[v`]")
+nmap("gV", "`[v`]")
 
-map.n("<down>", "<c-e>")
-map.n("<up>", "<c-y>")
+nmap("<down>", "<c-e>")
+nmap("<up>", "<c-y>")
 
 -- go to first non-blank character of current line
-map.n("<c-a>", "^")
-map.v("<c-a>", "^")
-map.n("<c-e>", "$")
-map.v("<c-e>", "$")
+nvmap("<c-a>", "^")
+nvmap("<c-e>", "$")
 
 -- This extends p in visual mode (note the noremap), so that if you paste from
 -- the unnamed (ie. default) register, that register content is not replaced by
@@ -24,36 +50,108 @@ map.v("<c-e>", "$")
 -- This enables the user to yank some text and paste it over several places in
 -- a row, without using a named register
 -- map.v('p', "p:if v:register == '"'<Bar>let @@=@0<Bar>endif<cr>")
-map.v("p", 'p:let @+=@0<CR>:let @"=@0<CR>')
-
-map.v("<leader>p", '"_dP')
-map.n("<leader>d", '"_d')
-map.n("<leader>D", '"_D')
-map.map("", "<leader>c", '"_c')
-map.map("", "<leader>C", '"_C')
+vmap("p", 'p:let @+=@0<CR>:let @"=@0<CR>')
 
 -- Find and Replace binds
-map.ncmdi("<leader>s", "%s/")
-map.vcmdi("<leader>s", "s/")
-map.ncmdi("<leader>gs", '%s/<c-r>"/')
-map.vcmdi("<leader>gs", 's/<c-r>"/')
-map.ncmdi("<Leader>S", "%s/<C-r><C-w>/")
+ncmdi("<localleader>s", "%s/")
+vcmdi("<localleader>s", "s/")
 
-map.ncmd("<leader>x", "wall")
-map.ncmd("<leader>z", "wqall")
-map.ncmd("<leader>q", "quitall")
-map.ncmd("<localleader>x", "update")
+ncmd("<leader>x", "wall")
+ncmd("<leader>z", "wqall")
+ncmd("<leader>q", "quitall")
 
-map.n("<c-h>", "<c-w>h")
-map.n("<c-j>", "<c-w>j")
-map.n("<c-k>", "<c-w>k")
-map.n("<c-l>", "<c-w>l")
+vim.keymap.set(
+  "t",
+  "<esc><esc>",
+  "<c-\\><c-n>",
+  { silent = true, noremap = true, expr = true, desc = "Exit terminal mode" }
+)
 
-map.t("<Esc>", "<c-\\><c-n>", { silent = true, noremap = true, expr = true })
-
-map.n("[w", function()
-  vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })
+nmap("[w", function()
+  vim.diagnostic.jump({
+    count = -vim.v.count1,
+    severity = { min = vim.diagnostic.severity.WARN },
+  })
 end)
-map.n("]w", function()
-  vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })
+nmap("]w", function()
+  vim.diagnostic.jump({
+    count = vim.v.count1,
+    severity = { min = vim.diagnostic.severity.WARN },
+  })
 end)
+nmap("[e", function()
+  vim.diagnostic.jump({
+    count = -vim.v.count1,
+    severity = vim.diagnostic.severity.ERROR,
+  })
+end)
+nmap("]e", function()
+  vim.diagnostic.jump({
+    count = vim.v.count1,
+    severity = vim.diagnostic.severity.ERROR,
+  })
+end)
+
+nmap(
+  "<leader>oq",
+  vim.diagnostic.setloclist,
+  "[O]pen diagnostic [Q]uickfix list"
+)
+
+nmap("yp", function()
+  vim.fn.setreg("+", vim.fn.expand("%"))
+end, "[Y]ank [P]ath")
+
+local sudo_exec = function(_cmd)
+  vim.fn.inputsave()
+  local password = vim.fn.inputsecret("Password: ")
+  vim.fn.inputrestore()
+  if not password or #password == 0 then
+    vim.notify("Invalid password, sudo aborted", vim.log.levels.WARN)
+    return false
+  end
+  local out = vim.fn.system(string.format("sudo -p '' -S %s", _cmd), password)
+  if vim.v.shell_error ~= 0 then
+    print("\r\n")
+    vim.notify(out, vim.log.levels.ERROR)
+    return false
+  end
+  return true
+end
+
+vim.api.nvim_create_user_command("SudoWrite", function(opts)
+  local tmpfile = vim.fn.tempname()
+  local filepath
+  if #opts.fargs == 1 then
+    filepath = opts.fargs[1]
+  else
+    filepath = vim.fn.expand("%")
+  end
+  if not filepath or #filepath == 0 then
+    vim.notify("E32: No file name", vim.log.levels.ERROR)
+    return
+  end
+  -- `bs=1048576` is equivalent to `bs=1M` for GNU dd or `bs=1m` for BSD dd
+  -- Both `bs=1M` and `bs=1m` are non-POSIX
+  local _cmd = string.format(
+    "dd if=%s of=%s bs=1048576",
+    vim.fn.shellescape(tmpfile),
+    vim.fn.shellescape(filepath)
+  )
+  -- no need to check error as this fails the entire function
+  vim.api.nvim_exec2(string.format("write! %s", tmpfile), { output = true })
+  if sudo_exec(_cmd) then
+    -- refreshes the buffer and prints the "written" message
+    vim.cmd.checktime()
+    -- exit command mode
+    vim.api.nvim_feedkeys(
+      vim.api.nvim_replace_termcodes("<Esc>", true, false, true),
+      "n",
+      true
+    )
+  end
+  vim.fn.delete(tmpfile)
+end, {
+  nargs = "?",
+  desc = "Write using sudo permissions",
+})

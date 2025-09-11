@@ -1,5 +1,5 @@
 pkgname=sommerfeld-base
-pkgver=2
+pkgver=5
 pkgrel=1
 arch=('any')
 license=('MIT')
@@ -13,7 +13,7 @@ depends=(
   'cpupower'
   'curlie'
   'dashbinsh'
-  'doas-sudo-shim'
+  'doas-sudo-shim-k'
   'dog'
   'duf'
   'fd'
@@ -40,6 +40,7 @@ depends=(
   'overdue'
   'pacman-cleanup-hook'
   'pacman-contrib'
+  'pam-gnupg-git'
   'paru'
   'pass'
   'pbzip2'
@@ -57,6 +58,7 @@ depends=(
   'thermald'
   'tldr'
   'tmux'
+  'torsocks'
   'unzip'
   'wget'
   'wireguard-tools'

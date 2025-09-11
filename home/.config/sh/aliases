@@ -9,7 +9,7 @@ whichkey() {
 }
 
 alias sudo='doas'
-alias sudoedit='doas nvim'
+alias sudoedit='doasedit'
 
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
@@ -26,8 +26,6 @@ alias g='git'
 alias sys='systemctl'
 alias ssys='doas systemctl'
 alias sysu='systemctl --user'
-alias sst='systemctl status'
-alias syse='doas systemctl edit'
 
 alias gimme='doas chown $USER:$(id -gn $USER)'
 alias free='free -h'
@@ -70,3 +68,4 @@ alias astcc='clang -Xclang -ast-dump -fsyntax-only'
 alias astfc='flang-new -fc1 -fdebug-dump-parse-tree'
 
 alias gdb='gdb -ex start --args'
+alias j='just'

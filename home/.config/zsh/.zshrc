@@ -171,6 +171,9 @@ set zle_bracketed_paste  # Explicitly restore this zsh default
 autoload -Uz bracketed-paste-magic
 zle -N bracketed-paste bracketed-paste-magic
 
+autoload -Uz select-word-style
+select-word-style shell
+
 safesource /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 if [ -n "$ZSH_HIGHLIGHT_STYLES" ]; then
@@ -184,8 +187,7 @@ bindkey '^[[Z' autosuggest-accept
 
 safesource /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
 
-safesource /etc/profile.d/fzf.zsh || safesource /usr/share/fzf/key-bindings.zsh
-safesource /usr/share/zsh/site-functions/_fzf || safesource /usr/share/fzf/completion.zsh
+source <(fzf --zsh)
 
 fzf-history-widget-accept() {
     fzf-history-widget
@@ -193,3 +195,26 @@ fzf-history-widget-accept() {
 }
 zle     -N     fzf-history-widget-accept
 bindkey '^X^R' fzf-history-widget-accept
+
+_fzf_compgen_path() {
+  fd --hidden --follow --exclude ".git" . "$1"
+}
+
+# Use fd to generate the list for directory completion
+_fzf_compgen_dir() {
+  fd --type d --hidden --follow --exclude ".git" . "$1"
+}
+
+compdef g=git
+compdef j=just
+compdef n=nvim
+compdef ndiff=nvim
+compdef nd=nvim
+compdef nview=nvim
+compdef nv=nvim
+compdef sys=systemctl
+compdef ssys=systemctl
+compdef sysu=systemctl
+compdef l=lsd
+compdef la=lsd
+compdef lt=lsd

@@ -12,11 +12,9 @@
     pager = delta
 [branch]
     sort=-committerdate
-[web]
-    browser = librewolf
 [diff]
     tool = nvimdiff
-    algorithm = histogram
+    # algorithm = histogram
     colorMoved = default
     mnemonicPrefix = true
     relative = true
@@ -32,6 +30,7 @@
     cmd = difft "$MERGED" "$LOCAL" "abcdef1" "100644" "$REMOTE" "abcdef2" "100644"
 [rebase]
     autoStash = true
+    autoSquash = true
 [fetch]
     recurseSubmodules = on-demand
     prune = true
@@ -44,7 +43,7 @@
     name = mergiraf
     driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P
 [mergetool]
-    keepTemporaries = false
+    keepBackup = false
 [mergetool "conflictmarker"]
     cmd = $EDITOR "$MERGED"
 [commit]
@@ -61,8 +60,6 @@
 [interactive]
     singleKey = true
     diffFilter = delta --color-only
-[format]
-    signOff = true
 [advice]
     detachedHead = false
     skippedCherryPicks = false
@@ -70,10 +67,12 @@
     navigate = true
     features = gruvmax-fang zebra-dark
     dark = true
-    #side-by-side = true
+    side-by-side = true
     line-numbers = true
     relative-paths = true
     hyperlinks = true
+[absorb]
+    autoStageIfNothingStaged = true
 [alias]
     cl = clone
     br = branch -vv
@@ -127,7 +126,9 @@
     dl = -c diff.external=difft log -p --ext-diff
     ds = -c diff.external=difft show --ext-diff
     dft = -c diff.external=difft diff
-[includeIf "gitdir:/devspace/"]
+[includeIf "gitdir:/home/*/work/"]
     path = config-work
 [includeIf "gitdir:~/doxfiles/.git"]
+    path = config-personal
+[includeIf "gitdir:~/personal/"]
     path = config-personal

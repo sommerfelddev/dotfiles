@@ -1,198 +1,117 @@
-local map = require("mapper")
-
-local function handler_splitcmd(_, uri, splitcmd)
-  if not uri or uri == "" then
-    vim.api.nvim_echo({ { "Corresponding file cannot be determined" } }, false, {})
-    return
-  end
-  local file_name = vim.uri_to_fname(uri)
-  vim.api.nvim_cmd({
-    cmd = splitcmd,
-    args = { file_name },
-  }, {})
-end
-
-local function switch_source_header_splitcmd(bufnr, splitcmd)
-  bufnr = bufnr or 0
-  vim.lsp.buf_request(bufnr, "textDocument/switchSourceHeader", {
-    uri = vim.uri_from_bufnr(bufnr),
-  }, function(err, uri) return handler_splitcmd(err, uri, splitcmd) end)
-end
-
-local function edit_source_header(bufnr)
-  switch_source_header_splitcmd(bufnr, "edit")
-end
-
-local function split_source_header(bufnr)
-  switch_source_header_splitcmd(bufnr, "split")
-end
-
-local function vsplit_source_header(bufnr)
-  switch_source_header_splitcmd(bufnr, "vsplit")
-end
-
-local function tabedit_source_header(bufnr)
-  switch_source_header_splitcmd(bufnr, "tabedit")
-end
-
 return {
   {
-    "lewis6991/hover.nvim",
-    config = function()
-      require("hover").setup {
-        init = function()
-          require("hover.providers.lsp")
-          require('hover.providers.gh')
-          require('hover.providers.man')
-          -- require('hover.providers.dictionary')
-        end,
-      }
-
-      vim.keymap.set("n", "K", require("hover").hover, { desc = "hover.nvim" })
-      vim.keymap.set("n", "gh", require("hover").hover, { desc = "hover.nvim" })
-      vim.keymap.set("n", "gK", require("hover").hover_select,
-        { desc = "hover.nvim (select)" })
-    end
-  },
-  {
-    'neovim/nvim-lspconfig',
-    config = function()
-      local lspconfig = require("lspconfig")
-      -- Enable (broadcasting) snippet capability for completion
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities.textDocument.completion.completionItem.snippetSupport = true
-      capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = true
-      if pcall(require, "cmp_nvim_lsp") then
-        capabilities = require("cmp_nvim_lsp").default_capabilities()
-      end
-
-      lspconfig.util.default_config = vim.tbl_extend(
-        "force",
-        lspconfig.util.default_config,
-        {
-          capabilities = capabilities,
-        }
-      )
-
-      local servers = {
-        bashls = {},
-        dockerls = {},
-        fortls = {},
-        lua_ls = {},
-        ruff = {},
-        ts_ls = {},
-        pyright = {},
-        clangd = {
-          on_attach = function(_, bufnr)
-            map.n("gH", edit_source_header, { buffer = bufnr })
-            map.n("gvH", vsplit_source_header, { buffer = bufnr })
-            map.n("gxH", split_source_header, { buffer = bufnr })
-            map.n("gtH", tabedit_source_header, { buffer = bufnr })
-          end,
-          init_options = {
-            clangdFileStatus = true,
-          },
-        },
-      }
-
-      for server, config in pairs(servers) do
-        local cmd = config.cmd
-        local config_def = lspconfig[server].config_def
-        if not cmd and config_def then
-          local default_config = config_def.default_config
-          if default_config then
-            cmd = default_config.cmd
-          end
-        end
-        if cmd then
-          if vim.fn.executable(cmd[1]) == 1 then
-            lspconfig[server].setup(config)
-          end
-        end
-      end
-
-      vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function(args)
-          local bufnr = args.buf
-          local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
-
-          if client.supports_method("textDocument/codeLens") then
-            vim.api.nvim_create_autocmd(
-              { "CursorHold", "CursorHoldI", "InsertLeave" },
-              { buffer = bufnr, callback = vim.lsp.codelens.refresh }
-            )
-            map.n("gl", vim.lsp.codelens.run, { buffer = bufnr })
-          end
-
-          map.n("<c-]>", vim.lsp.buf.definition, { buffer = bufnr })
-          map.n("gD", vim.lsp.buf.declaration, { buffer = bufnr })
-          map.n("gR", vim.lsp.buf.rename, { buffer = bufnr })
-          map.n("ga", vim.lsp.buf.code_action, { buffer = bufnr })
-          map.v("ga", vim.lsp.buf.code_action, { buffer = bufnr })
-
-          -- The following two autocommands are used to highlight references of the
-          -- word under your cursor when your cursor rests there for a little while.
-          --    See `:help CursorHold` for information about when this is executed
-          --
-          -- When you move your cursor, the highlights will be cleared (the second autocommand).
-          if client.server_capabilities.documentHighlightProvider then
-            local highlight_augroup = vim.api.nvim_create_augroup('lsp-highlight', { clear = false })
-            vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
-              buffer = bufnr,
-              group = highlight_augroup,
-              callback = vim.lsp.buf.document_highlight,
-            })
-
-            vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
-              buffer = bufnr,
-              group = highlight_augroup,
-              callback = vim.lsp.buf.clear_references,
-            })
-
-            vim.api.nvim_create_autocmd('LspDetach', {
-              group = vim.api.nvim_create_augroup('lsp-detach', { clear = true }),
-              callback = function(event2)
-                vim.lsp.buf.clear_references()
-                vim.api.nvim_clear_autocmds { group = 'lsp-highlight', buffer = event2.buf }
-              end,
-            })
-          end
-
-          -- The following autocommand is used to enable inlay hints in your
-          -- code, if the language server you are using supports them
-          --
-          -- This may be unwanted, since they displace some of your code
-          if client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
-            map.n('<leader>th', function()
-              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({}))
-              vim.lsp.inlay_hint.enable()
-            end, { buffer = bufnr })
-          end
-        end,
-      })
-    end,
-    dependencies = {
-      { 'folke/neodev.nvim', opts = {} },
+    "folke/lazydev.nvim",
+    ft = "lua",
+    opts = {
+      library = {
+        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      },
     },
   },
   {
-    "ray-x/lsp_signature.nvim",
-    event = "VeryLazy",
-    config = function()
-      local lsp_signature = require "lsp_signature"
-      lsp_signature.setup({})
-
-      vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function(args)
-          local bufnr = args.buf
-          local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
-          if client.supports_method("textDocument/signatureHelp") then
-            require("lsp_signature").on_attach({}, bufnr)
-            map.n("gs", vim.lsp.buf.signature_help, { buffer = bufnr })
-          end
+    "lewis6991/hover.nvim",
+    keys = {
+      {
+        "K",
+        function()
+          require("hover").hover({})
         end,
-      })
-    end
+        desc = "Hover",
+      },
+      {
+        "gK",
+        function()
+          require("hover").hover_select({})
+        end,
+        desc = "Hover Select",
+      },
+      {
+        "gh",
+        function()
+          require("hover").hover({})
+        end,
+        desc = "[H]over",
+      },
+    },
+    opts = {
+      init = function()
+        require("hover.providers.lsp")
+        require("hover.providers.man")
+        require("hover.providers.dap")
+        -- require("hover.providers.gh")
+        require("hover.providers.dictionary")
+      end,
+    },
+  },
+  {
+    "neovim/nvim-lspconfig",
+    version = false,
+    dependencies = {
+      { "j-hui/fidget.nvim", opts = {} },
+      "saghen/blink.cmp",
+      { "williamboman/mason.nvim", opts = {} },
+      {
+        "williamboman/mason-lspconfig.nvim",
+        opts = {
+          ensure_installed = {},
+          automatic_installation = false,
+          handlers = {
+            function(server_name)
+              vim.lsp.enable(server_name)
+            end,
+          },
+        },
+      },
+      {
+        "WhoIsSethDaniel/mason-tool-installer.nvim",
+        opts = {
+          ensure_installed = {
+            -- "nginx-language-server", -- needs python <= 3.12
+            -- "just-lsp", -- "Platform unsupported"
+            "actionlint",
+            "autotools-language-server",
+            "bash-language-server",
+            "clangd",
+            "codelldb",
+            "codespell",
+            "css-lsp",
+            "dockerfile-language-server",
+            "fortls",
+            "gh",
+            "gh-actions-language-server",
+            "groovy-language-server",
+            "hadolint",
+            "html-lsp",
+            "jq",
+            "jsonlint",
+            "lua-language-server",
+            "markdownlint",
+            "mdformat",
+            "neocmakelsp",
+            "nginx-config-formatter",
+            "npm-groovy-lint",
+            "prettier",
+            "ruff",
+            "rust-analyzer",
+            "shellcheck",
+            -- "shellharden",
+            "shfmt",
+            "stylelint",
+            "stylua",
+            "systemd-language-server",
+            "systemdlint",
+            "typescript-language-server",
+            "typos",
+            "yamllint",
+            "yq",
+          },
+        },
+      },
+    },
+    config = function()
+      vim.lsp.enable("just")
+      vim.lsp.enable("tblgen_lsp_server")
+    end,
   },
   {
     "stevearc/conform.nvim",
@@ -205,19 +124,32 @@ return {
           require("conform").format({ async = true, lsp_fallback = true })
         end,
         mode = "",
-        desc = "Format buffer",
+        desc = "[F]ormat buffer",
       },
     },
     config = function()
       require("conform").setup({
         formatters_by_ft = {
-          python = { "ruff_format" },
-          cmake = { "cmake_format" },
-          json = { "jq" },
-          rust = { "rustfmt" },
-          sh = { "shfmt" },
+          awk = { "gawk" },
           bash = { "shfmt" },
-          zsh = { "shfmt" },
+          cmake = { "cmake_format" },
+          css = { "prettier", "stylelint" },
+          groovy = { "npm-groovy-lint" },
+          html = { "prettier" },
+          javascript = { "prettier" },
+          typecript = { "prettier" },
+          jenkins = { "npm-groovy-lint" },
+          json = { "jq", "jsonlint" },
+          jsonc = { "prettier" },
+          just = { "just" },
+          markdown = { "mdformat" },
+          nginx = { "nginxfmt" },
+          lua = { "stylua" },
+          python = { "ruff_format", "ruff_fix", "ruff_organize_imports" },
+          rust = { "rustfmt" },
+          sh = { "shfmt", "shellcheck", "shellharden" },
+          yaml = { "yamllint" },
+          zsh = { "shfmt", "shellcheck", "shellharden" },
         },
         default_format_opts = {
           lsp_format = "fallback",
@@ -229,29 +161,80 @@ return {
         },
       })
       vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
-      vim.api.nvim_create_autocmd("BufWritePre", {
-        callback = require "cfg.utils".format_hunks,
-      })
     end,
   },
   {
-    'mrcjkb/rustaceanvim',
-    lazy = false,
+    "mrcjkb/rustaceanvim",
+    ft = "rust",
   },
   {
     "mfussenegger/nvim-lint",
-    event = { 'BufReadPre', 'BufNewFile' },
+    event = { "BufReadPre", "BufNewFile" },
     config = function()
-      local lint = require('lint')
+      local lint = require("lint")
+
       lint.linters_by_ft = {
+        css = { "stylelint" },
         dockerfile = { "hadolint" },
+        groovy = { "npm-groovy-lint" },
+        jenkins = { "npm-groovy-lint" },
+        json = { "jsonlint" },
+        markdown = { "markdownlint" },
+        makefile = { "checkmake" },
+        systemd = { "systemdlint" },
+        yaml = { "yamllint", "yq" },
+        ghaction = { "actionlint" },
+        zsh = { "zsh" },
+        ["*"] = { "codespell", "typos" },
       }
-      vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost", "InsertLeave" }, {
+      local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
+      vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost" }, {
+        group = lint_augroup,
         callback = function()
-          lint.try_lint()
-        end
+          if vim.opt_local.modifiable:get() then
+            lint.try_lint()
+          end
+        end,
       })
-    end
+    end,
   },
   { "j-hui/fidget.nvim", opts = {} },
+  {
+    "rachartier/tiny-inline-diagnostic.nvim",
+    event = "VeryLazy",
+    priority = 1000,
+    opts = {
+      options = {
+        show_source = {
+          if_many = true,
+        },
+        -- Set the arrow icon to the same color as the first diagnostic severity
+        set_arrow_to_diag_color = true,
+        -- Configuration for multiline diagnostics
+        -- Can be a boolean or a table with detailed options
+        multilines = {
+          -- Enable multiline diagnostic messages
+          enabled = true,
+        },
+
+        -- Display all diagnostic messages on the cursor line, not just those under cursor
+        show_all_diags_on_cursorline = true,
+        -- Enable diagnostics in Select mode (e.g., when auto-completing with Blink)
+        enable_on_select = true,
+        -- Configuration for breaking long messages into separate lines
+        break_line = {
+          -- Enable breaking messages after a specific length
+          enabled = true,
+        },
+        -- Filter diagnostics by severity levels
+        -- Available severities: vim.diagnostic.severity.ERROR, WARN, INFO, HINT
+        severity = {
+          vim.diagnostic.severity.ERROR,
+          vim.diagnostic.severity.WARN,
+          vim.diagnostic.severity.INFO,
+          vim.diagnostic.severity.HINT,
+        },
+      },
+    },
+  },
 }
