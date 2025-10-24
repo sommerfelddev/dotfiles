@@ -76,17 +76,18 @@ return {
         "WhoIsSethDaniel/mason-tool-installer.nvim",
         opts = {
           ensure_installed = {
-            -- "nginx-language-server", -- needs python <= 3.12
-            -- "just-lsp", -- "Platform unsupported"
+            "nginx-language-server", -- needs python <= 3.12
+            "just-lsp", -- "Platform unsupported"
             "actionlint",
             "autotools-language-server",
+            "basedpyright",
             "bash-language-server",
             "clangd",
             "codelldb",
             "codespell",
             "css-lsp",
             "dockerfile-language-server",
-            "fortls",
+            -- "fortls",
             "gh",
             "gh-actions-language-server",
             "groovy-language-server",
@@ -104,7 +105,7 @@ return {
             "ruff",
             "rust-analyzer",
             "shellcheck",
-            -- "shellharden",
+            "shellharden",
             "shfmt",
             "stylelint",
             "stylua",
