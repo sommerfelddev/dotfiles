@@ -1,5 +1,5 @@
 pkgname=sommerfeld-dev
-pkgver=5
+pkgver=6
 pkgrel=1
 arch=('any')
 license=('MIT')
@@ -15,7 +15,6 @@ depends=(
   'hyperfine'
   'jdk-openjdk'
   'just'
-  'just-lsp'
   'luarocks'
   'mergiraf'
   'npm'
