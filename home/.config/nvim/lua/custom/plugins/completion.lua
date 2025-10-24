@@ -4,6 +4,14 @@ return {
     cmd = "Copilot",
     build = ":Copilot auth",
     event = "InsertEnter",
+    dependencies = {
+      {
+        "copilotlsp-nvim/copilot-lsp",
+        init = function()
+          vim.g.copilot_nes_debounce = 500
+        end,
+      },
+    },
     keys = {
       {
         "<leader>tc",
@@ -16,6 +24,21 @@ return {
     opts = {
       suggestion = { enabled = false },
       panel = { enabled = false },
+      server_opts_overrides = {
+        settings = {
+          telemetry = {
+            telemetryLevel = "off",
+          },
+        },
+      },
+      nes = {
+        enabled = true,
+        keymap = {
+          accept_and_goto = "<leader>p",
+          accept = false,
+          dismiss = "<Esc>",
+        },
+      },
     },
   },
   {
@@ -28,6 +51,7 @@ return {
       "rafamadriz/friendly-snippets",
       "fang2hou/blink-copilot",
       "rcarriga/cmp-dap",
+      "xzbdmw/colorful-menu.nvim",
     },
     opts = {
       keymap = {
@@ -38,6 +62,26 @@ return {
         use_nvim_cmp_as_default = true,
       },
       completion = {
+        menu = {
+          draw = {
+            -- treesitter = { "lsp" },
+            -- We don't need label_description now because label and label_description are already
+            -- combined together in label by colorful-menu.nvim.
+            columns = { { "kind_icon" }, { "label", gap = 1 } },
+            components = {
+              label = {
+                text = function(ctx)
+                  return require("colorful-menu").blink_components_text(ctx)
+                end,
+                highlight = function(ctx)
+                  return require("colorful-menu").blink_components_highlight(
+                    ctx
+                  )
+                end,
+              },
+            },
+          },
+        },
         list = {
           selection = {
             preselect = function()
@@ -59,6 +103,7 @@ return {
         default = { "lazydev", "lsp", "copilot", "snippets", "path", "buffer" },
         per_filetype = {
           ["dap-repl"] = { "dap" },
+          codecompanion = { "codecompanion" },
         },
         providers = {
           path = {
@@ -89,7 +134,18 @@ return {
     dependencies = "saghen/blink.download",
     opts = {
       mappings = {
-        disabled_filetypes = { "TelescopePrompt" },
+        disabled_filetypes = {},
+      },
+      highlights = {
+        groups = {
+          "RainbowRed",
+          "RainbowYellow",
+          "RainbowBlue",
+          "RainbowOrange",
+          "RainbowGreen",
+          "RainbowViolet",
+          "RainbowCyan",
+        },
       },
     },
   },
