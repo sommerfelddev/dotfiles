@@ -74,8 +74,8 @@ super+alt+c
 super+F5
     stream
 
-super+F6
-    record
+super+shift+r
+    record toggle
 
 super+shift+a
     automute
