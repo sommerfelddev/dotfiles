@@ -276,10 +276,12 @@ return {
       local overseer = require("overseer")
       overseer.setup({})
       overseer.add_template_hook({ name = ".*" }, function(task_defn, util)
-        util.add_component(
-          task_defn,
-          { "open_output", on_start = "never", on_complete = "failure" }
-        )
+        util.add_component(task_defn, {
+          "open_output",
+          on_start = "never",
+          on_complete = "failure",
+          direction = "vertical",
+        })
       end)
     end,
   },
