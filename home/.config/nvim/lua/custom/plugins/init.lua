@@ -186,6 +186,15 @@ return {
         desc = "[O]verseer [B]uild",
       },
       {
+        "<leader>oB",
+        function()
+          require("overseer").run_template({
+            name = "just build",
+          })
+        end,
+        desc = "[O]verseer [B]uild",
+      },
+      {
         "<leader>ot",
         function()
           require("overseer").run_template({
@@ -196,11 +205,30 @@ return {
         desc = "[O]verseer [J]ust [T]est",
       },
       {
+        "<leader>oT",
+        function()
+          require("overseer").run_template({
+            name = "just test",
+          })
+        end,
+        desc = "[O]verseer [J]ust [T]est",
+      },
+      {
         "<leader>of",
         function()
           require("overseer").run_template({
             name = "just test",
             prompt = "never",
+            params = { target = vim.fn.expand("%") },
+          })
+        end,
+        desc = "[O]verseer test [F]ile",
+      },
+      {
+        "<leader>oF",
+        function()
+          require("overseer").run_template({
+            name = "just test",
             params = { target = vim.fn.expand("%") },
           })
         end,
