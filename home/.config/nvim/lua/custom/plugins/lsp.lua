@@ -14,34 +14,44 @@ return {
       {
         "K",
         function()
-          require("hover").hover({})
+          require("hover").open()
         end,
         desc = "Hover",
       },
       {
         "gK",
         function()
-          require("hover").hover_select({})
+          require("hover").enter()
         end,
-        desc = "Hover Select",
+        desc = "Hover Enter",
       },
       {
         "gh",
         function()
-          require("hover").hover({})
+          require("hover").open()
         end,
         desc = "[H]over",
       },
     },
-    opts = {
-      init = function()
-        require("hover.providers.lsp")
-        require("hover.providers.man")
-        require("hover.providers.dap")
-        -- require("hover.providers.gh")
-        require("hover.providers.dictionary")
-      end,
-    },
+    config = function()
+      require("hover").config({
+        --- List of modules names to load as providers.
+        --- @type (string|Hover.Config.Provider)[]
+        providers = {
+          "hover.providers.diagnostic",
+          "hover.providers.lsp",
+          "hover.providers.dap",
+          "hover.providers.man",
+          "hover.providers.dictionary",
+          -- Optional, disabled by default:
+          "hover.providers.gh",
+          -- 'hover.providers.gh_user',
+          -- 'hover.providers.jira',
+          "hover.providers.fold_preview",
+          -- 'hover.providers.highlight',
+        },
+      })
+    end,
   },
   {
     "neovim/nvim-lspconfig",
