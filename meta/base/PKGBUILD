@@ -1,5 +1,5 @@
 pkgname=sommerfeld-base
-pkgver=5
+pkgver=6
 pkgrel=1
 arch=('any')
 license=('MIT')
@@ -59,6 +59,7 @@ depends=(
   'tldr'
   'tmux'
   'torsocks'
+  'tree-sitter-cli'
   'unzip'
   'wget'
   'wireguard-tools'

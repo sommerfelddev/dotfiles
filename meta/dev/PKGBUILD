@@ -1,5 +1,5 @@
 pkgname=sommerfeld-dev
-pkgver=4
+pkgver=5
 pkgrel=1
 arch=('any')
 license=('MIT')
@@ -10,10 +10,12 @@ depends=(
   'git'
   'git-absorb'
   'git-delta'
+  'github-cli'
   'go'
   'hyperfine'
   'jdk-openjdk'
   'just'
+  'just-lsp'
   'luarocks'
   'mergiraf'
   'npm'

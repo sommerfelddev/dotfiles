@@ -1,5 +1,5 @@
 pkgname=sommerfeld-work
-pkgver=7
+pkgver=8
 pkgrel=1
 arch=('any')
 license=('MIT')
@@ -8,9 +8,10 @@ depends=(
   'compiledb'
   'cuda'
   'cvise'
+  'git-lfs'
   'intel-oneapi-dpcpp-cpp'
   'llvm'
-  'git-lfs'
   'openmp'
+  'python-pytest'
   'xdot'
 )
