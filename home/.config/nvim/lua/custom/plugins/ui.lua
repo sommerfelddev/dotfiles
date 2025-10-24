@@ -36,7 +36,7 @@ return {
 
       vim.g.rainbow_delimiters = { highlight = highlight }
       require("ibl").setup({
-        scope = { highlight = highlight },
+        indent = { highlight = highlight },
       })
 
       hooks.register(
