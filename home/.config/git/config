@@ -51,18 +51,24 @@
 [tag]
     gpgSign = true
 [status]
+    short = true
+    branch = true
     showUntrackedFiles = all
+    showStash = true
     submoduleSummary = true
 [help]
     autocorrect = 1
 [log]
     abbrevCommit = true
+    date = short
 [interactive]
     singleKey = true
     diffFilter = delta --color-only
 [advice]
     detachedHead = false
     skippedCherryPicks = false
+[format]
+    pretty = oneline
 [delta]
     navigate = true
     features = gruvmax-fang zebra-dark
@@ -74,58 +80,45 @@
 [absorb]
     autoStageIfNothingStaged = true
 [alias]
-    cl = clone
-    br = branch -vv
+    ghost-rebase = "!sh -c 'b=$0; u=${1:-origin/master}; wt=$(mktemp -d -t rebwt.XXXXXX); git worktree add -f "$wt" "$b"; git -C "$wt" rebase "$u" || echo "Rebase incomplete"; git worktree remove --force "$wt"'"
+    a = add
+    ab=absorb --and-rebase
+    b = branch -vv
+    bd = branch -D
     c = commit
     ca = commit --amend --no-edit
-    cp = cherry-pick
-    sw = switch --recurse-submodules
-    swc = switch --recurse-submodules -c
-    swd = switch --recurse-submodules -d
-    rt = restore
-    res = reset
-    s = status --branch --short
-    m = merge
-    mt = mergetool
-    ff = merge --ff-only
-    r = rebase
-    rb = rebase
-    ri = rebase -i
-    p = push
-    fp = push --force-with-lease
-    f = fetch
-    fa = fetch --all
     d = diff
-    staged = diff --cached
-    dt = difftool
-    a = add
-    stage = add
-    st = add
-    sub = submodule
-    subf = submodule foreach
-    re = remote -v
-    ra = remote add
-    rs = remote set-url
-    rr = remote remove
-    st = stash
-    sp = stash pop
-    sd = stash drop
-    sl = stash list
-    ss = stash show
-    del = branch -D
-    unstage = reset HEAD --
-    last = log -1 HEAD
-    undo = reset --hard
-    l = log --abbrev-commit -200 --graph --date=short --pretty=oneline
-    update=!git fetch && git merge --ff-only
-    fr=!git fetch && git rebase
-    find-merge = "!sh -c 'commit=$0 && branch=${1:-HEAD} && (git rev-list $commit..$branch --ancestry-path | cat -n; git rev-list $commit..$branch --first-parent | cat -n) | sort -k2 -s | uniq -f1 -d | sort -n | tail -1 | cut -f2'"
-    gone = !git for-each-ref --format '%(refname:short) %(upstream:track)' | awk '$2 == \"[gone]\" {print $1}' | xargs -r git branch -D
-    ab=absorb --and-rebase
-    # `git log` with patches shown with difftastic.
+    dft = -c diff.external=difft diff
     dl = -c diff.external=difft log -p --ext-diff
     ds = -c diff.external=difft show --ext-diff
-    dft = -c diff.external=difft diff
+    dt = difftool
+    f = fetch
+    fa = fetch --all
+    ff = merge --ff-only
+    find-merge = "!sh -c 'commit=$0 && branch=${1:-HEAD} && (git rev-list $commit..$branch --ancestry-path | cat -n; git rev-list $commit..$branch --first-parent | cat -n) | sort -k2 -s | uniq -f1 -d | sort -n | tail -1 | cut -f2'"
+    fp = push --force-with-lease
+    gone = !git for-each-ref --format '%(refname:short) %(upstream:track)' | awk '$2 == \"[gone]\" {print $1}' | xargs -r git branch -D
+    l = log
+    lm = log --pretty=medium
+    m = merge
+    mt = mergetool
+    p = push
+    r = rebase
+    re = remote -v
+    ri = rebase -i
+    rt = restore
+    s = status
+    st = status --no-short
+    stage = add
+    staged = diff --cached
+    sub = submodule
+    subf = submodule foreach
+    sw = switch
+    swc = switch -c
+    swd = switch -d
+    undo = reset --hard
+    unstage = reset HEAD --
+    update=!git fetch && git merge --ff-only
 [includeIf "gitdir:/home/*/work/"]
     path = config-work
 [includeIf "gitdir:~/doxfiles/.git"]
