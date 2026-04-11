@@ -10,7 +10,7 @@
 .venv/
 __pycache__/
 build*/
-compile_commands.json
+/compile_commands.json
 env/
 node_modules/
 venv/
@@ -19,4 +19,4 @@ venv/
 .nvim.lua
 .nvim/
 .ignore
-tablegen_compile_commands.yml
+/tablegen_compile_commands.yml
