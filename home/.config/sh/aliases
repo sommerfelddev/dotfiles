@@ -70,3 +70,4 @@ alias symfc='flang -fc1 -fdebug-dump-symbols'
 
 alias gdb='gdb -ex start --args'
 alias j='just'
+alias copilot='gh copilot --yolo --autopilot --enable-all-github-mcp-tools --resume'
