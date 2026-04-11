@@ -235,6 +235,27 @@ return {
         desc = "[O]verseer test [F]ile",
       },
       {
+        "<leader>od",
+        function()
+          require("overseer").run_template({
+            name = "just debug=true test",
+            prompt = "never",
+            params = { target = vim.fn.expand("%") },
+          })
+        end,
+        desc = "[O]verseer [d]ebug test file",
+      },
+      {
+        "<leader>oD",
+        function()
+          require("overseer").run_template({
+            name = "just debug=true test",
+            params = { target = vim.fn.expand("%") },
+          })
+        end,
+        desc = "[O]verseer [D]ebug test file",
+      },
+      {
         "<leader>oa",
         function()
           require("overseer").run_template({
