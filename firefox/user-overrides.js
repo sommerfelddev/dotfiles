@@ -73,7 +73,7 @@ user_pref("privacy.resistFingerprinting.testGranularityMask", 4);
 /* 4505: experimental RFP [FF91+]
  * [WARNING] DO NOT USE unless testing, see [1] comment 12
  * [1] https://bugzilla.mozilla.org/1635603 ***/
-user_pref("privacy.resistFingerprinting.exemptedDomains", "meet.google.com");
+user_pref("privacy.resistFingerprinting.exemptedDomains", "meet.google.com,teams.microsoft.com");
 
 user_pref("browser.fixup.domainsuffixwhitelist.i2p", true);
 
