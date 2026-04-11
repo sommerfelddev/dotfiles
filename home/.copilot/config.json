@@ -1,0 +1,10 @@
+{
+  "banner": "never",
+  "model": "claude-opus-4.6",
+  "effortLevel": 100,
+  "experimental": true,
+  "includeCoAuthoredBy": false,
+  "firstLaunchAt": "2026-03-11T00:00:00.000Z",
+  "trusted_folders": [
+  ]
+}

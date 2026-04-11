@@ -191,3 +191,6 @@ if [ "$(uname -n)" = "hercules" ]; then
     # shellcheck source=/dev/null
     [ -r  ~/.config/sh/envrc ] && . ~/.config/sh/work-envrc
 fi
+
+export FIRECRAWL_API_KEY="$(pass show copilot/firecrawl-api-key)"
+export SENTRY_ACCESS_TOKEN="$(pass show copilot/sentry-access-token)"
