@@ -14,3 +14,10 @@ InlayHints:
   DefaultArguments: Yes
 Hover:
   ShowAKA: Yes
+# ---
+# If:
+#   PathMatch: ~/llvm-project/.*
+# Index:
+#   External:
+#     Server: clangd.devel.appentra.com:5900
+#     MountPoint: /home/ruifm/work/pw-project
