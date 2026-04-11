@@ -100,7 +100,6 @@ return {
         "jq",
         "jsdoc",
         "json",
-        "jsonc",
         "just",
         "llvm",
         "lua",
