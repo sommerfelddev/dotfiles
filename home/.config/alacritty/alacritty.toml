@@ -47,13 +47,13 @@ mods = "Control|Shift"
 
 [[keyboard.bindings]]
 action = "ScrollLineUp"
-key = "["
-mods = "Alt"
+key = "Up"
+mods = "Control|Shift"
 
 [[keyboard.bindings]]
 action = "ScrollLineDown"
-key = "]"
-mods = "Alt"
+key = "Down"
+mods = "Control|Shift"
 
 [[keyboard.bindings]]
 action = "ScrollPageUp"
