@@ -143,6 +143,18 @@ if [[ "$TERM" == (alacritty|st*|screen*|xterm*|rxvt*|tmux*|putty*|konsole*|gnome
 	add-zsh-hook -Uz preexec xterm_title_preexec
 fi
 
+# ── Zellij tab naming (dir:cmd like tmux) ────────────────────────────────────
+if [[ -n "$ZELLIJ" ]]; then
+	_zellij_tab_precmd() {
+		zellij action rename-tab "${PWD##*/}" 2>/dev/null
+	}
+	_zellij_tab_preexec() {
+		zellij action rename-tab "${PWD##*/}:${1%% *}" 2>/dev/null
+	}
+	add-zsh-hook precmd _zellij_tab_precmd
+	add-zsh-hook preexec _zellij_tab_preexec
+fi
+
 # ── Recent directories ────────────────────────────────────────────────────────
 autoload -Uz chpwd_recent_dirs cdr
 add-zsh-hook chpwd chpwd_recent_dirs
