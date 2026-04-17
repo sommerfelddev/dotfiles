@@ -39,6 +39,7 @@ export LESS="-F --RAW-CONTROL-CHARS"
 [[ -r /usr/bin/source-highlight-esc.sh ]] && export LESSOPEN="| /usr/bin/source-highlight-esc.sh %s"
 
 # ── GPG / SSH ─────────────────────────────────────────────────────────────────
+export GNUPGHOME="$XDG_DATA_HOME/gnupg"
 export GPG_TTY=$TTY
 unset SSH_AGENT_PID
 export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
@@ -85,7 +86,6 @@ export MOZ_ENABLE_WAYLAND=1
 # https://wiki.archlinux.org/title/XDG_Base_Directory#Partial
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
-export GNUPGHOME="$XDG_DATA_HOME/gnupg"
 export GOPATH="$XDG_DATA_HOME/go"
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
