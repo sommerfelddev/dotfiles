@@ -1,0 +1,26 @@
+# Theme (verify: ghostty +list-themes | grep -i gruvbox)
+theme = Gruvbox Dark
+
+# OSC 52 clipboard for zellij (default is "ask" which prompts each time)
+clipboard-read = allow
+
+# Window — no decorations (bspwm manages windows)
+window-decoration = none
+confirm-close-surface = false
+resize-overlay = never
+
+# Disable built-in tab/split keybinds (zellij handles multiplexing)
+keybind = ctrl+shift+t=unbind
+keybind = ctrl+shift+n=unbind
+keybind = ctrl+shift+o=unbind
+keybind = ctrl+shift+enter=unbind
+keybind = ctrl+shift+page_up=unbind
+keybind = ctrl+shift+page_down=unbind
+
+# Scroll keybinds (for use outside zellij)
+keybind = ctrl+shift+up=scroll_page_lines:-1
+keybind = ctrl+shift+down=scroll_page_lines:1
+keybind = alt+u=scroll_page_up
+keybind = alt+d=scroll_page_down
+keybind = alt+g=scroll_to_top
+keybind = alt+shift+g=scroll_to_bottom
