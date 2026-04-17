@@ -189,7 +189,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     then
       nmap("<leader>th", function()
         vim.lsp.inlay_hint.enable(
-          not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf })
+          not vim.lsp.inlay_hint.is_enabled(event.buf)
         )
       end, "[T]oggle Inlay [H]ints")
     end
