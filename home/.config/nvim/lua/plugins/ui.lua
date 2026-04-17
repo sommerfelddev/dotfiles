@@ -75,9 +75,4 @@ return {
       "AndreM222/copilot-lualine",
     },
   },
-  {
-    "jake-stewart/auto-cmdheight.nvim",
-    lazy = false,
-    opts = {},
-  },
 }
