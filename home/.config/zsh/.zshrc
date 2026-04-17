@@ -103,6 +103,20 @@ bindkey '^[[1;3D' backward-word       # Alt-Left
 bindkey '^H'      backward-kill-word  # Ctrl-Backspace
 bindkey '^[[3;5~' kill-word           # Ctrl-Delete
 
+# Ctrl-Z: toggle foreground/background (no need to type 'fg')
+toggle-fg-bg() {
+	if (( ${#jobstates} )); then
+		zle .push-input
+		BUFFER="fg"
+		zle .accept-line
+	else
+		zle .push-input
+		zle .clear-screen
+	fi
+}
+zle -N toggle-fg-bg
+bindkey '^Z' toggle-fg-bg
+
 # Ctrl-D exits even on non-empty line
 exit_zsh() { exit }
 zle -N exit_zsh
