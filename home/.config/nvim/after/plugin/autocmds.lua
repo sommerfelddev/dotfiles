@@ -136,11 +136,7 @@ autocmd("LspAttach", {
     nmap("<c-]>", vim.lsp.buf.definition, "Goto definition")
     nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 
-    -- The following two autocommands are used to highlight references of the
-    -- word under your cursor when your cursor rests there for a little while.
-    --    See `:help CursorHold` for information about when this is executed
-    --
-    -- When you move your cursor, the highlights will be cleared (the second autocommand).
+    -- Highlight references under cursor
     local client = vim.lsp.get_client_by_id(event.data.client_id)
     if
       client
@@ -192,10 +188,7 @@ autocmd("LspAttach", {
       )
     end
 
-    -- The following code creates a keymap to toggle inlay hints in your
-    -- code, if the language server you are using supports them
-    --
-    -- This may be unwanted, since they displace some of your code
+    -- Toggle inlay hints
     if
       client
       and client:supports_method(
