@@ -64,7 +64,7 @@ vim.keymap.set(
   "t",
   "<esc><esc>",
   "<c-\\><c-n>",
-  { silent = true, noremap = true, expr = true, desc = "Exit terminal mode" }
+  { silent = true, noremap = true, desc = "Exit terminal mode" }
 )
 
 nmap("[w", function()
