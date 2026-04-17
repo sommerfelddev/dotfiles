@@ -1,38 +1,62 @@
 #!/bin/sh
 # Cycle display mode: mirror → laptop-off → side-by-side
-# Bound to F7 in sway config
+# Usage: display-toggle.sh [init]
+# Bound to F7 in sway config; also runs at startup with "init"
 
 STATE_FILE="${XDG_RUNTIME_DIR:-/tmp}/display-mode"
-CURRENT=$(cat "$STATE_FILE" 2>/dev/null || echo "mirror")
+MIRROR_PID="${XDG_RUNTIME_DIR:-/tmp}/wl-mirror.pid"
 
 LAPTOP=$(swaymsg -t get_outputs -r | jq -r '.[] | select(.name | test("eDP")) | .name')
 EXTERNAL=$(swaymsg -t get_outputs -r | jq -r '[.[] | select(.name | test("eDP") | not) | .name] | first // empty')
 
 if [ -z "$EXTERNAL" ]; then
-    notify-send "Display" "No external display connected"
+    [ -z "$1" ] && notify-send "Display" "No external display connected"
     exit 0
 fi
 
-# Get laptop panel width for side-by-side positioning
-LAPTOP_WIDTH=$(swaymsg -t get_outputs -r | jq -r ".[] | select(.name == \"$LAPTOP\") | .rect.width")
+# Stop any running wl-mirror
+if [ -f "$MIRROR_PID" ]; then
+    kill "$(cat "$MIRROR_PID")" 2>/dev/null
+    rm -f "$MIRROR_PID"
+fi
+
+LAPTOP_WIDTH=$(swaymsg -t get_outputs -r | jq -r ".[] | select(.name == \"$LAPTOP\") | .current_mode.width")
 [ -z "$LAPTOP_WIDTH" ] && LAPTOP_WIDTH=1920
 
-case "$CURRENT" in
+# On init, go straight to mirror; otherwise cycle
+if [ "$1" = "init" ]; then
+    NEXT="mirror"
+else
+    CURRENT=$(cat "$STATE_FILE" 2>/dev/null || echo "mirror")
+    case "$CURRENT" in
+        mirror) NEXT="laptop-off" ;;
+        laptop-off) NEXT="side-by-side" ;;
+        *) NEXT="mirror" ;;
+    esac
+fi
+
+case "$NEXT" in
     mirror)
-        swaymsg output "$LAPTOP" disable
-        echo "laptop-off" > "$STATE_FILE"
-        notify-send "Display" "Laptop screen off"
+        swaymsg output "$LAPTOP" enable
+        swaymsg output "$EXTERNAL" enable
+        swaymsg focus output "$EXTERNAL"
+        wl-mirror "$LAPTOP" &
+        echo $! > "$MIRROR_PID"
+        sleep 0.3
+        swaymsg focus output "$LAPTOP"
+        echo "mirror" > "$STATE_FILE"
+        [ -z "$1" ] && notify-send "Display" "Mirror mode"
         ;;
     laptop-off)
-        swaymsg output "$LAPTOP" enable pos 0 0
-        swaymsg output "$EXTERNAL" pos "$LAPTOP_WIDTH" 0
-        echo "side-by-side" > "$STATE_FILE"
-        notify-send "Display" "Side by side"
+        swaymsg output "$LAPTOP" disable
+        swaymsg output "$EXTERNAL" enable
+        echo "laptop-off" > "$STATE_FILE"
+        [ -z "$1" ] && notify-send "Display" "Laptop screen off"
         ;;
-    side-by-side|*)
+    side-by-side)
         swaymsg output "$LAPTOP" enable pos 0 0
-        swaymsg output "$EXTERNAL" pos 0 0
-        echo "mirror" > "$STATE_FILE"
-        notify-send "Display" "Mirror mode"
+        swaymsg output "$EXTERNAL" enable pos "$LAPTOP_WIDTH" 0
+        echo "side-by-side" > "$STATE_FILE"
+        [ -z "$1" ] && notify-send "Display" "Side by side"
         ;;
 esac

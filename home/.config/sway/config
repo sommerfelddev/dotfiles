@@ -37,12 +37,12 @@ seat * hide_cursor 3000
 
 # ── Output ────────────────────────────────────────────────────────────────────
 output * bg #282828 solid_color
-output * pos 0 0
 
 # ── Window rules ──────────────────────────────────────────────────────────────
 for_window [class="feh"] floating enable
 for_window [app_id="imv"] floating enable
 for_window [class="Tor Browser"] floating enable
+for_window [app_id="at.yrlf.wl_mirror"] fullscreen enable
 
 # ── Standard keybinds (sway defaults) ─────────────────────────────────────────
 bindsym $mod+Return exec $term
@@ -155,3 +155,4 @@ bar {
 exec systemctl --user import-environment WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
 exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
 exec mako
+exec "sleep 1 && ~/.config/sway/display-toggle.sh init"

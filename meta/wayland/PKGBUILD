@@ -30,6 +30,7 @@ depends=(
   'grim'
   'slurp'
   'wf-recorder'
+  'wl-mirror'
 
   # Image viewer
   'imv'
