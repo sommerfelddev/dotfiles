@@ -7,10 +7,10 @@ This is a personal dotfiles repository for an Arch Linux system. Configuration f
 ## Architecture
 
 - `home/` mirrors `$HOME` — everything under it maps 1:1 to the home directory (e.g. `home/.config/nvim/` → `~/.config/nvim/`). Deployed with `stow -R --no-folding --adopt`.
-- `etc/` and `etc2/` contain system-level configs (`/etc/` targets) — systemd units, pacman hooks, sysctl tunables, kernel module loading.
+- `etc/` contains system-level configs (`/etc/` targets) that can be deployed via stow symlinks — systemd units, pacman hooks, sysctl tunables, kernel module loading.
+- `etc2/` also targets `/etc/` but holds configs for tools that refuse to follow symlinks (e.g. reflector). These must be manually copied to their target paths.
 - `meta/` contains Arch Linux PKGBUILDs that bundle groups of packages into metapackages (e.g. `sommerfeld-base`, `sommerfeld-dev`). Each subdirectory is a standalone PKGBUILD recipe with a `.SRCINFO` and pre-built `.pkg.tar.zst` artifacts.
-- `lists/` holds keymap files (e.g. `caps2esc.map`).
-- `barscripts/` is unused (legacy X11 polybar scripts, removed).
+
 - `firefox/` contains Firefox hardening overrides and custom CSS.
 - `create-efi.sh` is an interactive EFI boot entry creation script using `efibootmgr`.
 
