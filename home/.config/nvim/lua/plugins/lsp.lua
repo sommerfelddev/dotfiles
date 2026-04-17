@@ -167,17 +167,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
         event.buf
       )
     then
-      vim.api.nvim_create_autocmd(
-        { "CursorHold", "CursorHoldI", "InsertLeave" },
-        {
-          buffer = bufnr,
-          group = vim.api.nvim_create_augroup(
-            "codelens",
-            { clear = true }
-          ),
-          callback = vim.lsp.codelens.refresh,
-        }
-      )
+      vim.lsp.codelens.enable(true, { bufnr = bufnr })
     end
 
     if
