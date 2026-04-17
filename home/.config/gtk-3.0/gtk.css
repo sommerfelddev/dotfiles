@@ -18,11 +18,11 @@
   background-color: #ededed;
   box-shadow: none;
 }
-GtkLabel.title {
+headerbar .title {
     opacity: 0;
 }
 /* Always use background color */
-GtkWindow {
+window {
     background-color: @theme_bg_color;
 }
 
@@ -33,9 +33,4 @@ GtkWindow {
 
 .tooltip * {
     background-color: transparent;
-}
-
-/* Fix Nautilus desktop window background override */
-NautilusWindow {
-     background-color: transparent;
 }

@@ -51,7 +51,6 @@ export FZF_DEFAULT_OPTS="--ansi --layout=reverse --inline-info --cycle --color=d
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}' --select-1 --exit-0"
 export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview' --sort --exact"
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
-[[ -n $TMUX ]] && export FZF_TMUX=1
 
 # ── Git prompt ────────────────────────────────────────────────────────────────
 export GIT_PS1_SHOWDIRTYSTATE=1
@@ -73,7 +72,7 @@ export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswi
 export _JAVA_AWT_WM_NONREPARENTING=1
 
 # ── Miscellaneous ─────────────────────────────────────────────────────────────
-export QT_QPA_PLATFORMTHEME=qt5ct
+export QT_QPA_PLATFORMTHEME=qt6ct
 export NO_AT_BRIDGE=1          # suppress GTK accessibility bus warnings
 export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/podman/podman.sock"
 export INPUTRC="$XDG_CONFIG_HOME/sh/inputrc"
@@ -89,7 +88,6 @@ export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
 export GNUPGHOME="$XDG_DATA_HOME/gnupg"
 export GOPATH="$XDG_DATA_HOME/go"
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
-export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc-2.0"
 export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
 export PASSWORD_STORE_DIR="$XDG_DATA_HOME/password-store"
 export RUFF_CACHE_DIR="$XDG_CACHE_HOME/ruff"
