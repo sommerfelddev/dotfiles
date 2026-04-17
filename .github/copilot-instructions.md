@@ -1,0 +1,40 @@
+# Copilot Instructions
+
+## Repository overview
+
+This is a personal dotfiles repository for an Arch Linux system. Configuration files are organized to mirror their filesystem targets and deployed via GNU Stow symlinks.
+
+## Architecture
+
+- `home/` mirrors `$HOME` — everything under it maps 1:1 to the home directory (e.g. `home/.config/nvim/` → `~/.config/nvim/`). Deployed with `stow -R --no-folding --adopt`.
+- `etc/` and `etc2/` contain system-level configs (`/etc/` targets) — systemd units, pacman hooks, sysctl tunables, kernel module loading.
+- `meta/` contains Arch Linux PKGBUILDs that bundle groups of packages into metapackages (e.g. `sommerfeld-base`, `sommerfeld-dev`). Each subdirectory is a standalone PKGBUILD recipe with a `.SRCINFO` and pre-built `.pkg.tar.zst` artifacts.
+- `lists/` holds keymap files (e.g. `caps2esc.map`).
+- `barscripts/` has polybar status bar scripts (GPU stats).
+- `firefox/` contains Firefox hardening overrides and custom CSS.
+- `create-efi.sh` is an interactive EFI boot entry creation script using `efibootmgr`.
+
+## Shell configuration
+
+Zsh-only setup with three files:
+
+- `home/.zshenv` — bootstrap: sets `ZDOTDIR=$HOME/.config/zsh` so all zsh config lives under XDG.
+- `home/.config/zsh/.zprofile` — login shell: environment variables, XDG dirs, PATH, tool configs, host-specific hardware settings (NVIDIA vs Intel keyed on `$HOST`), secrets via `pass`.
+- `home/.config/zsh/.zshrc` — interactive shell: options, completion, keybindings, aliases, plugins.
+
+Additionally, `home/.config/sh/inputrc` provides readline config for non-zsh tools (python REPL, etc.).
+
+## Key conventions
+
+- **XDG compliance**: All tools are configured to respect XDG base directories. History files, caches, and data go to `$XDG_CACHE_HOME`, `$XDG_DATA_HOME`, etc. — never bare `~/` dotfiles when avoidable.
+- **`doas` over `sudo`**: The system uses `doas` as the privilege escalation tool; `sudo` is aliased to `doas`.
+- **GPG-signed commits**: All git commits and tags are signed. The GPG agent also handles SSH authentication.
+- **Secrets via `pass`**: API keys and tokens are stored in the `pass` password manager and sourced into env vars at shell init, never hardcoded.
+- **Host-specific branching in `.zprofile`**: Hardware-dependent config (GPU drivers, display scaling) is conditioned on `$HOST` (hostnames: `hercules`, `halley2`).
+- **EditorConfig**: LF line endings, UTF-8, final newlines, trimmed trailing whitespace. Lua uses 2-space indentation with 80-char line limit. Makefiles use tabs.
+
+## Editing guidelines
+
+When modifying configs, preserve the stow-compatible directory structure — paths under `home/` must exactly match their `$HOME` targets. Do not introduce files that break the 1:1 mapping.
+
+When editing shell config, all zsh configuration goes in `.config/zsh/` — do not create files in `home/.config/sh/` (only `inputrc` remains there).
