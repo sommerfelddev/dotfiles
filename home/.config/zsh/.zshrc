@@ -11,12 +11,20 @@ setopt extendedglob        # extended glob patterns (#, ~, ^)
 setopt interactivecomments # allow # comments in interactive shell
 setopt rmstarsilent        # don't confirm rm *
 setopt prompt_subst        # expand variables/functions in prompt
+setopt auto_pushd          # cd pushes old dir onto stack (cd -<TAB> to browse)
+setopt pushd_ignore_dups   # don't push duplicate dirs onto stack
 unsetopt beep              # no terminal bell
 
 # ── History ───────────────────────────────────────────────────────────────────
 HISTFILE="$XDG_STATE_HOME/zsh/history"
 HISTSIZE=50000
 SAVEHIST=50000
+setopt extended_history       # save timestamp and duration per entry
+setopt share_history          # share history across concurrent sessions
+setopt hist_ignore_all_dups   # remove older duplicate when adding new entry
+setopt hist_find_no_dups      # skip duplicates when searching history
+setopt hist_reduce_blanks     # trim superfluous whitespace from entries
+setopt hist_ignore_space      # commands starting with space are not saved
 
 # ── Emacs keybindings ─────────────────────────────────────────────────────────
 bindkey -e
