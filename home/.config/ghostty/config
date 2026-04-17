@@ -9,6 +9,9 @@ shell-integration-features = no-cursor
 # OSC 52 clipboard for zellij (default is "ask" which prompts each time)
 clipboard-read = allow
 
+# Bell — request urgency hint on BEL so sway/waybar highlight the workspace
+bell-features = attention,title
+
 # Window — no decorations (sway manages windows)
 window-decoration = none
 confirm-close-surface = false
