@@ -48,6 +48,9 @@ keybinds {
         // Session
         bind "Alt q" { Detach; }
 
+        // Toggle mouse mode (disable to Ctrl+click URLs in Ghostty)
+        bind "Alt m" { ToggleMouseMode; }
+
         // Quick resize without entering resize mode
         bind "Alt -" { Resize "Decrease"; }
         bind "Alt =" { Resize "Increase"; }

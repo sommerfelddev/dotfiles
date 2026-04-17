@@ -204,6 +204,7 @@ All binds are in `shared_except "locked"` mode (active everywhere except locked 
 | `Alt-x` | Close focused pane |
 | `Alt-e` | Edit scrollback |
 | `Alt-q` | Detach session |
+| `Alt-m` | Toggle mouse mode |
 | `Alt--` / `Alt-=` | Resize decrease / increase |
 | `Ctrl-h/j/k/l` | Move focus (vim-zellij-navigator) |
 
