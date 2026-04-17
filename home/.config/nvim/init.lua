@@ -50,7 +50,7 @@ vim.pack.add({
   gh("rcarriga/cmp-dap"),
   gh("xzbdmw/colorful-menu.nvim"),
   { src = gh("saghen/blink.pairs"), version = vim.version.range("*") },
-  { src = gh("saghen/blink.download"), version = vim.version.range("*") },
+  { src = gh("saghen/blink.download"), version = "main" },
 
   -- Editing
   gh("nmac427/guess-indent.nvim"),
