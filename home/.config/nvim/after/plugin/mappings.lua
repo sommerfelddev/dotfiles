@@ -31,7 +31,6 @@ ncmd("<esc>", "nohlsearch")
 nmap("<Space>", "<Nop>")
 
 -- make an accidental ; press also enter command mode
--- temporarily disabled to to vim-sneak plugin
 nmap(";", ":")
 
 -- highlight last inserted text
