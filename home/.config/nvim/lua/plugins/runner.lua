@@ -1,7 +1,6 @@
 return {
   {
     "stevearc/overseer.nvim",
-    version = "v1.6.0",
     keys = {
       {
         "<leader>to",
@@ -13,9 +12,9 @@ return {
       {
         "<leader>ob",
         function()
-          require("overseer").run_template({
+          require("overseer").run_task({
             name = "just build",
-            prompt = "never",
+            disallow_prompt = true,
           })
         end,
         desc = "[O]verseer [B]uild",
@@ -23,7 +22,7 @@ return {
       {
         "<leader>oB",
         function()
-          require("overseer").run_template({
+          require("overseer").run_task({
             name = "just build",
           })
         end,
@@ -32,9 +31,9 @@ return {
       {
         "<leader>ot",
         function()
-          require("overseer").run_template({
+          require("overseer").run_task({
             name = "just test",
-            prompt = "never",
+            disallow_prompt = true,
           })
         end,
         desc = "[O]verseer [J]ust [T]est",
@@ -42,7 +41,7 @@ return {
       {
         "<leader>oT",
         function()
-          require("overseer").run_template({
+          require("overseer").run_task({
             name = "just test",
           })
         end,
@@ -51,9 +50,9 @@ return {
       {
         "<leader>of",
         function()
-          require("overseer").run_template({
+          require("overseer").run_task({
             name = "just test",
-            prompt = "never",
+            disallow_prompt = true,
             params = { target = vim.fn.expand("%") },
           })
         end,
@@ -62,7 +61,7 @@ return {
       {
         "<leader>oF",
         function()
-          require("overseer").run_template({
+          require("overseer").run_task({
             name = "just test",
             params = { target = vim.fn.expand("%") },
           })
@@ -72,9 +71,9 @@ return {
       {
         "<leader>od",
         function()
-          require("overseer").run_template({
+          require("overseer").run_task({
             name = "just debug=true test",
-            prompt = "never",
+            disallow_prompt = true,
             params = { target = vim.fn.expand("%") },
           })
         end,
@@ -83,7 +82,7 @@ return {
       {
         "<leader>oD",
         function()
-          require("overseer").run_template({
+          require("overseer").run_task({
             name = "just debug=true test",
             params = { target = vim.fn.expand("%") },
           })
@@ -93,9 +92,9 @@ return {
       {
         "<leader>oa",
         function()
-          require("overseer").run_template({
+          require("overseer").run_task({
             name = "just test_autofix",
-            prompt = "never",
+            disallow_prompt = true,
             params = { target = vim.fn.expand("%") },
           })
         end,
@@ -104,21 +103,25 @@ return {
       {
         "<leader>or",
         function()
-          require("overseer").run_template()
+          require("overseer").run_task()
         end,
         desc = "[O]verseer [R]un",
       },
       {
         "<leader>os",
         function()
-          require("overseer").run_template({ name = "shell" })
+          vim.cmd("OverseerShell")
         end,
         desc = "[O]verseer [S]hell",
       },
       {
         "<leader>ol",
         function()
-          local tasks = require("overseer").list_tasks({ recent_first = true })
+          local tasks = require("overseer").list_tasks({
+            sort = function(a, b)
+              return a.id > b.id
+            end,
+          })
           if vim.tbl_isempty(tasks) then
             vim.notify("No tasks found", vim.log.levels.WARN)
           else
