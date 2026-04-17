@@ -211,7 +211,6 @@ return {
       })
     end,
   },
-  { "j-hui/fidget.nvim", opts = {} },
   {
     "rachartier/tiny-inline-diagnostic.nvim",
     event = "VeryLazy",
