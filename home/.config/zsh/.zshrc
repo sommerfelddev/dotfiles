@@ -38,19 +38,24 @@ PROMPT='%B%{$fg[green]%}%n%{$reset_color%}@%{$fg[cyan]%}%m%{$reset_color%}:%b%{$
 fpath=($XDG_DATA_HOME/zsh/completion $fpath)
 autoload -Uz compinit && compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
 
-zstyle ':completion:*' menu select
+zstyle ':completion:*' menu select                       # arrow-key driven menu for ambiguous completions
 zstyle ':completion:*' completer _expand_alias _complete _ignored _match _approximate
-zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
-zstyle ':completion:*' use-cache on
+#                                │              │         │        │      └ fuzzy match (typo tolerance)
+#                                │              │         │        └ try pattern matching
+#                                │              │         └ include normally hidden completions
+#                                │              └ standard completion
+#                                └ expand aliases before completing
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}  # colorize file completions like ls
+zstyle ':completion:*' use-cache on                            # cache completions (speeds up pip, dpkg, etc.)
 zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh"
-zstyle ':completion:*:match:*' original only
-zstyle ':completion:*:functions' ignored-patterns '_*'
-zstyle ':completion:*:*:kill:*' menu yes select
-zstyle ':completion:*:kill:*' force-list always
-zstyle ':completion:*:cd:*' ignore-parents parent pwd
-zstyle ':completion::complete:*' gain-privileges 1
+zstyle ':completion:*:match:*' original only                   # only show original when pattern-matching
+zstyle ':completion:*:functions' ignored-patterns '_*'         # hide internal completion functions
+zstyle ':completion:*:*:kill:*' menu yes select                # interactive menu for kill completion
+zstyle ':completion:*:kill:*' force-list always                # always show process list for kill
+zstyle ':completion:*:cd:*' ignore-parents parent pwd          # cd never completes . or ..
+zstyle ':completion::complete:*' gain-privileges 1             # use doas/sudo for privileged completions
 zstyle -e ':completion:*:approximate:*' \
-	max-errors 'reply=($((($#PREFIX+$#SUFFIX)/3))numeric)'
+	max-errors 'reply=($((($#PREFIX+$#SUFFIX)/3))numeric)'    # allow 1 typo per 3 chars typed
 
 _comp_options+=(globdots)  # include hidden files in completion
 
