@@ -28,7 +28,6 @@ return {
         { "<leader>d", group = "[D]ocument" },
         { "<leader>g", group = "[G]it" },
         { "<leader>h", group = "Git [H]unk", mode = { "n", "v" } },
-        { "<leader>n", group = "[N]eotest" },
         { "<leader>o", group = "[O]verseer" },
         { "<leader>r", group = "[R]efactor" },
         { "<leader>s", group = "[S]earch" },
