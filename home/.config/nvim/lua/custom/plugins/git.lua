@@ -4,11 +4,6 @@ return {
     event = "BufRead",
     opts = {
       disable_diagnostics = true,
-      highlights = {
-        current = nil,
-        incoming = nil,
-        ancestor = nil,
-      },
       default_mappings = {
         next = "]x",
         prev = "[x",
@@ -81,8 +76,6 @@ return {
         changedelete = { show_count = true },
       },
       numhl = true,
-      _threaded_diff = true,
-      _refresh_staged_on_update = true,
       on_attach = function(bufnr)
         local gs = require("gitsigns")
         local function map(mode, l, r, desc)
