@@ -145,12 +145,9 @@ fi
 
 # ── Zellij tab naming (dir:cmd like tmux) ────────────────────────────────────
 if [[ -n "$ZELLIJ" ]]; then
-	_zellij_tab_precmd() {
-		zellij action rename-tab "${PWD##*/}" 2>/dev/null
-	}
-	_zellij_tab_preexec() {
-		zellij action rename-tab "${PWD##*/}:${1%% *}" 2>/dev/null
-	}
+	_zellij_dir() { [[ "$PWD" == "$HOME" ]] && echo '~' || echo "${PWD##*/}"; }
+	_zellij_tab_precmd()  { zellij action rename-tab "$(_zellij_dir)" 2>/dev/null; }
+	_zellij_tab_preexec() { zellij action rename-tab "$(_zellij_dir):${1%% *}" 2>/dev/null; }
 	add-zsh-hook precmd _zellij_tab_precmd
 	add-zsh-hook preexec _zellij_tab_preexec
 fi
