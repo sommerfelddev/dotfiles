@@ -91,6 +91,7 @@
     bd = branch -D
     c = commit
     ca = commit --amend --no-edit
+    cp = cherry-pick
     d = diff
     dft = -c diff.external=difft diff
     dl = -c diff.external=difft log -p --ext-diff
@@ -104,6 +105,7 @@
     fp = push --force-with-lease
     gone = !git for-each-ref --format '%(refname:short) %(upstream:track)' | awk '$2 == \"[gone]\" {print $1}' | xargs -r git branch -D
     l = log
+    lg = log --graph --oneline
     lm = log --pretty=medium
     m = merge
     mt = mergetool
@@ -114,7 +116,6 @@
     rt = restore
     s = status
     st = status --no-short
-    stage = add
     staged = diff --cached
     sub = submodule
     subf = submodule foreach
