@@ -107,7 +107,7 @@ return {
         actions = {
           files = {
             true,
-            ["ctrl-x"] = FzfLua.actions.file_split,
+            ["ctrl-x"] = fzflua.actions.file_split,
           },
         },
       })
