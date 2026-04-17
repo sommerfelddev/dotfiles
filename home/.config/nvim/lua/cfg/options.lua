@@ -88,8 +88,8 @@ opt.pumborder = "rounded"
 
 opt.winborder = "rounded"
 
-vim.wo.foldmethod = "expr"
-vim.wo.foldenable = false
+vim.o.foldmethod = "expr"
+vim.o.foldenable = false
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
