@@ -257,6 +257,21 @@ Emacs mode (`bindkey -e`) is the base.
 | `Alt-g` | Scroll to top |
 | `Alt-Shift-g` | Scroll to bottom |
 
+## Yazi
+
+Only non-default keybinds listed. See `yazi --help` for built-in keys.
+
+| Key | Action |
+|-----|--------|
+| `!` | Open shell here (blocking) |
+| `g r` | Go to git root |
+| `g .` | Go to dotfiles |
+| `g x` | Go to doxfiles |
+| `g s` | Go to sync |
+| `g S` | Go to screenshots |
+
+Shell: `y` function wraps yazi with cd-on-exit.
+
 ## Cross-tool Shared Keys
 
 | Key | Neovim | Zellij | Zsh | Ghostty | Sway |

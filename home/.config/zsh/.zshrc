@@ -221,6 +221,15 @@ alias sysu='systemctl --user'
 # Navigation
 alias c='clear'
 
+# Yazi: cd-on-exit wrapper
+y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+	command yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[[ "$cwd" != "$PWD" ]] && [[ -d "$cwd" ]] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
+
 # Tools
 alias stow='stow -R --no-folding --adopt'
 alias curl='curlie'
