@@ -5,11 +5,9 @@ stty -ixon   # disable XON/XOFF flow control (frees Ctrl-S/Ctrl-Q)
 ttyctl -f    # freeze terminal state; programs can't leave it broken
 
 # ── Options ───────────────────────────────────────────────────────────────────
-setopt appendhistory       # append to history file, don't overwrite
+# Note: appendhistory, nomatch, notify are zsh defaults — not set here.
 setopt autocd              # cd by typing directory name
 setopt extendedglob        # extended glob patterns (#, ~, ^)
-setopt nomatch             # error on unmatched glob patterns
-setopt notify              # report background job status immediately
 setopt interactivecomments # allow # comments in interactive shell
 setopt rmstarsilent        # don't confirm rm *
 setopt prompt_subst        # expand variables/functions in prompt
