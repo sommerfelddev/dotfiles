@@ -214,9 +214,8 @@ alias nview='nvim -R'
 alias nv='nvim -R'
 alias ng='nvim +Neogit'
 
-# Tmux
-alias ta='tmux new-session -A'
-alias tas='tmux new-session -A -s'
+# Zellij: attach to session or create if it doesn't exist (name is optional)
+alias za='zellij attach -c'
 
 # Just
 alias j='just'
