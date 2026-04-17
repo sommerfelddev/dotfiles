@@ -1,6 +1,6 @@
 # Custom Keybinds Reference
 
-All non-default keybinds across neovim, zellij, zsh, and ghostty.
+All non-default keybinds across neovim, zellij, zsh, ghostty, and sway.
 
 ## Neovim
 
@@ -258,12 +258,39 @@ Emacs mode (`bindkey -e`) is the base.
 
 ## Cross-tool Shared Keys
 
-| Key | Neovim | Zellij | Zsh | Ghostty |
-|-----|--------|--------|-----|---------|
-| `Ctrl-h/j/k/l` | Split nav (smart-splits) | Pane nav (vim-zellij-navigator) | — | — |
-| `Alt-h/j/k/l` | Treewalker nav | — | — | — |
-| `Alt-1..9` | — | Go to tab N | — | — |
-| `Alt-t` | — | New tab | — | — |
-| `Alt-q` | — | Detach | — | — |
-| `Alt-u` | — | — | — | Scroll page up |
-| `Alt-d` | — | — | — | Scroll page down |
+| Key | Neovim | Zellij | Zsh | Ghostty | Sway |
+|-----|--------|--------|-----|---------|------|
+| `Ctrl-h/j/k/l` | Split nav (smart-splits) | Pane nav (vim-zellij-navigator) | — | — | — |
+| `Alt-h/j/k/l` | Treewalker nav | — | — | — | — |
+| `Alt-1..9` | — | Go to tab N | — | — | — |
+| `Alt-t` | — | New tab | — | — | — |
+| `Alt-q` | — | Detach | — | — | — |
+| `Alt-u` | — | — | — | Scroll page up | — |
+| `Alt-d` | — | — | — | Scroll page down | — |
+| `Super+h/j/k/l` | — | — | — | — | Focus direction |
+| `Super+n` | — | — | — | — | Dismiss notification |
+
+## Sway
+
+Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
+
+### Personal keybinds (sway/config)
+
+| Key | Action |
+|-----|--------|
+| `XF86AudioRaiseVolume` | Volume +5% |
+| `XF86AudioLowerVolume` | Volume -5% |
+| `XF86AudioMute` | Mute toggle |
+| `Super+m` | Mic mute toggle |
+| `Super+Shift+m` | Speaker mute toggle |
+| `XF86AudioPlay` | Play/pause |
+| `XF86AudioNext` | Next track |
+| `XF86AudioPrev` | Previous track |
+| `Print` | Region screenshot (grim+slurp) |
+| `Shift+Print` | Full screenshot (grim) |
+| `Super+Shift+s` | Lock screen + pause media |
+| `Super+n` | Dismiss notification |
+| `Super+Shift+n` | Dismiss all notifications |
+| `Super+Tab` | Next workspace |
+| `Super+Shift+Tab` | Previous workspace |
+| `F7` | Cycle display mode (mirror/off/side-by-side) |

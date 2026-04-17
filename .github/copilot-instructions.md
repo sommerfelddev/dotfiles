@@ -10,9 +10,13 @@ This is a personal dotfiles repository for an Arch Linux system. Configuration f
 - `etc/` and `etc2/` contain system-level configs (`/etc/` targets) — systemd units, pacman hooks, sysctl tunables, kernel module loading.
 - `meta/` contains Arch Linux PKGBUILDs that bundle groups of packages into metapackages (e.g. `sommerfeld-base`, `sommerfeld-dev`). Each subdirectory is a standalone PKGBUILD recipe with a `.SRCINFO` and pre-built `.pkg.tar.zst` artifacts.
 - `lists/` holds keymap files (e.g. `caps2esc.map`).
-- `barscripts/` has polybar status bar scripts (GPU stats).
+- `barscripts/` has polybar status bar scripts (GPU stats) — legacy X11, kept for reference.
 - `firefox/` contains Firefox hardening overrides and custom CSS.
 - `create-efi.sh` is an interactive EFI boot entry creation script using `efibootmgr`.
+
+## Window manager
+
+Sway (Wayland compositor, i3-compatible). Config lives in `home/.config/sway/config`. Uses vanilla sway defaults for all standard WM operations with personal keybinds layered on top for media, volume, screenshots, lock screen, notifications, and display mode switching. The status bar is waybar (`home/.config/waybar/`), notifications via mako (`home/.config/mako/config`), and the launcher is fuzzel (`home/.config/fuzzel/fuzzel.ini`). Old X11 configs (bspwm, sxhkd, polybar, rofi, dunst) are kept in the repo for reference but are no longer active.
 
 ## Terminal multiplexer
 
@@ -45,4 +49,4 @@ When editing shell config, all zsh configuration goes in `.config/zsh/` — do n
 
 ## Keybinds reference
 
-`KEYBINDS.md` at the repository root documents every non-default keybind across neovim, zellij, zsh, and ghostty. Whenever you add, remove, or change a keybind in any of these tools, you must update `KEYBINDS.md` to reflect the change in the same commit.
+`KEYBINDS.md` at the repository root documents every non-default keybind across neovim, zellij, zsh, ghostty, and sway. Whenever you add, remove, or change a keybind in any of these tools, you must update `KEYBINDS.md` to reflect the change in the same commit.
