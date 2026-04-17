@@ -28,26 +28,14 @@ end
 
 ncmd("<esc>", "nohlsearch")
 
--- make an accidental ; press also enter command mode
-nmap(";", ":")
-
 -- highlight last inserted text
 nmap("gV", "`[v`]")
 
 nmap("<down>", "<c-e>")
 nmap("<up>", "<c-y>")
 
--- go to first non-blank character of current line
-nvmap("<c-a>", "^")
-nvmap("<c-e>", "$")
-
--- This extends p in visual mode (note the noremap), so that if you paste from
--- the unnamed (ie. default) register, that register content is not replaced by
--- the visual selection you just pasted over–which is the default behavior.
--- This enables the user to yank some text and paste it over several places in
--- a row, without using a named register
--- map.v('p', "p:if v:register == '"'<Bar>let @@=@0<Bar>endif<cr>")
-vmap("p", 'p:let @+=@0<CR>:let @"=@0<CR>')
+-- paste over selection without clobbering registers
+vmap("p", '"_dP')
 
 -- Find and Replace binds
 ncmdi("<localleader>s", "%s/")
@@ -88,12 +76,6 @@ nmap("]e", function()
     severity = vim.diagnostic.severity.ERROR,
   })
 end)
-
-nmap(
-  "<leader>oq",
-  vim.diagnostic.setloclist,
-  "[O]pen diagnostic [Q]uickfix list"
-)
 
 nmap("yp", function()
   vim.fn.setreg("+", vim.fn.expand("%"))

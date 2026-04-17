@@ -6,19 +6,25 @@ require("various-textobjs").setup({
   },
 })
 
--- dial.nvim keymaps
-vim.keymap.set("n", "]i", function()
+-- dial.nvim: enhanced increment/decrement on standard vim keys
+vim.keymap.set("n", "<C-a>", function()
   return require("dial.map").inc_normal()
 end, { expr = true, desc = "Increment" })
-vim.keymap.set("n", "[i", function()
+vim.keymap.set("n", "<C-x>", function()
   return require("dial.map").dec_normal()
 end, { expr = true, desc = "Decrement" })
-vim.keymap.set("v", "]i", function()
+vim.keymap.set("v", "<C-a>", function()
   return require("dial.map").inc_visual()
 end, { expr = true, desc = "Increment" })
-vim.keymap.set("v", "[i", function()
+vim.keymap.set("v", "<C-x>", function()
   return require("dial.map").dec_visual()
 end, { expr = true, desc = "Decrement" })
+vim.keymap.set("v", "g<C-a>", function()
+  return require("dial.map").inc_gvisual()
+end, { expr = true, desc = "Increment (sequential)" })
+vim.keymap.set("v", "g<C-x>", function()
+  return require("dial.map").dec_gvisual()
+end, { expr = true, desc = "Decrement (sequential)" })
 
 -- refactoring.nvim
 require("refactoring").setup({})
