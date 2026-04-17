@@ -21,4 +21,6 @@
 *.scala merge=mergiraf
 *.sbt merge=mergiraf
 *.ts merge=mergiraf
+*.tsx merge=mergiraf
 *.py merge=mergiraf
+*.lua merge=mergiraf

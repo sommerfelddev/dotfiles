@@ -15,6 +15,7 @@
     tool = nvimdiff
     algorithm = histogram
     colorMoved = default
+    colorMovedWS = allow-indentation-change
     mnemonicPrefix = true
     relative = true
     renameLimit = 10000
