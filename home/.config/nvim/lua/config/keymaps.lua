@@ -28,8 +28,6 @@ end
 
 ncmd("<esc>", "nohlsearch")
 
-nmap("<Space>", "<Nop>")
-
 -- make an accidental ; press also enter command mode
 nmap(";", ":")
 
