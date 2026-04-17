@@ -221,10 +221,14 @@ alias sysu='systemctl --user'
 # Navigation
 alias c='clear'
 
-# Yazi: cd-on-exit wrapper
+# Yazi: cd-on-exit wrapper (force ueberzug++ inside zellij for image previews)
 y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
-	command yazi "$@" --cwd-file="$tmp"
+	if [[ -n "$ZELLIJ" ]]; then
+		TERM=xterm-kitty command yazi "$@" --cwd-file="$tmp"
+	else
+		command yazi "$@" --cwd-file="$tmp"
+	fi
 	IFS= read -r -d '' cwd < "$tmp"
 	[[ "$cwd" != "$PWD" ]] && [[ -d "$cwd" ]] && builtin cd -- "$cwd"
 	rm -f -- "$tmp"
