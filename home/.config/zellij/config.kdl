@@ -30,27 +30,27 @@ keybinds {
         // Seamless vim/zellij pane navigation (requires smart-splits.nvim)
         bind "Ctrl h" {
             MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
-                name "move_focus";
-                payload "left";
-            };
+                name "move_focus"
+                payload "left"
+            }
         }
         bind "Ctrl j" {
             MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
-                name "move_focus";
-                payload "down";
-            };
+                name "move_focus"
+                payload "down"
+            }
         }
         bind "Ctrl k" {
             MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
-                name "move_focus";
-                payload "up";
-            };
+                name "move_focus"
+                payload "up"
+            }
         }
         bind "Ctrl l" {
             MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
-                name "move_focus";
-                payload "right";
-            };
+                name "move_focus"
+                payload "right"
+            }
         }
     }
 }
