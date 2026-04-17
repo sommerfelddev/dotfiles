@@ -50,6 +50,7 @@ case "$NEXT" in
     laptop-off)
         swaymsg output "$LAPTOP" disable
         swaymsg output "$EXTERNAL" enable
+        swaymsg workspace number 1
         echo "laptop-off" > "$STATE_FILE"
         [ -z "$1" ] && notify-send "Display" "Laptop screen off"
         ;;
