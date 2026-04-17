@@ -1,5 +1,5 @@
 [general]
-live_config_reload = false
+live_config_reload = true
 
 # Default colors
 [colors.primary]
@@ -34,11 +34,11 @@ white   = '#ebdbb2'
 blink_interval = 500
 blink_timeout = 0
 
-[env]
-WINIT_X11_SCALE_FACTOR = "1.0"
-
 [cursor.style]
 blinking = "On"
+
+[terminal]
+osc52 = "CopyPaste"
 
 [[keyboard.bindings]]
 action = "SpawnNewInstance"
