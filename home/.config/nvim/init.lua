@@ -1,5 +1,3 @@
-vim.loader.enable()
-
 require("config.options")
 
 _G.P = function(v)
