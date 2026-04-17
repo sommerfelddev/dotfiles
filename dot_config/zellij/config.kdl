@@ -1,0 +1,81 @@
+// Gruvbox dark theme (built-in)
+theme "gruvbox-dark"
+
+// Session resurrection
+serialize_pane_viewport true
+
+// Scrollback
+scroll_buffer_size 50000
+
+// Clipboard: copy to system clipboard on selection (OSC 52)
+copy_on_select true
+
+// Auto-attach to existing session with the same name instead of erroring
+attach_to_session true
+
+// Disable startup popups that overwrite stow-managed config when dismissed
+show_startup_tips false
+show_release_notes false
+
+// Clean UI: no pane borders, compact single-line status bar
+pane_frames false
+default_layout "compact"
+
+// Custom keybindings (merged with defaults)
+keybinds {
+    shared_except "locked" {
+        // Direct tab access (Alt+number)
+        bind "Alt 1" { GoToTab 1; }
+        bind "Alt 2" { GoToTab 2; }
+        bind "Alt 3" { GoToTab 3; }
+        bind "Alt 4" { GoToTab 4; }
+        bind "Alt 5" { GoToTab 5; }
+        bind "Alt 6" { GoToTab 6; }
+        bind "Alt 7" { GoToTab 7; }
+        bind "Alt 8" { GoToTab 8; }
+        bind "Alt 9" { GoToTab 9; }
+
+        // Tab management
+        bind "Alt t" { NewTab; }
+        bind "Alt [" { GoToPreviousTab; }
+        bind "Alt ]" { GoToNextTab; }
+
+        // Pane management
+        bind "Alt w" { ToggleFocusFullscreen; }
+        bind "Alt x" { CloseFocus; }
+        bind "Alt e" { EditScrollback; }
+
+        // Session
+        bind "Alt q" { Detach; }
+
+        // Quick resize without entering resize mode
+        bind "Alt -" { Resize "Decrease"; }
+        bind "Alt =" { Resize "Increase"; }
+
+        // Seamless vim/zellij pane navigation (requires smart-splits.nvim)
+        bind "Ctrl h" {
+            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
+                name "move_focus"
+                payload "left"
+            }
+        }
+        bind "Ctrl j" {
+            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
+                name "move_focus"
+                payload "down"
+            }
+        }
+        bind "Ctrl k" {
+            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
+                name "move_focus"
+                payload "up"
+            }
+        }
+        bind "Ctrl l" {
+            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
+                name "move_focus"
+                payload "right"
+            }
+        }
+    }
+}

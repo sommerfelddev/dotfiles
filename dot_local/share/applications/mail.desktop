@@ -1,0 +1,19 @@
+[Desktop Entry]
+Version=1.0
+Name=aerc
+
+GenericName=Mail Client
+Comment=Launches the aerc email client
+Keywords=Email,Mail,IMAP,SMTP
+Categories=Office;Network;Email;ConsoleOnly
+
+Type=Application
+Icon=utilities-terminal
+Terminal=true
+Exec=aerc
+
+[Desktop Action compose]
+# enable as default mailto: handler using 
+# xdg-mime default aerc.desktop x-scheme-handler/mailto
+Exec=aerc %u
+MimeType=x-scheme-handler/mailto;

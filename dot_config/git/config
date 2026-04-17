@@ -1,0 +1,135 @@
+[user]
+    email = sommerfeld@sommerfeld.dev
+    name = sommerfeld
+    signingkey = 3298945F717C85F8
+[push]
+    autoSetupRemote = true
+    followTags = true
+    gpgSign = if-asked
+[core]
+    whitespace = trailing-space,cr-at-eol
+    pager = delta
+[branch]
+    sort=-committerdate
+[diff]
+    tool = nvimdiff
+    algorithm = histogram
+    colorMoved = default
+    colorMovedWS = allow-indentation-change
+    mnemonicPrefix = true
+    relative = true
+    renameLimit = 10000
+[difftool]
+    prompt = false
+    trustExitCode = true
+[pager]
+    difftool = true
+[difftool "nvimdiff"]
+    cmd = $EDITOR -d $LOCAL $REMOTE
+[difftool "difftastic"]
+    cmd = difft "$MERGED" "$LOCAL" "abcdef1" "100644" "$REMOTE" "abcdef2" "100644"
+[rebase]
+    autoStash = true
+    autoSquash = true
+    updateRefs = true
+[fetch]
+    recurseSubmodules = on-demand
+    prune = true
+[rerere]
+    enabled = true
+[pull]
+    ff = only
+[merge]
+    tool = conflictmarker
+    conflictstyle = zdiff3
+[merge "mergiraf"]
+    name = mergiraf
+    driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P
+[mergetool]
+    keepBackup = false
+[mergetool "conflictmarker"]
+    cmd = $EDITOR "$MERGED"
+[commit]
+    gpgsign = true
+[tag]
+    gpgSign = true
+[status]
+    short = true
+    branch = true
+    showUntrackedFiles = all
+    showStash = true
+    submoduleSummary = true
+[help]
+    autocorrect = prompt
+[log]
+    abbrevCommit = true
+    date = short
+[interactive]
+    singleKey = true
+    diffFilter = delta --color-only
+[advice]
+    detachedHead = false
+    skippedCherryPicks = false
+[column]
+    ui = auto
+[format]
+    pretty = oneline
+[delta]
+    navigate = true
+    features = gruvmax-fang zebra-dark
+    dark = true
+    side-by-side = true
+    line-numbers = true
+    relative-paths = true
+    hyperlinks = true
+[absorb]
+    autoStageIfNothingStaged = true
+[alias]
+    ghost-rebase = "!sh -c 'b=$0; u=${1:-origin/master}; wt=$(mktemp -d -t rebwt.XXXXXX); git worktree add -f "$wt" "$b"; git -C "$wt" rebase "$u" || echo "Rebase incomplete"; git worktree remove --force "$wt"'"
+    a = add
+    ab=absorb --and-rebase
+    b = branch -vv
+    bd = branch -D
+    c = commit
+    ca = commit --amend --no-edit
+    cp = cherry-pick
+    d = diff
+    dft = -c diff.external=difft diff
+    dl = -c diff.external=difft log -p --ext-diff
+    ds = -c diff.external=difft show --ext-diff
+    dt = difftool
+    f = fetch
+    fa = fetch --all
+    ff = merge --ff-only
+    find-merge = "!sh -c 'commit=$0 && branch=${1:-HEAD} && (git rev-list $commit..$branch --ancestry-path | cat -n; git rev-list $commit..$branch --first-parent | cat -n) | sort -k2 -s | uniq -f1 -d | sort -n | tail -1 | cut -f2'"
+    fmt = clang-format -f
+    fp = push --force-with-lease
+    gone = !git for-each-ref --format '%(refname:short) %(upstream:track)' | awk '$2 == \"[gone]\" {print $1}' | xargs -r git branch -D
+    l = log
+    lg = log --graph --oneline
+    lm = log --pretty=medium
+    m = merge
+    mt = mergetool
+    p = push
+    r = rebase
+    re = remote -v
+    ri = rebase -i
+    rt = restore
+    s = status
+    st = status --no-short
+    staged = diff --cached
+    sub = submodule
+    subf = submodule foreach
+    sw = switch
+    swc = switch -c
+    swd = switch -d
+    unstage = reset HEAD --
+    update=!git fetch && git merge --ff-only
+[includeIf "gitdir:/home/*/work/"]
+    path = config-work
+[includeIf "gitdir:~/doxfiles/.git"]
+    path = config-personal
+[includeIf "gitdir:~/dev/copilot/.git"]
+    path = config-personal
+[includeIf "gitdir:~/dev/personal/"]
+    path = config-personal

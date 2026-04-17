@@ -1,0 +1,157 @@
+# ── Variables ─────────────────────────────────────────────────────────────────
+set $mod Mod4
+set $term ghostty
+set $menu fuzzel
+
+# ── Appearance ────────────────────────────────────────────────────────────────
+font mono 8
+default_border pixel 1
+default_floating_border pixel 1
+gaps inner 0
+gaps outer 0
+
+# Gruvbox dark colors
+# class                 border  bg      text    indicator child_border
+client.focused          #fabd2f #282828 #ebdbb2 #fabd2f   #fabd2f
+client.focused_inactive #3c3836 #282828 #928374 #3c3836   #3c3836
+client.unfocused        #3c3836 #282828 #928374 #3c3836   #3c3836
+client.urgent           #fb4934 #282828 #ebdbb2 #fb4934   #fb4934
+
+# ── Input ─────────────────────────────────────────────────────────────────────
+input type:keyboard {
+    xkb_layout us
+    xkb_options caps:escape
+    repeat_delay 300
+    repeat_rate 50
+}
+
+input type:touchpad {
+    tap enabled
+    natural_scroll enabled
+    dwt enabled
+}
+
+# ── Behavior ──────────────────────────────────────────────────────────────────
+focus_follows_mouse yes
+seat * hide_cursor 3000
+
+# ── Output ────────────────────────────────────────────────────────────────────
+output * bg #282828 solid_color
+
+# ── Window rules ──────────────────────────────────────────────────────────────
+for_window [class="feh"] floating enable
+for_window [app_id="imv"] floating enable
+for_window [class="Tor Browser"] floating enable
+
+# ── Standard keybinds (sway defaults) ─────────────────────────────────────────
+bindsym $mod+Return exec $term
+bindsym $mod+Shift+q kill
+bindsym $mod+d exec $menu
+
+# Navigation
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+
+# Move windows
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+
+# Workspaces
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+bindsym $mod+0 workspace number 10
+
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+bindsym $mod+Shift+7 move container to workspace number 7
+bindsym $mod+Shift+8 move container to workspace number 8
+bindsym $mod+Shift+9 move container to workspace number 9
+bindsym $mod+Shift+0 move container to workspace number 10
+
+# Layout
+bindsym $mod+b splith
+bindsym $mod+v splitv
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+bindsym $mod+f fullscreen
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space focus mode_toggle
+bindsym $mod+a focus parent
+
+# Scratchpad
+bindsym $mod+Shift+minus move scratchpad
+bindsym $mod+minus scratchpad show
+
+# Resize mode
+mode "resize" {
+    bindsym h resize shrink width 10px
+    bindsym j resize grow height 10px
+    bindsym k resize shrink height 10px
+    bindsym l resize grow width 10px
+    bindsym Escape mode "default"
+    bindsym Return mode "default"
+}
+bindsym $mod+r mode "resize"
+
+# Reload / exit
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit sway?' -B 'Yes' 'swaymsg exit'
+
+# ── Personal keybinds ─────────────────────────────────────────────────────────
+
+# Workspace cycling
+bindsym $mod+Tab workspace next_on_output
+bindsym $mod+Shift+Tab workspace prev_on_output
+
+# Volume
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym $mod+Shift+m exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym $mod+m exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+
+# Media
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
+
+# Screenshots
+bindsym Print exec grim -g "$(slurp)" ~/pics/screenshots/$(date +%Y-%m-%d-%H-%M-%S).png
+bindsym Shift+Print exec grim ~/pics/screenshots/$(date +%Y-%m-%d-%H-%M-%S).png
+
+# Lock & pause
+bindsym $mod+Shift+s exec "playerctl -a pause; swaylock -f -c 282828"
+
+# Notifications
+bindsym $mod+n exec makoctl dismiss
+bindsym $mod+Shift+n exec makoctl dismiss --all
+
+# Display mode switching
+bindsym --no-repeat F7 exec ~/.config/sway/display-toggle.sh
+
+# ── Bar ───────────────────────────────────────────────────────────────────────
+bar {
+    swaybar_command waybar
+}
+
+# ── Autostart ─────────────────────────────────────────────────────────────────
+exec systemctl --user import-environment WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+exec mako
+exec "sleep 2 && ~/.config/sway/display-toggle.sh init"

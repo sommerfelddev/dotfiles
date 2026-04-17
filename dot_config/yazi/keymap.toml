@@ -1,0 +1,9 @@
+[mgr]
+prepend_keymap = [
+	{ on = "!",            run = 'shell "$SHELL" --block',                                        desc = "Open shell here" },
+	{ on = [ "g", "r" ],  run = 'shell -- ya emit cd "$(git rev-parse --show-toplevel 2>/dev/null || echo .)"', desc = "Go to git root" },
+	{ on = [ "g", "." ],  run = "cd ~/dotfiles",                                                  desc = "Go to dotfiles" },
+	{ on = [ "g", "x" ],  run = "cd ~/doxfiles",                                                  desc = "Go to doxfiles" },
+	{ on = [ "g", "s" ],  run = "cd ~/sync",                                                      desc = "Go to sync" },
+	{ on = [ "g", "S" ],  run = "cd ~/pics/screenshots",                                          desc = "Go to screenshots" },
+]
