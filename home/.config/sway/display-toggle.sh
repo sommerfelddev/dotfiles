@@ -3,28 +3,19 @@
 # Usage: display-toggle.sh [init]
 # Bound to F7 in sway config; also runs at startup with "init"
 
-set -e
-
 STATE_FILE="${XDG_RUNTIME_DIR:-/tmp}/display-mode"
 MIRROR_PID="${XDG_RUNTIME_DIR:-/tmp}/wl-mirror.pid"
-LOG="${XDG_RUNTIME_DIR:-/tmp}/display-toggle.log"
-
-log() { echo "$(date +%T) $*" >> "$LOG"; }
 
 OUTPUTS=$(swaymsg -t get_outputs -r)
 LAPTOP=$(echo "$OUTPUTS" | jq -r '[.[] | select(.name | test("^eDP")) | .name] | first // empty')
 EXTERNAL=$(echo "$OUTPUTS" | jq -r '[.[] | select(.name | test("^eDP") | not) | .name] | first // empty')
 
-log "laptop=$LAPTOP external=$EXTERNAL arg=$1"
-
 if [ -z "$EXTERNAL" ]; then
     [ -z "$1" ] && notify-send "Display" "No external display connected"
-    log "no external display, exiting"
     exit 0
 fi
 
 if [ -z "$LAPTOP" ]; then
-    log "no laptop display detected, exiting"
     exit 0
 fi
 
@@ -49,34 +40,29 @@ else
     esac
 fi
 
-log "switching to $NEXT"
-
 case "$NEXT" in
     mirror)
-        swaymsg output "$LAPTOP" enable
-        swaymsg output "$EXTERNAL" enable
-        swaymsg focus output "$EXTERNAL"
+        swaymsg output "$LAPTOP" enable || true
+        swaymsg output "$EXTERNAL" enable || true
+        swaymsg focus output "$EXTERNAL" || true
         wl-mirror "$LAPTOP" &
         echo $! > "$MIRROR_PID"
         sleep 0.3
-        swaymsg focus output "$LAPTOP"
+        swaymsg focus output "$LAPTOP" || true
         echo "mirror" > "$STATE_FILE"
         [ -z "$1" ] && notify-send "Display" "Mirror mode"
         ;;
     laptop-off)
-        swaymsg output "$LAPTOP" disable
-        swaymsg output "$EXTERNAL" enable
-        swaymsg workspace number 1
+        swaymsg output "$LAPTOP" disable || true
+        swaymsg output "$EXTERNAL" enable || true
+        swaymsg workspace number 1 || true
         echo "laptop-off" > "$STATE_FILE"
-        log "disabled $LAPTOP"
         [ -z "$1" ] && notify-send "Display" "Laptop screen off"
         ;;
     side-by-side)
-        swaymsg output "$LAPTOP" enable pos 0 0
-        swaymsg output "$EXTERNAL" enable pos "$LAPTOP_WIDTH" 0
+        swaymsg output "$LAPTOP" enable pos 0 0 || true
+        swaymsg output "$EXTERNAL" enable pos "$LAPTOP_WIDTH" 0 || true
         echo "side-by-side" > "$STATE_FILE"
         [ -z "$1" ] && notify-send "Display" "Side by side"
         ;;
 esac
-
-log "done"
