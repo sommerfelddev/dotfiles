@@ -8,7 +8,6 @@
     gpgSign = if-asked
 [core]
     whitespace = trailing-space,cr-at-eol
-    autocrlf = input
     pager = delta
 [branch]
     sort=-committerdate
