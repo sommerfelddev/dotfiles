@@ -72,7 +72,6 @@ vim.g.loaded_perl_provider = 0
 vim.g.loaded_python3_provider = 0
 
 vim.opt.diffopt:append({
-  ["indent-heuristic"] = true,
   hiddenoff = true,
   iblank = true,
   iwhiteall = true,
