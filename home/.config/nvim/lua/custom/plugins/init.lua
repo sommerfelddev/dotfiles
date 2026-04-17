@@ -376,7 +376,7 @@ return {
       },
 
       {
-        "<leader>rv",
+        "<leader>rV",
         function()
           require("refactoring").debug.print_var({})
         end,
