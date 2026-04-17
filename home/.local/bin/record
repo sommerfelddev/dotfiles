@@ -19,8 +19,7 @@ start() {
     notify-send -t 500 "Record started!" &
     sleep 0.5
 
-    ffmpeg -f x11grab -draw_mouse 0 -framerate 60 -video_size 1920x1080 -i "$DISPLAY" -c:v hevc_nvenc \
-        "$HOME/vids/$(date '+%y%m%d-%H%M-%S').mkv" >"$log_file" 2>&1 &
+    wf-recorder -f "$HOME/vids/$(date '+%y%m%d-%H%M-%S').mkv" >"$log_file" 2>&1 &
     echo "$!" >"$pid_file"
 }
 
