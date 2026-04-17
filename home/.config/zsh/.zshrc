@@ -95,6 +95,14 @@ fi
 # ── Custom keybindings ────────────────────────────────────────────────────────
 bindkey \^U backward-kill-line
 
+# Word navigation (Ctrl-Right also accepts autosuggestion word-by-word — fish-like)
+bindkey '^[[1;5C' forward-word        # Ctrl-Right
+bindkey '^[[1;5D' backward-word       # Ctrl-Left
+bindkey '^[[1;3C' forward-word        # Alt-Right
+bindkey '^[[1;3D' backward-word       # Alt-Left
+bindkey '^H'      backward-kill-word  # Ctrl-Backspace
+bindkey '^[[3;5~' kill-word           # Ctrl-Delete
+
 # Ctrl-D exits even on non-empty line
 exit_zsh() { exit }
 zle -N exit_zsh
