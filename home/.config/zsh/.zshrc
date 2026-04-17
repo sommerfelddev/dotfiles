@@ -252,6 +252,11 @@ compdef l=lsd la=lsd lt=lsd
 # Refresh gpg-agent's TTY so pinentry prompts appear in the right terminal
 gpg-connect-agent updatestartuptty /bye &>/dev/null
 
+# ── Zoxide (smart directory jumping) ──────────────────────────────────────────
+# z foo → jump to frecency-ranked dir matching "foo"
+# zi    → interactive picker with fzf
+eval "$(zoxide init zsh)"
+
 # ── FZF ───────────────────────────────────────────────────────────────────────
 source <(fzf --zsh)
 
