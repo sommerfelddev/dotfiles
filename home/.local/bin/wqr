@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 if [ -z "$1" ]; then
-    text=$(xclip -o -selection clipboard)
+    text=$(wl-paste)
 elif [ "$1" = "-" ]; then
     read -r text
 else

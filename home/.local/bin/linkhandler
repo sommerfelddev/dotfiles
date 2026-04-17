@@ -11,7 +11,7 @@ resolve_url() {
 }
 
 if [ -z "$1" ]; then
-    url=$(xclip -o -selection clipboard)
+    url=$(wl-paste)
 else
     url="$1"
 fi

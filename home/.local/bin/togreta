@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 if [ -z "$1" ]; then
-    url=$(xclip -o -selection clipboard)
+    url=$(wl-paste)
 elif [ "$1" = "-" ]; then
     read -r url
 else

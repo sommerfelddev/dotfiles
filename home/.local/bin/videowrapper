@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-url="$(xclip -o -selection clipboard)"
+url="$(wl-paste)"
 log="$(mktemp)"
 cmd="mpv -quiet $url 2>&1 > $log"
 

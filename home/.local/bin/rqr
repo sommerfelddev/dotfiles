@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
-text="$(zbarcam -q -1 --raw | xclip -selection clipboard -f)"
+text="$(zbarcam -q -1 --raw)"
+printf '%s' "$text" | wl-copy
 
 echo "$text"
 notify-send "$text"
