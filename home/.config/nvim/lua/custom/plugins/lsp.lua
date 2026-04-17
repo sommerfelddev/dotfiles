@@ -9,51 +9,6 @@ return {
     },
   },
   {
-    "lewis6991/hover.nvim",
-    keys = {
-      {
-        "K",
-        function()
-          require("hover").open()
-        end,
-        desc = "Hover",
-      },
-      {
-        "gK",
-        function()
-          require("hover").enter()
-        end,
-        desc = "Hover Enter",
-      },
-      {
-        "gh",
-        function()
-          require("hover").open()
-        end,
-        desc = "[H]over",
-      },
-    },
-    config = function()
-      require("hover").config({
-        --- List of modules names to load as providers.
-        --- @type (string|Hover.Config.Provider)[]
-        providers = {
-          "hover.providers.diagnostic",
-          "hover.providers.lsp",
-          "hover.providers.dap",
-          "hover.providers.man",
-          "hover.providers.dictionary",
-          -- Optional, disabled by default:
-          "hover.providers.gh",
-          -- 'hover.providers.gh_user',
-          -- 'hover.providers.jira',
-          "hover.providers.fold_preview",
-          -- 'hover.providers.highlight',
-        },
-      })
-    end,
-  },
-  {
     "neovim/nvim-lspconfig",
     version = false,
     dependencies = {
