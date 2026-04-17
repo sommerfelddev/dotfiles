@@ -288,6 +288,7 @@ _fzf_compgen_dir()  { fd --type d --hidden --follow --exclude ".git" . "$1" }
 # ── Plugins (must be sourced last) ────────────────────────────────────────────
 # Highlight config must be set BEFORE sourcing the plugin
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
+typeset -A ZSH_HIGHLIGHT_STYLES
 ZSH_HIGHLIGHT_STYLES[comment]='fg=yellow'
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
