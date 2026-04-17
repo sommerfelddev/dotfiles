@@ -62,7 +62,6 @@ return {
     branch = "main",
     lazy = false,
     dependencies = {
-      -- "theHamsta/nvim-treesitter-pairs", -- Reneable once main branch is supported
       {
         "LiadOz/nvim-dap-repl-highlights",
         opts = {},
