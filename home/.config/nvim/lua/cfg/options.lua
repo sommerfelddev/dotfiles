@@ -47,7 +47,7 @@ vim.schedule(function()
   opt.clipboard = vim.env.SSH_TTY and "" or "unnamedplus"
 end)
 
-vim.o.mouse = "a"
+opt.mouse = "a"
 
 vim.opt.wildmode = { "longest", "full" }
 
@@ -103,5 +103,4 @@ opt.sessionoptions =
   "blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"
 
 vim.o.exrc = true
-
 
