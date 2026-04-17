@@ -1,7 +1,5 @@
 local opt = vim.o
 
-opt.termguicolors = true
-
 opt.undofile = true
 opt.swapfile = false
 opt.shadafile = "NONE"
