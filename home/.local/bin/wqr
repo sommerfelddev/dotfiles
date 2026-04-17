@@ -8,4 +8,4 @@ else
     text="$1"
 fi
 
-printf '%s' "$text" | qrencode -t SVG -o - | feh - --conversion-timeout 1
+printf '%s' "$text" | qrencode -t PNG -o - | imv -

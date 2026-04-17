@@ -25,7 +25,7 @@ acestream://*)
   ;;
 *.png | *.jpg | *.jpe | *.jpeg | *.PNG | *.JGP | *.JPE | *.JPEG)
   local_url="$(resolve_url "$url")"
-  setsid sxiv -a "$local_url" >/dev/null 2>&1 &
+  setsid imv "$local_url" >/dev/null 2>&1 &
   ;;
 *.pdf | *.ps | *.epub)
   local_url="$(resolve_url "$url")"
