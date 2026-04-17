@@ -11,7 +11,7 @@ This is a personal dotfiles repository for an Arch Linux system. Configuration f
 - `etc2/` also targets `/etc/` but holds configs for tools that refuse to follow symlinks (e.g. reflector). These must be manually copied to their target paths.
 - `meta/` contains Arch Linux PKGBUILDs that bundle groups of packages into metapackages (e.g. `sommerfeld-base`, `sommerfeld-dev`). Each subdirectory is a standalone PKGBUILD recipe with a `.SRCINFO` and pre-built `.pkg.tar.zst` artifacts.
 
-- `firefox/` contains Firefox hardening overrides and custom CSS.
+- `firefox/` contains Firefox/LibreWolf hardening overrides (`user-overrides.js`) and custom CSS (`chrome/userChrome.css`). Deployed via stow into the browser's user profile directory (e.g. `~/.librewolf/<profile>/`).
 - `create-efi.sh` is an interactive EFI boot entry creation script using `efibootmgr`.
 
 ## Window manager
