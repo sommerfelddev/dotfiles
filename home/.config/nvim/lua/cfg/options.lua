@@ -80,7 +80,7 @@ vim.opt.diffopt:append({
 
 if vim.fn.executable("rg") then
   opt.grepprg = "rg\\ --vimgrep"
-  opt.grepformat = "f:%l:%c:%m"
+  opt.grepformat = "%f:%l:%c:%m"
 end
 
 opt.pumblend = 20
