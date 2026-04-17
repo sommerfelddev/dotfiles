@@ -160,6 +160,13 @@ add-zsh-hook chpwd chpwd_recent_dirs
 zstyle ':chpwd:*' recent-dirs-file "$XDG_STATE_HOME/zsh/chpwd-recent-dirs"
 zstyle ':completion:*:*:cdr:*:*' menu selection
 
+# ── OSC 7 — report CWD to terminal (zellij uses this for new pane/tab CWD) ──
+_osc7_chpwd() {
+  printf '\e]7;file://%s%s\e\\' "${HOST}" "${PWD}"
+}
+add-zsh-hook chpwd _osc7_chpwd
+_osc7_chpwd
+
 # ── Help system ───────────────────────────────────────────────────────────────
 autoload -Uz run-help run-help-git run-help-ip
 (( $+aliases[run-help] )) && unalias run-help
