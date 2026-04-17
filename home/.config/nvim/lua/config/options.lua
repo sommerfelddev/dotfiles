@@ -3,7 +3,6 @@ local opt = vim.o
 -- Persistence
 opt.undofile = true -- persist undo history across sessions
 opt.swapfile = false -- no swap files; rely on undofile for recovery
-opt.shadafile = "NONE" -- disable shada: no persistent marks, registers, or history
 
 -- Gutter
 opt.number = true -- show line numbers
