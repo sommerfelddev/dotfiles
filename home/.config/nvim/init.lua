@@ -1,6 +1,6 @@
 vim.loader.enable()
 
-dofile(vim.fn.stdpath("config") .. "/lua/cfg/options.lua")
+require("cfg.options")
 
 function P(v)
   print(vim.inspect(v))
