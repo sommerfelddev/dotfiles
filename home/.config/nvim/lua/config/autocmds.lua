@@ -48,14 +48,11 @@ autocmd("FileType", {
     "checkhealth",
     "dbout",
     "gitsigns-blame",
-    "grug-far",
     "help",
     "lspinfo",
     "notify",
     "qf",
-    "spectre_panel",
     "startuptime",
-    "tsplayground",
   },
   callback = function(event)
     vim.bo[event.buf].buflisted = false
