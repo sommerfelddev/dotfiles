@@ -1,7 +1,4 @@
 set selection-clipboard clipboard
-set synctex-editor-command 'nvr --remote +"%{line}" "%{file}"'
 set incremental-search true
 set window-title-basename true
 set zoom-center true
-# map = zoom in
-# map + zoom best-fit
