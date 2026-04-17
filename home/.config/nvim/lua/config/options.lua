@@ -91,11 +91,6 @@ vim.o.foldenable = false
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
 
-vim.diagnostic.config({
-  virtual_text = false,
-  virtual_lines = false,
-})
-
 opt.sessionoptions =
   "blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"
 
