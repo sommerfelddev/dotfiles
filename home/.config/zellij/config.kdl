@@ -17,6 +17,10 @@ attach_to_session true
 show_startup_tips false
 show_release_notes false
 
+// Clean UI: no pane borders, compact single-line status bar
+pane_frames false
+default_layout "compact"
+
 // Custom keybindings (merged with defaults)
 keybinds {
     shared_except "locked" {
@@ -30,6 +34,20 @@ keybinds {
         bind "Alt 7" { GoToTab 7; }
         bind "Alt 8" { GoToTab 8; }
         bind "Alt 9" { GoToTab 9; }
+
+        // Tab management
+        bind "Alt t" { NewTab; }
+        bind "Alt [" { GoToPreviousTab; }
+        bind "Alt ]" { GoToNextTab; }
+
+        // Pane management
+        bind "Alt w" { ToggleFocusFullscreen; }
+        bind "Alt x" { CloseFocus; }
+        bind "Alt e" { EditScrollback; }
+
+        // Quick resize without entering resize mode
+        bind "Alt -" { Resize "Decrease"; }
+        bind "Alt =" { Resize "Increase"; }
 
         // Seamless vim/zellij pane navigation (requires smart-splits.nvim)
         bind "Ctrl h" {
