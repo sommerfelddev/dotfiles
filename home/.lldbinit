@@ -1,4 +1,0 @@
-# Load debug symbols only when needed to reduce startup time and memory usage
-settings set symbols.load-on-demand true
-# Load local .lldbinit
-settings set target.load-cwd-lldbinit true
