@@ -23,7 +23,7 @@ case $TERM in
     *256color|*truecolor) export COLORTERM=24bit ;;
 esac
 
-export TERMINAL='alacritty'
+export TERMINAL='ghostty'
 export BROWSER='linkhandler'
 export OPENER='xdg-open'
 
