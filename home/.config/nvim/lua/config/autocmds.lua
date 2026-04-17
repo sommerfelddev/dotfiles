@@ -125,7 +125,7 @@ autocmd("FileType", {
   callback = function()
     if pcall(vim.treesitter.start) then
       vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-      vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+      vim.bo.indentexpr = "v:lua.vim.treesitter.indentexpr()"
     end
   end,
 })
