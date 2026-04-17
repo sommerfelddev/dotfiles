@@ -103,6 +103,7 @@ export XCOMPOSECACHE="$XDG_CACHE_HOME/X11/xcompose"
 export XCOMPOSEFILE="$XDG_CONFIG_HOME/X11/xcompose"
 export XINITRC="$XDG_CONFIG_HOME/X11/xinitrc"
 export XSERVERRC="$XDG_CONFIG_HOME/X11/xserverrc"
+export ZELLIJ_CONFIG_FILE="$XDG_CONFIG_HOME/zellij/config.kdl"
 
 # XAUTHORITY breaks xauth over SSH, only set locally
 [[ -n $XDG_RUNTIME_DIR && -z $SSH_TTY ]] && export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
