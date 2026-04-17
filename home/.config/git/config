@@ -59,7 +59,7 @@
     showStash = true
     submoduleSummary = true
 [help]
-    autocorrect = 1
+    autocorrect = prompt
 [log]
     abbrevCommit = true
     date = short
@@ -121,12 +121,13 @@
     sw = switch
     swc = switch -c
     swd = switch -d
-    undo = reset --hard
     unstage = reset HEAD --
     update=!git fetch && git merge --ff-only
 [includeIf "gitdir:/home/*/work/"]
     path = config-work
 [includeIf "gitdir:~/doxfiles/.git"]
     path = config-personal
-[includeIf "gitdir:~/personal/"]
+[includeIf "gitdir:~/dev/copilot/.git"]
+    path = config-personal
+[includeIf "gitdir:~/dev/personal/"]
     path = config-personal
