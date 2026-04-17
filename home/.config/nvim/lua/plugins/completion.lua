@@ -61,7 +61,6 @@ return {
         default = { "lazydev", "lsp", "copilot", "snippets", "path", "buffer" },
         per_filetype = {
           ["dap-repl"] = { "dap" },
-          codecompanion = { "codecompanion" },
         },
         providers = {
           path = {
