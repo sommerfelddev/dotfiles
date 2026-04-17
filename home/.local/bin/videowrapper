@@ -1,7 +1,0 @@
-#!/usr/bin/env sh
-url="$(wl-paste)"
-log="$(mktemp)"
-cmd="mpv -quiet $url 2>&1 > $log"
-
-echo "$cmd"
-eval "$cmd" || notify-send "$url" "$(cat "$log")"
