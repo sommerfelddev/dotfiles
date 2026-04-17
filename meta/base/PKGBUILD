@@ -40,7 +40,6 @@ depends=(
   'overdue'
   'pacman-cleanup-hook'
   'pacman-contrib'
-  'pam-gnupg-git'
   'paru'
   'pass'
   'pbzip2'
