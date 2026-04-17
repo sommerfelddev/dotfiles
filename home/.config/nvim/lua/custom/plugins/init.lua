@@ -57,7 +57,6 @@ return {
         desc = "Decrement",
       },
     },
-    config = function() end,
   },
   {
     "iamcco/markdown-preview.nvim",
