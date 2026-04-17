@@ -35,7 +35,7 @@ export MANPAGER='nvim +Man!'
 export MANWIDTH=999
 
 # ── less ──────────────────────────────────────────────────────────────────────
-export LESS="-F -X --RAW-CONTROL-CHARS"
+export LESS="-F --RAW-CONTROL-CHARS"
 [[ -r /usr/bin/source-highlight-esc.sh ]] && export LESSOPEN="| /usr/bin/source-highlight-esc.sh %s"
 
 # ── GPG / SSH ─────────────────────────────────────────────────────────────────

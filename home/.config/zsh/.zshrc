@@ -160,8 +160,8 @@ alias free='free -h'
 
 # Grep / diff with color
 alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
+alias fgrep='grep -F --color=auto'
+alias egrep='grep -E --color=auto'
 alias diff='diff --color=auto'
 alias dmesg='dmesg --color=auto'
 alias dm='dmesg --color=always | less -r'
@@ -228,7 +228,7 @@ alias irfc='flang -S -emit-llvm -O0 -o -'
 alias astcc='clang -Xclang -ast-dump -fsyntax-only'
 alias astfc='flang -fc1 -fdebug-dump-parse-tree'
 alias symfc='flang -fc1 -fdebug-dump-symbols'
-alias gdb='gdb -ex start --args'
+alias gdbr='gdb -ex start --args'
 
 # GitHub Copilot CLI
 alias copilot='gh copilot --autopilot --enable-all-github-mcp-tools --yolo --resume'
