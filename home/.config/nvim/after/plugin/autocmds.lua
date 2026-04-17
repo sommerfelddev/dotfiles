@@ -133,12 +133,8 @@ autocmd("LspAttach", {
     local function nmap(l, r, desc)
       map("n", l, r, desc)
     end
-    local function nvmap(l, r, desc)
-      map({ "n", "v" }, l, r, desc)
-    end
     nmap("<c-]>", vim.lsp.buf.definition, "Goto definition")
     nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-    nvmap("gra", vim.lsp.buf.code_action, "[R]un code [A]ction")
 
     -- The following two autocommands are used to highlight references of the
     -- word under your cursor when your cursor rests there for a little while.
@@ -194,7 +190,6 @@ autocmd("LspAttach", {
           callback = vim.lsp.codelens.refresh,
         }
       )
-      nmap("<leader>cl", vim.lsp.codelens.run, "Run [C]ode [L]ens")
     end
 
     -- The following code creates a keymap to toggle inlay hints in your
