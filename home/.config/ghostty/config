@@ -28,6 +28,9 @@ keybind = ctrl+shift+page_down=unbind
 # Scroll keybinds (for use outside zellij)
 keybind = ctrl+shift+up=scroll_page_lines:-1
 keybind = ctrl+shift+down=scroll_page_lines:1
+# Copy URL under cursor to clipboard (works inside zellij without mouse)
+keybind = ctrl+shift+u=copy_url_to_clipboard
+
 keybind = alt+u=scroll_page_up
 keybind = alt+d=scroll_page_down
 keybind = alt+g=scroll_to_top

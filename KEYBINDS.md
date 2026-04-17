@@ -252,6 +252,7 @@ Emacs mode (`bindkey -e`) is the base.
 | Key | Action |
 |-----|--------|
 | `Ctrl-Shift-Up` / `Ctrl-Shift-Down` | Scroll one line up / down |
+| `Ctrl-Shift-u` | Copy URL under cursor to clipboard |
 | `Alt-u` | Scroll page up |
 | `Alt-d` | Scroll page down |
 | `Alt-g` | Scroll to top |
