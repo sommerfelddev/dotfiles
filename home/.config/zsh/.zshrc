@@ -157,6 +157,7 @@ fi
 # ── Recent directories ────────────────────────────────────────────────────────
 autoload -Uz chpwd_recent_dirs cdr
 add-zsh-hook chpwd chpwd_recent_dirs
+[[ -d ${XDG_STATE_HOME}/zsh ]] || mkdir -p "${XDG_STATE_HOME}/zsh"
 zstyle ':chpwd:*' recent-dirs-file "$XDG_STATE_HOME/zsh/chpwd-recent-dirs"
 zstyle ':completion:*:*:cdr:*:*' menu selection
 
@@ -232,14 +233,17 @@ alias ng='nvim +Neogit'
 
 # Zellij: smart attach — 0 sessions: create, 1: attach, many: welcome picker
 za() {
-	local sessions=$(zellij list-sessions -ns 2>/dev/null | wc -l)
-	if (( sessions == 0 )); then
-		zellij
-	elif (( sessions == 1 )); then
-		zellij attach
-	else
-		zellij -l welcome
+	if [[ -n $ZELLIJ ]]; then
+		echo "Already inside zellij" >&2
+		return 1
 	fi
+	local -a sessions=("${(@f)$(zellij list-sessions -ns 2>/dev/null)}")
+	sessions=(${sessions:#})
+	case ${#sessions} in
+		0) zellij ;;
+		1) zellij attach "${sessions[1]}" ;;
+		*) zellij -l welcome ;;
+	esac
 }
 
 # Just
