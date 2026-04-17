@@ -31,8 +31,8 @@ return {
         desc = "Moves to the next node down that's indented further than the current node",
       },
       {
-        "<cmd>Treewalker SwapUp<cr>",
         "<s-a-k>",
+        "<cmd>Treewalker SwapUp<cr>",
         silent = true,
         desc = "Swaps the highest node on the line upwards in the document",
       },
