@@ -1,26 +1,40 @@
 #!/bin/sh
-# Cycle display mode: mirror → laptop-off → side-by-side
+# Cycle display mode: laptop-off → side-by-side → mirror
 # Usage: display-toggle.sh [init]
 # Bound to F7 in sway config; also runs at startup with "init"
 
+set -e
+
 STATE_FILE="${XDG_RUNTIME_DIR:-/tmp}/display-mode"
 MIRROR_PID="${XDG_RUNTIME_DIR:-/tmp}/wl-mirror.pid"
+LOG="${XDG_RUNTIME_DIR:-/tmp}/display-toggle.log"
 
-LAPTOP=$(swaymsg -t get_outputs -r | jq -r '.[] | select(.name | test("eDP")) | .name')
-EXTERNAL=$(swaymsg -t get_outputs -r | jq -r '[.[] | select(.name | test("eDP") | not) | .name] | first // empty')
+log() { echo "$(date +%T) $*" >> "$LOG"; }
+
+OUTPUTS=$(swaymsg -t get_outputs -r)
+LAPTOP=$(echo "$OUTPUTS" | jq -r '[.[] | select(.name | test("^eDP")) | .name] | first // empty')
+EXTERNAL=$(echo "$OUTPUTS" | jq -r '[.[] | select(.name | test("^eDP") | not) | .name] | first // empty')
+
+log "laptop=$LAPTOP external=$EXTERNAL arg=$1"
 
 if [ -z "$EXTERNAL" ]; then
     [ -z "$1" ] && notify-send "Display" "No external display connected"
+    log "no external display, exiting"
+    exit 0
+fi
+
+if [ -z "$LAPTOP" ]; then
+    log "no laptop display detected, exiting"
     exit 0
 fi
 
 # Stop any running wl-mirror
 if [ -f "$MIRROR_PID" ]; then
-    kill "$(cat "$MIRROR_PID")" 2>/dev/null
+    kill "$(cat "$MIRROR_PID")" 2>/dev/null || true
     rm -f "$MIRROR_PID"
 fi
 
-LAPTOP_WIDTH=$(swaymsg -t get_outputs -r | jq -r ".[] | select(.name == \"$LAPTOP\") | .current_mode.width")
+LAPTOP_WIDTH=$(echo "$OUTPUTS" | jq -r ".[] | select(.name == \"$LAPTOP\") | .current_mode.width")
 [ -z "$LAPTOP_WIDTH" ] && LAPTOP_WIDTH=1920
 
 # On init, go straight to laptop-off; otherwise cycle
@@ -34,6 +48,8 @@ else
         *) NEXT="laptop-off" ;;
     esac
 fi
+
+log "switching to $NEXT"
 
 case "$NEXT" in
     mirror)
@@ -52,6 +68,7 @@ case "$NEXT" in
         swaymsg output "$EXTERNAL" enable
         swaymsg workspace number 1
         echo "laptop-off" > "$STATE_FILE"
+        log "disabled $LAPTOP"
         [ -z "$1" ] && notify-send "Display" "Laptop screen off"
         ;;
     side-by-side)
@@ -61,3 +78,5 @@ case "$NEXT" in
         [ -z "$1" ] && notify-send "Display" "Side by side"
         ;;
 esac
+
+log "done"
