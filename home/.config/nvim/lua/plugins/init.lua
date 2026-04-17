@@ -1,5 +1,4 @@
 return {
-  { "nvim-lua/plenary.nvim", branch = "master", lazy = true },
   {
     "iamcco/markdown-preview.nvim",
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
