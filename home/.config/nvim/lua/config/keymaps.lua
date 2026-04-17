@@ -101,15 +101,15 @@ nmap("yp", function()
   vim.fn.setreg("+", vim.fn.expand("%"))
 end, "[Y]ank [P]ath")
 
-local sudo_exec = function(_cmd)
+local doas_exec = function(_cmd)
   vim.fn.inputsave()
   local password = vim.fn.inputsecret("Password: ")
   vim.fn.inputrestore()
   if not password or #password == 0 then
-    vim.notify("Invalid password, sudo aborted", vim.log.levels.WARN)
+    vim.notify("Invalid password, doas aborted", vim.log.levels.WARN)
     return false
   end
-  local out = vim.fn.system(string.format("sudo -p '' -S %s", _cmd), password)
+  local out = vim.fn.system(string.format("doas -S %s", _cmd), password .. "\n")
   if vim.v.shell_error ~= 0 then
     print("\r\n")
     vim.notify(out, vim.log.levels.ERROR)
@@ -118,7 +118,7 @@ local sudo_exec = function(_cmd)
   return true
 end
 
-vim.api.nvim_create_user_command("SudoWrite", function(opts)
+vim.api.nvim_create_user_command("DoasWrite", function(opts)
   local tmpfile = vim.fn.tempname()
   local filepath
   if #opts.fargs == 1 then
@@ -139,7 +139,7 @@ vim.api.nvim_create_user_command("SudoWrite", function(opts)
   )
   -- no need to check error as this fails the entire function
   vim.api.nvim_exec2(string.format("write! %s", tmpfile), { output = true })
-  if sudo_exec(_cmd) then
+  if doas_exec(_cmd) then
     -- refreshes the buffer and prints the "written" message
     vim.cmd.checktime()
     -- exit command mode
@@ -152,5 +152,5 @@ vim.api.nvim_create_user_command("SudoWrite", function(opts)
   vim.fn.delete(tmpfile)
 end, {
   nargs = "?",
-  desc = "Write using sudo permissions",
+  desc = "Write using doas permissions",
 })
