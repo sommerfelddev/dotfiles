@@ -23,15 +23,15 @@ fi
 LAPTOP_WIDTH=$(swaymsg -t get_outputs -r | jq -r ".[] | select(.name == \"$LAPTOP\") | .current_mode.width")
 [ -z "$LAPTOP_WIDTH" ] && LAPTOP_WIDTH=1920
 
-# On init, go straight to mirror; otherwise cycle
+# On init, go straight to laptop-off; otherwise cycle
 if [ "$1" = "init" ]; then
-    NEXT="mirror"
+    NEXT="laptop-off"
 else
-    CURRENT=$(cat "$STATE_FILE" 2>/dev/null || echo "mirror")
+    CURRENT=$(cat "$STATE_FILE" 2>/dev/null || echo "laptop-off")
     case "$CURRENT" in
-        mirror) NEXT="laptop-off" ;;
         laptop-off) NEXT="side-by-side" ;;
-        *) NEXT="mirror" ;;
+        side-by-side) NEXT="mirror" ;;
+        *) NEXT="laptop-off" ;;
     esac
 fi
 
