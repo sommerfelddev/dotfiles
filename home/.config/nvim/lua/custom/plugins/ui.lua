@@ -58,7 +58,7 @@ return {
         lualine_a = { "filetype", { "filename", path = 1 } },
         lualine_b = { "%l/%L:%c:%o" },
         lualine_c = { "diff" },
-        lualine_x = { "searchcount, selectioncount" },
+        lualine_x = { "searchcount", "selectioncount" },
         lualine_y = { "overseer", "copilot" },
         lualine_z = { "diagnostics" },
       },
