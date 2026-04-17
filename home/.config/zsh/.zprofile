@@ -69,24 +69,23 @@ export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 # ── Java ──────────────────────────────────────────────────────────────────────
 # System AA fonts, GTK L&F, XDG prefs dir, GTK2 for compatibility
 export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel -Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java -Djdk.gtk.version=2"
-# Fix for non-reparenting WMs (bspwm, dwm, etc.)
+# Fix for non-reparenting WMs (sway, bspwm, dwm, etc.)
 export _JAVA_AWT_WM_NONREPARENTING=1
 
 # ── Miscellaneous ─────────────────────────────────────────────────────────────
 export QT_QPA_PLATFORMTHEME=qt5ct
 export NO_AT_BRIDGE=1          # suppress GTK accessibility bus warnings
-export vblank_mode=0           # disable vsync
-export SXHKD_SHELL="sh"       # faster sxhkd response times
 export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/podman/podman.sock"
-export GDK_DISPLAY=1           # https://github.com/sparrowwallet/sparrow/issues/170
 export INPUTRC="$XDG_CONFIG_HOME/sh/inputrc"
+
+# ── Wayland ───────────────────────────────────────────────────────────────────
+export XDG_CURRENT_DESKTOP=sway
+export MOZ_ENABLE_WAYLAND=1
 
 # ── XDG cleanup: keep $HOME tidy ─────────────────────────────────────────────
 # https://wiki.archlinux.org/title/XDG_Base_Directory#Partial
-export ALTUSERXSESSION="$XDG_CACHE_HOME/x11/Xsession"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
-export ERRFILE="$XDG_CACHE_HOME/x11/xsession-errors"
 export GNUPGHOME="$XDG_DATA_HOME/gnupg"
 export GOPATH="$XDG_DATA_HOME/go"
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
@@ -95,17 +94,8 @@ export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
 export PASSWORD_STORE_DIR="$XDG_DATA_HOME/password-store"
 export RUFF_CACHE_DIR="$XDG_CACHE_HOME/ruff"
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
-export USERXSESSION="$XDG_CACHE_HOME/x11/xsession"
-export USERXSESSIONRC="$XDG_CACHE_HOME/x11/xsessionrc"
 export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc"
 export WINEPREFIX="$XDG_DATA_HOME/wineprefixes/default"
-export XCOMPOSECACHE="$XDG_CACHE_HOME/X11/xcompose"
-export XCOMPOSEFILE="$XDG_CONFIG_HOME/X11/xcompose"
-export XINITRC="$XDG_CONFIG_HOME/X11/xinitrc"
-export XSERVERRC="$XDG_CONFIG_HOME/X11/xserverrc"
-
-# XAUTHORITY breaks xauth over SSH, only set locally
-[[ -n $XDG_RUNTIME_DIR && -z $SSH_TTY ]] && export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
 
 # ── Host-specific ─────────────────────────────────────────────────────────────
 case $(uname -n) in
@@ -123,7 +113,8 @@ esac
 # ── Secrets (from pass) ──────────────────────────────────────────────────────
 (( $+commands[pass] )) && export FIRECRAWL_API_KEY="$(pass show copilot/firecrawl-api-key)"
 
-# ── Auto-start X session on VT1 ──────────────────────────────────────────────
-if [[ -z $DISPLAY && $XDG_VTNR == 1 ]]; then
-    (( $+commands[sx] )) && sx
+# ── Auto-start sway on VT1 ────────────────────────────────────────────────────
+if [[ -z $WAYLAND_DISPLAY && $XDG_VTNR == 1 ]]; then
+    export XDG_SESSION_TYPE=wayland
+    exec sway
 fi

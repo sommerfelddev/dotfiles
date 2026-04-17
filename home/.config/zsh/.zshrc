@@ -224,7 +224,6 @@ alias c='clear'
 # Tools
 alias stow='stow -R --no-folding --adopt'
 alias curl='curlie'
-alias xclip="xclip -selection clipboard -f"
 alias cpr='rsync --archive -hh --partial --info=stats1,progress2 --modify-window=1'
 alias mvr='rsync --archive -hh --partial --info=stats1,progress2 --modify-window=1 --remove-source-files'
 alias sub='subliminal download -l en'
@@ -254,11 +253,6 @@ za() {
 
 # Just
 alias j='just'
-
-# X11 keyboard inspection
-whichkey() {
-	xev | awk -F'[ )]+' '/^KeyPress/ { a[NR+2] } NR in a { printf "%-3s %s\n", $5, $8 }'
-}
 
 # LLVM / Clang tooling
 alias ncmake='cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_FLAGS="$DEV_CFLAGS" -DCMAKE_CXX_FLAGS="$DEV_CFLAGS" -DCMAKE_INSTALL_PREFIX=build/install -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build'
