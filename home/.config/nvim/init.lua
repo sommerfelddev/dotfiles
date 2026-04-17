@@ -1,6 +1,6 @@
 vim.loader.enable()
 
-require("cfg.options")
+require("config.options")
 
 _G.P = function(v)
   print(vim.inspect(v))
@@ -42,3 +42,6 @@ require("lazy").setup({ import = "plugins" }, {
     hererocks = false,
   },
 })
+
+require("config.keymaps")
+require("config.autocmds")
