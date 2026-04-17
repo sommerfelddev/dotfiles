@@ -110,8 +110,8 @@ autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey "^X^E" edit-command-line
 
-# Ctrl-Y: copy current command line to clipboard
-copy-line-to-clipboard() { echo -n "$BUFFER" | wl-copy; }
+# Ctrl-Y: copy current command line to clipboard (OSC 52 — terminal-native)
+copy-line-to-clipboard() { printf '\033]52;c;%s\a' "$(echo -n "$BUFFER" | base64)" }
 zle -N copy-line-to-clipboard
 bindkey '^Y' copy-line-to-clipboard
 

@@ -15,8 +15,7 @@ scroll_buffer_size 50000
 // Clipboard: copy to system clipboard on selection
 copy_on_select true
 
-// Use wl-copy for Wayland clipboard (fallback from OSC 52)
-copy_command "wl-copy"
+// Clipboard is handled via OSC 52 (terminal-native, no external tools needed)
 
 // Auto-attach to existing session with the same name instead of erroring
 attach_to_session true
