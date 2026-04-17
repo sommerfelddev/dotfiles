@@ -50,6 +50,7 @@ return {
         function()
           require("fzf-lua").git_bcommits()
         end,
+        mode = "n",
         desc = "[G]it buffer [C]commits",
       },
       {
@@ -57,6 +58,7 @@ return {
         function()
           require("fzf-lua").git_bcommits_range()
         end,
+        mode = "v",
         desc = "[G]it [C]commits for selected range",
       },
       {
