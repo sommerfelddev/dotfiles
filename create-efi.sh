@@ -17,7 +17,7 @@ printf "Root partition [sda2]: " && read -r root_partition
 if [ -z "$root_partition" ]; then
     root_partition='sda2'
 fi
-root_uuid=$(blkid /dev/"$root_partition" | cut -f 2 -d " ")
+root_uuid="UUID=$(blkid -s UUID -o value /dev/"$root_partition")"
 
 printf "Kernel name [linux]: " && read -r kernel_name
 if [ -z "$kernel_name" ]; then
@@ -40,7 +40,6 @@ printf "label [archlinux]: " && read -r label
 if [ -z "$label" ]; then
     label='archlinux'
 fi
-
 rel_path=""
 rel_path2=""
 if [ "$esp" = "efi" ]; then
