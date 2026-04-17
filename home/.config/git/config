@@ -30,9 +30,12 @@
 [rebase]
     autoStash = true
     autoSquash = true
+    updateRefs = true
 [fetch]
     recurseSubmodules = on-demand
     prune = true
+[rerere]
+    enabled = true
 [pull]
     ff = only
 [merge]
@@ -66,6 +69,8 @@
 [advice]
     detachedHead = false
     skippedCherryPicks = false
+[column]
+    ui = auto
 [format]
     pretty = oneline
 [delta]
