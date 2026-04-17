@@ -2,7 +2,7 @@ vim.loader.enable()
 
 require("cfg.options")
 
-function P(v)
+_G.P = function(v)
   print(vim.inspect(v))
   return v
 end
