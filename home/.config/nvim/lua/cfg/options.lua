@@ -39,7 +39,7 @@ opt.updatetime = 250
 opt.timeoutlen = 300
 opt.synmaxcol = 500
 
-vim.opt.completeopt = { "menuone", "noselect", "popup", "fuzzy" }
+vim.opt.completeopt = { "menuone", "noselect", "popup", "fuzzy", "nearest" }
 opt.scrolloff = 999
 opt.sidescrolloff = 5
 
