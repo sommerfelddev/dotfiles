@@ -31,7 +31,7 @@ opt.colorcolumn = "+1"
 vim.opt.formatoptions:remove("t")
 
 opt.cmdheight = 2
--- vim.o.messagesopt = "wait:5000,history:500"
+opt.messagesopt = "wait:5000,history:500"
 
 vim.opt.shortmess:append({ a = true })
 
