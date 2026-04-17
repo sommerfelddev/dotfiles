@@ -84,6 +84,9 @@ if vim.fn.executable("rg") then
 end
 
 opt.pumblend = 20
+opt.pumborder = "rounded"
+
+opt.winborder = "rounded"
 
 vim.wo.foldmethod = "expr"
 vim.wo.foldenable = false
