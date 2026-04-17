@@ -7,14 +7,14 @@
     followTags = true
     gpgSign = if-asked
 [core]
-    whitespace = fix,trailing-space,cr-at-eol
+    whitespace = trailing-space,cr-at-eol
     autocrlf = input
     pager = delta
 [branch]
     sort=-committerdate
 [diff]
     tool = nvimdiff
-    # algorithm = histogram
+    algorithm = histogram
     colorMoved = default
     mnemonicPrefix = true
     relative = true
