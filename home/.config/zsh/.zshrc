@@ -16,7 +16,7 @@ setopt prompt_subst        # expand variables/functions in prompt
 unsetopt beep              # no terminal bell
 
 # ── History ───────────────────────────────────────────────────────────────────
-HISTFILE="$XDG_CACHE_HOME/zsh_history"
+HISTFILE="$XDG_STATE_HOME/zsh/history"
 HISTSIZE=50000
 SAVEHIST=50000
 
@@ -30,7 +30,7 @@ PROMPT='%B%{$fg[green]%}%n%{$reset_color%}@%{$fg[cyan]%}%m%{$reset_color%}:%b%{$
 
 # ── Completion ────────────────────────────────────────────────────────────────
 fpath=($XDG_DATA_HOME/zsh/completion $fpath)
-autoload -Uz compinit && compinit
+autoload -Uz compinit && compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
 
 zstyle ':completion:*' menu select
 zstyle ':completion:*' completer _expand_alias _complete _ignored _match _approximate
@@ -73,7 +73,6 @@ key[ShiftTab]="${terminfo[kcbt]}"
 [[ -n "${key[Right]}"     ]] && bindkey -- "${key[Right]}"     forward-char
 [[ -n "${key[PageUp]}"    ]] && bindkey -- "${key[PageUp]}"    beginning-of-buffer-or-history
 [[ -n "${key[PageDown]}"  ]] && bindkey -- "${key[PageDown]}"  end-of-buffer-or-history
-[[ -n "${key[ShiftTab]}"  ]] && bindkey -- "${key[ShiftTab]}"  reverse-menu-complete
 
 # Application mode: terminfo values are only valid while the terminal is in
 # application mode. Enable it while zle is active.
@@ -85,12 +84,7 @@ if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
 	add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
 fi
 
-# ── History search: Up/Down search by prefix ──────────────────────────────────
-autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
-[[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   up-line-or-beginning-search
-[[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" down-line-or-beginning-search
+# History search bindings are set below after sourcing zsh-history-substring-search.
 
 # ── Custom keybindings ────────────────────────────────────────────────────────
 bindkey \^U backward-kill-line
@@ -136,6 +130,7 @@ fi
 # ── Recent directories ────────────────────────────────────────────────────────
 autoload -Uz chpwd_recent_dirs cdr
 add-zsh-hook chpwd chpwd_recent_dirs
+zstyle ':chpwd:*' recent-dirs-file "$XDG_STATE_HOME/zsh/chpwd-recent-dirs"
 zstyle ':completion:*:*:cdr:*:*' menu selection
 
 # ── Help system ───────────────────────────────────────────────────────────────
@@ -190,9 +185,6 @@ alias ssys='doas systemctl'
 alias sysu='systemctl --user'
 
 # Navigation
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias .....='cd ../../../..'
 alias c='clear'
 
 # Tools
@@ -261,11 +253,14 @@ _fzf_compgen_path() { fd --hidden --follow --exclude ".git" . "$1" }
 _fzf_compgen_dir()  { fd --type d --hidden --follow --exclude ".git" . "$1" }
 
 # ── Plugins (must be sourced last) ────────────────────────────────────────────
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# Highlight config must be set BEFORE sourcing the plugin
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 ZSH_HIGHLIGHT_STYLES[comment]='fg=yellow'
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 bindkey '^[[Z' autosuggest-accept  # Shift-Tab to accept suggestion
 
 source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+[[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   history-substring-search-up
+[[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" history-substring-search-down
