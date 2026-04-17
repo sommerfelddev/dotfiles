@@ -5,7 +5,7 @@ require("lazydev").setup({
 })
 
 vim.lsp.enable("just")
-vim.lsp.enable("tblgen_lsp_server")
+pcall(vim.lsp.enable, "tblgen_lsp_server")
 
 require("fidget").setup({})
 require("mason").setup({})
