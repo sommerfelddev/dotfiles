@@ -283,7 +283,9 @@ compdef sys=systemctl ssys=systemctl sysu=systemctl
 compdef l=lsd la=lsd lt=lsd
 
 # ── GPG agent ─────────────────────────────────────────────────────────────────
-# Refresh gpg-agent's TTY so pinentry prompts appear in the right terminal
+# Set GPG_TTY to this shell's actual TTY (not the login console) and tell
+# the agent so pinentry prompts appear in the right terminal
+export GPG_TTY=$TTY
 gpg-connect-agent updatestartuptty /bye &>/dev/null
 
 # ── Zoxide (smart directory jumping) ──────────────────────────────────────────

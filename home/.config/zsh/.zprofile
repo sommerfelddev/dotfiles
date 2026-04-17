@@ -39,7 +39,6 @@ export LESS="-F --RAW-CONTROL-CHARS"
 [[ -r /usr/bin/source-highlight-esc.sh ]] && export LESSOPEN="| /usr/bin/source-highlight-esc.sh %s"
 
 # ── GPG / SSH ─────────────────────────────────────────────────────────────────
-export GPG_TTY=$TTY
 unset SSH_AGENT_PID
 export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
 
