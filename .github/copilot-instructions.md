@@ -42,3 +42,7 @@ Additionally, `home/.config/sh/inputrc` provides readline config for non-zsh too
 When modifying configs, preserve the stow-compatible directory structure — paths under `home/` must exactly match their `$HOME` targets. Do not introduce files that break the 1:1 mapping.
 
 When editing shell config, all zsh configuration goes in `.config/zsh/` — do not create files in `home/.config/sh/` (only `inputrc` remains there).
+
+## Keybinds reference
+
+`KEYBINDS.md` at the repository root documents every non-default keybind across neovim, zellij, zsh, and ghostty. Whenever you add, remove, or change a keybind in any of these tools, you must update `KEYBINDS.md` to reflect the change in the same commit.
