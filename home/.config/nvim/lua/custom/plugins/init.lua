@@ -391,10 +391,6 @@ return {
       },
     },
     opts = {},
-    config = function()
-      local refactoring = require("refactoring")
-      refactoring.setup({})
-    end,
   },
   {
     "folke/which-key.nvim",
