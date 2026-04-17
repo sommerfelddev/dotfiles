@@ -1,146 +1,55 @@
-return {
-  {
-    "nmac427/guess-indent.nvim",
-    event = "BufRead",
-    opts = {},
-  },
-  {
-    "kylechui/nvim-surround",
-    event = "VeryLazy",
-    opts = {},
-  },
-  {
-    "chrisgrieser/nvim-various-textobjs",
-    event = "VeryLazy",
-    opts = {
-      keymaps = {
-        useDefaults = true,
-      },
-    },
-  },
-  {
-    "monaqa/dial.nvim",
-    keys = {
-      {
-        "]i",
-        function()
-          require("dial.map").inc_normal()
-        end,
-        expr = true,
-        desc = "Increment",
-      },
-      {
-        "[i",
-        function()
-          require("dial.map").dec_normal()
-        end,
-        expr = true,
-        desc = "Decrement",
-      },
-      {
-        "]i",
-        function()
-          require("dial.map").inc_visual()
-        end,
-        expr = true,
-        mode = "v",
-        desc = "Increment",
-      },
-      {
-        "[i",
-        function()
-          require("dial.map").dec_visual()
-        end,
-        expr = true,
-        mode = "v",
-        desc = "Decrement",
-      },
-    },
-  },
-  {
-    "ThePrimeagen/refactoring.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-    keys = {
-      {
-        "<leader>re",
-        function()
-          require("refactoring").refactor("Extract Function")
-        end,
-        mode = "x",
-        desc = "[R]efactor [E]xtract function",
-      },
-      {
-        "<leader>rf",
-        function()
-          require("refactoring").refactor("Extract Function To File")
-        end,
-        mode = "x",
-        desc = "[R]efactor extract function to [F]ile",
-      },
-      {
-        "<leader>rv",
-        function()
-          require("refactoring").refactor("Extract Variable")
-        end,
-        mode = "x",
-        desc = "[R]efactor extract [V]ariable",
-      },
-      {
-        "<leader>rI",
-        function()
-          require("refactoring").refactor("Inline Function")
-        end,
-        desc = "[R]efactor [I]nline function",
-      },
-      {
-        "<leader>ri",
-        function()
-          require("refactoring").refactor("Inline Variable")
-        end,
-        mode = { "x", "n" },
-        desc = "[R]efactor [I]nline variable",
-      },
-      {
-        "<leader>rb",
-        function()
-          require("refactoring").refactor("Extract Block")
-        end,
-        desc = "[R]efactor extract [B]lock",
-      },
-      {
-        "<leader>rB",
-        function()
-          require("refactoring").refactor("Extract Block To File")
-        end,
-        desc = "[R]efactor extract [B]lock to file",
-      },
-      {
-        "<leader>rp",
-        function()
-          require("refactoring").debug.printf({})
-        end,
-        desc = "[R]efactor [P]rint",
-      },
+require("guess-indent").setup({})
 
-      {
-        "<leader>rV",
-        function()
-          require("refactoring").debug.print_var({})
-        end,
-        mode = { "x", "n" },
-        desc = "[R]efactor [P]rint [V]ariable",
-      },
-      {
-        "<leader>rc",
-        function()
-          require("refactoring").debug.cleanup({})
-        end,
-        desc = "[R]efactor [C]leanup",
-      },
-    },
-    opts = {},
+require("various-textobjs").setup({
+  keymaps = {
+    useDefaults = true,
   },
-}
+})
+
+-- dial.nvim keymaps
+vim.keymap.set("n", "]i", function()
+  return require("dial.map").inc_normal()
+end, { expr = true, desc = "Increment" })
+vim.keymap.set("n", "[i", function()
+  return require("dial.map").dec_normal()
+end, { expr = true, desc = "Decrement" })
+vim.keymap.set("v", "]i", function()
+  return require("dial.map").inc_visual()
+end, { expr = true, desc = "Increment" })
+vim.keymap.set("v", "[i", function()
+  return require("dial.map").dec_visual()
+end, { expr = true, desc = "Decrement" })
+
+-- refactoring.nvim
+require("refactoring").setup({})
+
+vim.keymap.set("x", "<leader>re", function()
+  require("refactoring").refactor("Extract Function")
+end, { desc = "[R]efactor [E]xtract function" })
+vim.keymap.set("x", "<leader>rf", function()
+  require("refactoring").refactor("Extract Function To File")
+end, { desc = "[R]efactor extract function to [F]ile" })
+vim.keymap.set("x", "<leader>rv", function()
+  require("refactoring").refactor("Extract Variable")
+end, { desc = "[R]efactor extract [V]ariable" })
+vim.keymap.set("n", "<leader>rI", function()
+  require("refactoring").refactor("Inline Function")
+end, { desc = "[R]efactor [I]nline function" })
+vim.keymap.set({ "x", "n" }, "<leader>ri", function()
+  require("refactoring").refactor("Inline Variable")
+end, { desc = "[R]efactor [I]nline variable" })
+vim.keymap.set("n", "<leader>rb", function()
+  require("refactoring").refactor("Extract Block")
+end, { desc = "[R]efactor extract [B]lock" })
+vim.keymap.set("n", "<leader>rB", function()
+  require("refactoring").refactor("Extract Block To File")
+end, { desc = "[R]efactor extract [B]lock to file" })
+vim.keymap.set("n", "<leader>rp", function()
+  require("refactoring").debug.printf({})
+end, { desc = "[R]efactor [P]rint" })
+vim.keymap.set({ "x", "n" }, "<leader>rV", function()
+  require("refactoring").debug.print_var({})
+end, { desc = "[R]efactor [P]rint [V]ariable" })
+vim.keymap.set("n", "<leader>rc", function()
+  require("refactoring").debug.cleanup({})
+end, { desc = "[R]efactor [C]leanup" })
