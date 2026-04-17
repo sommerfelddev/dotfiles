@@ -1,30 +1,22 @@
-// Zellij configuration
-// See: https://zellij.dev/documentation/options
-
 // Gruvbox dark theme (built-in)
 theme "gruvbox-dark"
 
-// Session resurrection: serialize layout, panes, and running commands to disk.
-// Exited sessions can be listed and resurrected from the session-manager.
-// session_serialization is already true by default, but we also want viewport.
+// Session resurrection
 serialize_pane_viewport true
 
-// Scrollback: open in $EDITOR with Ctrl-s → e
+// Scrollback
 scroll_buffer_size 50000
 
-// Clipboard: copy to system clipboard on selection
+// Clipboard: copy to system clipboard on selection (OSC 52)
 copy_on_select true
-
-// Clipboard is handled via OSC 52 (terminal-native, no external tools needed)
 
 // Auto-attach to existing session with the same name instead of erroring
 attach_to_session true
 
-// Seamless navigation between neovim splits and zellij panes (Ctrl h/j/k/l).
-// Requires smart-splits.nvim on the neovim side.
+// Custom keybindings (merged with defaults)
 keybinds {
     shared_except "locked" {
-        // Direct tab access (Alt+number, like tmux prefix+number)
+        // Direct tab access (Alt+number)
         bind "Alt 1" { GoToTab 1; }
         bind "Alt 2" { GoToTab 2; }
         bind "Alt 3" { GoToTab 3; }
@@ -35,28 +27,27 @@ keybinds {
         bind "Alt 8" { GoToTab 8; }
         bind "Alt 9" { GoToTab 9; }
 
-        // Seamless navigation between neovim splits and zellij panes (Ctrl h/j/k/l).
-        // Requires smart-splits.nvim on the neovim side.
+        // Seamless vim/zellij pane navigation (requires smart-splits.nvim)
         bind "Ctrl h" {
-            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.2.1/vim-zellij-navigator.wasm" {
+            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
                 name "move_focus";
                 payload "left";
             };
         }
         bind "Ctrl j" {
-            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.2.1/vim-zellij-navigator.wasm" {
+            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
                 name "move_focus";
                 payload "down";
             };
         }
         bind "Ctrl k" {
-            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.2.1/vim-zellij-navigator.wasm" {
+            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
                 name "move_focus";
                 payload "up";
             };
         }
         bind "Ctrl l" {
-            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.2.1/vim-zellij-navigator.wasm" {
+            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm" {
                 name "move_focus";
                 payload "right";
             };
