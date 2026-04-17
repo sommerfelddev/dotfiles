@@ -7,7 +7,6 @@ opt.shadafile = "NONE"
 opt.number = true
 opt.cursorline = true
 opt.signcolumn = "auto:2"
-opt.showmatch = true
 opt.laststatus = 3
 
 opt.expandtab = true
@@ -30,14 +29,12 @@ opt.textwidth = 80
 opt.colorcolumn = "+1"
 vim.opt.formatoptions:remove("t")
 
-opt.cmdheight = 2
 opt.messagesopt = "wait:5000,history:500"
 
 vim.opt.shortmess:append({ a = true })
 
 opt.updatetime = 250
 opt.timeoutlen = 300
-opt.synmaxcol = 500
 
 vim.opt.completeopt = { "menuone", "noselect", "popup", "fuzzy", "nearest" }
 opt.scrolloff = 999
