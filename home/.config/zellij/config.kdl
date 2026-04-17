@@ -1,0 +1,22 @@
+// Zellij configuration
+// See: https://zellij.dev/documentation/options
+
+// Gruvbox dark theme (built-in)
+theme "gruvbox-dark"
+
+// Session resurrection: serialize layout, panes, and running commands to disk.
+// Exited sessions can be listed and resurrected from the session-manager.
+// session_serialization is already true by default, but we also want viewport.
+serialize_pane_viewport true
+
+// Scrollback: open in $EDITOR with Ctrl-s → e
+scroll_buffer_size 50000
+
+// Clipboard: copy to system clipboard on selection
+copy_on_select true
+
+// Use wl-copy for Wayland clipboard (fallback from OSC 52)
+copy_command "wl-copy"
+
+// Auto-attach to existing session with the same name instead of erroring
+attach_to_session true
