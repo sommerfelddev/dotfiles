@@ -219,8 +219,17 @@ alias nview='nvim -R'
 alias nv='nvim -R'
 alias ng='nvim +Neogit'
 
-# Zellij: attach to session or create if it doesn't exist (name is optional)
-alias za='zellij attach -c'
+# Zellij: smart attach — 0 sessions: create, 1: attach, many: welcome picker
+za() {
+	local sessions=$(zellij list-sessions -ns 2>/dev/null | wc -l)
+	if (( sessions == 0 )); then
+		zellij
+	elif (( sessions == 1 )); then
+		zellij attach
+	else
+		zellij -l welcome
+	fi
+}
 
 # Just
 alias j='just'
