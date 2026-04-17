@@ -14,6 +14,10 @@ This is a personal dotfiles repository for an Arch Linux system. Configuration f
 - `firefox/` contains Firefox hardening overrides and custom CSS.
 - `create-efi.sh` is an interactive EFI boot entry creation script using `efibootmgr`.
 
+## Terminal multiplexer
+
+Zellij is the terminal multiplexer. Config lives in `home/.config/zellij/config.kdl`. Most features are built-in defaults (session resurrection, mouse mode, clipboard). The `vim-zellij-navigator` WASM plugin enables seamless Ctrl h/j/k/l navigation between zellij panes and neovim splits (paired with `smart-splits.nvim` on the neovim side).
+
 ## Shell configuration
 
 Zsh-only setup with three files:
