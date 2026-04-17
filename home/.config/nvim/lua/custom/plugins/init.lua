@@ -65,11 +65,6 @@ return {
     ft = "markdown",
   },
   {
-    "kwkarlwang/bufresize.nvim",
-    event = "VeryLazy",
-    opts = {},
-  },
-  {
     "rmagatti/auto-session",
     lazy = false,
     opts = function()
