@@ -57,7 +57,6 @@ require("nvim-treesitter").install({
   "sql",
   "ssh_config",
   "strace",
-  "sxhkdrc",
   "tablegen",
   "todotxt",
   "toml",

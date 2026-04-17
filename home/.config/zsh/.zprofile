@@ -69,7 +69,7 @@ export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 # ── Java ──────────────────────────────────────────────────────────────────────
 # System AA fonts, GTK L&F, XDG prefs dir, GTK2 for compatibility
 export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel -Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java -Djdk.gtk.version=2"
-# Fix for non-reparenting WMs (sway, bspwm, dwm, etc.)
+# Fix for non-reparenting WMs (sway, dwm, etc.)
 export _JAVA_AWT_WM_NONREPARENTING=1
 
 # ── Miscellaneous ─────────────────────────────────────────────────────────────

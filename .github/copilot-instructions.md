@@ -10,13 +10,13 @@ This is a personal dotfiles repository for an Arch Linux system. Configuration f
 - `etc/` and `etc2/` contain system-level configs (`/etc/` targets) — systemd units, pacman hooks, sysctl tunables, kernel module loading.
 - `meta/` contains Arch Linux PKGBUILDs that bundle groups of packages into metapackages (e.g. `sommerfeld-base`, `sommerfeld-dev`). Each subdirectory is a standalone PKGBUILD recipe with a `.SRCINFO` and pre-built `.pkg.tar.zst` artifacts.
 - `lists/` holds keymap files (e.g. `caps2esc.map`).
-- `barscripts/` has polybar status bar scripts (GPU stats) — legacy X11, kept for reference.
+- `barscripts/` is unused (legacy X11 polybar scripts, removed).
 - `firefox/` contains Firefox hardening overrides and custom CSS.
 - `create-efi.sh` is an interactive EFI boot entry creation script using `efibootmgr`.
 
 ## Window manager
 
-Sway (Wayland compositor, i3-compatible). Config lives in `home/.config/sway/config`. Uses vanilla sway defaults for all standard WM operations with personal keybinds layered on top for media, volume, screenshots, lock screen, notifications, and display mode switching. The status bar is waybar (`home/.config/waybar/`), notifications via mako (`home/.config/mako/config`), and the launcher is fuzzel (`home/.config/fuzzel/fuzzel.ini`). Old X11 configs (bspwm, sxhkd, polybar, rofi, dunst) are kept in the repo for reference but are no longer active.
+Sway (Wayland compositor, i3-compatible). Config lives in `home/.config/sway/config`. Uses vanilla sway defaults for all standard WM operations with personal keybinds layered on top for media, volume, screenshots, lock screen, notifications, and display mode switching. The status bar is waybar (`home/.config/waybar/`), notifications via mako (`home/.config/mako/config`), and the launcher is fuzzel (`home/.config/fuzzel/fuzzel.ini`).
 
 ## Terminal multiplexer
 
@@ -27,7 +27,7 @@ Zellij is the terminal multiplexer. Config lives in `home/.config/zellij/config.
 Zsh-only setup with three files:
 
 - `home/.zshenv` — bootstrap: sets `ZDOTDIR=$HOME/.config/zsh` so all zsh config lives under XDG.
-- `home/.config/zsh/.zprofile` — login shell: environment variables, XDG dirs, PATH, tool configs, host-specific hardware settings (NVIDIA vs Intel keyed on `$HOST`), secrets via `pass`.
+- `home/.config/zsh/.zprofile` — login shell: environment variables, XDG dirs, PATH, tool configs, secrets via `pass`.
 - `home/.config/zsh/.zshrc` — interactive shell: options, completion, keybindings, aliases, plugins.
 
 Additionally, `home/.config/sh/inputrc` provides readline config for non-zsh tools (python REPL, etc.).
@@ -38,7 +38,6 @@ Additionally, `home/.config/sh/inputrc` provides readline config for non-zsh too
 - **`doas` over `sudo`**: The system uses `doas` as the privilege escalation tool; `sudo` is aliased to `doas`.
 - **GPG-signed commits**: All git commits and tags are signed. The GPG agent also handles SSH authentication.
 - **Secrets via `pass`**: API keys and tokens are stored in the `pass` password manager and sourced into env vars at shell init, never hardcoded.
-- **Host-specific branching in `.zprofile`**: Hardware-dependent config (GPU drivers, display scaling) is conditioned on `$HOST` (hostnames: `hercules`, `halley2`).
 - **EditorConfig**: LF line endings, UTF-8, final newlines, trimmed trailing whitespace. Lua uses 2-space indentation with 80-char line limit. Makefiles use tabs.
 
 ## Editing guidelines

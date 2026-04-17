@@ -138,7 +138,7 @@ autoload -Uz add-zsh-hook
 xterm_title_precmd()  { print -Pn -- '\e]2;%~\a' }
 xterm_title_preexec() { print -Pn -- '\e]2;%~ %# ' && print -n -- "${(q)1}\a" }
 
-if [[ "$TERM" == (alacritty|st*|screen*|xterm*|rxvt*|tmux*|putty*|konsole*|gnome*) ]]; then
+if [[ "$TERM" == (xterm-ghostty|st*|screen*|xterm*|rxvt*|tmux*|putty*|konsole*|gnome*) ]]; then
 	add-zsh-hook -Uz precmd xterm_title_precmd
 	add-zsh-hook -Uz preexec xterm_title_preexec
 fi
