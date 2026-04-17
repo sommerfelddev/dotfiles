@@ -59,34 +59,9 @@ zstyle -e ':completion:*:approximate:*' \
 
 _comp_options+=(globdots)  # include hidden files in completion
 
-# ── Terminal keys (zkbd-compatible) ───────────────────────────────────────────
-# Map terminfo keys so Home/End/Delete/etc. work in all terminals.
-typeset -g -A key
-key[Home]="${terminfo[khome]}"
-key[End]="${terminfo[kend]}"
-key[Insert]="${terminfo[kich1]}"
-key[Backspace]="${terminfo[kbs]}"
-key[Delete]="${terminfo[kdch1]}"
-key[Up]="${terminfo[kcuu1]}"
-key[Down]="${terminfo[kcud1]}"
-key[Left]="${terminfo[kcub1]}"
-key[Right]="${terminfo[kcuf1]}"
-key[PageUp]="${terminfo[kpp]}"
-key[PageDown]="${terminfo[knp]}"
-key[ShiftTab]="${terminfo[kcbt]}"
-
-[[ -n "${key[Home]}"      ]] && bindkey -- "${key[Home]}"      beginning-of-line
-[[ -n "${key[End]}"       ]] && bindkey -- "${key[End]}"       end-of-line
-[[ -n "${key[Insert]}"    ]] && bindkey -- "${key[Insert]}"    overwrite-mode
-[[ -n "${key[Backspace]}" ]] && bindkey -- "${key[Backspace]}" backward-delete-char
-[[ -n "${key[Delete]}"    ]] && bindkey -- "${key[Delete]}"    delete-char
-[[ -n "${key[Left]}"      ]] && bindkey -- "${key[Left]}"      backward-char
-[[ -n "${key[Right]}"     ]] && bindkey -- "${key[Right]}"     forward-char
-[[ -n "${key[PageUp]}"    ]] && bindkey -- "${key[PageUp]}"    beginning-of-buffer-or-history
-[[ -n "${key[PageDown]}"  ]] && bindkey -- "${key[PageDown]}"  end-of-buffer-or-history
-
-# Application mode: terminfo values are only valid while the terminal is in
-# application mode. Enable it while zle is active.
+# ── Terminal key setup ─────────────────────────────────────────────────────────
+# Application mode ensures terminfo values are valid during line editing.
+# Without this, some terminals send wrong sequences for special keys.
 if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
 	autoload -Uz add-zle-hook-widget
 	function zle_application_mode_start { echoti smkx }
@@ -95,7 +70,10 @@ if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
 	add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
 fi
 
-# History search bindings are set below after sourcing zsh-history-substring-search.
+# Up/Down stored for history-substring-search bindings (set after plugin source)
+typeset -g -A key
+key[Up]="${terminfo[kcuu1]}"
+key[Down]="${terminfo[kcud1]}"
 
 # ── Custom keybindings ────────────────────────────────────────────────────────
 bindkey \^U backward-kill-line
