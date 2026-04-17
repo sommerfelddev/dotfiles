@@ -13,6 +13,10 @@ copy_on_select true
 // Auto-attach to existing session with the same name instead of erroring
 attach_to_session true
 
+// Disable startup popups that overwrite stow-managed config when dismissed
+show_startup_tips false
+show_release_notes false
+
 // Custom keybindings (merged with defaults)
 keybinds {
     shared_except "locked" {
