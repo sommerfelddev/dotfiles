@@ -91,14 +91,14 @@ autocmd({ "BufWritePre" }, {
 })
 
 autocmd("BufWritePost", {
-  group = augroup("bspwm"),
-  pattern = "*bspwmrc",
-  command = "!bspc wm --restart",
+  group = augroup("sway"),
+  pattern = "*/sway/config",
+  command = "!swaymsg reload",
 })
 autocmd("BufWritePost", {
-  group = augroup("polybar"),
-  pattern = "*/polybar/config",
-  command = "!polybar-msg cmd restart",
+  group = augroup("waybar"),
+  pattern = "*/waybar/*",
+  command = "!killall -SIGUSR2 waybar",
 })
 autocmd("BufWritePost", {
   group = augroup("xdg-user-dirs"),
@@ -106,9 +106,9 @@ autocmd("BufWritePost", {
   command = "!xdg-user-dirs-update",
 })
 autocmd("BufWritePost", {
-  group = augroup("dunst"),
-  pattern = "dunstrc",
-  command = "!killall -SIGUSR2 dunst",
+  group = augroup("mako"),
+  pattern = "*/mako/config",
+  command = "!makoctl reload",
 })
 autocmd("BufWritePost", {
   group = augroup("fc-cache"),
