@@ -71,7 +71,6 @@ export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel -Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java -Djdk.gtk.version=2"
 # Fix for non-reparenting WMs (bspwm, dwm, etc.)
 export _JAVA_AWT_WM_NONREPARENTING=1
-export AWT_TOOLKIT=MToolkit
 
 # ── Miscellaneous ─────────────────────────────────────────────────────────────
 export QT_QPA_PLATFORMTHEME=qt5ct
@@ -92,17 +91,14 @@ export GNUPGHOME="$XDG_DATA_HOME/gnupg"
 export GOPATH="$XDG_DATA_HOME/go"
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc-2.0"
-export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
 export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
 export PASSWORD_STORE_DIR="$XDG_DATA_HOME/password-store"
-export PYTHON_EGG_CACHE="$XDG_CACHE_HOME/python-eggs"
 export RUFF_CACHE_DIR="$XDG_CACHE_HOME/ruff"
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
 export USERXSESSION="$XDG_CACHE_HOME/x11/xsession"
 export USERXSESSIONRC="$XDG_CACHE_HOME/x11/xsessionrc"
 export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc"
 export WINEPREFIX="$XDG_DATA_HOME/wineprefixes/default"
-export WORKON_HOME="$XDG_DATA_HOME/virtualenvs"
 export XCOMPOSECACHE="$XDG_CACHE_HOME/X11/xcompose"
 export XCOMPOSEFILE="$XDG_CONFIG_HOME/X11/xcompose"
 export XINITRC="$XDG_CONFIG_HOME/X11/xinitrc"
