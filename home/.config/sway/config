@@ -37,6 +37,7 @@ seat * hide_cursor 3000
 
 # ── Output ────────────────────────────────────────────────────────────────────
 output * bg #282828 solid_color
+output * pos 0 0
 
 # ── Window rules ──────────────────────────────────────────────────────────────
 for_window [class="feh"] floating enable
