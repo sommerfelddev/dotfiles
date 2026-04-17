@@ -80,5 +80,4 @@ return {
     lazy = false,
     opts = {},
   },
-  -- "https://gitlab.com/HiPhish/rainbow-delimiters.nvim",
 }
