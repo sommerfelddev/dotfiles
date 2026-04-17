@@ -1,0 +1,10 @@
+pkgbase = sommerfeld-media
+	pkgver = 1
+	pkgrel = 1
+	arch = any
+	license = MIT
+	depends = mpv
+	depends = streamlink
+	depends = yt-dlp
+
+pkgname = sommerfeld-media

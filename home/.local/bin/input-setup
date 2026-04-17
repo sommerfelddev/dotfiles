@@ -17,15 +17,11 @@ setmodmap() {
 }
 
 if [ "$(uname -n)" = "halley2" ]; then
-  setxkbmap -layout pt
-  xmodmap ~/.config/X11/Xmodmap
+  setxkbmap -layout us
 elif [ "$(uname -n)" = "hercules" ]; then
   setxkbmap -layout es
-  xmodmap ~/.config/X11/Xmodmap
 fi
 
-setxkbmap -option "caps:escape"
-xset r rate 250 30
 
 setlayout "Kingston HyperX Alloy FPS Pro Mechanical Gaming Keyboard" us
 # setlayout "SONiX USB DEVICE" us
@@ -37,6 +33,10 @@ setlayout "Dierya DK61 Keyboard" us
 # setmodmap "Dierya DK61 Keyboard"
 
 setlayout "ZSA Technology Labs ErgoDox EZ" us
+
+setxkbmap -option "caps:escape"
+xset r rate 250 30
+xmodmap ~/.config/X11/Xmodmap
 
 if [ "$(uname -n)" = "hercules" ]; then
   xinput set-prop "ELAN1205:00 04F3:30E9 Touchpad" "libinput Tapping Enabled" 1

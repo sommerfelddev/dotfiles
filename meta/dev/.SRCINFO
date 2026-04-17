@@ -1,0 +1,21 @@
+pkgbase = strisemarx-dev
+	pkgdesc = strisemarx's dev metapackage
+	pkgver = 36
+	pkgrel = 1
+	url = https://strisemarx.com
+	arch = any
+	license = GPL3
+	depends = bash-language-server
+	depends = git-absorb
+	depends = git-delta
+	depends = ipython
+	depends = hyperfine
+	depends = lua-language-server
+	depends = namcap
+	depends = samply
+	depends = shellcheck
+	depends = shfmt
+	depends = sloccount
+	depends = strace
+
+pkgname = strisemarx-dev

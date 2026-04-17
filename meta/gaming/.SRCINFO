@@ -1,0 +1,20 @@
+pkgbase = sommerfeld-gaming
+	pkgver = 1
+	pkgrel = 1
+	arch = any
+	license = MIT
+	depends = discord
+	depends = gamemode
+	depends = lib32-fontconfig
+	depends = lib32-gamemode
+	depends = lib32-systemd
+	depends = mangohud
+	depends = steam
+	depends = steam-native-runtime
+	depends = ttf-liberation
+	depends = wqy-zenhei
+	optdepends = lutris
+	optdepends = proton-ge-custom-bin
+	optdepends = supertuxkart
+
+pkgname = sommerfeld-gaming

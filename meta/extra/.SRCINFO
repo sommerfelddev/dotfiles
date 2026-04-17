@@ -1,0 +1,13 @@
+pkgbase = strisemarx-extra
+	pkgdesc = strisemarx's extra metapackage
+	pkgver = 15
+	pkgrel = 1
+	url = https://strisemarx.com
+	arch = any
+	license = GPL3
+	depends = gpg-tui
+	depends = pandoc-bin
+	depends = syncthing
+	depends = udisks2
+
+pkgname = strisemarx-extra

@@ -1,5 +1,5 @@
 pkgname=sommerfeld-base
-pkgver=6
+pkgver=7
 pkgrel=1
 arch=('any')
 license=('MIT')
@@ -52,6 +52,7 @@ depends=(
   'reflector'
   'ripgrep'
   'rsync'
+  'sbctl'
   'sd'
   'stow'
   'systemd-resolvconf'

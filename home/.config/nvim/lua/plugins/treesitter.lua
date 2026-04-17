@@ -59,7 +59,6 @@ require("nvim-treesitter").install({
   "strace",
   "sxhkdrc",
   "tablegen",
-  "tmux",
   "todotxt",
   "toml",
   "typescript",

@@ -20,3 +20,34 @@ copy_command "wl-copy"
 
 // Auto-attach to existing session with the same name instead of erroring
 attach_to_session true
+
+// Seamless navigation between neovim splits and zellij panes (Ctrl h/j/k/l).
+// Requires smart-splits.nvim on the neovim side.
+keybinds {
+    shared_except "locked" {
+        bind "Ctrl h" {
+            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.2.1/vim-zellij-navigator.wasm" {
+                name "move_focus";
+                payload "left";
+            };
+        }
+        bind "Ctrl j" {
+            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.2.1/vim-zellij-navigator.wasm" {
+                name "move_focus";
+                payload "down";
+            };
+        }
+        bind "Ctrl k" {
+            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.2.1/vim-zellij-navigator.wasm" {
+                name "move_focus";
+                payload "up";
+            };
+        }
+        bind "Ctrl l" {
+            MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.2.1/vim-zellij-navigator.wasm" {
+                name "move_focus";
+                payload "right";
+            };
+        }
+    }
+}

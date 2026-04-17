@@ -1,5 +1,5 @@
 pkgname=sommerfeld-intel
-pkgver=1
+pkgver=2
 pkgrel=1
 arch=('any')
 license=('MIT')
@@ -10,6 +10,6 @@ depends=(
   'mesa'
   'intel-media-sdk'
   'libva-intel-driver'
-  'mesa-vdpau'
+  'mesa'
   'vulkan-intel'
 )

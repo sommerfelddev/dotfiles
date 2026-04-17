@@ -1,8 +1,9 @@
-require("tmux").setup({
-  resize = {
-    enable_default_keybindings = false,
-  },
-})
+-- Seamless navigation between neovim splits and zellij panes
+require("smart-splits").setup({})
+vim.keymap.set("n", "<C-h>", require("smart-splits").move_cursor_left, { desc = "Move to left split/pane" })
+vim.keymap.set("n", "<C-j>", require("smart-splits").move_cursor_down, { desc = "Move to below split/pane" })
+vim.keymap.set("n", "<C-k>", require("smart-splits").move_cursor_up, { desc = "Move to above split/pane" })
+vim.keymap.set("n", "<C-l>", require("smart-splits").move_cursor_right, { desc = "Move to right split/pane" })
 
 require("which-key").setup({
   spec = {

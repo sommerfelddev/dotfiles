@@ -1,0 +1,16 @@
+pkgbase = strisemarx-btc
+	pkgdesc = strisemarx's btc dev metapackage
+	pkgver = 7
+	pkgrel = 1
+	url = https://strisemarx.com
+	arch = any
+	license = GPL3
+	depends = python-bitbox02
+	depends = python-hidapi
+	depends = python-hwilib
+	depends = python-qdarkstyle
+	depends = sparrow-wallet
+	depends = tor
+	depends = zbar
+
+pkgname = strisemarx-btc

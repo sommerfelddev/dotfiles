@@ -1,14 +1,14 @@
 pkgname=sommerfeld-x-extra
-pkgver=1
+pkgver=3
 pkgrel=1
 arch=('any')
 license=('MIT')
 depends=(
   'arkenfox-user.js'
   'chromium'
-  'librewolf-bin'
   'libfido2'
   'libreoffice-still'
+  'librewolf-bin'
   'okular'
   'torbrowser-launcher'
   'zathura'

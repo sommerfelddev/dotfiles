@@ -97,7 +97,7 @@ vim.pack.add({
 
   -- Misc
   gh("iamcco/markdown-preview.nvim"),
-  gh("aserowy/tmux.nvim"),
+  gh("mrjones2014/smart-splits.nvim"),
   gh("folke/which-key.nvim"),
   gh("stevearc/quicker.nvim"),
   gh("stevearc/oil.nvim"),

@@ -1,12 +1,12 @@
 pkgname=sommerfeld-btc
-pkgver=1
+pkgver=3
 pkgrel=1
 arch=('any')
 license=('MIT')
 depends=(
+  'bitbox-wallet-app-appimage'
   'python-bitbox02'
   'python-hidapi'
-  'python-hwilib'
   'python-qdarkstyle'
   'sparrow-wallet'
   'tor'

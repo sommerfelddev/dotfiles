@@ -1,0 +1,14 @@
+pkgbase = sommerfeld-nvidia
+	pkgver = 2
+	pkgrel = 1
+	arch = any
+	license = MIT
+	depends = nvtop
+	depends = nvidia-dkms
+	depends = nvidia-settings
+	depends = nvidia-utils
+	depends = libva-vdpau-driver
+	depends = linux-headers
+	depends = opencl-nvidia
+
+pkgname = sommerfeld-nvidia
