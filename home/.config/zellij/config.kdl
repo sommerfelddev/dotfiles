@@ -24,6 +24,19 @@ attach_to_session true
 // Requires smart-splits.nvim on the neovim side.
 keybinds {
     shared_except "locked" {
+        // Direct tab access (Alt+number, like tmux prefix+number)
+        bind "Alt 1" { GoToTab 1; }
+        bind "Alt 2" { GoToTab 2; }
+        bind "Alt 3" { GoToTab 3; }
+        bind "Alt 4" { GoToTab 4; }
+        bind "Alt 5" { GoToTab 5; }
+        bind "Alt 6" { GoToTab 6; }
+        bind "Alt 7" { GoToTab 7; }
+        bind "Alt 8" { GoToTab 8; }
+        bind "Alt 9" { GoToTab 9; }
+
+        // Seamless navigation between neovim splits and zellij panes (Ctrl h/j/k/l).
+        // Requires smart-splits.nvim on the neovim side.
         bind "Ctrl h" {
             MessagePlugin "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.2.1/vim-zellij-navigator.wasm" {
                 name "move_focus";
