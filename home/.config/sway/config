@@ -42,7 +42,6 @@ output * bg #282828 solid_color
 for_window [class="feh"] floating enable
 for_window [app_id="imv"] floating enable
 for_window [class="Tor Browser"] floating enable
-for_window [app_id="at.yrlf.wl_mirror"] fullscreen enable
 
 # ── Standard keybinds (sway defaults) ─────────────────────────────────────────
 bindsym $mod+Return exec $term
@@ -144,7 +143,7 @@ bindsym $mod+n exec makoctl dismiss
 bindsym $mod+Shift+n exec makoctl dismiss --all
 
 # Display mode switching
-bindsym F7 exec ~/.config/sway/display-toggle.sh
+bindsym --no-repeat F7 exec ~/.config/sway/display-toggle.sh
 
 # ── Bar ───────────────────────────────────────────────────────────────────────
 bar {
