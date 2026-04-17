@@ -42,5 +42,3 @@ require("lazy").setup({ import = "custom/plugins" }, {
     hererocks = false,
   },
 })
-
-vim.lsp.enable("just")
