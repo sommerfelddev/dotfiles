@@ -1,0 +1,59 @@
+pkgname=sommerfeld-wayland
+pkgver=1
+pkgrel=1
+pkgdesc='Wayland desktop environment metapackage'
+arch=('any')
+license=('MIT')
+depends=(
+  # Compositor
+  'sway'
+  'xdg-desktop-portal-wlr'
+
+  # Bar & launcher
+  'waybar'
+  'fuzzel'
+
+  # Terminal
+  'ghostty'
+
+  # Notifications
+  'mako'
+  'libnotify'
+
+  # Lock screen
+  'swaylock'
+
+  # Clipboard
+  'wl-clipboard'
+
+  # Screenshots & recording
+  'grim'
+  'slurp'
+  'wf-recorder'
+
+  # Image viewer
+  'imv'
+
+  # QR
+  'zbar'
+
+  # Document viewers
+  'zathura'
+  'zathura-pdf-mupdf'
+
+  # Browsers
+  'arkenfox-user.js'
+  'chromium'
+  'librewolf-bin'
+  'torbrowser-launcher'
+
+  # Office & PDF
+  'libreoffice-still'
+  'okular'
+
+  # Misc
+  'libfido2'
+  'perl-file-mimeinfo'
+  'qt5ct'
+  'xdg-user-dirs'
+)
