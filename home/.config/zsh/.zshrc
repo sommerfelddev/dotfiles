@@ -1,71 +1,56 @@
-case $- in
-    *i*) stty -ixon
-        ;;
-      *) return
-          ;;
-esac
+# Interactive zsh configuration.
 
-ttyctl -f
-# Enable colors and change prompt:
-autoload -U colors
+# ── Terminal ──────────────────────────────────────────────────────────────────
+stty -ixon   # disable XON/XOFF flow control (frees Ctrl-S/Ctrl-Q)
+ttyctl -f    # freeze terminal state; programs can't leave it broken
 
-# shellcheck source=/dev/null
-[ -r  ~/.config/sh/shinit ] && . ~/.config/sh/shinit
+# ── Options ───────────────────────────────────────────────────────────────────
+setopt appendhistory       # append to history file, don't overwrite
+setopt autocd              # cd by typing directory name
+setopt extendedglob        # extended glob patterns (#, ~, ^)
+setopt nomatch             # error on unmatched glob patterns
+setopt notify              # report background job status immediately
+setopt interactivecomments # allow # comments in interactive shell
+setopt rmstarsilent        # don't confirm rm *
+setopt prompt_subst        # expand variables/functions in prompt
+unsetopt beep              # no terminal bell
 
-safesource /usr/share/git/completion/git-prompt.sh
-
-colors
-setopt PROMPT_SUBST
-PROMPT='%B%{$fg[green]%}%n%{$reset_color%}@%{$fg[cyan]%}%m%{$reset_color%}:%b%{$fg[yellow]%}%~%{$reset_color%}$(__git_ps1 " (%s)")%(?..[%{$fg[red]%}%?%{$reset_color%}]) %(!.#.>) '
-
-HISTFILE="$XDG_CACHE_HOME"/zsh_history
+# ── History ───────────────────────────────────────────────────────────────────
+HISTFILE="$XDG_CACHE_HOME/zsh_history"
 HISTSIZE=50000
 SAVEHIST=50000
-setopt appendhistory autocd extendedglob nomatch notify
-unsetopt beep
+
+# ── Emacs keybindings ─────────────────────────────────────────────────────────
 bindkey -e
 
+# ── Prompt ────────────────────────────────────────────────────────────────────
+autoload -Uz colors && colors
+source /usr/share/git/completion/git-prompt.sh
+PROMPT='%B%{$fg[green]%}%n%{$reset_color%}@%{$fg[cyan]%}%m%{$reset_color%}:%b%{$fg[yellow]%}%~%{$reset_color%}$(__git_ps1 " (%s)")%(?..[%{$fg[red]%}%?%{$reset_color%}]) %(!.#.>) '
+
+# ── Completion ────────────────────────────────────────────────────────────────
 fpath=($XDG_DATA_HOME/zsh/completion $fpath)
-autoload -Uz compinit
-compinit
+autoload -Uz compinit && compinit
+
 zstyle ':completion:*' menu select
-zstyle ':completion::complete:*' gain-privileges 1
 zstyle ':completion:*' completer _expand_alias _complete _ignored _match _approximate
 zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
-
 zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path ~/.cache/zsh
-
+zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh"
 zstyle ':completion:*:match:*' original only
+zstyle ':completion:*:functions' ignored-patterns '_*'
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:kill:*' force-list always
+zstyle ':completion:*:cd:*' ignore-parents parent pwd
+zstyle ':completion::complete:*' gain-privileges 1
 zstyle -e ':completion:*:approximate:*' \
 	max-errors 'reply=($((($#PREFIX+$#SUFFIX)/3))numeric)'
 
-zstyle ':completion:*:functions' ignored-patterns '_*'
+_comp_options+=(globdots)  # include hidden files in completion
 
-zstyle ':completion:*:*:kill:*' menu yes select
-zstyle ':completion:*:kill:*'   force-list always
-zstyle ':completion:*:cd:*' ignore-parents parent pwd
-setopt no_complete_aliases
-
-rationalise-dot() {
-  if [[ $LBUFFER = *.. ]]; then
-    LBUFFER+=/..
-  else
-    LBUFFER+=.
-  fi
-}
-zle -N rationalise-dot
-bindkey . rationalise-dot
-
-setopt COMPLETE_ALIASES
-_comp_options+=(globdots)		# Include hidden files.
-
-setopt rmstarsilent
-
-# create a zkbd compatible hash;
-# to add other keys to this hash, see: man 5 terminfo
+# ── Terminal keys (zkbd-compatible) ───────────────────────────────────────────
+# Map terminfo keys so Home/End/Delete/etc. work in all terminals.
 typeset -g -A key
-
 key[Home]="${terminfo[khome]}"
 key[End]="${terminfo[kend]}"
 key[Insert]="${terminfo[kich1]}"
@@ -79,142 +64,208 @@ key[PageUp]="${terminfo[kpp]}"
 key[PageDown]="${terminfo[knp]}"
 key[ShiftTab]="${terminfo[kcbt]}"
 
-# setup key accordingly
 [[ -n "${key[Home]}"      ]] && bindkey -- "${key[Home]}"      beginning-of-line
 [[ -n "${key[End]}"       ]] && bindkey -- "${key[End]}"       end-of-line
 [[ -n "${key[Insert]}"    ]] && bindkey -- "${key[Insert]}"    overwrite-mode
 [[ -n "${key[Backspace]}" ]] && bindkey -- "${key[Backspace]}" backward-delete-char
 [[ -n "${key[Delete]}"    ]] && bindkey -- "${key[Delete]}"    delete-char
-[[ -n "${key[Up]}"        ]] && bindkey -- "${key[Up]}"        up-line-or-history
-[[ -n "${key[Down]}"      ]] && bindkey -- "${key[Down]}"      down-line-or-history
 [[ -n "${key[Left]}"      ]] && bindkey -- "${key[Left]}"      backward-char
 [[ -n "${key[Right]}"     ]] && bindkey -- "${key[Right]}"     forward-char
 [[ -n "${key[PageUp]}"    ]] && bindkey -- "${key[PageUp]}"    beginning-of-buffer-or-history
 [[ -n "${key[PageDown]}"  ]] && bindkey -- "${key[PageDown]}"  end-of-buffer-or-history
 [[ -n "${key[ShiftTab]}"  ]] && bindkey -- "${key[ShiftTab]}"  reverse-menu-complete
 
-# Finally, make sure the terminal is in application mode, when zle is
-# active. Only then are the values from $terminfo valid.
+# Application mode: terminfo values are only valid while the terminal is in
+# application mode. Enable it while zle is active.
 if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
 	autoload -Uz add-zle-hook-widget
-	function zle_application_mode_start {
-		echoti smkx
-	}
-	function zle_application_mode_stop {
-		echoti rmkx
-	}
-    add-zle-hook-widget -Uz zle-line-init zle_application_mode_start
-    add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
+	function zle_application_mode_start { echoti smkx }
+	function zle_application_mode_stop  { echoti rmkx }
+	add-zle-hook-widget -Uz zle-line-init zle_application_mode_start
+	add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
 fi
 
-if [ -n "$DISPLAY" ]; then
-    function zle-line-init () { echoti smkx }
-    function zle-line-finish () { echoti rmkx }
-    zle -N zle-line-init
-    zle -N zle-line-finish
-fi
-
+# ── History search: Up/Down search by prefix ──────────────────────────────────
 autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
-
 [[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   up-line-or-beginning-search
 [[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" down-line-or-beginning-search
 
+# ── Custom keybindings ────────────────────────────────────────────────────────
 bindkey \^U backward-kill-line
 
-autoload -U select-word-style
-select-word-style bash
-
+# Ctrl-D exits even on non-empty line
 exit_zsh() { exit }
 zle -N exit_zsh
 bindkey '^D' exit_zsh
 
-autoload -z edit-command-line
+# Ctrl-X Ctrl-E: edit command in $EDITOR
+autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey "^X^E" edit-command-line
 
-bash() {
-    export USE_BASH="yes"
-    command bash
+# ── Word style ────────────────────────────────────────────────────────────────
+# Ctrl-W/Alt-B/Alt-F use shell quoting rules for word boundaries
+autoload -Uz select-word-style
+select-word-style shell
+
+# ── Smart dot expansion ───────────────────────────────────────────────────────
+# Typing .. automatically expands: ... → ../.. , .... → ../../.. , etc.
+rationalise-dot() {
+	if [[ $LBUFFER = *.. ]]; then
+		LBUFFER+=/..
+	else
+		LBUFFER+=.
+	fi
 }
+zle -N rationalise-dot
+bindkey . rationalise-dot
 
-setopt interactivecomments
-
+# ── Window title ──────────────────────────────────────────────────────────────
 autoload -Uz add-zsh-hook
 
-xterm_title_precmd () {
-	print -Pn -- '\e]2;%~\a'
-}
-
-xterm_title_preexec () {
-	print -Pn -- '\e]2;%~ %# ' && print -n -- "${(q)1}\a"
-}
+xterm_title_precmd()  { print -Pn -- '\e]2;%~\a' }
+xterm_title_preexec() { print -Pn -- '\e]2;%~ %# ' && print -n -- "${(q)1}\a" }
 
 if [[ "$TERM" == (alacritty|st*|screen*|xterm*|rxvt*|tmux*|putty*|konsole*|gnome*) ]]; then
 	add-zsh-hook -Uz precmd xterm_title_precmd
 	add-zsh-hook -Uz preexec xterm_title_preexec
 fi
 
-autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
+# ── Recent directories ────────────────────────────────────────────────────────
+autoload -Uz chpwd_recent_dirs cdr
 add-zsh-hook chpwd chpwd_recent_dirs
 zstyle ':completion:*:*:cdr:*:*' menu selection
 
-autoload -Uz run-help
+# ── Help system ───────────────────────────────────────────────────────────────
+autoload -Uz run-help run-help-git run-help-ip
+(( $+aliases[run-help] )) && unalias run-help
 alias help=run-help
 
-autoload -Uz run-help-git
-autoload -Uz run-help-ip
-autoload -Uz run-help-sudo
-
-set zle_bracketed_paste  # Explicitly restore this zsh default
+# ── Bracketed paste ───────────────────────────────────────────────────────────
 autoload -Uz bracketed-paste-magic
 zle -N bracketed-paste bracketed-paste-magic
 
-autoload -Uz select-word-style
-select-word-style shell
+# ── Aliases ───────────────────────────────────────────────────────────────────
+# Files
+alias l='lsd -l'
+alias la='lsd -lA'
+alias lt='lsd --tree'
+alias mkdir='mkdir -p'
+alias du='du -h'
+alias df='df -h'
+alias free='free -h'
 
-safesource /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# Grep / diff with color
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias diff='diff --color=auto'
+alias dmesg='dmesg --color=auto'
+alias dm='dmesg --color=always | less -r'
 
-if [ -n "$ZSH_HIGHLIGHT_STYLES" ]; then
-    ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
-    ZSH_HIGHLIGHT_STYLES[comment]='fg=yellow'
-fi
+# Networking
+alias ip="ip -color=auto"
+alias lsip="ip -human -color=auto --brief address show"
+alias ipa="ip -stats -details -human -color=auto address show"
+alias ipecho='curl ipecho.net/plain'
+alias ss='doas ss -tupnl'
 
-export ZSH_AUTOSUGGEST_USE_ASYNC=y
-safesource /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-bindkey '^[[Z' autosuggest-accept
+# Privilege escalation
+alias sudo='doas'
+alias sudoedit='doasedit'
+alias gimme='doas chown $USER:$(id -gn $USER)'
+alias pacdiff='doas pacdiff'
 
-safesource /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+# Pacman
+alias pacopt='comm -13 <(pacman -Qqdt | sort) <(pacman -Qqdtt | sort)'
 
-source <(fzf --zsh)
+# Git
+alias g='git'
 
-fzf-history-widget-accept() {
-    fzf-history-widget
-    zle accept-line
+# Systemd
+alias sys='systemctl'
+alias ssys='doas systemctl'
+alias sysu='systemctl --user'
+
+# Navigation
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias c='clear'
+
+# Tools
+alias stow='stow -R --no-folding --adopt'
+alias curl='curlie'
+alias xclip="xclip -selection clipboard -f"
+alias cpr='rsync --archive -hh --partial --info=stats1,progress2 --modify-window=1'
+alias mvr='rsync --archive -hh --partial --info=stats1,progress2 --modify-window=1 --remove-source-files'
+alias sub='subliminal download -l en'
+
+# Neovim
+alias n='nvim'
+alias ndiff='nvim -d'
+alias nd='nvim -d'
+alias nview='nvim -R'
+alias nv='nvim -R'
+alias ng='nvim +Neogit'
+
+# Tmux
+alias ta='tmux new-session -A'
+alias tas='tmux new-session -A -s'
+
+# Just
+alias j='just'
+
+# X11 keyboard inspection
+whichkey() {
+	xev | awk -F'[ )]+' '/^KeyPress/ { a[NR+2] } NR in a { printf "%-3s %s\n", $5, $8 }'
 }
-zle     -N     fzf-history-widget-accept
-bindkey '^X^R' fzf-history-widget-accept
 
-_fzf_compgen_path() {
-  fd --hidden --follow --exclude ".git" . "$1"
-}
+# LLVM / Clang tooling
+alias ncmake='cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_FLAGS="$DEV_CFLAGS" -DCMAKE_CXX_FLAGS="$DEV_CFLAGS" -DCMAKE_INSTALL_PREFIX=build/install -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build'
+alias ircc='clang -S -emit-llvm -fno-discard-value-names -O0 -Xclang -disable-O0-optnone -o -'
+alias irfc='flang -S -emit-llvm -O0 -o -'
+alias astcc='clang -Xclang -ast-dump -fsyntax-only'
+alias astfc='flang -fc1 -fdebug-dump-parse-tree'
+alias symfc='flang -fc1 -fdebug-dump-symbols'
+alias gdb='gdb -ex start --args'
 
-# Use fd to generate the list for directory completion
-_fzf_compgen_dir() {
-  fd --type d --hidden --follow --exclude ".git" . "$1"
-}
+# GitHub Copilot CLI
+alias copilot='gh copilot --autopilot --enable-all-github-mcp-tools --yolo --resume'
 
+# ── Alias completions ─────────────────────────────────────────────────────────
 compdef g=git
 compdef j=just
-compdef n=nvim
-compdef ndiff=nvim
-compdef nd=nvim
-compdef nview=nvim
-compdef nv=nvim
-compdef sys=systemctl
-compdef ssys=systemctl
-compdef sysu=systemctl
-compdef l=lsd
-compdef la=lsd
-compdef lt=lsd
+compdef n=nvim ndiff=nvim nd=nvim nview=nvim nv=nvim
+compdef sys=systemctl ssys=systemctl sysu=systemctl
+compdef l=lsd la=lsd lt=lsd
+
+# ── GPG agent ─────────────────────────────────────────────────────────────────
+# Refresh gpg-agent's TTY so pinentry prompts appear in the right terminal
+gpg-connect-agent updatestartuptty /bye &>/dev/null
+
+# ── FZF ───────────────────────────────────────────────────────────────────────
+source <(fzf --zsh)
+
+# Ctrl-X Ctrl-R: search history with fzf and immediately execute
+fzf-history-widget-accept() {
+	fzf-history-widget
+	zle accept-line
+}
+zle -N fzf-history-widget-accept
+bindkey '^X^R' fzf-history-widget-accept
+
+_fzf_compgen_path() { fd --hidden --follow --exclude ".git" . "$1" }
+_fzf_compgen_dir()  { fd --type d --hidden --follow --exclude ".git" . "$1" }
+
+# ── Plugins (must be sourced last) ────────────────────────────────────────────
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
+ZSH_HIGHLIGHT_STYLES[comment]='fg=yellow'
+
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+bindkey '^[[Z' autosuggest-accept  # Shift-Tab to accept suggestion
+
+source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
