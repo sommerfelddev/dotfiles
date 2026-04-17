@@ -8,14 +8,14 @@ return {
         function()
           require("fzf-lua").buffers()
         end,
-        desc = "fzf-lua by [G]rep",
+        desc = "fzf-lua [B]uffers",
       },
       {
-        "<localleader>g",
+        "<localleader>/",
         function()
           require("fzf-lua").live_grep()
         end,
-        desc = "fzf-lua by [G]rep",
+        desc = "fzf-lua live grep",
       },
       {
         "<localleader>f",
