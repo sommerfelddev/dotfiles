@@ -1,6 +1,11 @@
 # Theme (verify: ghostty +list-themes | grep -i gruvbox)
 theme = Gruvbox Dark
 
+# Cursor — block blink; disable shell integration cursor override
+cursor-style = block
+cursor-style-blink = true
+shell-integration-features = no-cursor
+
 # OSC 52 clipboard for zellij (default is "ask" which prompts each time)
 clipboard-read = allow
 
