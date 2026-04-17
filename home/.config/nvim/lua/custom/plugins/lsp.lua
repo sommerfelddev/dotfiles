@@ -150,7 +150,7 @@ return {
           groovy = { "npm-groovy-lint" },
           html = { "prettier" },
           javascript = { "prettier" },
-          typecript = { "prettier" },
+          typescript = { "prettier" },
           jenkins = { "npm-groovy-lint" },
           json = { "jq", "jsonlint" },
           jsonc = { "prettier" },
