@@ -45,6 +45,9 @@ keybinds {
         bind "Alt x" { CloseFocus; }
         bind "Alt e" { EditScrollback; }
 
+        // Session
+        bind "Alt q" { Detach; }
+
         // Quick resize without entering resize mode
         bind "Alt -" { Resize "Decrease"; }
         bind "Alt =" { Resize "Increase"; }
