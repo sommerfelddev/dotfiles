@@ -1,10 +1,10 @@
 #!/bin/sh
 # Deploy Firefox/LibreWolf hardening overrides and custom CSS
+# chezmoi re-runs this script when any hash below changes.
+# {{ include "firefox/user-overrides.js" | sha256sum }}
+# {{ include "firefox/chrome/userChrome.css" | sha256sum }}
 set -eu
 
-# CHEZMOI_SOURCE_DIR is set by chezmoi when executing run scripts
-
-# Find LibreWolf profile directory (first profile with a default=1 marker)
 PROFILES_DIR="$HOME/.librewolf"
 if [ -d "$PROFILES_DIR" ]; then
     PROFILE=$(find "$PROFILES_DIR" -maxdepth 1 -mindepth 1 -type d -name '*.default-default' | head -1)

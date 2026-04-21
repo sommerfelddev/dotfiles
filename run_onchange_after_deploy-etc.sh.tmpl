@@ -1,0 +1,20 @@
+#!/bin/sh
+# Deploy system-level configs from etc/ to /etc/
+# chezmoi re-runs this script when any hash below changes.
+# {{ include "etc/modules-load.d/tcp_bbr.conf" | sha256sum }}
+# {{ include "etc/pacman.d/hooks/orphans.hook" | sha256sum }}
+# {{ include "etc/sysctl.d/99-sysctl.conf" | sha256sum }}
+# {{ include "etc/systemd/system.conf.d/timeout.conf" | sha256sum }}
+# {{ include "etc/xdg/reflector/reflector.conf" | sha256sum }}
+set -eu
+
+for f in \
+    modules-load.d/tcp_bbr.conf \
+    pacman.d/hooks/orphans.hook \
+    sysctl.d/99-sysctl.conf \
+    systemd/system.conf.d/timeout.conf \
+    xdg/reflector/reflector.conf
+do
+    doas mkdir -p "/etc/$(dirname "$f")"
+    doas cp --remove-destination "$CHEZMOI_SOURCE_DIR/etc/$f" "/etc/$f"
+done

@@ -6,5 +6,4 @@ create-efi.sh
 .worktrees/
 meta/
 etc/
-etc2/
 firefox/
