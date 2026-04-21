@@ -334,55 +334,43 @@ etc-add +paths:
     echo
     echo "Run 'chezmoi apply' to sync (no-op content-wise, refreshes deploy hash)."
 
-# Reset one or more /etc/<path> files to pristine pacman state (or remove if unowned)
+# Reset repo-managed etc/<path> to pristine pacman contents (run 'just apply' afterward)
 etc-reset +paths:
     #!/usr/bin/env bash
     set -eo pipefail
-    force=0
-    paths=()
-    for arg in {{ paths }}; do
-        if [ "$arg" = "--force" ]; then force=1; else paths+=("$arg"); fi
-    done
-    [ ${#paths[@]} -gt 0 ] || { echo "error: no paths given" >&2; exit 1; }
-    for path in "${paths[@]}"; do
-        case "$path" in
-            *..*|*/./*) echo "error: unsafe path: $path" >&2; exit 1 ;;
+    for raw in {{ paths }}; do
+        case "$raw" in
+            *..*|*/./*|./*|../*) echo "error: unsafe path: $raw" >&2; exit 1 ;;
         esac
-        [[ "$path" = /etc/* ]] || { echo "error: $path not under /etc" >&2; exit 1; }
-        repo="etc/${path#/etc/}"
-        if [ -e "$repo" ] && [ "$force" -ne 1 ]; then
-            echo "error: $path is managed in $repo; chezmoi apply would re-deploy it." >&2
-            echo "       remove the repo copy first (rm $repo && chezmoi apply), or pass --force." >&2
-            exit 1
-        fi
-        if pkg=$(pacman -Qoq "$path" 2>/dev/null); then
-            ver=$(pacman -Q "$pkg" | awk '{print $2}')
-            arch=$(pacman -Qi "$pkg" | awk -F': *' '/^Architecture/{print $2; exit}')
-            cache=""
+        p=${raw#/}; p=${p#etc/}
+        live=/etc/$p
+        repo=etc/$p
+        [ -f "$repo" ] || { echo "error: $repo is not managed in the repo" >&2; exit 1; }
+        pkg=$(pacman -Qoq "$live" 2>/dev/null) \
+            || { echo "error: $live has no owning package; nothing to reset to" >&2; exit 1; }
+        ver=$(pacman -Q "$pkg" | awk '{print $2}')
+        arch=$(pacman -Qi "$pkg" | awk -F': *' '/^Architecture/{print $2; exit}')
+        cache=""
+        for ext in zst xz; do
+            c="/var/cache/pacman/pkg/${pkg}-${ver}-${arch}.pkg.tar.${ext}"
+            [ -f "$c" ] && { cache="$c"; break; }
+        done
+        if [ -z "$cache" ]; then
+            echo "  fetching $pkg from mirror..." >&2
+            doas pacman -Sw --noconfirm "$pkg" >/dev/null || true
             for ext in zst xz; do
                 c="/var/cache/pacman/pkg/${pkg}-${ver}-${arch}.pkg.tar.${ext}"
                 [ -f "$c" ] && { cache="$c"; break; }
             done
-            if [ -z "$cache" ]; then
-                echo "  fetching $pkg from mirror..." >&2
-                doas pacman -Sw --noconfirm "$pkg" >/dev/null || true
-                for ext in zst xz; do
-                    c="/var/cache/pacman/pkg/${pkg}-${ver}-${arch}.pkg.tar.${ext}"
-                    [ -f "$c" ] && { cache="$c"; break; }
-                done
-            fi
-            [ -n "$cache" ] || { echo "error: no cache for ${pkg}-${ver}; mirror may have moved past installed version" >&2; exit 1; }
-            # Verify path is actually inside the archive before extracting
-            if ! bsdtar -tf "$cache" "${path#/}" >/dev/null 2>&1; then
-                echo "error: $path not present in $pkg archive" >&2; exit 1
-            fi
-            echo "reset (from $pkg): $path"
-            doas bsdtar --numeric-owner -xpf "$cache" -C / "${path#/}"
-        else
-            echo "remove (unowned): $path"
-            doas rm -v "$path"
         fi
+        [ -n "$cache" ] || { echo "error: no cache for ${pkg}-${ver}; mirror may have moved past installed version" >&2; exit 1; }
+        bsdtar -tf "$cache" "${live#/}" >/dev/null 2>&1 \
+            || { echo "error: $live not present in $pkg archive" >&2; exit 1; }
+        bsdtar -xOf "$cache" "${live#/}" > "$repo"
+        echo "reset (from $pkg): $repo"
     done
+    echo
+    echo "Run 'just apply' to deploy the pristine copy to /etc."
 
 # ═══════════════════════════════════════════════════════════════════
 # Package management
