@@ -120,16 +120,8 @@ vim.api.nvim_create_autocmd("LspAttach", {
     nmap("<leader>ci", fzf.lsp_incoming_calls, "[C]ode [I]ncoming calls")
     nmap("<leader>co", fzf.lsp_outgoing_calls, "[C]ode [O]utgoing calls")
     nmap("gO", fzf.lsp_document_symbols, "d[O]ocument symbols")
-    nmap(
-      "<leader>ws",
-      fzf.lsp_live_workspace_symbols,
-      "[W]orkspace [S]ymbols"
-    )
-    nmap(
-      "<leader>wd",
-      fzf.diagnostics_workspace,
-      "[W]orkspace [D]iagnostics"
-    )
+    nmap("<leader>ws", fzf.lsp_live_workspace_symbols, "[W]orkspace [S]ymbols")
+    nmap("<leader>wd", fzf.diagnostics_workspace, "[W]orkspace [D]iagnostics")
 
     local client = vim.lsp.get_client_by_id(event.data.client_id)
     if
@@ -154,10 +146,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       })
 
       vim.api.nvim_create_autocmd("LspDetach", {
-        group = vim.api.nvim_create_augroup(
-          "lsp-detach",
-          { clear = true }
-        ),
+        group = vim.api.nvim_create_augroup("lsp-detach", { clear = true }),
         callback = function(event2)
           vim.lsp.buf.clear_references()
           vim.api.nvim_clear_autocmds({
@@ -186,9 +175,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       )
     then
       nmap("<leader>th", function()
-        vim.lsp.inlay_hint.enable(
-          not vim.lsp.inlay_hint.is_enabled(event.buf)
-        )
+        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(event.buf))
       end, "[T]oggle Inlay [H]ints")
     end
   end,

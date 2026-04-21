@@ -111,4 +111,3 @@ opt.sessionoptions =
   "blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"
 
 opt.exrc = true -- source project-local .nvim.lua files
-

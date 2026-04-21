@@ -101,17 +101,9 @@ require("gitsigns").setup({
     nmap("<leader>hC", function()
       gs.change_base("~")
     end, "git [C]hange base to HEAD")
-    nmap(
-      "<leader>tgd",
-      gs.preview_hunk_inline,
-      "[T]oggle [G]it show [D]eleted"
-    )
+    nmap("<leader>tgd", gs.preview_hunk_inline, "[T]oggle [G]it show [D]eleted")
     nmap("<leader>tgw", gs.toggle_word_diff, "[T]oggle [G]it [W]ord diff")
-    nmap(
-      "<leader>tgl",
-      gs.toggle_linehl,
-      "[T]oggle [G]it [L]ine highlighting"
-    )
+    nmap("<leader>tgl", gs.toggle_linehl, "[T]oggle [G]it [L]ine highlighting")
     -- Text object
     map(
       { "o", "x" },
