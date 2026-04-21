@@ -42,6 +42,185 @@ fix:
         fi
     done
 
+# Format code; pass a path to format a single file, or omit to format everything
+fmt *target:
+    #!/usr/bin/env bash
+    set -eo pipefail
+
+    _need() {
+      command -v "$1" >/dev/null 2>&1 || {
+        printf 'error: %s not on PATH (install: %s)\n' "$1" "$2" >&2
+        exit 1
+      }
+    }
+
+    _fmt_lua()      { _need stylua stylua;        stylua "$@"; }
+    _fmt_sh()       { _need shfmt shfmt;          shfmt -w -i 2 -ci -s "$@"; }
+    _fmt_py()       { _need ruff ruff;            ruff format "$@"; }
+    _fmt_toml()     { _need taplo taplo-cli;      taplo format "$@"; }
+    _fmt_just()     { just --unstable --fmt; }
+    _fmt_prettier() { _need prettier prettier;    prettier --write "$@"; }
+
+    _find_shells() {
+      find . -type f \
+        \( -name '*.sh' \
+           -o -path './dot_local/bin/executable_*' \
+           -o -path './dot_config/sway/executable_*' \) \
+        -not -path './.git/*' -not -path './.worktrees/*'
+    }
+
+    _find_by_ext() {
+      find . -type f -name "*.$1" \
+        -not -path './.git/*' -not -path './.worktrees/*'
+    }
+
+    _is_zsh() {
+      case "$(basename "$1")" in
+        dot_zshrc|dot_zshenv|dot_zprofile|.zshrc|.zshenv|.zprofile) return 0 ;;
+      esac
+      return 1
+    }
+
+    target='{{ target }}'
+
+    if [ -z "$target" ]; then
+      mapfile -t files < <(_find_by_ext lua)
+      [ ${#files[@]} -gt 0 ] && _fmt_lua "${files[@]}"
+
+      mapfile -t files < <(_find_shells)
+      [ ${#files[@]} -gt 0 ] && _fmt_sh "${files[@]}"
+
+      mapfile -t files < <(_find_by_ext py)
+      [ ${#files[@]} -gt 0 ] && _fmt_py "${files[@]}"
+
+      mapfile -t files < <(_find_by_ext toml)
+      [ ${#files[@]} -gt 0 ] && _fmt_toml "${files[@]}"
+
+      _fmt_just
+
+      _fmt_prettier --ignore-unknown --log-level=warn \
+        '**/*.md' '**/*.json' '**/*.jsonc' \
+        '**/*.yaml' '**/*.yml' '**/*.css'
+      exit 0
+    fi
+
+    [ -f "$target" ] || { echo "error: no such file: $target" >&2; exit 1; }
+
+    if _is_zsh "$target"; then
+      echo "skip: $target (no formatter for zsh)" >&2; exit 0
+    fi
+    case "$(basename "$target")" in
+      justfile) _fmt_just; exit 0 ;;
+    esac
+    case "$target" in
+      *.lua)                                   _fmt_lua  "$target" ;;
+      *.sh)                                    _fmt_sh   "$target" ;;
+      *.py)                                    _fmt_py   "$target" ;;
+      *.toml)                                  _fmt_toml "$target" ;;
+      *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  _fmt_prettier "$target" ;;
+      *)
+        if head -1 "$target" 2>/dev/null | grep -qE '^#!.*\b(ba)?sh\b'; then
+          _fmt_sh "$target"
+        else
+          echo "error: no formatter for: $target" >&2; exit 1
+        fi
+        ;;
+    esac
+
+# Lint code; pass a path to lint a single file, or omit to lint everything
+lint *target:
+    #!/usr/bin/env bash
+    set -eo pipefail
+
+    _need() {
+      command -v "$1" >/dev/null 2>&1 || {
+        printf 'error: %s not on PATH (install: %s)\n' "$1" "$2" >&2
+        exit 1
+      }
+    }
+
+    _lint_lua()      { _need selene selene;         selene "$@"; }
+    _lint_sh()       { _need shellcheck shellcheck; shellcheck "$@"; }
+    _lint_zsh()      { _need shellcheck shellcheck; shellcheck --shell=bash "$@"; }
+    _lint_py()       { _need ruff ruff;             ruff check "$@"; }
+    _lint_toml()     { _need taplo taplo-cli;       taplo lint "$@"; }
+    _lint_just()     { just --unstable --fmt --check; }
+    _lint_prettier() { _need prettier prettier;     prettier --check "$@"; }
+
+    _find_shells() {
+      find . -type f \
+        \( -name '*.sh' \
+           -o -path './dot_local/bin/executable_*' \
+           -o -path './dot_config/sway/executable_*' \) \
+        -not -path './.git/*' -not -path './.worktrees/*'
+    }
+
+    _find_by_ext() {
+      find . -type f -name "*.$1" \
+        -not -path './.git/*' -not -path './.worktrees/*'
+    }
+
+    _find_zsh() {
+      find . -type f \
+        \( -name 'dot_zshrc' -o -name 'dot_zshenv' -o -name 'dot_zprofile' \) \
+        -not -path './.git/*' -not -path './.worktrees/*'
+    }
+
+    _is_zsh() {
+      case "$(basename "$1")" in
+        dot_zshrc|dot_zshenv|dot_zprofile|.zshrc|.zshenv|.zprofile) return 0 ;;
+      esac
+      return 1
+    }
+
+    target='{{ target }}'
+    rc=0
+
+    if [ -z "$target" ]; then
+      mapfile -t files < <(_find_by_ext lua)
+      [ ${#files[@]} -gt 0 ] && { _lint_lua "${files[@]}" || rc=$?; }
+
+      mapfile -t files < <(_find_shells)
+      [ ${#files[@]} -gt 0 ] && { _lint_sh "${files[@]}" || rc=$?; }
+
+      mapfile -t files < <(_find_zsh)
+      [ ${#files[@]} -gt 0 ] && { _lint_zsh "${files[@]}" || rc=$?; }
+
+      mapfile -t files < <(_find_by_ext py)
+      [ ${#files[@]} -gt 0 ] && { _lint_py "${files[@]}" || rc=$?; }
+
+      mapfile -t files < <(_find_by_ext toml)
+      [ ${#files[@]} -gt 0 ] && { _lint_toml "${files[@]}" || rc=$?; }
+
+      _lint_just || rc=$?
+
+      _lint_prettier --ignore-unknown --log-level=warn \
+        '**/*.md' '**/*.json' '**/*.jsonc' \
+        '**/*.yaml' '**/*.yml' '**/*.css' || rc=$?
+      exit $rc
+    fi
+
+    [ -f "$target" ] || { echo "error: no such file: $target" >&2; exit 1; }
+
+    if _is_zsh "$target"; then _lint_zsh "$target"; exit $?; fi
+    case "$(basename "$target")" in
+      justfile) _lint_just; exit $? ;;
+    esac
+    case "$target" in
+      *.lua)                                   _lint_lua  "$target" ;;
+      *.sh)                                    _lint_sh   "$target" ;;
+      *.py)                                    _lint_py   "$target" ;;
+      *.toml)                                  _lint_toml "$target" ;;
+      *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  _lint_prettier "$target" ;;
+      *)
+        if head -1 "$target" 2>/dev/null | grep -qE '^#!.*\b(ba)?sh\b'; then
+          _lint_sh "$target"
+        else
+          echo "error: no linter for: $target" >&2; exit 1
+        fi
+        ;;
+    esac
+
 # ═══════════════════════════════════════════════════════════════════
 # Inspection
 # ═══════════════════════════════════════════════════════════════════
