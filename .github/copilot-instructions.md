@@ -1,5 +1,9 @@
 # Copilot Instructions
 
+## Execution environment
+
+You run inside an ephemeral podman container that shares only the current working directory with the host. The container does **not** share the host's installed tools — things like `chezmoi`, `paru`, `pacman`, `sway`, etc. are not available to you unless you install them. You have full root permissions inside the container and can install anything needed for testing or verification. The container is disposable, so don't worry about leaving it in a bad state. This also means you cannot test commands that require the user's actual system state (installed packages, running services, LibreWolf profile, etc.) — those must be verified by the user on the host.
+
 ## Repository overview
 
 This is a personal dotfiles repository for an Arch Linux system, managed with [chezmoi](https://www.chezmoi.io/).
