@@ -1,0 +1,57 @@
+name: check
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: extractions/setup-just@v3
+
+      - name: Install apt tooling (shfmt, shellcheck)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends shfmt shellcheck
+
+      - name: Install ruff
+        run: pipx install ruff
+
+      - name: Install prettier
+        run: npm install -g prettier@3
+
+      - name: Install stylua
+        run: |
+          set -euo pipefail
+          url=$(curl -fsSL https://api.github.com/repos/JohnnyMorganz/StyLua/releases/latest \
+                 | grep -Eo 'https://[^"]+stylua-linux-x86_64\.zip' | head -1)
+          curl -fsSL "$url" -o /tmp/stylua.zip
+          unzip -q /tmp/stylua.zip -d /tmp
+          sudo install -m 0755 /tmp/stylua /usr/local/bin/stylua
+
+      - name: Install selene
+        run: |
+          set -euo pipefail
+          url=$(curl -fsSL https://api.github.com/repos/Kampfkarren/selene/releases/latest \
+                 | grep -Eo 'https://[^"]+selene-light-[^"]+-linux\.zip' | head -1)
+          curl -fsSL "$url" -o /tmp/selene.zip
+          unzip -q /tmp/selene.zip -d /tmp
+          sudo install -m 0755 /tmp/selene /usr/local/bin/selene
+
+      - name: Install taplo
+        run: |
+          set -euo pipefail
+          curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-full-linux-x86_64.gz \
+            | gunzip > /tmp/taplo
+          sudo install -m 0755 /tmp/taplo /usr/local/bin/taplo
+
+      - name: just doctor
+        run: just doctor
+
+      - name: just check
+        run: just check
