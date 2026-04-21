@@ -152,7 +152,7 @@ add group pkg:
         echo '{{ pkg }}' >> "$file"
         echo "added {{ pkg }} to {{ group }}.txt"
     fi
-    paru -S --needed --noconfirm '{{ pkg }}'
+    paru -S --needed '{{ pkg }}'
 
 
 # ═══════════════════════════════════════════════════════════════════
