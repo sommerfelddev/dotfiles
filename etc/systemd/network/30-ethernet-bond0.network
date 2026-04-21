@@ -1,0 +1,6 @@
+[Match]
+Type=ether
+
+[Network]
+Bond=bond0
+PrimarySlave=true

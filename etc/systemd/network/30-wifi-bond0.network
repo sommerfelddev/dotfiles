@@ -1,0 +1,6 @@
+[Match]
+Type=wlan
+
+[Network]
+Bond=bond0
+IgnoreCarrierLoss=3s

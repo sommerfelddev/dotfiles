@@ -1,0 +1,14 @@
+[Match]
+Name=bond0
+
+[Network]
+DHCP=yes
+
+[Route]
+Gateway=_dhcp4
+Gateway=_ipv6ra
+InitialCongestionWindow=30
+InitialAdvertisedReceiveWindow=30
+
+[DHCPV4]
+UseDomains=true
