@@ -1,16 +1,19 @@
-.window-frame, .window-frame:backdrop {
- box-shadow: 0 0 0 black;
- border-style: none;
- margin: 0;
- border-radius: 0;
+.window-frame,
+.window-frame:backdrop {
+  box-shadow: 0 0 0 black;
+  border-style: none;
+  margin: 0;
+  border-radius: 0;
 }
 
 .titlebar {
- border-radius: 0;
+  border-radius: 0;
 }
 
 .window-frame.csd.popup {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.13);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(0, 0, 0, 0.13);
 }
 
 .header-bar {
@@ -19,18 +22,18 @@
   box-shadow: none;
 }
 headerbar .title {
-    opacity: 0;
+  opacity: 0;
 }
 /* Always use background color */
 window {
-    background-color: @theme_bg_color;
+  background-color: @theme_bg_color;
 }
 
 /* Fix tooltip background override */
 .tooltip {
-    background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 .tooltip * {
-    background-color: transparent;
+  background-color: transparent;
 }

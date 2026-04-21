@@ -5,7 +5,5 @@
   "experimental": true,
   "includeCoAuthoredBy": false,
   "firstLaunchAt": "2026-03-11T00:00:00.000Z",
-  "trusted_folders": [
-    "/home/sommerfeld/dev/copilot"
-  ]
+  "trusted_folders": ["/home/sommerfeld/dev/copilot"]
 }
