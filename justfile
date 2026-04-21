@@ -137,8 +137,8 @@ install-all:
     #!/bin/sh
     cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u | paru -S --needed --noconfirm --ask=4 -
 
-# Append a package to a group list and install it (e.g. just add dev ripgrep)
-add group pkg:
+# Append one or more packages to a group list and install them (e.g. just add dev ripgrep fd)
+add group +pkgs:
     #!/bin/sh
     set -eu
     file="meta/{{ group }}.txt"
@@ -146,13 +146,15 @@ add group pkg:
         echo "error: $file does not exist" >&2
         exit 1
     fi
-    if grep -qxF '{{ pkg }}' "$file"; then
-        echo "{{ pkg }} already in {{ group }}.txt"
-    else
-        echo '{{ pkg }}' >> "$file"
-        echo "added {{ pkg }} to {{ group }}.txt"
-    fi
-    paru -S --needed '{{ pkg }}'
+    for pkg in {{ pkgs }}; do
+        if grep -qxF "$pkg" "$file"; then
+            echo "$pkg already in {{ group }}.txt"
+        else
+            echo "$pkg" >> "$file"
+            echo "added $pkg to {{ group }}.txt"
+        fi
+    done
+    paru -S --needed {{ pkgs }}
 
 
 # ═══════════════════════════════════════════════════════════════════
