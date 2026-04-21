@@ -34,4 +34,3 @@ launches `create-efi`.
 chezmoi init --source ~/dotfiles
 chezmoi apply -v
 ```
-
