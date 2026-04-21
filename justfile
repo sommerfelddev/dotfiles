@@ -50,20 +50,7 @@ status: pkg-drift dotfile-drift
 # Show package drift: missing packages in adopted groups + undeclared installed packages
 pkg-drift:
     #!/bin/sh
-    active_file=$(mktemp)
-    trap 'rm -f "$active_file"' EXIT
-    for file in meta/*.txt; do
-        pkgs=$(grep -v '^\s*#' "$file" | grep -v '^\s*$')
-        total=$(echo "$pkgs" | wc -l)
-        installed=0
-        for pkg in $pkgs; do
-            pacman -Qi "$pkg" >/dev/null 2>&1 && installed=$((installed + 1))
-        done
-        if [ $((installed * 2)) -ge "$total" ]; then
-            echo "$pkgs" >> "$active_file"
-        fi
-    done
-    active=$(sort -u "$active_file")
+    active=$(just _active-packages)
     echo "=== Package drift ==="
     echo "$active" | while read -r pkg; do
         [ -z "$pkg" ] && continue
@@ -80,9 +67,9 @@ dotfile-drift:
 # Print undeclared packages one per line, unindented (pipe to 'paru -Rs -' to remove them)
 undeclared:
     #!/bin/sh
-    declared=$(cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u)
+    active=$(just _active-packages)
     pacman -Qqe | while read -r pkg; do
-        echo "$declared" | grep -qxF "$pkg" || echo "$pkg"
+        echo "$active" | grep -qxF "$pkg" || echo "$pkg"
     done
 
 # Show dotfile diffs; pass a path to limit to a single file (e.g. just diff .config/nvim/init.lua)
@@ -177,3 +164,18 @@ _chezmoi-init:
 
 _install-hooks:
     git config core.hooksPath .githooks
+
+# Print packages from groups that are ≥50% installed (adopted), one per line
+_active-packages:
+    #!/bin/sh
+    for file in meta/*.txt; do
+        pkgs=$(grep -v '^\s*#' "$file" | grep -v '^\s*$')
+        total=$(echo "$pkgs" | wc -l)
+        installed=0
+        for pkg in $pkgs; do
+            pacman -Qi "$pkg" >/dev/null 2>&1 && installed=$((installed + 1))
+        done
+        if [ $((installed * 2)) -ge "$total" ]; then
+            echo "$pkgs"
+        fi
+    done | sort -u
