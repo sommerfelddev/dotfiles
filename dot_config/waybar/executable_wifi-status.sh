@@ -22,6 +22,12 @@ rssi=$(printf '%s\n' "$out" |
   sed -n 's/^[[:space:]]*\*\{0,1\}[[:space:]]*AverageRSSI[[:space:]]\{2,\}//p' |
   awk '{print $1; exit}')
 pct=$(awk -v r="${rssi:-0}" 'BEGIN{p=2*(r+100); if(p>100)p=100; if(p<0)p=0; printf "%d",p}')
+color=$(awk -v p="$pct" 'BEGIN{
+	if (p < 20) print "#fb4934"
+	else if (p < 40) print "#fe8019"
+	else if (p < 70) print "#fabd2f"
+	else print "#b8bb26"
+}')
 
-printf '{"text":"%s %s%%","class":"up","tooltip":"%s · %s dBm"}\n' \
-  "$ssid" "$pct" "$iface" "$rssi"
+printf '{"text":"%s <span color=\x27%s\x27>%s%%</span>","class":"up","tooltip":"%s · %s dBm"}\n' \
+  "$ssid" "$color" "$pct" "$iface" "$rssi"

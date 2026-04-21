@@ -27,19 +27,40 @@
 
   "cpu": {
     "format": "CPU {usage}%",
+    "format-low": "CPU <span color='#b8bb26'>{usage}%</span>",
+    "format-medium": "CPU <span color='#fabd2f'>{usage}%</span>",
+    "format-high": "CPU <span color='#fe8019'>{usage}%</span>",
+    "format-critical": "CPU <span color='#fb4934'>{usage}%</span>",
+    "states": {
+      "low": 0,
+      "medium": 30,
+      "high": 60,
+      "critical": 80,
+    },
     "interval": 5,
     "tooltip": false,
   },
 
   "custom/memory": {
-    "exec": "awk '/^MemTotal:/{t=$2} /^MemAvailable:/{a=$2} END{u=t-a; printf \"MEM %.1fG (%d%%) / %.1fG (%d%%)\\n\", u/1048576, u*100/t, a/1048576, a*100/t}' /proc/meminfo",
+    "exec": "~/.config/waybar/memory-status.sh",
+    "return-type": "json",
     "interval": 10,
     "tooltip": false,
   },
 
   "temperature": {
     "format": "{temperatureC}°C",
-    "critical-threshold": 80,
+    "format-cool": "<span color='#b8bb26'>{temperatureC}°C</span>",
+    "format-warm": "<span color='#fabd2f'>{temperatureC}°C</span>",
+    "format-hot": "<span color='#fe8019'>{temperatureC}°C</span>",
+    "format-scorching": "<span color='#fb4934'>{temperatureC}°C</span>",
+    "states": {
+      "cool": 0,
+      "warm": 50,
+      "hot": 65,
+      "scorching": 80,
+    },
+    "interval": 5,
   },
 
   "custom/wifi": {
