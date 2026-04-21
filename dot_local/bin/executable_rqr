@@ -1,6 +1,10 @@
 #!/usr/bin/env sh
 
-text="$(zbarcam --nodisplay -q -1 --raw)"
+# zbarcam opens an X11 preview window, so DISPLAY must reach XWayland.
+# Fall back to :0 (sway's default XWayland display) if it's missing.
+export DISPLAY="${DISPLAY:-:0}"
+
+text="$(zbarcam -q -1 --raw)"
 printf '%s' "$text" | wl-copy
 
 echo "$text"
