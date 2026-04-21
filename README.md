@@ -2,6 +2,40 @@
 
 My Arch Linux configuration, managed with [chezmoi](https://www.chezmoi.io/).
 
+## Overview
+
+### Principles
+
+- **Wayland only.** No X server, no display manager. Sway starts from `exec sway` at the end of the zsh login shell on TTY1 (autologin via a host-local `getty@tty1` drop-in that's deliberately gitignored).
+- **XDG everywhere.** Every tool is pushed to `$XDG_CONFIG_HOME` / `$XDG_CACHE_HOME` / `$XDG_DATA_HOME` — `~` stays clean. Zsh itself lives under `$XDG_CONFIG_HOME/zsh`, bootstrapped by a single-line `dot_zshenv`.
+- **[doas](https://wiki.archlinux.org/title/Doas), not sudo.** `sudo` is aliased to `doas` so muscle memory keeps working.
+- **GPG for everything signable.** Commits and tags are signed; the same GPG agent also serves SSH authentication — one key, one cache, one PIN entry.
+- **Secrets via [`pass`](https://www.passwordstore.org/).** API keys and tokens are pulled into env vars at shell init; nothing is committed.
+- **Plain-text over configuration-as-code.** Packages and enabled units are tracked as one-per-line `.txt` files in `meta/` and `systemd-units/`, diffed against `pacman -Qeq` and `systemctl list-unit-files`. No DSL, no state file.
+- **Fresh-install reproducible.** A single `curl | sh` on a base Arch system yields the full desktop.
+
+### The stack
+
+| Category           | Choice                                                                                                                                                                                                                                                                                        |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OS & base          | [Arch Linux](https://archlinux.org/), [paru](https://github.com/Morganamilo/paru) for AUR, [doas](https://wiki.archlinux.org/title/Doas) for privilege escalation                                                                                                                             |
+| Dotfile manager    | [chezmoi](https://www.chezmoi.io/) (dotfiles and `/etc` both deployed via `chezmoi apply`)                                                                                                                                                                                                    |
+| Task runner        | [just](https://just.systems/) — every maintenance action is a recipe (see below)                                                                                                                                                                                                              |
+| Shell              | [zsh](https://www.zsh.org/), relocated to `$XDG_CONFIG_HOME/zsh`; plugins via [zinit](https://github.com/zdharma-continuum/zinit)                                                                                                                                                             |
+| Terminal           | [ghostty](https://ghostty.org/)                                                                                                                                                                                                                                                               |
+| Multiplexer        | [zellij](https://zellij.dev/), with [vim-zellij-navigator](https://github.com/hiasr/vim-zellij-navigator) + [smart-splits.nvim](https://github.com/mrjones2014/smart-splits.nvim) for seamless `Ctrl-hjkl` between panes and nvim splits                                                      |
+| Editor             | [neovim](https://neovim.io/) 0.12, Lua config under `dot_config/nvim/`                                                                                                                                                                                                                        |
+| Window manager     | [sway](https://swaywm.org/) (i3-compatible Wayland compositor)                                                                                                                                                                                                                                |
+| Bar / launcher     | [waybar](https://github.com/Alexays/Waybar), [fuzzel](https://codeberg.org/dnkl/fuzzel)                                                                                                                                                                                                       |
+| Notifications      | [mako](https://github.com/emersion/mako)                                                                                                                                                                                                                                                      |
+| Lock screen        | [swaylock](https://github.com/swaywm/swaylock)                                                                                                                                                                                                                                                |
+| Browser            | [LibreWolf](https://librewolf.net/), hardened via `user-overrides.js` + `userChrome.css` (kept under `firefox/` by name for recognizability)                                                                                                                                                  |
+| Secrets & identity | [GPG](https://gnupg.org/) (commit signing + SSH auth via gpg-agent), [pass](https://www.passwordstore.org/)                                                                                                                                                                                   |
+| Media & viewers    | [mpv](https://mpv.io/), [zathura](https://pwmt.org/projects/zathura/), [yazi](https://yazi-rs.github.io/), [aerc](https://aerc-mail.org/)                                                                                                                                                     |
+| Code quality       | stylua + [selene](https://github.com/Kampfkarren/selene), [shfmt](https://github.com/mvdan/sh) + [shellcheck](https://www.shellcheck.net/), [ruff](https://github.com/astral-sh/ruff), [taplo](https://taplo.tamasfe.dev/), [prettier](https://prettier.io/) — all wired through `just check` |
+
+Keybinds are documented in [`KEYBINDS.md`](./KEYBINDS.md).
+
 ## Bootstrap on a fresh Arch install
 
 `bootstrap.sh` assumes the Arch installation guide has been followed up
