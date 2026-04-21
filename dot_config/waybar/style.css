@@ -40,7 +40,8 @@ window#waybar {
 #temperature,
 #network,
 #pulseaudio,
-#tray {
+#tray,
+#custom-memory {
   padding: 0 6px;
 }
 
