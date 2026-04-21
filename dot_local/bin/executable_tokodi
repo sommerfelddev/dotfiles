@@ -1,20 +1,20 @@
 #!/usr/bin/env sh
 
 if [ -z "$1" ]; then
-    url=$(wl-paste)
+  url=$(wl-paste)
 elif [ "$1" = "-" ]; then
-    read -r url
+  read -r url
 else
-    url="$1"
+  url="$1"
 fi
 
 case "$url" in
-*.m3u8*)
-  prefix=''
-  ;;
-*)
-  prefix='plugin://plugin.video.sendtokodi/?'
-  ;;
+  *.m3u8*)
+    prefix=''
+    ;;
+  *)
+    prefix='plugin://plugin.video.sendtokodi/?'
+    ;;
 esac
 
 payload="$(printf '{"jsonrpc":"2.0", "id": 1, "method":"Player.Open","params": {"item": {"file":"%s%s"}}}' "$prefix" "$url")"

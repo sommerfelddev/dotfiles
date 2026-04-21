@@ -1,11 +1,11 @@
 #!/usr/bin/env sh
 
 if [ -z "$1" ]; then
-    url=$(wl-paste)
+  url=$(wl-paste)
 elif [ "$1" = "-" ]; then
-    read -r url
+  read -r url
 else
-    url="$1"
+  url="$1"
 fi
 
 # shellcheck disable=SC2029

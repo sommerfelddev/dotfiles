@@ -9,8 +9,8 @@ LAPTOP=$(echo "$OUTPUTS" | jq -r '[.[] | select(.name | test("^eDP")) | .name] |
 EXTERNAL=$(echo "$OUTPUTS" | jq -r '[.[] | select(.name | test("^eDP") | not) | .name] | first // empty')
 
 if [ -z "$EXTERNAL" ]; then
-    [ -z "$1" ] && notify-send "Display" "No external display connected"
-    exit 0
+  [ -z "$1" ] && notify-send "Display" "No external display connected"
+  exit 0
 fi
 
 [ -z "$LAPTOP" ] && exit 0
@@ -19,27 +19,27 @@ LAPTOP_WIDTH=$(echo "$OUTPUTS" | jq -r ".[] | select(.name == \"$LAPTOP\") | .cu
 [ -z "$LAPTOP_WIDTH" ] && LAPTOP_WIDTH=1920
 
 if [ "$1" = "init" ]; then
-    NEXT="laptop-off"
+  NEXT="laptop-off"
 else
-    CURRENT=$(cat "$STATE_FILE" 2>/dev/null || echo "laptop-off")
-    case "$CURRENT" in
-        laptop-off) NEXT="side-by-side" ;;
-        *) NEXT="laptop-off" ;;
-    esac
+  CURRENT=$(cat "$STATE_FILE" 2>/dev/null || echo "laptop-off")
+  case "$CURRENT" in
+    laptop-off) NEXT="side-by-side" ;;
+    *) NEXT="laptop-off" ;;
+  esac
 fi
 
 case "$NEXT" in
-    laptop-off)
-        swaymsg output "$LAPTOP" disable || true
-        swaymsg output "$EXTERNAL" enable || true
-        swaymsg workspace number 1 || true
-        echo "laptop-off" > "$STATE_FILE"
-        [ -z "$1" ] && notify-send "Display" "Laptop screen off"
-        ;;
-    side-by-side)
-        swaymsg output "$LAPTOP" enable pos 0 0 || true
-        swaymsg output "$EXTERNAL" enable pos "$LAPTOP_WIDTH" 0 || true
-        echo "side-by-side" > "$STATE_FILE"
-        [ -z "$1" ] && notify-send "Display" "Side by side"
-        ;;
+  laptop-off)
+    swaymsg output "$LAPTOP" disable || true
+    swaymsg output "$EXTERNAL" enable || true
+    swaymsg workspace number 1 || true
+    echo "laptop-off" >"$STATE_FILE"
+    [ -z "$1" ] && notify-send "Display" "Laptop screen off"
+    ;;
+  side-by-side)
+    swaymsg output "$LAPTOP" enable pos 0 0 || true
+    swaymsg output "$EXTERNAL" enable pos "$LAPTOP_WIDTH" 0 || true
+    echo "side-by-side" >"$STATE_FILE"
+    [ -z "$1" ] && notify-send "Display" "Side by side"
+    ;;
 esac

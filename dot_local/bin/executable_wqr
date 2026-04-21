@@ -1,11 +1,11 @@
 #!/usr/bin/env sh
 
 if [ -z "$1" ]; then
-    text=$(wl-paste)
+  text=$(wl-paste)
 elif [ "$1" = "-" ]; then
-    read -r text
+  read -r text
 else
-    text="$1"
+  text="$1"
 fi
 
 printf '%s' "$text" | qrencode -t PNG -o - | imv -

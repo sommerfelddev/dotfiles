@@ -4,74 +4,74 @@ pid_file="/tmp/recordpid"
 log_file="/tmp/record.log"
 
 pid_exists() {
-    test -r "$pid_file"
+  test -r "$pid_file"
 }
 
 is_running() {
-    if pid_exists; then
-        ps "$(cat "$pid_file")" >/dev/null 2>&1 || return 1
-    else
-        return 1
-    fi
+  if pid_exists; then
+    ps "$(cat "$pid_file")" >/dev/null 2>&1 || return 1
+  else
+    return 1
+  fi
 }
 
 start() {
-    notify-send -t 500 "Record started!" &
-    sleep 0.5
+  notify-send -t 500 "Record started!" &
+  sleep 0.5
 
-    wf-recorder -f "$HOME/vids/$(date '+%y%m%d-%H%M-%S').mkv" >"$log_file" 2>&1 &
-    echo "$!" >"$pid_file"
+  wf-recorder -f "$HOME/vids/$(date '+%y%m%d-%H%M-%S').mkv" >"$log_file" 2>&1 &
+  echo "$!" >"$pid_file"
 }
 
 stop() {
-    pid_exists || exit 1
-    pid="$(cat "$pid_file")"
-    # kill with SIGTERM, allowing finishing touches.
-    kill "$pid"
-    # even after SIGTERM, ffmpeg may still run, so SIGKILL it.
-    sleep 3
-    is_running && kill -9 "$pid"
-    rm -f "$pid_file"
-    notify-send "Record stopped!"
+  pid_exists || exit 1
+  pid="$(cat "$pid_file")"
+  # kill with SIGTERM, allowing finishing touches.
+  kill "$pid"
+  # even after SIGTERM, ffmpeg may still run, so SIGKILL it.
+  sleep 3
+  is_running && kill -9 "$pid"
+  rm -f "$pid_file"
+  notify-send "Record stopped!"
 }
 
 toggle() {
-    if is_running; then
-        echo "Stopping record"
-        stop
-    else
-        echo "Starting record"
-        start
-    fi
-    echo
-    status
+  if is_running; then
+    echo "Stopping record"
+    stop
+  else
+    echo "Starting record"
+    start
+  fi
+  echo
+  status
 }
 
 status() {
-    if is_running; then
-        echo "Recording with PID $(cat "$pid_file")"
-        echo "Check the logs at"
-        echo
-        echo "$log_file"
-        echo
-    else
-        echo "Record inactive"
-    fi
+  if is_running; then
+    echo "Recording with PID $(cat "$pid_file")"
+    echo "Check the logs at"
+    echo
+    echo "$log_file"
+    echo
+  else
+    echo "Record inactive"
+  fi
 }
 case "$1" in
-    start)
-        start
-        ;;
-    stop)
-        stop
-        ;;
-    toggle)
-        toggle
-        ;;
-    status)
-        status
-        ;;
-    *)
-        toggle
-        ;;
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  toggle)
+    toggle
+    ;;
+  status)
+    status
+    ;;
+  *)
+    toggle
+    ;;
 esac
