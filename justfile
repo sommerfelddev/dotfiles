@@ -448,6 +448,41 @@ etc-untrack +paths:
     just etc-reset {{ paths }}
     just etc-rm {{ paths }}
 
+# Restore live /etc/<path> to pristine pacman contents (bypasses the repo)
+etc-restore +paths:
+    #!/usr/bin/env bash
+    set -eo pipefail
+    for raw in {{ paths }}; do
+        case "$raw" in
+            *..*|*/./*|./*|../*) echo "error: unsafe path: $raw" >&2; exit 1 ;;
+        esac
+        p=${raw#/}; p=${p#etc/}
+        live=/etc/$p
+        [ -e "$live" ] || { echo "error: $live does not exist" >&2; exit 1; }
+        pkg=$(pacman -Qoq "$live" 2>/dev/null) \
+            || { echo "error: $live has no owning package; nothing to restore to" >&2; exit 1; }
+        ver=$(pacman -Q "$pkg" | awk '{print $2}')
+        arch=$(pacman -Qi "$pkg" | awk -F': *' '/^Architecture/{print $2; exit}')
+        cache=""
+        for ext in zst xz; do
+            c="/var/cache/pacman/pkg/${pkg}-${ver}-${arch}.pkg.tar.${ext}"
+            [ -f "$c" ] && { cache="$c"; break; }
+        done
+        if [ -z "$cache" ]; then
+            echo "  fetching $pkg from mirror..." >&2
+            doas pacman -Sw --noconfirm "$pkg" >/dev/null || true
+            for ext in zst xz; do
+                c="/var/cache/pacman/pkg/${pkg}-${ver}-${arch}.pkg.tar.${ext}"
+                [ -f "$c" ] && { cache="$c"; break; }
+            done
+        fi
+        [ -n "$cache" ] || { echo "error: no cache for ${pkg}-${ver}; mirror may have moved past installed version" >&2; exit 1; }
+        bsdtar -tf "$cache" "${live#/}" >/dev/null 2>&1 \
+            || { echo "error: $live not present in $pkg archive" >&2; exit 1; }
+        bsdtar -xOf "$cache" "${live#/}" | doas tee "$live" >/dev/null
+        echo "restored (from $pkg): $live"
+    done
+
 # ═══════════════════════════════════════════════════════════════════
 # Package management
 # ═══════════════════════════════════════════════════════════════════
