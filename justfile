@@ -354,10 +354,9 @@ etc-rm +paths:
         done
         echo "removed: $repo  (/etc/$p left untouched)"
     done
-    echo
-    echo "Run 'just apply' to refresh the deploy-etc hash."
+    just apply
 
-# Reset repo-managed etc/<path> to pristine pacman contents (run 'just apply' afterward)
+# Reset repo-managed etc/<path> to pristine pacman contents and deploy
 etc-reset +paths:
     #!/usr/bin/env bash
     set -eo pipefail
@@ -392,8 +391,12 @@ etc-reset +paths:
         bsdtar -xOf "$cache" "${live#/}" > "$repo"
         echo "reset (from $pkg): $repo"
     done
-    echo
-    echo "Run 'just apply' to deploy the pristine copy to /etc."
+    just apply
+
+# Stop tracking one or more /etc files: reset to pristine, deploy, then drop from repo
+etc-untrack +paths:
+    just etc-reset {{ paths }}
+    just etc-rm {{ paths }}
 
 # ═══════════════════════════════════════════════════════════════════
 # Package management

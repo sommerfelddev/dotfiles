@@ -21,7 +21,7 @@ The repo root is a chezmoi source directory. Files targeting `$HOME` use chezmoi
 - `bootstrap.sh` at the repo root is a POSIX shell script that takes a fresh minimal Arch install (only `base`) to a fully deployed state. It installs prerequisites, enables `%wheel` sudoers, bootstraps `paru-bin` from the AUR, clones the repo, runs `just init`, and optionally invokes `create-efi`. Designed to be curlable: `curl -fsSL .../bootstrap.sh | sh`.
 - `.chezmoiignore` excludes non-home files (`etc/`, `meta/`, `systemd-units/`, `firefox/`, docs) from deployment to `$HOME`.
 - `.githooks/` contains git hooks (notably `post-commit` which runs `chezmoi apply`). Activated by `just init`.
-- `justfile` provides recipes: `init` (first-time setup), `sync` (apply + fix), `apply`, `fix`, `status`, `pkg-drift`, `dotfile-drift`, `undeclared`, `diff`, `merge`, `groups`, `install`, `install-all`, `add`, `remove`, `services`, `services-enable`, `services-drift`, `etc-drift`, `etc-diff`, `etc-upstream-diff`, `etc-add`, `etc-rm`, `etc-reset`. Run `just` or `just --list` to see them.
+- `justfile` provides recipes: `init` (first-time setup), `sync` (apply + fix), `apply`, `fix`, `status`, `pkg-drift`, `dotfile-drift`, `undeclared`, `diff`, `merge`, `groups`, `install`, `install-all`, `add`, `remove`, `services`, `services-enable`, `services-drift`, `etc-drift`, `etc-diff`, `etc-upstream-diff`, `etc-add`, `etc-rm`, `etc-reset`, `etc-untrack`. Run `just` or `just --list` to see them.
 
 ## Window manager
 
