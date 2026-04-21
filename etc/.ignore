@@ -42,7 +42,7 @@
 # sbctl signed-boot state (keys live here; never commit)
 /etc/secureboot/*
 
-# WireGuard peer configs contain PrivateKey= — keep local only.
-# To version these, template PrivateKey via `pass` at chezmoi apply time.
-/etc/systemd/network/99-hodor.netdev
-/etc/systemd/network/99-mandibles.netdev
+# WireGuard peer configs — .netdev has PrivateKey=, .network has public IPs (PII).
+# Keep local only. To version: template secrets via `pass` at chezmoi apply time.
+/etc/systemd/network/99-hodor.*
+/etc/systemd/network/99-mandibles.*
