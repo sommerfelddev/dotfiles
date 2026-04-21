@@ -1,3 +1,6 @@
+# NOTE: Type=wlan matches ALL wireless interfaces. Any future USB wifi dongle
+# would be auto-enslaved into bond0. If that becomes a problem, narrow the
+# [Match] section to MACAddress= or a persistent Name= (e.g. wlp*s0).
 [Match]
 Type=wlan
 

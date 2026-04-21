@@ -1,3 +1,6 @@
+# NOTE: Type=ether matches ALL ethernet interfaces. Any future USB/Thunderbolt
+# ethernet dongle would be auto-enslaved into bond0. If that becomes a problem,
+# narrow the [Match] section to MACAddress= or a persistent Name= (e.g. enp*s0).
 [Match]
 Type=ether
 
