@@ -211,13 +211,13 @@ etc-drift:
     echo "=== /etc drift ==="
     echo "--- modified package configs ---"
     { pacman -Qii 2>/dev/null | grep -oP 'MODIFIED\s+\K/\S+' || true; } | sort -u \
-        | while IFS= read -r p; do keep "$p" && echo "  modified: $p"; done
+        | while IFS= read -r p; do keep "$p" && echo "  modified: $p"; :; done
 
     echo "--- user-created (no owning package) ---"
     { find /etc -xdev -type f -print0 2>/dev/null \
         | xargs -0 pacman -Qo 2>&1 >/dev/null \
         | sed -n 's/^error: No package owns //p' || true; } | sort -u \
-        | while IFS= read -r p; do keep "$p" && echo "  unowned:  $p"; done
+        | while IFS= read -r p; do keep "$p" && echo "  unowned:  $p"; :; done
 
 
 # ═══════════════════════════════════════════════════════════════════
