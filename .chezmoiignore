@@ -10,3 +10,7 @@ etc/
 firefox/
 justfile
 .githooks/
+.stylua.toml
+selene.toml
+nvim.yml
+.prettierrc.json
