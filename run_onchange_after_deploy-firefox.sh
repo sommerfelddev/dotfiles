@@ -13,8 +13,8 @@ if [ -d "$PROFILES_DIR" ]; then
     fi
 
     if [ -n "$PROFILE" ]; then
-        cp "$CHEZMOI_SOURCE_DIR/firefox/user-overrides.js" "$PROFILE/user-overrides.js"
+        cp --remove-destination "$CHEZMOI_SOURCE_DIR/firefox/user-overrides.js" "$PROFILE/user-overrides.js"
         mkdir -p "$PROFILE/chrome"
-        cp "$CHEZMOI_SOURCE_DIR/firefox/chrome/userChrome.css" "$PROFILE/chrome/userChrome.css"
+        cp --remove-destination "$CHEZMOI_SOURCE_DIR/firefox/chrome/userChrome.css" "$PROFILE/chrome/userChrome.css"
     fi
 fi
