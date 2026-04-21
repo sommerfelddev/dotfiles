@@ -13,12 +13,15 @@
 
 # Per-host identity / secrets
 /etc/ssh/ssh_host_*
+/etc/passwd
+/etc/passwd-
+/etc/group
+/etc/group-
 /etc/shadow
 /etc/shadow-
 /etc/gshadow
 /etc/gshadow-
-/etc/passwd-
-/etc/group-
+/etc/shells
 
 # pacman leftovers from removed packages
 *.pacsave

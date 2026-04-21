@@ -210,7 +210,7 @@ etc-drift:
 
     echo "=== /etc drift ==="
     echo "--- modified package configs ---"
-    { pacman -Qkk 2>/dev/null | grep -oP ':\s+\K/\S+(?=\s+\((Modified|Altered) backup file\))' || true; } | sort -u \
+    { pacman -Qkk 2>/dev/null | grep -oP '^backup file:\s+[^:]+:\s+\K/etc/\S+' || true; } | sort -u \
         | while IFS= read -r p; do keep "$p" && echo "  modified: $p"; :; done
 
     echo "--- user-created (no owning package) ---"
