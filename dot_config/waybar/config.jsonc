@@ -31,9 +31,9 @@
   },
 
   "memory": {
-    "format": "MEM {}%",
+    "format": "MEM {used:0.1f}G used / {avail:0.1f}G free",
     "interval": 10,
-    "tooltip-format": "{used:0.1f}G / {total:0.1f}G",
+    "tooltip-format": "{used:0.1f}G used · {avail:0.1f}G free · {total:0.1f}G total ({percentage}%)",
   },
 
   "temperature": {
@@ -42,10 +42,12 @@
   },
 
   "network": {
-    "format-wifi": "{essid} ({signalStrength}%)",
-    "format-ethernet": "{ifname}",
+    "interval": 2,
+    "format-wifi": "{essid} {signalStrength}% ↓{bandwidthDownBits} ↑{bandwidthUpBits}",
+    "format-ethernet": "↓{bandwidthDownBits} ↑{bandwidthUpBits}",
     "format-disconnected": "disconnected",
-    "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
+    "tooltip-format-wifi": "{essid} ({signalStrength}%) · {frequency} MHz\n{ifname}: {ipaddr}/{cidr}",
+    "tooltip-format-ethernet": "{ifname}: {ipaddr}/{cidr}",
   },
 
   "battery": {
