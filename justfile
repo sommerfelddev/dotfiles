@@ -74,6 +74,19 @@ status:
     echo "=== Dotfile drift ==="
     chezmoi status -S . || true
 
+# Show dotfile diffs; pass a path to limit to a single file (e.g. just diff .config/nvim/init.lua)
+diff file="":
+    chezmoi diff -S . {{ file }}
+
+# Resolve dotfile conflicts with a 3-way merge; pass a path for one file, or omit to merge all
+merge file="":
+    #!/bin/sh
+    if [ -n '{{ file }}' ]; then
+        chezmoi merge -S . '{{ file }}'
+    else
+        chezmoi merge-all -S .
+    fi
+
 # Show per-group install coverage; pass a group name for a per-package breakdown
 groups group="":
     #!/bin/sh

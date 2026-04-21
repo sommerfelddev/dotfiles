@@ -19,7 +19,7 @@ The repo root is a chezmoi source directory. Files targeting `$HOME` use chezmoi
 - `create-efi.sh` is an interactive EFI boot entry creation script using `efibootmgr`.
 - `.chezmoiignore` excludes non-home files (`etc/`, `meta/`, `firefox/`, docs) from deployment to `$HOME`.
 - `.githooks/` contains git hooks (notably `post-commit` which runs `chezmoi apply`). Activated by `just init`.
-- `justfile` provides recipes: `init` (first-time setup), `sync` (apply + fix), `apply`, `fix`, `status`, `groups`, `install`, `install-all`, `add`. Run `just` or `just --list` to see them.
+- `justfile` provides recipes: `init` (first-time setup), `sync` (apply + fix), `apply`, `fix`, `status`, `diff`, `merge`, `groups`, `install`, `install-all`, `add`. Run `just` or `just --list` to see them.
 
 ## Window manager
 
