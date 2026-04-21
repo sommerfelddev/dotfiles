@@ -20,8 +20,8 @@ The repo root is a chezmoi source directory. Files targeting `$HOME` use chezmoi
 - `dot_local/bin/executable_create-efi` is an interactive EFI boot entry creation script using `efibootmgr` (deployed to `~/.local/bin/create-efi`).
 - `bootstrap.sh` at the repo root is a POSIX shell script that takes a fresh minimal Arch install (only `base`) to a fully deployed state. It installs prerequisites, enables `%wheel` sudoers, bootstraps `paru-bin` from the AUR, clones the repo, runs `just init`, and optionally invokes `create-efi`. Designed to be curlable: `curl -fsSL .../bootstrap.sh | sh`.
 - `.chezmoiignore` excludes non-home files (`etc/`, `meta/`, `systemd-units/`, `firefox/`, docs) from deployment to `$HOME`.
-- `.githooks/` contains git hooks (notably `post-commit` which runs `chezmoi apply`). Activated by `just init`.
-- `justfile` provides recipes: `init` (first-time setup), `sync` (apply + fix), `apply`, `readd`, `fix`, `fmt`, `lint`, `status`, `pkg-drift`, `dotfile-drift`, `undeclared`, `diff`, `merge`, `groups`, `install`, `install-all`, `add`, `remove`, `services`, `services-enable`, `services-drift`, `etc`, `etc-diff`, `etc-upstream-diff`, `etc-add`, `etc-readd`, `etc-rm`, `etc-reset`, `etc-untrack`, `etc-restore`. Run `just` or `just --list` to see them.
+- `.githooks/` contains git hooks: `pre-commit` runs `just check` as a code quality gate (bypass with `--no-verify`); `post-commit` runs `chezmoi apply`. Activated by `just init`.
+- `justfile` provides recipes: `init` (first-time setup), `sync` (apply + fix), `apply`, `readd`, `fix`, `fmt`, `check-fmt`, `lint`, `check`, `status`, `pkg-drift`, `dotfile-drift`, `undeclared`, `diff`, `merge`, `groups`, `install`, `install-all`, `add`, `remove`, `services`, `services-enable`, `services-drift`, `etc`, `etc-diff`, `etc-upstream-diff`, `etc-add`, `etc-readd`, `etc-rm`, `etc-reset`, `etc-untrack`, `etc-restore`. Run `just` or `just --list` to see them.
 
 ## Window manager
 

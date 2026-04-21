@@ -127,6 +127,97 @@ fmt *target:
         ;;
     esac
 
+# Check formatting without writing; pass a path to check a single file, or omit to check everything
+check-fmt *target:
+    #!/usr/bin/env bash
+    set -eo pipefail
+
+    _need() {
+      command -v "$1" >/dev/null 2>&1 || {
+        printf 'error: %s not on PATH (install: %s)\n' "$1" "$2" >&2
+        exit 1
+      }
+    }
+
+    _chk_lua()      { _need stylua stylua;        stylua --check "$@"; }
+    _chk_sh()       { _need shfmt shfmt;          shfmt -d -i 2 -ci -s "$@"; }
+    _chk_py()       { _need ruff ruff;            ruff format --check "$@"; }
+    _chk_toml()     { _need taplo taplo-cli;      taplo format --check "$@"; }
+    _chk_just()     { just --unstable --fmt --check; }
+    _chk_prettier() { _need prettier prettier;    prettier --check "$@"; }
+
+    _find_shells() {
+      find . -type f \
+        \( -name '*.sh' \
+           -o -path './dot_local/bin/executable_*' \
+           -o -path './dot_config/sway/executable_*' \) \
+        -not -path './.git/*' -not -path './.worktrees/*'
+    }
+
+    _find_by_ext() {
+      find . -type f -name "*.$1" \
+        -not -path './.git/*' -not -path './.worktrees/*'
+    }
+
+    _is_zsh() {
+      case "$(basename "$1")" in
+        dot_zshrc|dot_zshenv|dot_zprofile|.zshrc|.zshenv|.zprofile) return 0 ;;
+      esac
+      return 1
+    }
+
+    target='{{ target }}'
+    rc=0
+
+    if [ -z "$target" ]; then
+      mapfile -t files < <(_find_by_ext lua)
+      [ ${#files[@]} -gt 0 ] && { _chk_lua "${files[@]}" || rc=$?; }
+
+      mapfile -t files < <(_find_shells)
+      [ ${#files[@]} -gt 0 ] && { _chk_sh "${files[@]}" || rc=$?; }
+
+      mapfile -t files < <(_find_by_ext py)
+      [ ${#files[@]} -gt 0 ] && { _chk_py "${files[@]}" || rc=$?; }
+
+      mapfile -t files < <(_find_by_ext toml)
+      [ ${#files[@]} -gt 0 ] && { _chk_toml "${files[@]}" || rc=$?; }
+
+      _chk_just || rc=$?
+
+      _chk_prettier --ignore-unknown --log-level=warn \
+        '**/*.md' '**/*.json' '**/*.jsonc' \
+        '**/*.yaml' '**/*.yml' '**/*.css' || rc=$?
+      exit $rc
+    fi
+
+    [ -f "$target" ] || { echo "error: no such file: $target" >&2; exit 1; }
+
+    if _is_zsh "$target"; then
+      echo "skip: $target (no formatter for zsh)" >&2; exit 0
+    fi
+    case "$(basename "$target")" in
+      justfile) _chk_just; exit $? ;;
+    esac
+    case "$target" in
+      *.lua)                                   _chk_lua  "$target" ;;
+      *.sh)                                    _chk_sh   "$target" ;;
+      *.py)                                    _chk_py   "$target" ;;
+      *.toml)                                  _chk_toml "$target" ;;
+      *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  _chk_prettier "$target" ;;
+      *)
+        if head -1 "$target" 2>/dev/null | grep -qE '^#!.*\b(ba)?sh\b'; then
+          _chk_sh "$target"
+        else
+          echo "error: no formatter for: $target" >&2; exit 1
+        fi
+        ;;
+    esac
+
+# Code quality gate: check formatting + lint; pass a path to check a single file, or omit for whole repo
+check *target:
+    @just check-fmt {{ target }}
+    @just lint {{ target }}
+
 # Lint code; pass a path to lint a single file, or omit to lint everything
 lint *target:
     #!/usr/bin/env bash
@@ -144,8 +235,6 @@ lint *target:
     _lint_zsh()      { _need shellcheck shellcheck; shellcheck --shell=bash "$@"; }
     _lint_py()       { _need ruff ruff;             ruff check "$@"; }
     _lint_toml()     { _need taplo taplo-cli;       taplo lint "$@"; }
-    _lint_just()     { just --unstable --fmt --check; }
-    _lint_prettier() { _need prettier prettier;     prettier --check "$@"; }
 
     _find_shells() {
       find . -type f \
@@ -192,11 +281,6 @@ lint *target:
       mapfile -t files < <(_find_by_ext toml)
       [ ${#files[@]} -gt 0 ] && { _lint_toml "${files[@]}" || rc=$?; }
 
-      _lint_just || rc=$?
-
-      _lint_prettier --ignore-unknown --log-level=warn \
-        '**/*.md' '**/*.json' '**/*.jsonc' \
-        '**/*.yaml' '**/*.yml' '**/*.css' || rc=$?
       exit $rc
     fi
 
@@ -204,14 +288,14 @@ lint *target:
 
     if _is_zsh "$target"; then _lint_zsh "$target"; exit $?; fi
     case "$(basename "$target")" in
-      justfile) _lint_just; exit $? ;;
+      justfile) echo "skip: $target (no linter; use check-fmt)" >&2; exit 0 ;;
     esac
     case "$target" in
       *.lua)                                   _lint_lua  "$target" ;;
       *.sh)                                    _lint_sh   "$target" ;;
       *.py)                                    _lint_py   "$target" ;;
       *.toml)                                  _lint_toml "$target" ;;
-      *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  _lint_prettier "$target" ;;
+      *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  echo "skip: $target (no linter; use check-fmt)" >&2; exit 0 ;;
       *)
         if head -1 "$target" 2>/dev/null | grep -qE '^#!.*\b(ba)?sh\b'; then
           _lint_sh "$target"
