@@ -52,3 +52,6 @@
 # Keep local only. To version: template secrets via `pass` at chezmoi apply time.
 /etc/systemd/network/99-hodor.*
 /etc/systemd/network/99-mandibles.*
+
+# Contains hardcoded username (autologin); host-specific
+/etc/systemd/system/getty@tty1.service.d/override.conf
