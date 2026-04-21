@@ -2,7 +2,7 @@
 # Deploy Firefox/LibreWolf hardening overrides and custom CSS
 set -eu
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SOURCE_DIR="$(chezmoi source-path)"
 
 # Find LibreWolf profile directory (first profile with a default=1 marker)
 PROFILES_DIR="$HOME/.librewolf"
@@ -13,8 +13,8 @@ if [ -d "$PROFILES_DIR" ]; then
     fi
 
     if [ -n "$PROFILE" ]; then
-        cp "$SCRIPT_DIR/firefox/user-overrides.js" "$PROFILE/user-overrides.js"
+        cp "$SOURCE_DIR/firefox/user-overrides.js" "$PROFILE/user-overrides.js"
         mkdir -p "$PROFILE/chrome"
-        cp "$SCRIPT_DIR/firefox/chrome/userChrome.css" "$PROFILE/chrome/userChrome.css"
+        cp "$SOURCE_DIR/firefox/chrome/userChrome.css" "$PROFILE/chrome/userChrome.css"
     fi
 fi
