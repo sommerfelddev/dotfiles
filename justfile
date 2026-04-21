@@ -157,7 +157,7 @@ add group +pkgs:
     paru -S --needed {{ pkgs }}
 
 
-# Remove one or more packages from a group list and uninstall them (e.g. just remove dev ripgrep fd)
+# Remove one or more packages from a group list (does NOT uninstall; the package may belong to other groups)
 remove group +pkgs:
     #!/bin/sh
     set -eu
@@ -174,7 +174,6 @@ remove group +pkgs:
             echo "$pkg not in {{ group }}.txt"
         fi
     done
-    paru -Rsn {{ pkgs }}
 
 
 # ═══════════════════════════════════════════════════════════════════
