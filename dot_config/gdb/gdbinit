@@ -1,0 +1,6 @@
+set debuginfod enabled on
+set confirm off
+set print pretty on
+set follow-fork-mode child
+set auto-load local-gdbinit on
+set auto-load safe-path /

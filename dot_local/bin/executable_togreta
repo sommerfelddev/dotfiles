@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+if [ -z "$1" ]; then
+    url=$(wl-paste)
+elif [ "$1" = "-" ]; then
+    read -r url
+else
+    url="$1"
+fi
+
+# shellcheck disable=SC2029
+ssh greta.wg restream toggle "$url"
+
+tokodi /storage/videos/greta.strm
