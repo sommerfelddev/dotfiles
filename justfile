@@ -126,10 +126,10 @@ groups group="":
         done
         if [ "$installed" -eq "$total" ]; then
             printf '  \033[32m✓\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
-        elif [ "$installed" -eq 0 ]; then
-            printf '  \033[31m✗\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
-        else
+        elif [ $((installed * 2)) -ge "$total" ]; then
             printf '  \033[33m~\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
+        else
+            printf '  \033[31m✗\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
         fi
     done
 
