@@ -148,10 +148,8 @@ add group pkg:
 # Hidden helpers (run indirectly via the recipes above)
 # ═══════════════════════════════════════════════════════════════════
 
-[private]
 _chezmoi-init:
     chezmoi init -S .
 
-[private]
 _install-hooks:
     git config core.hooksPath .githooks
