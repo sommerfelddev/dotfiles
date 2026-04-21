@@ -1,11 +1,11 @@
 #!/bin/sh
 # bootstrap.sh — take a fresh minimal Arch install (only the 'base'
-# meta-package installed) to the point where `just init` has run and
-# the dotfiles are deployed.
+# meta-package installed) to the point where `just init` has run, the
+# dotfiles are deployed, and recommended services are enabled.
 #
-# Must be executed as the regular (non-root) user that will own the
-# system. paru and makepkg refuse to run as root, so we keep everything
-# user-side and only escalate for the pacman + sudoers step.
+# Prerequisites (from the Arch installation guide):
+#   - A regular user already exists and is a member of the 'wheel' group.
+#   - You are logged in as that user (paru/makepkg refuse to run as root).
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/sommerfelddev/dotfiles/master/bootstrap.sh | sh
@@ -17,6 +17,7 @@
 set -eu
 
 log() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
+warn() { printf '\033[1;33m==>\033[0m %s\n' "$*" >&2; }
 die() { printf '\033[1;31m==>\033[0m %s\n' "$*" >&2; exit 1; }
 
 # 0. refuse root — paru/makepkg won't run as root
@@ -69,7 +70,43 @@ cd "$DOTFILES_DIR"
 log 'running just init'
 just init
 
-# 6. optional: create an Arch EFI boot entry if none exists
+# 6. enable recommended systemd units for daemons that base.txt installs.
+#    Soft-fail: warn on a single failure but keep going.
+log 'enabling system services'
+for u in \
+    fstrim.timer \
+    systemd-timesyncd.service \
+    systemd-resolved.service \
+    reflector.timer \
+    paccache.timer \
+    pkgstats.timer \
+    acpid.service \
+    cpupower.service \
+    iwd.service
+do
+    sudo systemctl enable --now "$u" \
+        || warn "could not enable $u"
+done
+
+# tlp: laptops only
+if ls /sys/class/power_supply/BAT* >/dev/null 2>&1; then
+    sudo systemctl enable --now tlp.service \
+        || warn 'could not enable tlp.service'
+fi
+
+# 7. refresh pacman mirrorlist once via reflector (config deployed by chezmoi)
+log 'refreshing pacman mirrorlist via reflector'
+sudo reflector @/etc/xdg/reflector/reflector.conf \
+    --save /etc/pacman.d/mirrorlist \
+    || warn 'reflector failed; keeping existing mirrorlist'
+
+# 8. create XDG user directories (~/Documents, ~/Downloads, etc.)
+if command -v xdg-user-dirs-update >/dev/null 2>&1; then
+    log 'creating XDG user directories'
+    xdg-user-dirs-update || warn 'xdg-user-dirs-update failed'
+fi
+
+# 9. optional: create an Arch EFI boot entry if none exists
 if [ -d /sys/firmware/efi ]; then
     if ! sudo efibootmgr 2>/dev/null | grep -iq arch; then
         log 'no Arch Linux EFI boot entry found; launching create-efi'
