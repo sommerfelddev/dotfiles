@@ -234,7 +234,6 @@ etc-diff *paths:
         mapfile -t args < <(find etc -type f ! -name .ignore | sort)
     fi
     for raw in "${args[@]}"; do
-        # Reject path-traversal before any filesystem access
         case "$raw" in
             *..*|*/./*|./*|../*) echo "error: unsafe path: $raw" >&2; exit 1 ;;
         esac
@@ -244,14 +243,17 @@ etc-diff *paths:
         if [ ! -f "$repo" ]; then
             echo "skip: $live (not a regular file in etc/)" >&2; continue
         fi
-        if ! doas test -f "$live"; then
-            echo "skip: $live (missing or not a regular file on host)" >&2; continue
+        # Fast path for world-readable files; doas fallback only when needed (e.g. /etc/doas.conf 0600).
+        if [ -r "$live" ]; then
+            diff -u --label "$live" --label "$repo" "$live" "$repo" || true
+        elif doas test -f "$live"; then
+            diff -u --label "$live" --label "$repo" <(doas cat "$live") "$repo" || true
+        else
+            echo "skip: $live (missing or not a regular file on host)" >&2
         fi
-        # Use doas cat so we can diff root-readable files (e.g. /etc/doas.conf 0600)
-        diff -u --label "$live" --label "$repo" <(doas cat "$live") "$repo" || true
     done
 
-# Diff live /etc/<path> against pristine pacman version (all modified backup files if no args)
+# Diff live /etc/<path> against pristine pacman version (defaults to all repo-managed files)
 etc-upstream-diff *paths:
     #!/usr/bin/env bash
     set -eo pipefail
@@ -283,20 +285,26 @@ etc-upstream-diff *paths:
     explicit=1
     if [ ${#args[@]} -eq 0 ]; then
         explicit=0
-        mapfile -t args < <(pacman -Qkk 2>/dev/null | grep -oP '^backup file:\s+[^:]+:\s+\K/etc/\S+' | sort -u)
+        mapfile -t args < <(find etc -type f ! -name .ignore | sed 's|^etc/|/etc/|' | sort)
     fi
 
-    for path in "${args[@]}"; do
-        case "$path" in
-            *..*|*/./*) echo "error: unsafe path: $path" >&2; exit 1 ;;
+    for raw in "${args[@]}"; do
+        case "$raw" in
+            *..*|*/./*) echo "error: unsafe path: $raw" >&2; exit 1 ;;
         esac
-        [[ "$path" = /etc/* ]] || { echo "error: $path not under /etc" >&2; exit 1; }
-        doas test -f "$path" || { echo "skip: $path (not a regular file)" >&2; continue; }
+        # Accept both /etc/foo and etc/foo; normalize to /etc/foo
+        p=${raw#/}; p=${p#etc/}
+        path=/etc/$p
+        if [ -r "$path" ]; then
+            live_reader=(cat "$path")
+        elif doas test -f "$path"; then
+            live_reader=(doas cat "$path")
+        else
+            [ "$explicit" = 1 ] && { echo "error: $path missing or unreadable" >&2; exit 1; }
+            echo "skip: $path (missing or unreadable)" >&2; continue
+        fi
         if ! cache=$(pristine "$path"); then
-            if [ "$explicit" = 1 ]; then
-                echo "error: cannot obtain pristine for $path" >&2
-                exit 1
-            fi
+            [ "$explicit" = 1 ] && { echo "error: cannot obtain pristine for $path" >&2; exit 1; }
             continue
         fi
         out="$tmp/pristine"
@@ -304,7 +312,7 @@ etc-upstream-diff *paths:
             echo "skip: $path (not present in package archive)" >&2
             continue
         fi
-        diff -u --label "$path (pristine)" --label "$path (live)" "$out" <(doas cat "$path") || true
+        diff -u --label "$path (pristine)" --label "$path (live)" "$out" <("${live_reader[@]}") || true
     done
 
 # Copy one or more /etc/<path> regular files into the repo's etc/ tree
