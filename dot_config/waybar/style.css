@@ -42,7 +42,7 @@ window#waybar {
 #pulseaudio,
 #tray,
 #custom-memory,
-#custom-wg {
+#custom-wifi {
   padding: 0 6px;
 }
 
@@ -58,19 +58,15 @@ window#waybar {
   color: #fe8019; /* orange */
 }
 
-#network.wifi {
-  color: #b8bb26; /* green */
-}
-
 #network.bond {
   color: #d3869b; /* purple */
 }
 
-#custom-wg.up {
-  color: #d3869b; /* purple */
+#custom-wifi {
+  color: #b8bb26; /* green */
 }
 
-#custom-wg.down {
+#custom-wifi.down {
   color: #928374; /* gray */
 }
 

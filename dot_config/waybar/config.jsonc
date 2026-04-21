@@ -10,9 +10,8 @@
     "cpu",
     "temperature",
     "custom/memory",
-    "network#wifi",
+    "custom/wifi",
     "network#bond",
-    "custom/wg",
     "battery",
     "clock",
     "tray",
@@ -33,7 +32,7 @@
   },
 
   "custom/memory": {
-    "exec": "awk '/^MemTotal:/{t=$2} /^MemAvailable:/{a=$2} END{u=t-a; printf \"MEM %.1fG (%d%%) used / %.1fG (%d%%) free\\n\", u/1048576, u*100/t, a/1048576, a*100/t}' /proc/meminfo",
+    "exec": "awk '/^MemTotal:/{t=$2} /^MemAvailable:/{a=$2} END{u=t-a; printf \"MEM %.1fG (%d%%) / %.1fG (%d%%)\\n\", u/1048576, u*100/t, a/1048576, a*100/t}' /proc/meminfo",
     "interval": 10,
     "tooltip": false,
   },
@@ -43,12 +42,10 @@
     "critical-threshold": 80,
   },
 
-  "network#wifi": {
-    "interface": "wlan0",
+  "custom/wifi": {
+    "exec": "~/.config/waybar/wifi-status.sh",
+    "return-type": "json",
     "interval": 10,
-    "format-wifi": "{essid} {signalStrength}%",
-    "format-disconnected": "wifi off",
-    "tooltip-format-wifi": "{essid} · {signalStrength}% · {frequency} MHz\n{ifname}",
   },
 
   "network#bond": {
@@ -57,12 +54,6 @@
     "format": "↓{bandwidthDownBits} ↑{bandwidthUpBits}",
     "format-disconnected": "bond off",
     "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
-  },
-
-  "custom/wg": {
-    "exec": "~/.config/waybar/wg-status.sh",
-    "return-type": "json",
-    "interval": 10,
   },
 
   "battery": {

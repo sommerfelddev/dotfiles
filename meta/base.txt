@@ -17,6 +17,7 @@ fzf
 gdu
 git
 htop
+iw
 iwd
 jq
 linux-firmware
