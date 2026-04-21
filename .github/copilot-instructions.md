@@ -17,6 +17,7 @@ The repo root is a chezmoi source directory. Files targeting `$HOME` use chezmoi
 - `meta/` contains plain text package lists for Arch Linux (one package per line, `#` comments). Each `.txt` file represents a group (e.g. `base.txt`, `dev.txt`, `wayland.txt`). Install with `just install base dev` or `just install-all`. Detect drift with `just status`.
 - `firefox/` contains Firefox/LibreWolf hardening overrides (`user-overrides.js`) and custom CSS (`chrome/userChrome.css`). Deployed by `run_onchange_after_deploy-firefox.sh.tmpl`.
 - `dot_local/bin/executable_create-efi` is an interactive EFI boot entry creation script using `efibootmgr` (deployed to `~/.local/bin/create-efi`).
+- `bootstrap.sh` at the repo root is a POSIX shell script that takes a fresh minimal Arch install (only `base`) to a fully deployed state. It installs prerequisites, enables `%wheel` sudoers, bootstraps `paru-bin` from the AUR, clones the repo, runs `just init`, and optionally invokes `create-efi`. Designed to be curlable: `curl -fsSL .../bootstrap.sh | sh`.
 - `.chezmoiignore` excludes non-home files (`etc/`, `meta/`, `firefox/`, docs) from deployment to `$HOME`.
 - `.githooks/` contains git hooks (notably `post-commit` which runs `chezmoi apply`). Activated by `just init`.
 - `justfile` provides recipes: `init` (first-time setup), `sync` (apply + fix), `apply`, `fix`, `status`, `pkg-drift`, `dotfile-drift`, `undeclared`, `diff`, `merge`, `groups`, `install`, `install-all`, `add`, `remove`. Run `just` or `just --list` to see them.
