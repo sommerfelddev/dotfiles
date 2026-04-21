@@ -1,5 +1,6 @@
 require("config.options")
 
+-- selene: allow(global_usage)
 _G.P = function(v)
   print(vim.inspect(v))
   return v

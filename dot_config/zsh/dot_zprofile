@@ -7,6 +7,7 @@ __ZPROFILE_SOURCED=1
 
 # ── PATH ──────────────────────────────────────────────────────────────────────
 typeset -U path  # deduplicate PATH entries
+# shellcheck disable=SC2206  # zsh tied array; no word-splitting concerns
 path=("$HOME/.local/bin" "$HOME/.local/share/nvim/mason/bin" $path)
 
 # ── XDG Base Directories ─────────────────────────────────────────────────────
@@ -40,7 +41,8 @@ export LESS="-F --RAW-CONTROL-CHARS"
 
 # ── GPG / SSH ─────────────────────────────────────────────────────────────────
 unset SSH_AGENT_PID
-export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+export SSH_AUTH_SOCK
 
 # ── FZF ───────────────────────────────────────────────────────────────────────
 export FZF_DEFAULT_COMMAND="fd --type file --follow --hidden --exclude .git --color=always"
@@ -102,11 +104,13 @@ case $(uname -n) in
         ;;
     hercules)
         export OCL_ICD_VENDORS=nvidia
+    # shellcheck disable=SC1091  # optional, loaded only on hosts that have it
         [[ -r "$XDG_CONFIG_HOME/sh/work-envrc" ]] && source "$XDG_CONFIG_HOME/sh/work-envrc"
         ;;
 esac
 
 # ── Secrets (from pass) ──────────────────────────────────────────────────────
+# shellcheck disable=SC2154,SC2155  # zsh $+commands / $( ) export idiom
 (( $+commands[pass] )) && export FIRECRAWL_API_KEY="$(pass show copilot/firecrawl-api-key)"
 
 # ── Auto-start sway on VT1 ────────────────────────────────────────────────────

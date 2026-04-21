@@ -64,6 +64,7 @@ _comp_options+=(globdots)  # include hidden files in completion
 # Without this, some terminals send wrong sequences for special keys.
 if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
 	autoload -Uz add-zle-hook-widget
+	# shellcheck disable=all  # zsh brace-group-as-function-body isn't bash syntax
 	function zle_application_mode_start { echoti smkx }
 	function zle_application_mode_stop  { echoti rmkx }
 	add-zle-hook-widget -Uz zle-line-init zle_application_mode_start

@@ -1,4 +1,5 @@
 #!/bin/sh -e
+# shellcheck disable=SC3067  # /bin/sh on Arch is bash; -O is supported
 
 help() {
   cat - >&2 <<EOF
