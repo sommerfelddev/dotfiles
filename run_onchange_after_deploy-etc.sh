@@ -13,7 +13,7 @@ for f in \
     systemd/system.conf.d/timeout.conf
 do
     doas mkdir -p "/etc/$(dirname "$f")"
-    doas cp "$CHEZMOI_SOURCE_DIR/etc/$f" "/etc/$f"
+    doas cp --remove-destination "$CHEZMOI_SOURCE_DIR/etc/$f" "/etc/$f"
 done
 
 # etc2/ — must be real files (e.g. reflector refuses symlinks)
@@ -21,5 +21,5 @@ for f in \
     xdg/reflector/reflector.conf
 do
     doas mkdir -p "/etc/$(dirname "$f")"
-    doas cp "$CHEZMOI_SOURCE_DIR/etc2/$f" "/etc/$f"
+    doas cp --remove-destination "$CHEZMOI_SOURCE_DIR/etc2/$f" "/etc/$f"
 done
