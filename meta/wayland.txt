@@ -30,19 +30,9 @@ imv
 # QR
 zbar
 
-# Document viewers
+# Document viewer
 zathura
 zathura-pdf-mupdf
-
-# Browsers
-arkenfox-user.js
-chromium
-librewolf-bin
-torbrowser-launcher
-
-# Office & PDF
-libreoffice-still
-okular
 
 # Misc
 libfido2

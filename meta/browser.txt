@@ -1,0 +1,4 @@
+arkenfox-user.js
+chromium
+librewolf-bin
+torbrowser-launcher

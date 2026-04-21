@@ -4,4 +4,3 @@ python-hidapi
 python-qdarkstyle
 sparrow-wallet
 tor
-zbar

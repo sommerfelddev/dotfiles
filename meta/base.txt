@@ -4,12 +4,9 @@ base-devel
 bash-completion
 bat
 chezmoi
-choose
 cpupower
-curlie
 dashbinsh
-doas-sudo-shim-k
-dog
+doas-sudo-shim
 duf
 fastfetch
 fd
@@ -17,10 +14,8 @@ fzf
 gdu
 git
 htop
-irqbalance
 iwd
 jq
-libusb-compat
 linux-firmware
 lsd
 lshw
@@ -48,8 +43,8 @@ rsync
 sbctl
 sd
 systemd-resolvconf
-thermald
 tldr
+tlp
 torsocks
 tree-sitter-cli
 unzip
@@ -57,11 +52,9 @@ wget
 wireguard-tools
 yazi
 zellij
+zoxide
 zsh
 zsh-autosuggestions
 zsh-completions
 zsh-history-substring-search
 zsh-syntax-highlighting
-linux-headers
-zoxide
-tlp
