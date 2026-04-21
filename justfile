@@ -50,9 +50,24 @@ status:
     echo "=== Dotfile drift ==="
     chezmoi status || true
 
-# Show install coverage for each group
-groups:
+# Show install coverage for each group (or full breakdown for one group)
+groups group="":
     #!/bin/sh
+    if [ -n '{{ group }}' ]; then
+        file="meta/{{ group }}.txt"
+        if [ ! -f "$file" ]; then
+            echo "error: $file does not exist" >&2
+            exit 1
+        fi
+        grep -v '^\s*#' "$file" | grep -v '^\s*$' | while read -r pkg; do
+            if pacman -Qi "$pkg" >/dev/null 2>&1; then
+                printf '  \033[32m✓\033[0m %s\n' "$pkg"
+            else
+                printf '  \033[31m✗\033[0m %s\n' "$pkg"
+            fi
+        done
+        exit 0
+    fi
     for file in meta/*.txt; do
         group=$(basename "$file" .txt)
         pkgs=$(grep -v '^\s*#' "$file" | grep -v '^\s*$')
