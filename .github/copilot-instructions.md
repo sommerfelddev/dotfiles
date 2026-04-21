@@ -9,12 +9,13 @@ This is a personal dotfiles repository for an Arch Linux system, managed with [c
 The repo root is a chezmoi source directory. Files targeting `$HOME` use chezmoi naming conventions (`dot_`, `private_`, `executable_` prefixes). Deploy with `chezmoi apply -v`.
 
 - `dot_config/`, `private_dot_gnupg/`, `private_dot_ssh/`, etc. — chezmoi source state mapping to `$HOME`. Prefix meanings: `dot_` → leading `.`, `private_` → restricted permissions, `executable_` → `+x` bit.
-- `etc/` contains system-level configs (`/etc/` targets) — systemd units, pacman hooks, sysctl tunables, kernel module loading. Deployed by `run_onchange_after_deploy-etc.sh`.
-- `etc2/` also targets `/etc/` but holds configs for tools that refuse symlinks (e.g. reflector). Also deployed by the etc run script.
+- `etc/` contains system-level configs (`/etc/` targets) — systemd units, pacman hooks, sysctl tunables, kernel module loading. Deployed by `run_onchange_after_deploy-etc.sh.tmpl`.
 - `meta/` contains Arch Linux PKGBUILDs that bundle groups of packages into metapackages (e.g. `sommerfeld-base`, `sommerfeld-dev`). Each subdirectory is a standalone PKGBUILD recipe with a `.SRCINFO` and pre-built `.pkg.tar.zst` artifacts.
-- `firefox/` contains Firefox/LibreWolf hardening overrides (`user-overrides.js`) and custom CSS (`chrome/userChrome.css`). Deployed by `run_onchange_after_deploy-firefox.sh`.
+- `firefox/` contains Firefox/LibreWolf hardening overrides (`user-overrides.js`) and custom CSS (`chrome/userChrome.css`). Deployed by `run_onchange_after_deploy-firefox.sh.tmpl`.
 - `create-efi.sh` is an interactive EFI boot entry creation script using `efibootmgr`.
 - `.chezmoiignore` excludes non-home files (`etc/`, `meta/`, `firefox/`, docs) from deployment to `$HOME`.
+- `.githooks/` contains git hooks (notably `post-commit` which runs `chezmoi apply`). Activate with `just install-hooks`.
+- `justfile` provides recipes: `install-hooks`, `apply`.
 
 ## Window manager
 
@@ -45,6 +46,8 @@ Additionally, `dot_config/sh/inputrc` provides readline config for non-zsh tools
 ## Editing guidelines
 
 When modifying configs, use chezmoi naming conventions: `dot_` prefix for dotfiles, `private_` for restricted-permission dirs/files, `executable_` for scripts. To add a new config file, use `chezmoi add <target-path>`.
+
+The `run_onchange_after_*` scripts are chezmoi templates (`.tmpl`) that embed `sha256sum` hashes of the files they deploy. Chezmoi only re-runs them when file content changes. When adding a new file to `etc/` or `firefox/`, you must add its hash comment and file path to the corresponding run script.
 
 When editing shell config, all zsh configuration goes in `dot_config/zsh/` — do not create files in `dot_config/sh/` (only `inputrc` remains there).
 
