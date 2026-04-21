@@ -42,7 +42,7 @@ fix:
 # ═══════════════════════════════════════════════════════════════════
 
 # Show package and dotfile drift (runs pkg-drift + dotfile-drift + etc-drift)
-status: pkg-drift dotfile-drift etc-drift
+status: dotfile-drift pkg-drift etc-drift
 
 # Show package drift: missing packages in adopted groups + undeclared installed packages
 pkg-drift:
