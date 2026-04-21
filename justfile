@@ -168,7 +168,7 @@ services-drift:
     cat systemd-units/*.txt 2>/dev/null \
         | grep -v '^\s*#' | grep -v '^\s*$' | sort -u > "$tmp/curated"
     systemctl list-unit-files --state=enabled --no-legend 2>/dev/null \
-        | awk '{print $1}' | sort -u > "$tmp/enabled"
+        | awk '{print $1}' | grep -vE '@\.' | sort -u > "$tmp/enabled"
     comm -23 "$tmp/curated" "$tmp/enabled" | sed 's/^/  not-enabled: /'
     comm -13 "$tmp/curated" "$tmp/enabled" | sed 's/^/  uncurated:   /'
 

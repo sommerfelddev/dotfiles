@@ -11,3 +11,4 @@ acpid.service
 cpupower.service
 iwd.service
 tlp.service
+pcscd.socket
