@@ -8,9 +8,11 @@
   "modules-right": [
     "pulseaudio",
     "cpu",
-    "custom/memory",
     "temperature",
-    "network",
+    "custom/memory",
+    "network#wifi",
+    "network#bond",
+    "custom/wg",
     "battery",
     "clock",
     "tray",
@@ -41,13 +43,26 @@
     "critical-threshold": 80,
   },
 
-  "network": {
+  "network#wifi": {
+    "interface": "wlp*",
     "interval": 10,
-    "format-wifi": "{essid} {signalStrength}% ↓{bandwidthDownBits} ↑{bandwidthUpBits}",
-    "format-ethernet": "↓{bandwidthDownBits} ↑{bandwidthUpBits}",
-    "format-disconnected": "disconnected",
-    "tooltip-format-wifi": "{essid} ({signalStrength}%) · {frequency} MHz\n{ifname}: {ipaddr}/{cidr}",
-    "tooltip-format-ethernet": "{ifname}: {ipaddr}/{cidr}",
+    "format-wifi": "{essid} {signalStrength}%",
+    "format-disconnected": "wifi off",
+    "tooltip-format-wifi": "{essid} · {signalStrength}% · {frequency} MHz\n{ifname}",
+  },
+
+  "network#bond": {
+    "interface": "bond0",
+    "interval": 5,
+    "format": "↓{bandwidthDownBits} ↑{bandwidthUpBits}",
+    "format-disconnected": "bond off",
+    "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
+  },
+
+  "custom/wg": {
+    "exec": "~/.config/waybar/wg-status.sh",
+    "return-type": "json",
+    "interval": 10,
   },
 
   "battery": {

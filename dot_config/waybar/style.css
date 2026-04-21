@@ -41,8 +41,49 @@ window#waybar {
 #network,
 #pulseaudio,
 #tray,
-#custom-memory {
+#custom-memory,
+#custom-wg {
   padding: 0 6px;
+}
+
+#cpu {
+  color: #83a598; /* blue */
+}
+
+#custom-memory {
+  color: #8ec07c; /* aqua */
+}
+
+#temperature {
+  color: #fe8019; /* orange */
+}
+
+#network.wifi {
+  color: #b8bb26; /* green */
+}
+
+#network.bond {
+  color: #d3869b; /* purple */
+}
+
+#custom-wg.up {
+  color: #d3869b; /* purple */
+}
+
+#custom-wg.down {
+  color: #928374; /* gray */
+}
+
+#battery {
+  color: #fabd2f; /* yellow */
+}
+
+#pulseaudio {
+  color: #fe8019; /* orange */
+}
+
+#clock {
+  color: #ebdbb2; /* fg */
 }
 
 #battery.warning {
