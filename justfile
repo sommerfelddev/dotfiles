@@ -167,10 +167,15 @@ services-drift:
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
     cat systemd-units/*.txt 2>/dev/null \
         | grep -v '^\s*#' | grep -v '^\s*$' | sort -u > "$tmp/curated"
+    if [ -f systemd-units/.ignore ]; then
+        grep -v '^\s*#' systemd-units/.ignore | grep -v '^\s*$' | sort -u > "$tmp/ignore"
+    else
+        : > "$tmp/ignore"
+    fi
     systemctl list-unit-files --state=enabled --no-legend 2>/dev/null \
         | awk '{print $1}' | grep -vE '@\.' | sort -u > "$tmp/enabled"
     comm -23 "$tmp/curated" "$tmp/enabled" | sed 's/^/  not-enabled: /'
-    comm -13 "$tmp/curated" "$tmp/enabled" | sed 's/^/  uncurated:   /'
+    comm -13 "$tmp/curated" "$tmp/enabled" | comm -23 - "$tmp/ignore" | sed 's/^/  uncurated:   /'
 
 
 # ═══════════════════════════════════════════════════════════════════

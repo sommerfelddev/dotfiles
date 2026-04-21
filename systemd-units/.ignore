@@ -1,0 +1,7 @@
+# Systemd units to suppress from 'just services-drift' uncurated output.
+# Typically distro defaults enabled by systemd presets that are neither
+# worth curating nor worth disabling. One unit per line, # comments OK.
+
+remote-fs.target
+systemd-network-generator.service
+systemd-userdbd.socket
