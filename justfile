@@ -49,3 +49,23 @@ status:
     echo ""
     echo "=== Dotfile drift ==="
     chezmoi status || true
+
+# Show install coverage for each group
+groups:
+    #!/bin/sh
+    for file in meta/*.txt; do
+        group=$(basename "$file" .txt)
+        pkgs=$(grep -v '^\s*#' "$file" | grep -v '^\s*$')
+        total=$(echo "$pkgs" | wc -l)
+        installed=0
+        for pkg in $pkgs; do
+            pacman -Qi "$pkg" >/dev/null 2>&1 && installed=$((installed + 1))
+        done
+        if [ "$installed" -eq "$total" ]; then
+            printf '  \033[32m✓\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
+        elif [ "$installed" -eq 0 ]; then
+            printf '  \033[31m✗\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
+        else
+            printf '  \033[33m~\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
+        fi
+    done
