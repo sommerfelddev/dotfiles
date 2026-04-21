@@ -44,7 +44,7 @@
   },
 
   "network#wifi": {
-    "interface": "wlp*",
+    "interface": "wlan0",
     "interval": 10,
     "format-wifi": "{essid} {signalStrength}%",
     "format-disconnected": "wifi off",
