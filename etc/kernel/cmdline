@@ -1,0 +1,1 @@
+cryptdevice=UUID=81520bbc-1e7a-45e6-9465-cfc2e8b18945:root root=/dev/mapper/root rw quiet

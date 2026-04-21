@@ -88,8 +88,11 @@ fi
 # 8. optional: create an Arch EFI boot entry if none exists
 if [ -d /sys/firmware/efi ]; then
   if ! sudo efibootmgr 2>/dev/null | grep -iq arch; then
-    log 'no Arch Linux EFI boot entry found; launching create-efi'
-    "$HOME/.local/bin/create-efi"
+    warn 'no Arch Linux EFI boot entry found'
+    warn 'after first kernel install, run: sudo mkinitcpio -P'
+    warn 'then register the UKI with efibootmgr, for example:'
+    warn "  sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \\"
+    warn "      --label 'Arch UKI' --loader '\\EFI\\Linux\\arch-linux.efi'"
   fi
 fi
 

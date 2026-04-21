@@ -58,9 +58,10 @@ The script installs pacman prerequisites, enables `%wheel` in sudoers,
 builds `paru-bin` from the AUR, clones this repo to `~/dotfiles`, runs
 `just init`, enables recommended systemd units (fstrim, timesyncd,
 resolved, reflector, paccache, pkgstats, acpid, cpupower, iwd, plus tlp
-on laptops), refreshes the pacman mirrorlist, creates XDG user
-directories, and — on EFI systems missing an Arch boot entry —
-launches `create-efi`.
+on laptops), refreshes the pacman mirrorlist, and creates XDG user
+directories. On EFI systems missing an Arch boot entry, it prints the
+`efibootmgr` command to register the UKI (run after your first
+`mkinitcpio -P`).
 
 ## Setup on an existing system
 
