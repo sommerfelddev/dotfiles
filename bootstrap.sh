@@ -70,43 +70,19 @@ cd "$DOTFILES_DIR"
 log 'running just init'
 just init
 
-# 6. enable recommended systemd units for daemons that base.txt installs.
-#    Soft-fail: warn on a single failure but keep going.
-log 'enabling system services'
-for u in \
-    fstrim.timer \
-    systemd-timesyncd.service \
-    systemd-resolved.service \
-    reflector.timer \
-    paccache.timer \
-    pkgstats.timer \
-    acpid.service \
-    cpupower.service \
-    iwd.service
-do
-    sudo systemctl enable --now "$u" \
-        || warn "could not enable $u"
-done
-
-# tlp: laptops only
-if ls /sys/class/power_supply/BAT* >/dev/null 2>&1; then
-    sudo systemctl enable --now tlp.service \
-        || warn 'could not enable tlp.service'
-fi
-
-# 7. refresh pacman mirrorlist once via reflector (config deployed by chezmoi)
+# 6. refresh pacman mirrorlist once via reflector (config deployed by chezmoi)
 log 'refreshing pacman mirrorlist via reflector'
 sudo reflector @/etc/xdg/reflector/reflector.conf \
     --save /etc/pacman.d/mirrorlist \
     || warn 'reflector failed; keeping existing mirrorlist'
 
-# 8. create XDG user directories (~/Documents, ~/Downloads, etc.)
+# 7. create XDG user directories (~/Documents, ~/Downloads, etc.)
 if command -v xdg-user-dirs-update >/dev/null 2>&1; then
     log 'creating XDG user directories'
     xdg-user-dirs-update || warn 'xdg-user-dirs-update failed'
 fi
 
-# 9. optional: create an Arch EFI boot entry if none exists
+# 8. optional: create an Arch EFI boot entry if none exists
 if [ -d /sys/firmware/efi ]; then
     if ! sudo efibootmgr 2>/dev/null | grep -iq arch; then
         log 'no Arch Linux EFI boot entry found; launching create-efi'

@@ -8,7 +8,7 @@ default:
 # ═══════════════════════════════════════════════════════════════════
 
 # First-time machine setup: regenerate chezmoi config, install git hooks, deploy dotfiles, install base packages
-init: _chezmoi-init _install-hooks apply (install "base")
+init: _chezmoi-init _install-hooks apply (install "base") services-enable
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -119,6 +119,58 @@ groups group="":
             printf '  \033[31m✗\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
         fi
     done
+
+
+# ═══════════════════════════════════════════════════════════════════
+# Services
+# ═══════════════════════════════════════════════════════════════════
+
+# List curated systemd units (grouped by systemd-units/<group>.txt) with state
+services:
+    #!/bin/sh
+    for file in systemd-units/*.txt; do
+        [ -f "$file" ] || continue
+        group=$(basename "$file" .txt)
+        echo "=== $group ==="
+        grep -v '^\s*#' "$file" | grep -v '^\s*$' | while read -r u; do
+            en=$(systemctl is-enabled "$u" 2>/dev/null); en=${en:-unknown}
+            ac=$(systemctl is-active  "$u" 2>/dev/null); ac=${ac:-unknown}
+            case "$en" in
+                enabled|static|alias)         c_en=32 ;;
+                disabled|masked|not-found)    c_en=31 ;;
+                *)                            c_en=33 ;;
+            esac
+            case "$ac" in
+                active)                       c_ac=32 ;;
+                inactive|failed)              c_ac=31 ;;
+                *)                            c_ac=33 ;;
+            esac
+            printf '  %-34s \033[%sm%-10s\033[0m \033[%sm%s\033[0m\n' "$u" "$c_en" "$en" "$c_ac" "$ac"
+        done
+    done
+
+# Enable all curated systemd units (idempotent, soft-fail per unit)
+services-enable:
+    #!/bin/sh
+    for file in systemd-units/*.txt; do
+        [ -f "$file" ] || continue
+        grep -v '^\s*#' "$file" | grep -v '^\s*$' | while read -r u; do
+            sudo systemctl enable --now "$u" \
+                || echo "  warn: could not enable $u" >&2
+        done
+    done
+
+# Show drift between curated services and actually-enabled services
+services-drift:
+    #!/bin/sh
+    echo "=== Service drift ==="
+    tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+    cat systemd-units/*.txt 2>/dev/null \
+        | grep -v '^\s*#' | grep -v '^\s*$' | sort -u > "$tmp/curated"
+    systemctl list-unit-files --state=enabled --no-legend 2>/dev/null \
+        | awk '{print $1}' | sort -u > "$tmp/enabled"
+    comm -23 "$tmp/curated" "$tmp/enabled" | sed 's/^/  not-enabled: /'
+    comm -13 "$tmp/curated" "$tmp/enabled" | sed 's/^/  uncurated:   /'
 
 
 # ═══════════════════════════════════════════════════════════════════

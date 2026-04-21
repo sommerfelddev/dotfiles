@@ -1,0 +1,13 @@
+# Systemd units to enable when the 'base' meta group is installed.
+# One unit per line, # comments OK.
+
+fstrim.timer
+systemd-timesyncd.service
+systemd-resolved.service
+reflector.timer
+paccache.timer
+pkgstats.timer
+acpid.service
+cpupower.service
+iwd.service
+tlp.service

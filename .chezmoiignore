@@ -5,6 +5,7 @@ create-efi.sh
 .github/
 .worktrees/
 meta/
+systemd-units/
 etc/
 firefox/
 justfile

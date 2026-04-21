@@ -15,12 +15,13 @@ The repo root is a chezmoi source directory. Files targeting `$HOME` use chezmoi
 - `dot_config/`, `private_dot_gnupg/`, `private_dot_ssh/`, etc. — chezmoi source state mapping to `$HOME`. Prefix meanings: `dot_` → leading `.`, `private_` → restricted permissions, `executable_` → `+x` bit.
 - `etc/` contains system-level configs (`/etc/` targets) — systemd units, pacman hooks, sysctl tunables, kernel module loading. Deployed by `run_onchange_after_deploy-etc.sh.tmpl`.
 - `meta/` contains plain text package lists for Arch Linux (one package per line, `#` comments). Each `.txt` file represents a group (e.g. `base.txt`, `dev.txt`, `wayland.txt`). Install with `just install base dev` or `just install-all`. Detect drift with `just status`.
+- `systemd-units/` contains plain text systemd unit lists paired by name with `meta/` groups (e.g. `systemd-units/base.txt` ↔ `meta/base.txt`). Units listed here are enabled by `just services-enable` (run automatically by `just init`). Inspect with `just services`, detect drift with `just services-drift`.
 - `firefox/` contains Firefox/LibreWolf hardening overrides (`user-overrides.js`) and custom CSS (`chrome/userChrome.css`). Deployed by `run_onchange_after_deploy-firefox.sh.tmpl`.
 - `dot_local/bin/executable_create-efi` is an interactive EFI boot entry creation script using `efibootmgr` (deployed to `~/.local/bin/create-efi`).
 - `bootstrap.sh` at the repo root is a POSIX shell script that takes a fresh minimal Arch install (only `base`) to a fully deployed state. It installs prerequisites, enables `%wheel` sudoers, bootstraps `paru-bin` from the AUR, clones the repo, runs `just init`, and optionally invokes `create-efi`. Designed to be curlable: `curl -fsSL .../bootstrap.sh | sh`.
-- `.chezmoiignore` excludes non-home files (`etc/`, `meta/`, `firefox/`, docs) from deployment to `$HOME`.
+- `.chezmoiignore` excludes non-home files (`etc/`, `meta/`, `systemd-units/`, `firefox/`, docs) from deployment to `$HOME`.
 - `.githooks/` contains git hooks (notably `post-commit` which runs `chezmoi apply`). Activated by `just init`.
-- `justfile` provides recipes: `init` (first-time setup), `sync` (apply + fix), `apply`, `fix`, `status`, `pkg-drift`, `dotfile-drift`, `undeclared`, `diff`, `merge`, `groups`, `install`, `install-all`, `add`, `remove`. Run `just` or `just --list` to see them.
+- `justfile` provides recipes: `init` (first-time setup), `sync` (apply + fix), `apply`, `fix`, `status`, `pkg-drift`, `dotfile-drift`, `undeclared`, `diff`, `merge`, `groups`, `install`, `install-all`, `add`, `remove`, `services`, `services-enable`, `services-drift`. Run `just` or `just --list` to see them.
 
 ## Window manager
 
