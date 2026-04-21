@@ -1,2 +1,5 @@
 !home/.lldbinit
 .worktrees/
+.ruff_cache/
+node_modules/
+*.swp
