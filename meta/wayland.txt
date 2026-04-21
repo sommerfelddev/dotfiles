@@ -29,6 +29,7 @@ imv
 
 # QR
 zbar
+xorg-xwayland # needed for zbarcam's X11 preview
 
 # Document viewer
 zathura
