@@ -396,7 +396,7 @@ unit-list group="":
         [ -f "$file" ] || continue
         group=$(basename "$file" .txt)
         echo "=== $group ==="
-        grep -v '^\s*#' "$file" | grep -v '^\s*$' | while read -r u; do
+        sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file" | while read -r u; do
             en=$(systemctl is-enabled "$u" 2>/dev/null); en=${en:-unknown}
             ac=$(systemctl is-active  "$u" 2>/dev/null); ac=${ac:-unknown}
             case "$en" in
@@ -418,7 +418,7 @@ unit-apply:
     #!/bin/sh
     for file in systemd-units/*.txt; do
         [ -f "$file" ] || continue
-        grep -v '^\s*#' "$file" | grep -v '^\s*$' | while read -r u; do
+        sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file" | while read -r u; do
             sudo systemctl enable --now "$u" \
                 || echo "  warn: could not enable $u" >&2
         done
@@ -430,9 +430,9 @@ unit-status:
     echo "=== Unit drift ==="
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
     cat systemd-units/*.txt 2>/dev/null \
-        | grep -v '^\s*#' | grep -v '^\s*$' | sort -u > "$tmp/curated"
+        | sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' | sort -u > "$tmp/curated"
     if [ -f systemd-units/.ignore ]; then
-        grep -v '^\s*#' systemd-units/.ignore | grep -v '^\s*$' | sort -u > "$tmp/ignore"
+        sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' systemd-units/.ignore | sort -u > "$tmp/ignore"
     else
         : > "$tmp/ignore"
     fi
@@ -857,7 +857,7 @@ pkg-list group="":
             echo "error: $file does not exist" >&2
             exit 1
         fi
-        grep -v '^\s*#' "$file" | grep -v '^\s*$' | while read -r pkg; do
+        sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file" | while read -r pkg; do
             if pacman -Qi "$pkg" >/dev/null 2>&1; then
                 printf '  \033[32m✓\033[0m %s\n' "$pkg"
             else
@@ -868,7 +868,7 @@ pkg-list group="":
     fi
     for file in meta/*.txt; do
         group=$(basename "$file" .txt)
-        pkgs=$(grep -v '^\s*#' "$file" | grep -v '^\s*$')
+        pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
         total=$(echo "$pkgs" | wc -l)
         installed=0
         for pkg in $pkgs; do
@@ -889,10 +889,10 @@ pkg-apply *groups:
     set -eu
     if [ -n "{{ groups }}" ]; then
         for group in {{ groups }}; do
-            grep -v '^\s*#' "meta/${group}.txt" | grep -v '^\s*$' | paru -S --needed --noconfirm --ask=4 -
+            sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "meta/${group}.txt" | paru -S --needed --noconfirm --ask=4 -
         done
     else
-        cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u | paru -S --needed --noconfirm --ask=4 -
+        cat meta/*.txt | sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' | sort -u | paru -S --needed --noconfirm --ask=4 -
     fi
 
 # Top up missing packages in groups that are already ≥50% installed (never installs new groups)
@@ -900,7 +900,7 @@ pkg-fix:
     #!/bin/sh
     for file in meta/*.txt; do
         group=$(basename "$file" .txt)
-        pkgs=$(grep -v '^\s*#' "$file" | grep -v '^\s*$')
+        pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
         total=$(echo "$pkgs" | wc -l)
         installed=0
         for pkg in $pkgs; do
@@ -963,7 +963,7 @@ _install-hooks:
 _active-packages:
     #!/bin/sh
     for file in meta/*.txt; do
-        pkgs=$(grep -v '^\s*#' "$file" | grep -v '^\s*$')
+        pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
         total=$(echo "$pkgs" | wc -l)
         installed=0
         for pkg in $pkgs; do
