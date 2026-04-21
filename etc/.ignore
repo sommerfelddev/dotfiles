@@ -36,6 +36,9 @@
 /etc/pacman.d/gnupg/*
 /etc/pacman.d/mirrorlist
 
+# Host-specific (UUIDs, partition layout)
+/etc/fstab
+
 # Managed by useradd (podman uses them)
 /etc/subuid
 /etc/subgid

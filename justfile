@@ -2,14 +2,12 @@
 default:
     @just --list
 
-
 # ═══════════════════════════════════════════════════════════════════
 # Setup
 # ═══════════════════════════════════════════════════════════════════
 
 # First-time machine setup: regenerate chezmoi config, install git hooks, deploy dotfiles, install base packages
 init: _chezmoi-init _install-hooks apply (install "base") services-enable
-
 
 # ═══════════════════════════════════════════════════════════════════
 # Day-to-day
@@ -38,7 +36,6 @@ fix:
             echo "$pkgs" | paru -S --needed --noconfirm --ask=4 -
         fi
     done
-
 
 # ═══════════════════════════════════════════════════════════════════
 # Inspection
@@ -120,7 +117,6 @@ groups group="":
         fi
     done
 
-
 # ═══════════════════════════════════════════════════════════════════
 # Services
 # ═══════════════════════════════════════════════════════════════════
@@ -177,7 +173,6 @@ services-drift:
     comm -23 "$tmp/curated" "$tmp/enabled" | sed 's/^/  not-enabled: /'
     comm -13 "$tmp/curated" "$tmp/enabled" | comm -23 - "$tmp/ignore" | sed 's/^/  uncurated:   /'
 
-
 # ═══════════════════════════════════════════════════════════════════
 # System config (/etc)
 # ═══════════════════════════════════════════════════════════════════
@@ -219,6 +214,155 @@ etc-drift:
         | sed -n 's/^error: No package owns //p' || true; } | sort -u \
         | while IFS= read -r p; do keep "$p" && echo "  unowned:  $p"; :; done
 
+# Diff repo-managed etc/<path> against live /etc/<path> (all managed files if no args)
+etc-diff *paths:
+    #!/usr/bin/env bash
+    set -eo pipefail
+    args=({{ paths }})
+    if [ ${#args[@]} -eq 0 ]; then
+        mapfile -t args < <(find etc -type f ! -name .ignore | sort)
+    fi
+    for raw in "${args[@]}"; do
+        # Reject path-traversal before any filesystem access
+        case "$raw" in
+            *..*|*/./*|./*|../*) echo "error: unsafe path: $raw" >&2; exit 1 ;;
+        esac
+        p=${raw#/}; p=${p#etc/}
+        live=/etc/$p
+        repo=etc/$p
+        if [ ! -f "$repo" ]; then
+            echo "skip: $live (not a regular file in etc/)" >&2; continue
+        fi
+        if [ ! -f "$live" ]; then
+            echo "skip: $live (missing or not a regular file on host)" >&2; continue
+        fi
+        diff -u --label "$live" --label "$repo" "$live" "$repo" || true
+    done
+
+# Diff live /etc/<path> against pristine pacman version (all modified backup files if no args)
+etc-upstream-diff *paths:
+    #!/usr/bin/env bash
+    set -eo pipefail
+    tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+
+    # Fetch the cache archive for a /etc/<path>'s owning package at its installed version.
+    # Prints cache path on stdout. Exit 2 = unowned, 1 = cache unavailable for installed version.
+    pristine() {
+        local path=$1
+        local pkg ver arch cache
+        pkg=$(pacman -Qoq "$path" 2>/dev/null) || return 2
+        ver=$(pacman -Q "$pkg" | awk '{print $2}')
+        arch=$(pacman -Qi "$pkg" | awk -F': *' '/^Architecture/{print $2; exit}')
+        for ext in zst xz; do
+            cache="/var/cache/pacman/pkg/${pkg}-${ver}-${arch}.pkg.tar.${ext}"
+            [ -f "$cache" ] && { echo "$cache"; return 0; }
+        done
+        echo "  fetching $pkg from mirror..." >&2
+        doas pacman -Sw --noconfirm "$pkg" >/dev/null || true
+        for ext in zst xz; do
+            cache="/var/cache/pacman/pkg/${pkg}-${ver}-${arch}.pkg.tar.${ext}"
+            [ -f "$cache" ] && { echo "$cache"; return 0; }
+        done
+        echo "  error: no cache for ${pkg}-${ver}; mirror may have moved past installed version (try Arch Linux Archive)" >&2
+        return 1
+    }
+
+    args=({{ paths }})
+    explicit=1
+    if [ ${#args[@]} -eq 0 ]; then
+        explicit=0
+        mapfile -t args < <(pacman -Qkk 2>/dev/null | grep -oP '^backup file:\s+[^:]+:\s+\K/etc/\S+' | sort -u)
+    fi
+
+    for path in "${args[@]}"; do
+        case "$path" in
+            *..*|*/./*) echo "error: unsafe path: $path" >&2; exit 1 ;;
+        esac
+        [[ "$path" = /etc/* ]] || { echo "error: $path not under /etc" >&2; exit 1; }
+        [ -f "$path" ] || { echo "skip: $path (not a regular file)" >&2; continue; }
+        if ! cache=$(pristine "$path"); then
+            if [ "$explicit" = 1 ]; then
+                echo "error: cannot obtain pristine for $path" >&2
+                exit 1
+            fi
+            continue
+        fi
+        out="$tmp/pristine"
+        if ! bsdtar -xOf "$cache" "${path#/}" > "$out" 2>/dev/null; then
+            echo "skip: $path (not present in package archive)" >&2
+            continue
+        fi
+        diff -u --label "$path (pristine)" --label "$path (live)" "$out" "$path" || true
+    done
+
+# Copy one or more /etc/<path> regular files into the repo's etc/ tree
+etc-add +paths:
+    #!/usr/bin/env bash
+    set -eo pipefail
+    for path in {{ paths }}; do
+        case "$path" in
+            *..*|*/./*) echo "error: unsafe path: $path" >&2; exit 1 ;;
+        esac
+        [[ "$path" = /etc/* ]] || { echo "error: $path not under /etc" >&2; exit 1; }
+        [ -f "$path" ] || { echo "error: $path is not a regular file (symlinks/dirs not supported)" >&2; exit 1; }
+        dest="etc/${path#/etc/}"
+        mkdir -p "$(dirname "$dest")"
+        doas cp -a "$path" "$dest"
+        doas chown "$USER:$USER" "$dest"
+        echo "added: $path -> $dest"
+    done
+    echo
+    echo "Run 'chezmoi apply' to sync (no-op content-wise, refreshes deploy hash)."
+
+# Reset one or more /etc/<path> files to pristine pacman state (or remove if unowned)
+etc-reset +paths:
+    #!/usr/bin/env bash
+    set -eo pipefail
+    force=0
+    paths=()
+    for arg in {{ paths }}; do
+        if [ "$arg" = "--force" ]; then force=1; else paths+=("$arg"); fi
+    done
+    [ ${#paths[@]} -gt 0 ] || { echo "error: no paths given" >&2; exit 1; }
+    for path in "${paths[@]}"; do
+        case "$path" in
+            *..*|*/./*) echo "error: unsafe path: $path" >&2; exit 1 ;;
+        esac
+        [[ "$path" = /etc/* ]] || { echo "error: $path not under /etc" >&2; exit 1; }
+        repo="etc/${path#/etc/}"
+        if [ -e "$repo" ] && [ "$force" -ne 1 ]; then
+            echo "error: $path is managed in $repo; chezmoi apply would re-deploy it." >&2
+            echo "       remove the repo copy first (rm $repo && chezmoi apply), or pass --force." >&2
+            exit 1
+        fi
+        if pkg=$(pacman -Qoq "$path" 2>/dev/null); then
+            ver=$(pacman -Q "$pkg" | awk '{print $2}')
+            arch=$(pacman -Qi "$pkg" | awk -F': *' '/^Architecture/{print $2; exit}')
+            cache=""
+            for ext in zst xz; do
+                c="/var/cache/pacman/pkg/${pkg}-${ver}-${arch}.pkg.tar.${ext}"
+                [ -f "$c" ] && { cache="$c"; break; }
+            done
+            if [ -z "$cache" ]; then
+                echo "  fetching $pkg from mirror..." >&2
+                doas pacman -Sw --noconfirm "$pkg" >/dev/null || true
+                for ext in zst xz; do
+                    c="/var/cache/pacman/pkg/${pkg}-${ver}-${arch}.pkg.tar.${ext}"
+                    [ -f "$c" ] && { cache="$c"; break; }
+                done
+            fi
+            [ -n "$cache" ] || { echo "error: no cache for ${pkg}-${ver}; mirror may have moved past installed version" >&2; exit 1; }
+            # Verify path is actually inside the archive before extracting
+            if ! bsdtar -tf "$cache" "${path#/}" >/dev/null 2>&1; then
+                echo "error: $path not present in $pkg archive" >&2; exit 1
+            fi
+            echo "reset (from $pkg): $path"
+            doas bsdtar --numeric-owner -xpf "$cache" -C / "${path#/}"
+        else
+            echo "remove (unowned): $path"
+            doas rm -v "$path"
+        fi
+    done
 
 # ═══════════════════════════════════════════════════════════════════
 # Package management
@@ -255,7 +399,6 @@ add group +pkgs:
     done
     paru -S --needed {{ pkgs }}
 
-
 # Remove one or more packages from a group list (does NOT uninstall; the package may belong to other groups)
 remove group +pkgs:
     #!/bin/sh
@@ -273,7 +416,6 @@ remove group +pkgs:
             echo "$pkg not in {{ group }}.txt"
         fi
     done
-
 
 # ═══════════════════════════════════════════════════════════════════
 # Hidden helpers (run indirectly via the recipes above)
