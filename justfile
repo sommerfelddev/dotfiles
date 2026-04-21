@@ -334,6 +334,29 @@ etc-add +paths:
     echo
     echo "Run 'chezmoi apply' to sync (no-op content-wise, refreshes deploy hash)."
 
+# Remove one or more files from the repo's etc/ tree (leaves live /etc untouched)
+etc-rm +paths:
+    #!/usr/bin/env bash
+    set -eo pipefail
+    for raw in {{ paths }}; do
+        case "$raw" in
+            *..*|*/./*|./*|../*) echo "error: unsafe path: $raw" >&2; exit 1 ;;
+        esac
+        p=${raw#/}; p=${p#etc/}
+        repo=etc/$p
+        [ -f "$repo" ] || { echo "error: $repo is not managed in the repo" >&2; exit 1; }
+        rm -- "$repo"
+        # Tidy empty parent dirs inside etc/ without walking out of it
+        parent=$(dirname "$repo")
+        while [ "$parent" != "etc" ] && [ "$parent" != "." ]; do
+            rmdir -- "$parent" 2>/dev/null || break
+            parent=$(dirname "$parent")
+        done
+        echo "removed: $repo  (/etc/$p left untouched)"
+    done
+    echo
+    echo "Run 'just apply' to refresh the deploy-etc hash."
+
 # Reset repo-managed etc/<path> to pristine pacman contents (run 'just apply' afterward)
 etc-reset +paths:
     #!/usr/bin/env bash
