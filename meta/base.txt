@@ -4,9 +4,12 @@ base-devel
 bash-completion
 bat
 chezmoi
+choose
 cpupower
+curlie
 dashbinsh
 doas-sudo-shim
+dog
 duf
 fastfetch
 fd
