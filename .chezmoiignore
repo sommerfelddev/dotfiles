@@ -1,6 +1,7 @@
 KEYBINDS.md
 README.md
 create-efi.sh
+bootstrap.sh
 .editorconfig
 .github/
 .worktrees/
