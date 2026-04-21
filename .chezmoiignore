@@ -14,3 +14,5 @@ justfile
 selene.toml
 selene-globals.yml
 .prettierrc.json
+just-lib.sh
+.ruff_cache

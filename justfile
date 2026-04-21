@@ -46,13 +46,7 @@ fix:
 fmt *target:
     #!/usr/bin/env bash
     set -eo pipefail
-
-    _need() {
-      command -v "$1" >/dev/null 2>&1 || {
-        printf 'error: %s not on PATH (install: %s)\n' "$1" "$2" >&2
-        exit 1
-      }
-    }
+    source "{{ justfile_directory() }}/just-lib.sh"
 
     _fmt_lua()      { _need stylua stylua;        stylua "$@"; }
     _fmt_sh()       { _need shfmt shfmt;          shfmt -w -i 2 -ci -s "$@"; }
@@ -60,26 +54,6 @@ fmt *target:
     _fmt_toml()     { _need taplo taplo-cli;      taplo format "$@"; }
     _fmt_just()     { just --unstable --fmt; }
     _fmt_prettier() { _need prettier prettier;    prettier --write "$@"; }
-
-    _find_shells() {
-      find . -type f \
-        \( -name '*.sh' \
-           -o -path './dot_local/bin/executable_*' \
-           -o -path './dot_config/sway/executable_*' \) \
-        -not -path './.git/*' -not -path './.worktrees/*'
-    }
-
-    _find_by_ext() {
-      find . -type f -name "*.$1" \
-        -not -path './.git/*' -not -path './.worktrees/*'
-    }
-
-    _is_zsh() {
-      case "$(basename "$1")" in
-        dot_zshrc|dot_zshenv|dot_zprofile|.zshrc|.zshenv|.zprofile) return 0 ;;
-      esac
-      return 1
-    }
 
     target='{{ target }}'
 
@@ -119,7 +93,7 @@ fmt *target:
       *.toml)                                  _fmt_toml "$target" ;;
       *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  _fmt_prettier "$target" ;;
       *)
-        if head -1 "$target" 2>/dev/null | grep -qE '^#!.*\b(ba)?sh\b'; then
+        if _is_shellscript "$target"; then
           _fmt_sh "$target"
         else
           echo "error: no formatter for: $target" >&2; exit 1
@@ -131,13 +105,7 @@ fmt *target:
 check-fmt *target:
     #!/usr/bin/env bash
     set -eo pipefail
-
-    _need() {
-      command -v "$1" >/dev/null 2>&1 || {
-        printf 'error: %s not on PATH (install: %s)\n' "$1" "$2" >&2
-        exit 1
-      }
-    }
+    source "{{ justfile_directory() }}/just-lib.sh"
 
     _chk_lua()      { _need stylua stylua;        stylua --check "$@"; }
     _chk_sh()       { _need shfmt shfmt;          shfmt -d -i 2 -ci -s "$@"; }
@@ -145,26 +113,6 @@ check-fmt *target:
     _chk_toml()     { _need taplo taplo-cli;      taplo format --check "$@"; }
     _chk_just()     { just --unstable --fmt --check; }
     _chk_prettier() { _need prettier prettier;    prettier --check "$@"; }
-
-    _find_shells() {
-      find . -type f \
-        \( -name '*.sh' \
-           -o -path './dot_local/bin/executable_*' \
-           -o -path './dot_config/sway/executable_*' \) \
-        -not -path './.git/*' -not -path './.worktrees/*'
-    }
-
-    _find_by_ext() {
-      find . -type f -name "*.$1" \
-        -not -path './.git/*' -not -path './.worktrees/*'
-    }
-
-    _is_zsh() {
-      case "$(basename "$1")" in
-        dot_zshrc|dot_zshenv|dot_zprofile|.zshrc|.zshenv|.zprofile) return 0 ;;
-      esac
-      return 1
-    }
 
     target='{{ target }}'
     rc=0
@@ -205,7 +153,7 @@ check-fmt *target:
       *.toml)                                  _chk_toml "$target" ;;
       *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  _chk_prettier "$target" ;;
       *)
-        if head -1 "$target" 2>/dev/null | grep -qE '^#!.*\b(ba)?sh\b'; then
+        if _is_shellscript "$target"; then
           _chk_sh "$target"
         else
           echo "error: no formatter for: $target" >&2; exit 1
@@ -222,45 +170,13 @@ check *target:
 lint *target:
     #!/usr/bin/env bash
     set -eo pipefail
-
-    _need() {
-      command -v "$1" >/dev/null 2>&1 || {
-        printf 'error: %s not on PATH (install: %s)\n' "$1" "$2" >&2
-        exit 1
-      }
-    }
+    source "{{ justfile_directory() }}/just-lib.sh"
 
     _lint_lua()      { _need selene selene;         selene "$@"; }
     _lint_sh()       { _need shellcheck shellcheck; shellcheck "$@"; }
     _lint_zsh()      { _need shellcheck shellcheck; shellcheck --shell=bash "$@"; }
     _lint_py()       { _need ruff ruff;             ruff check "$@"; }
     _lint_toml()     { _need taplo taplo-cli;       taplo lint "$@"; }
-
-    _find_shells() {
-      find . -type f \
-        \( -name '*.sh' \
-           -o -path './dot_local/bin/executable_*' \
-           -o -path './dot_config/sway/executable_*' \) \
-        -not -path './.git/*' -not -path './.worktrees/*'
-    }
-
-    _find_by_ext() {
-      find . -type f -name "*.$1" \
-        -not -path './.git/*' -not -path './.worktrees/*'
-    }
-
-    _find_zsh() {
-      find . -type f \
-        \( -name 'dot_zshrc' -o -name 'dot_zshenv' -o -name 'dot_zprofile' \) \
-        -not -path './.git/*' -not -path './.worktrees/*'
-    }
-
-    _is_zsh() {
-      case "$(basename "$1")" in
-        dot_zshrc|dot_zshenv|dot_zprofile|.zshrc|.zshenv|.zprofile) return 0 ;;
-      esac
-      return 1
-    }
 
     target='{{ target }}'
     rc=0
@@ -297,7 +213,7 @@ lint *target:
       *.toml)                                  _lint_toml "$target" ;;
       *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  echo "skip: $target (no linter; use check-fmt)" >&2; exit 0 ;;
       *)
-        if head -1 "$target" 2>/dev/null | grep -qE '^#!.*\b(ba)?sh\b'; then
+        if _is_shellscript "$target"; then
           _lint_sh "$target"
         else
           echo "error: no linter for: $target" >&2; exit 1
@@ -308,6 +224,20 @@ lint *target:
 # ═══════════════════════════════════════════════════════════════════
 # Inspection
 # ═══════════════════════════════════════════════════════════════════
+
+# Check that all tools needed by 'just check' are installed
+doctor:
+    #!/usr/bin/env bash
+    rc=0
+    for tool in stylua selene shfmt shellcheck ruff taplo prettier just; do
+        if command -v "$tool" >/dev/null 2>&1; then
+            printf '  ✓ %s (%s)\n' "$tool" "$(command -v "$tool")"
+        else
+            printf '  ✗ %s  missing\n' "$tool"
+            rc=1
+        fi
+    done
+    exit $rc
 
 # Show package, dotfile, /etc, and service drift
 status: dotfile-drift pkg-drift etc services-drift
