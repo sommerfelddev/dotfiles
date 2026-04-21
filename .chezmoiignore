@@ -7,3 +7,5 @@ create-efi.sh
 meta/
 etc/
 firefox/
+justfile
+.githooks/
