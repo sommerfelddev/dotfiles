@@ -81,6 +81,10 @@ export INPUTRC="$XDG_CONFIG_HOME/sh/inputrc"
 # ── Wayland ───────────────────────────────────────────────────────────────────
 export XDG_CURRENT_DESKTOP=sway
 export MOZ_ENABLE_WAYLAND=1
+# Point X clients at sway's (lazy) XWayland socket. XWayland spawns on demand
+# when the first X client connects; setting DISPLAY unconditionally avoids
+# "unable to open X display" errors from tools like zbarcam.
+export DISPLAY="${DISPLAY:-:0}"
 
 # ── XDG cleanup: keep $HOME tidy ─────────────────────────────────────────────
 # https://wiki.archlinux.org/title/XDG_Base_Directory#Partial
