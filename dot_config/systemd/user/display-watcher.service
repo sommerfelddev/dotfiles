@@ -1,0 +1,14 @@
+[Unit]
+Description=Auto-toggle sway display layout on external plug/unplug
+PartOf=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=SWAYSOCK
+
+[Service]
+Type=simple
+ExecStart=%h/.config/sway/display-watcher.sh
+Restart=on-failure
+RestartSec=2s
+
+[Install]
+WantedBy=sway-session.target
