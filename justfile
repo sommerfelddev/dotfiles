@@ -20,6 +20,11 @@ sync: apply fix
 apply:
     chezmoi apply -S .
 
+# Re-add changes from live files back into the repo (chezmoi re-add + etc-readd)
+readd:
+    chezmoi re-add
+    just etc-readd
+
 # Top up missing packages in groups that are already ≥50% installed (never installs new groups)
 fix:
     #!/bin/sh
@@ -41,8 +46,8 @@ fix:
 # Inspection
 # ═══════════════════════════════════════════════════════════════════
 
-# Show package and dotfile drift (runs pkg-drift + dotfile-drift + etc-drift)
-status: dotfile-drift pkg-drift etc-drift
+# Show package and dotfile drift (runs pkg-drift + dotfile-drift + etc)
+status: dotfile-drift pkg-drift etc
 
 # Show package drift: missing packages in adopted groups + undeclared installed packages
 pkg-drift:
@@ -189,7 +194,7 @@ services-drift:
 # ═══════════════════════════════════════════════════════════════════
 
 # Show /etc drift: package configs modified from defaults, plus user-created files
-etc-drift:
+etc:
     #!/usr/bin/env bash
     set -eo pipefail
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
@@ -333,6 +338,51 @@ etc-add +paths:
     done
     echo
     echo "Run 'chezmoi apply' to sync (no-op content-wise, refreshes deploy hash)."
+
+# Re-add changes from live /etc back into the repo (no args = all tracked files)
+etc-readd *paths:
+    #!/usr/bin/env bash
+    set -eo pipefail
+    # Build target list: explicit paths, or every tracked repo file.
+    targets=()
+    if [ -n "{{ paths }}" ]; then
+        for raw in {{ paths }}; do
+            case "$raw" in
+                *..*|*/./*|./*|../*) echo "error: unsafe path: $raw" >&2; exit 1 ;;
+            esac
+            p=${raw#/}; p=${p#etc/}
+            [ -f "etc/$p" ] || { echo "error: etc/$p is not tracked; use 'just etc-add' to adopt" >&2; exit 1; }
+            targets+=("$p")
+        done
+    else
+        while IFS= read -r f; do
+            targets+=("${f#etc/}")
+        done < <(find etc -type f ! -name .ignore | sort)
+    fi
+    changed=0
+    for p in "${targets[@]}"; do
+        live=/etc/$p
+        repo=etc/$p
+        [ -e "$live" ] || { echo "  missing live: $live (skipped)"; continue; }
+        [ -f "$live" ] || { echo "  not a regular file: $live (skipped)"; continue; }
+        if [ -r "$live" ]; then
+            cat -- "$live" > "$repo.tmp"
+        else
+            doas cat -- "$live" > "$repo.tmp"
+        fi
+        if cmp -s "$repo" "$repo.tmp"; then
+            rm -f "$repo.tmp"
+        else
+            mv "$repo.tmp" "$repo"
+            echo "re-added: $live -> $repo"
+            changed=$((changed + 1))
+        fi
+    done
+    if [ $changed -eq 0 ]; then
+        echo "no changes"
+    else
+        just apply
+    fi
 
 # Remove one or more files from the repo's etc/ tree (leaves live /etc untouched)
 etc-rm +paths:
