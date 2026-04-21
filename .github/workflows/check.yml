@@ -46,7 +46,7 @@ jobs:
       - name: Install taplo
         run: |
           set -euo pipefail
-          curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-full-linux-x86_64.gz \
+          curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-linux-x86_64.gz \
             | gunzip > /tmp/taplo
           sudo install -m 0755 /tmp/taplo /usr/local/bin/taplo
 
