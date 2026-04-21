@@ -2,9 +2,9 @@
 install-hooks:
     git config core.hooksPath .githooks
 
-# Deploy dotfiles
+# Deploy dotfiles (regenerates config from template if it changed)
 apply:
-    chezmoi apply -S .
+    chezmoi init --apply -S .
 
 # Install packages from one or more groups (e.g. just install base dev wayland)
 install *groups:
@@ -80,6 +80,7 @@ status:
     done
     echo ""
     echo "=== Dotfile drift ==="
+    chezmoi init -S . >/dev/null 2>&1 || true
     chezmoi status -S . || true
 
 # Show install coverage for each group (or full breakdown for one group)

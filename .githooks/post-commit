@@ -1,2 +1,2 @@
 #!/bin/sh
-chezmoi apply -S "$(git rev-parse --show-toplevel)"
+chezmoi init --apply -S "$(git rev-parse --show-toplevel)"
