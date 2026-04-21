@@ -156,3 +156,4 @@ exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSO
 exec mako
 exec poweralertd
 exec "sleep 2 && ~/.config/sway/display-toggle.sh init"
+exec ~/.config/sway/display-watcher.sh
