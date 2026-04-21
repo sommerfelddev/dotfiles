@@ -9,6 +9,12 @@ LAPTOP=$(echo "$OUTPUTS" | jq -r '[.[] | select(.name | test("^eDP")) | .name] |
 EXTERNAL=$(echo "$OUTPUTS" | jq -r '[.[] | select(.name | test("^eDP") | not) | .name] | first // empty')
 
 if [ -z "$EXTERNAL" ]; then
+  # No external connected: make sure the laptop screen is on. This recovers
+  # from an earlier "laptop-off" state after the external was unplugged.
+  if [ -n "$LAPTOP" ]; then
+    swaymsg output "$LAPTOP" enable pos 0 0 || true
+    echo "laptop-only" >"$STATE_FILE"
+  fi
   [ -z "$1" ] && notify-send "Display" "No external display connected"
   exit 0
 fi
