@@ -1,0 +1,7 @@
+bitbox-wallet-app-appimage
+python-bitbox02
+python-hidapi
+python-qdarkstyle
+sparrow-wallet
+tor
+zbar

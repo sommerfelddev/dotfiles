@@ -1,0 +1,11 @@
+ccache
+clang
+cmake
+doxygen
+gdb
+lld
+lldb
+mold
+ninja
+perf
+valgrind

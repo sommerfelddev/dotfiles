@@ -1,0 +1,5 @@
+aerc
+khal
+khard
+protonmail-bridge-nogui
+vdirsyncer

@@ -1,2 +1,8 @@
 [data]
   hostname = "{{ .chezmoi.hostname }}"
+
+[status]
+  exclude = ["scripts"]
+
+[diff]
+  exclude = ["scripts"]

@@ -10,12 +10,12 @@ The repo root is a chezmoi source directory. Files targeting `$HOME` use chezmoi
 
 - `dot_config/`, `private_dot_gnupg/`, `private_dot_ssh/`, etc. — chezmoi source state mapping to `$HOME`. Prefix meanings: `dot_` → leading `.`, `private_` → restricted permissions, `executable_` → `+x` bit.
 - `etc/` contains system-level configs (`/etc/` targets) — systemd units, pacman hooks, sysctl tunables, kernel module loading. Deployed by `run_onchange_after_deploy-etc.sh.tmpl`.
-- `meta/` contains Arch Linux PKGBUILDs that bundle groups of packages into metapackages (e.g. `sommerfeld-base`, `sommerfeld-dev`). Each subdirectory is a standalone PKGBUILD recipe with a `.SRCINFO` and pre-built `.pkg.tar.zst` artifacts.
+- `meta/` contains plain text package lists for Arch Linux (one package per line, `#` comments). Each `.txt` file represents a group (e.g. `base.txt`, `dev.txt`, `wayland.txt`). Install with `just install base dev` or `just install-all`. Detect drift with `just status`.
 - `firefox/` contains Firefox/LibreWolf hardening overrides (`user-overrides.js`) and custom CSS (`chrome/userChrome.css`). Deployed by `run_onchange_after_deploy-firefox.sh.tmpl`.
 - `create-efi.sh` is an interactive EFI boot entry creation script using `efibootmgr`.
 - `.chezmoiignore` excludes non-home files (`etc/`, `meta/`, `firefox/`, docs) from deployment to `$HOME`.
 - `.githooks/` contains git hooks (notably `post-commit` which runs `chezmoi apply`). Activate with `just install-hooks`.
-- `justfile` provides recipes: `install-hooks`, `apply`.
+- `justfile` provides recipes: `install-hooks`, `apply`, `install`, `install-all`, `status`.
 
 ## Window manager
 

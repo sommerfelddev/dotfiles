@@ -1,0 +1,4 @@
+gpg-tui
+pandoc-bin
+syncthing
+udisks2

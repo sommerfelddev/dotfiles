@@ -1,0 +1,10 @@
+bear
+compiledb
+cuda
+cvise
+git-lfs
+intel-oneapi-dpcpp-cpp
+llvm
+openmp
+python-pytest
+xdot

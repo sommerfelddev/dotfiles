@@ -1,0 +1,7 @@
+intel-gpu-tools
+intel-media-sdk
+intel-ucode
+libva-intel-driver
+libvdpau-va-gl
+mesa
+vulkan-intel

@@ -1,0 +1,10 @@
+alsa-utils
+pipewire
+pipewire-alsa
+pipewire-jack
+pipewire-pulse
+playerctl
+pulsemixer
+
+# Optional
+# noisetorch

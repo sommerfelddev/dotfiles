@@ -1,0 +1,15 @@
+discord
+gamemode
+lib32-fontconfig
+lib32-gamemode
+lib32-systemd
+mangohud
+steam
+steam-native-runtime
+ttf-liberation
+wqy-zenhei
+
+# Optional
+# lutris
+# proton-ge-custom-bin
+# supertuxkart
