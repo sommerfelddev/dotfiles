@@ -35,7 +35,7 @@ fix:
         done
         if [ $((installed * 2)) -ge "$total" ] && [ "$installed" -lt "$total" ]; then
             echo ">>> topping up $group ($installed/$total installed)"
-            echo "$pkgs" | paru -S --needed -
+            echo "$pkgs" | paru -S --needed --noconfirm -
         fi
     done
 
@@ -129,13 +129,13 @@ groups group="":
 install *groups:
     #!/bin/sh
     for group in {{ groups }}; do
-        grep -v '^\s*#' "meta/${group}.txt" | grep -v '^\s*$' | paru -S --needed -
+        grep -v '^\s*#' "meta/${group}.txt" | grep -v '^\s*$' | paru -S --needed --noconfirm -
     done
 
 # Install every package group
 install-all:
     #!/bin/sh
-    cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u | paru -S --needed -
+    cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u | paru -S --needed --noconfirm -
 
 # Append a package to a group list and install it (e.g. just add dev ripgrep)
 add group pkg:
@@ -152,7 +152,7 @@ add group pkg:
         echo '{{ pkg }}' >> "$file"
         echo "added {{ pkg }} to {{ group }}.txt"
     fi
-    paru -S --needed '{{ pkg }}'
+    paru -S --needed --noconfirm '{{ pkg }}'
 
 
 # ═══════════════════════════════════════════════════════════════════
