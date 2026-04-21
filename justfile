@@ -479,7 +479,9 @@ etc-restore +paths:
         [ -n "$cache" ] || { echo "error: no cache for ${pkg}-${ver}; mirror may have moved past installed version" >&2; exit 1; }
         bsdtar -tf "$cache" "${live#/}" >/dev/null 2>&1 \
             || { echo "error: $live not present in $pkg archive" >&2; exit 1; }
-        bsdtar -xOf "$cache" "${live#/}" | doas tee "$live" >/dev/null
+        # Extract with -p to preserve owner/mode/mtime so pacman -Qkk sees the
+        # file as unmodified (same metadata as install time, not just same bytes).
+        doas bsdtar -xpf "$cache" -C / "${live#/}"
         echo "restored (from $pkg): $live"
     done
 
