@@ -1,6 +1,7 @@
 #!/bin/sh
 # Deploy system-level configs from etc/ to /etc/
 # chezmoi re-runs this script when any hash below changes.
+# {{ include "etc/doas.conf" | sha256sum }}
 # {{ include "etc/modules-load.d/tcp_bbr.conf" | sha256sum }}
 # {{ include "etc/pacman.d/hooks/orphans.hook" | sha256sum }}
 # {{ include "etc/sysctl.d/99-sysctl.conf" | sha256sum }}
@@ -9,6 +10,7 @@
 set -eu
 
 for f in \
+    doas.conf \
     modules-load.d/tcp_bbr.conf \
     pacman.d/hooks/orphans.hook \
     sysctl.d/99-sysctl.conf \
@@ -18,3 +20,7 @@ do
     doas mkdir -p "/etc/$(dirname "$f")"
     doas cp --remove-destination "$CHEZMOI_SOURCE_DIR/etc/$f" "/etc/$f"
 done
+
+# doas refuses to parse /etc/doas.conf unless it's 0400 root:root
+doas chown root:root /etc/doas.conf
+doas chmod 0400 /etc/doas.conf
