@@ -53,7 +53,7 @@ Additionally, `dot_config/sh/inputrc` provides readline config for non-zsh tools
 
 When modifying configs, use chezmoi naming conventions: `dot_` prefix for dotfiles, `private_` for restricted-permission dirs/files, `executable_` for scripts. To add a new config file, use `chezmoi add <target-path>`.
 
-The `run_onchange_after_*` scripts are chezmoi templates (`.tmpl`) that embed `sha256sum` hashes of the files they deploy. Chezmoi only re-runs them when file content changes. The `etc` deploy script auto-enumerates every file under `etc/` (single combined hash via chezmoi's `output` function + `find`); just drop new files into `etc/` and they'll be deployed on next `chezmoi apply`. The `firefox` deploy script still lists its files explicitly.
+The `run_onchange_after_*` scripts are chezmoi templates (`.tmpl`) that embed `sha256sum` hashes of the files they deploy. Chezmoi only re-runs them when file content changes. Both the `etc` and `firefox` deploy scripts auto-enumerate every file under their respective directories (single combined hash via chezmoi's `output` function + `find`); just drop new files into `etc/` or `firefox/` and they'll be deployed on next `chezmoi apply`.
 
 When editing shell config, all zsh configuration goes in `dot_config/zsh/` — do not create files in `dot_config/sh/` (only `inputrc` remains there).
 

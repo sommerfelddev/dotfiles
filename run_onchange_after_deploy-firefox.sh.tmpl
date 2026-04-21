@@ -1,20 +1,21 @@
 #!/bin/sh
-# Deploy Firefox/LibreWolf hardening overrides and custom CSS
-# chezmoi re-runs this script when any hash below changes.
-# {{ include "firefox/user-overrides.js" | sha256sum }}
-# {{ include "firefox/chrome/userChrome.css" | sha256sum }}
+# Deploy Firefox/LibreWolf hardening overrides and custom CSS.
+# chezmoi re-runs this script whenever any file under firefox/ changes.
+# firefox/ content hash: {{ output "sh" "-c" (printf "cd %q && find firefox -type f -exec sha256sum {} + | LC_ALL=C sort" .chezmoi.sourceDir) | sha256sum }}
 set -eu
 
 PROFILES_DIR="$HOME/.librewolf"
-if [ -d "$PROFILES_DIR" ]; then
-    PROFILE=$(find "$PROFILES_DIR" -maxdepth 1 -mindepth 1 -type d -name '*.default-default' | head -1)
-    if [ -z "$PROFILE" ]; then
-        PROFILE=$(find "$PROFILES_DIR" -maxdepth 1 -mindepth 1 -type d | head -1)
-    fi
+[ -d "$PROFILES_DIR" ] || exit 0
 
-    if [ -n "$PROFILE" ]; then
-        cp --remove-destination "$CHEZMOI_SOURCE_DIR/firefox/user-overrides.js" "$PROFILE/user-overrides.js"
-        mkdir -p "$PROFILE/chrome"
-        cp --remove-destination "$CHEZMOI_SOURCE_DIR/firefox/chrome/userChrome.css" "$PROFILE/chrome/userChrome.css"
-    fi
+PROFILE=$(find "$PROFILES_DIR" -maxdepth 1 -mindepth 1 -type d -name '*.default-default' | head -1)
+if [ -z "$PROFILE" ]; then
+    PROFILE=$(find "$PROFILES_DIR" -maxdepth 1 -mindepth 1 -type d | head -1)
 fi
+[ -n "$PROFILE" ] || exit 0
+
+cd "$CHEZMOI_SOURCE_DIR"
+find firefox -type f | while IFS= read -r src; do
+    dest="$PROFILE/${src#firefox/}"
+    mkdir -p "$(dirname "$dest")"
+    cp --remove-destination "$src" "$dest"
+done
