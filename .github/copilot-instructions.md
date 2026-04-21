@@ -18,8 +18,8 @@ The repo root is a chezmoi source directory. Files targeting `$HOME` use chezmoi
 - `firefox/` contains Firefox/LibreWolf hardening overrides (`user-overrides.js`) and custom CSS (`chrome/userChrome.css`). Deployed by `run_onchange_after_deploy-firefox.sh.tmpl`.
 - `create-efi.sh` is an interactive EFI boot entry creation script using `efibootmgr`.
 - `.chezmoiignore` excludes non-home files (`etc/`, `meta/`, `firefox/`, docs) from deployment to `$HOME`.
-- `.githooks/` contains git hooks (notably `post-commit` which runs `chezmoi apply`). Activate with `just install-hooks`.
-- `justfile` provides recipes: `install-hooks`, `apply`, `init`, `install`, `install-all`, `add`, `status`, `groups`, `fix`.
+- `.githooks/` contains git hooks (notably `post-commit` which runs `chezmoi apply`). Activated by `just init`.
+- `justfile` provides recipes: `init` (first-time setup), `sync` (apply + fix), `apply`, `fix`, `status`, `groups`, `install`, `install-all`, `add`. Run `just` or `just --list` to see them.
 
 ## Window manager
 

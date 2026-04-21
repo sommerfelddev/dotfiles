@@ -1,28 +1,28 @@
-# Install git hooks
-install-hooks:
-    git config core.hooksPath .githooks
+# Show available recipes (default)
+default:
+    @just --list
 
-# Deploy dotfiles
+
+# ═══════════════════════════════════════════════════════════════════
+# Setup
+# ═══════════════════════════════════════════════════════════════════
+
+# First-time machine setup: regenerate chezmoi config, install git hooks, install base packages
+init: _chezmoi-init _install-hooks (install "base")
+
+
+# ═══════════════════════════════════════════════════════════════════
+# Day-to-day
+# ═══════════════════════════════════════════════════════════════════
+
+# Reconcile everything: deploy dotfiles AND top up partially-installed package groups
+sync: apply fix
+
+# Deploy dotfiles (chezmoi apply)
 apply:
     chezmoi apply -S .
 
-# Regenerate chezmoi config from .chezmoi.toml.tmpl (run when the template changes)
-init:
-    chezmoi init -S .
-
-# Install packages from one or more groups (e.g. just install base dev wayland)
-install *groups:
-    #!/bin/sh
-    for group in {{ groups }}; do
-        grep -v '^\s*#' "meta/${group}.txt" | grep -v '^\s*$' | paru -S --needed -
-    done
-
-# Install all package groups
-install-all:
-    #!/bin/sh
-    cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u | paru -S --needed -
-
-# Fill in missing packages for groups that are ≥50% installed
+# Top up missing packages in groups that are already ≥50% installed (never installs new groups)
 fix:
     #!/bin/sh
     for file in meta/*.txt; do
@@ -39,22 +39,10 @@ fix:
         fi
     done
 
-# Add a package to a group and install it (e.g. just add dev ripgrep)
-add group pkg:
-    #!/bin/sh
-    set -eu
-    file="meta/{{ group }}.txt"
-    if [ ! -f "$file" ]; then
-        echo "error: $file does not exist" >&2
-        exit 1
-    fi
-    if grep -qxF '{{ pkg }}' "$file"; then
-        echo "{{ pkg }} already in {{ group }}.txt"
-    else
-        echo '{{ pkg }}' >> "$file"
-        echo "added {{ pkg }} to {{ group }}.txt"
-    fi
-    paru -S --needed '{{ pkg }}'
+
+# ═══════════════════════════════════════════════════════════════════
+# Inspection
+# ═══════════════════════════════════════════════════════════════════
 
 # Show package and dotfile drift (only for groups ≥50% installed)
 status:
@@ -86,7 +74,7 @@ status:
     echo "=== Dotfile drift ==="
     chezmoi status -S . || true
 
-# Show install coverage for each group (or full breakdown for one group)
+# Show per-group install coverage; pass a group name for a per-package breakdown
 groups group="":
     #!/bin/sh
     if [ -n '{{ group }}' ]; then
@@ -120,3 +108,50 @@ groups group="":
             printf '  \033[33m~\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
         fi
     done
+
+
+# ═══════════════════════════════════════════════════════════════════
+# Package management
+# ═══════════════════════════════════════════════════════════════════
+
+# Install one or more package groups (e.g. just install base dev wayland)
+install *groups:
+    #!/bin/sh
+    for group in {{ groups }}; do
+        grep -v '^\s*#' "meta/${group}.txt" | grep -v '^\s*$' | paru -S --needed -
+    done
+
+# Install every package group
+install-all:
+    #!/bin/sh
+    cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u | paru -S --needed -
+
+# Append a package to a group list and install it (e.g. just add dev ripgrep)
+add group pkg:
+    #!/bin/sh
+    set -eu
+    file="meta/{{ group }}.txt"
+    if [ ! -f "$file" ]; then
+        echo "error: $file does not exist" >&2
+        exit 1
+    fi
+    if grep -qxF '{{ pkg }}' "$file"; then
+        echo "{{ pkg }} already in {{ group }}.txt"
+    else
+        echo '{{ pkg }}' >> "$file"
+        echo "added {{ pkg }} to {{ group }}.txt"
+    fi
+    paru -S --needed '{{ pkg }}'
+
+
+# ═══════════════════════════════════════════════════════════════════
+# Hidden helpers (run indirectly via the recipes above)
+# ═══════════════════════════════════════════════════════════════════
+
+[private]
+_chezmoi-init:
+    chezmoi init -S .
+
+[private]
+_install-hooks:
+    git config core.hooksPath .githooks
