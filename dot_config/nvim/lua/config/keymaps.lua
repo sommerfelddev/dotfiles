@@ -13,9 +13,6 @@ end
 local function vmap(l, r, desc)
   map("v", l, r, desc)
 end
-local function nvmap(l, r, desc)
-  map({ "n", "v" }, l, r, desc)
-end
 local function ncmd(l, r, desc)
   cmd("n", l, r, desc)
 end
