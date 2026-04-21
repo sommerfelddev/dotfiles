@@ -77,8 +77,7 @@ dotfile-drift:
     echo "=== Dotfile drift ==="
     chezmoi status -S . || true
 
-# Print undeclared packages (installed but not in any meta/*.txt), one per line, unindented
-# Pipeable: just undeclared | paru -Rs -
+# Print undeclared packages one per line, unindented (pipe to 'paru -Rs -' to remove them)
 undeclared:
     #!/bin/sh
     declared=$(cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u)
