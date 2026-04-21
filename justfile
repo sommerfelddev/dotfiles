@@ -233,10 +233,11 @@ etc-diff *paths:
         if [ ! -f "$repo" ]; then
             echo "skip: $live (not a regular file in etc/)" >&2; continue
         fi
-        if [ ! -f "$live" ]; then
+        if ! doas test -f "$live"; then
             echo "skip: $live (missing or not a regular file on host)" >&2; continue
         fi
-        diff -u --label "$live" --label "$repo" "$live" "$repo" || true
+        # Use doas cat so we can diff root-readable files (e.g. /etc/doas.conf 0600)
+        diff -u --label "$live" --label "$repo" <(doas cat "$live") "$repo" || true
     done
 
 # Diff live /etc/<path> against pristine pacman version (all modified backup files if no args)
@@ -279,7 +280,7 @@ etc-upstream-diff *paths:
             *..*|*/./*) echo "error: unsafe path: $path" >&2; exit 1 ;;
         esac
         [[ "$path" = /etc/* ]] || { echo "error: $path not under /etc" >&2; exit 1; }
-        [ -f "$path" ] || { echo "skip: $path (not a regular file)" >&2; continue; }
+        doas test -f "$path" || { echo "skip: $path (not a regular file)" >&2; continue; }
         if ! cache=$(pristine "$path"); then
             if [ "$explicit" = 1 ]; then
                 echo "error: cannot obtain pristine for $path" >&2
@@ -292,7 +293,7 @@ etc-upstream-diff *paths:
             echo "skip: $path (not present in package archive)" >&2
             continue
         fi
-        diff -u --label "$path (pristine)" --label "$path (live)" "$out" "$path" || true
+        diff -u --label "$path (pristine)" --label "$path (live)" "$out" <(doas cat "$path") || true
     done
 
 # Copy one or more /etc/<path> regular files into the repo's etc/ tree
