@@ -4,7 +4,7 @@ install-hooks:
 
 # Deploy dotfiles
 apply:
-    chezmoi apply
+    chezmoi apply -S .
 
 # Install packages from one or more groups (e.g. just install base dev wayland)
 install *groups:
@@ -80,7 +80,7 @@ status:
     done
     echo ""
     echo "=== Dotfile drift ==="
-    chezmoi status || true
+    chezmoi status -S . || true
 
 # Show install coverage for each group (or full breakdown for one group)
 groups group="":
