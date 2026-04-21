@@ -1,26 +1,14 @@
 #!/bin/sh
-# Deploy system-level configs from etc/ to /etc/
-# chezmoi re-runs this script when any hash below changes.
-# {{ include "etc/doas.conf" | sha256sum }}
-# {{ include "etc/modules-load.d/tcp_bbr.conf" | sha256sum }}
-# {{ include "etc/pacman.d/hooks/orphans.hook" | sha256sum }}
-# {{ include "etc/sysctl.d/99-sysctl.conf" | sha256sum }}
-# {{ include "etc/systemd/system.conf.d/timeout.conf" | sha256sum }}
-# {{ include "etc/xdg/reflector/reflector.conf" | sha256sum }}
+# Deploy system-level configs from etc/ to /etc/.
+# chezmoi re-runs this script whenever any file under etc/ changes.
+# etc/ content hash: {{ output "sh" "-c" (printf "cd %q && find etc -type f ! -name .ignore -exec sha256sum {} + | LC_ALL=C sort" .chezmoi.sourceDir) | sha256sum }}
 set -eu
 
-for f in \
-    doas.conf \
-    modules-load.d/tcp_bbr.conf \
-    pacman.d/hooks/orphans.hook \
-    sysctl.d/99-sysctl.conf \
-    systemd/system.conf.d/timeout.conf \
-    xdg/reflector/reflector.conf
-do
-    doas mkdir -p "/etc/$(dirname "$f")"
-    doas cp --remove-destination "$CHEZMOI_SOURCE_DIR/etc/$f" "/etc/$f"
+cd "$CHEZMOI_SOURCE_DIR"
+find etc -type f ! -name .ignore | while IFS= read -r src; do
+    dest="/${src}"
+    doas install -D -m 0644 -o root -g root "$src" "$dest"
 done
 
 # doas refuses to parse /etc/doas.conf unless it's 0400 root:root
-doas chown root:root /etc/doas.conf
 doas chmod 0400 /etc/doas.conf
