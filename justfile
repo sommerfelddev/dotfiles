@@ -18,6 +18,23 @@ install-all:
     #!/bin/sh
     cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u | paru -S --needed -
 
+# Add a package to a group and install it (e.g. just add dev ripgrep)
+add group pkg:
+    #!/bin/sh
+    set -eu
+    file="meta/{{ group }}.txt"
+    if [ ! -f "$file" ]; then
+        echo "error: $file does not exist" >&2
+        exit 1
+    fi
+    if grep -qxF '{{ pkg }}' "$file"; then
+        echo "{{ pkg }} already in {{ group }}.txt"
+    else
+        echo '{{ pkg }}' >> "$file"
+        echo "added {{ pkg }} to {{ group }}.txt"
+    fi
+    paru -S --needed '{{ pkg }}'
+
 # Show package and dotfile drift
 status:
     #!/bin/sh
