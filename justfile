@@ -6,40 +6,39 @@ default:
 # Setup
 # ═══════════════════════════════════════════════════════════════════
 
-# First-time machine setup: regenerate chezmoi config, install git hooks, deploy dotfiles, install base packages
-init: _chezmoi-init _install-hooks apply (install "base") services-enable
+# First-time machine setup: regenerate chezmoi config, install git hooks, deploy dotfiles, install base packages, enable curated units
+init: _chezmoi-init _install-hooks apply (pkg-apply "base") unit-apply
 
 # ═══════════════════════════════════════════════════════════════════
 # Day-to-day
 # ═══════════════════════════════════════════════════════════════════
 
-# Reconcile everything: deploy dotfiles AND top up partially-installed package groups
-sync: apply fix
+# Reconcile everything: deploy dotfiles + /etc, top up packages, enable curated units
+sync: apply pkg-fix unit-apply
 
-# Deploy dotfiles (chezmoi apply)
+# Deploy dotfiles AND /etc atomically (chezmoi apply; /etc handled by onchange template)
 apply:
     chezmoi apply -S .
 
-# Re-add changes from live files back into the repo (chezmoi re-add + etc-readd)
-readd:
-    chezmoi re-add
-    just etc-readd
-
-# Top up missing packages in groups that are already ≥50% installed (never installs new groups)
-fix:
-    #!/bin/sh
-    for file in meta/*.txt; do
-        group=$(basename "$file" .txt)
-        pkgs=$(grep -v '^\s*#' "$file" | grep -v '^\s*$')
-        total=$(echo "$pkgs" | wc -l)
-        installed=0
-        for pkg in $pkgs; do
-            pacman -Qi "$pkg" >/dev/null 2>&1 && installed=$((installed + 1))
-        done
-        if [ $((installed * 2)) -ge "$total" ] && [ "$installed" -lt "$total" ]; then
-            echo ">>> topping up $group ($installed/$total installed)"
-            echo "$pkgs" | paru -S --needed --noconfirm --ask=4 -
-        fi
+# Re-add changes from live files back into the repo; pass a path to target one, or omit for all
+re-add *paths:
+    #!/usr/bin/env bash
+    set -eo pipefail
+    args=({{ paths }})
+    if [ ${#args[@]} -eq 0 ]; then
+        just dotfiles-re-add
+        just etc-re-add
+        exit 0
+    fi
+    for raw in "${args[@]}"; do
+        case "$raw" in
+            /etc/*|etc/*) just etc-re-add "$raw" ;;
+            */*)          just dotfiles-re-add "$raw" ;;
+            *)
+                echo "error: re-add needs a path (got bare word: $raw)" >&2
+                exit 1
+                ;;
+        esac
     done
 
 # Format code; pass a path to format a single file, or omit to format everything
@@ -239,101 +238,161 @@ doctor:
     done
     exit $rc
 
-# Show package, dotfile, /etc, and service drift
-status: dotfile-drift pkg-drift etc services-drift
+# Show drift across all four domains (dotfiles, /etc, packages, units)
+status: dotfiles-status etc-status pkg-status unit-status
 
-# Show package drift: missing packages in adopted groups + undeclared installed packages
-pkg-drift:
-    #!/bin/sh
-    active=$(just _active-packages)
-    echo "=== Package drift ==="
-    echo "$active" | while read -r pkg; do
-        [ -z "$pkg" ] && continue
-        pacman -Qi "$pkg" >/dev/null 2>&1 || echo "  missing:    $pkg"
-    done
-    just undeclared | sed 's/^/  undeclared: /'
+# ═══════════════════════════════════════════════════════════════════
+# Top-level dispatchers
+#
+# Argument-shape rules (first match wins):
+#   1. contains '/'                                 -> path
+#        prefix /etc or etc/                        -> etc domain
+#        otherwise                                  -> dotfiles domain
+#   2. 2+ args AND any rest arg ends with a unit    -> unit domain
+#      extension (.service/.timer/.socket/.mount/
+#      .target/.path)
+#   3. otherwise (bare word, 2+ args)               -> pkg domain
+#
+# For 2-arg verbs (add, forget): the 2nd arg is the discriminator.
+# ═══════════════════════════════════════════════════════════════════
 
-# Show dotfile drift (wraps 'chezmoi status')
-dotfile-drift:
-    #!/bin/sh
-    echo "=== Dotfile drift ==="
-    chezmoi status -S . || true
-
-# Print undeclared packages one per line, unindented (pipe to 'paru -Rs -' to remove them)
-undeclared:
-    #!/bin/sh
-    active=$(just _active-packages)
-    pacman -Qqe | while read -r pkg; do
-        echo "$active" | grep -qxF "$pkg" || echo "$pkg"
-    done
-
-# Show dotfile + /etc diffs; pass a path to limit to a single file (e.g. just diff .config/nvim/init.lua)
-diff file="":
+# Add one or more paths (dotfile/etc) or packages/units (GROUP + names) to the repo
+add +args:
     #!/usr/bin/env bash
     set -eo pipefail
-    f='{{ file }}'
-    case "$f" in
-        /etc/*|etc/*)
-            just etc-diff "$f" ;;
-        "")
-            chezmoi diff -S .
-            just etc-diff ;;
-        *)
-            chezmoi diff -S . "$f" ;;
+    args=({{ args }})
+    first=${args[0]}
+    case "$first" in
+        /etc/*|etc/*) just etc-add "${args[@]}" ; exit 0 ;;
+        */*)          just dotfiles-add "${args[@]}" ; exit 0 ;;
     esac
+    if [ ${#args[@]} -lt 2 ]; then
+        echo "error: add needs either a path, or a GROUP plus one or more pkg/unit names" >&2
+        echo "       (got single bare word: $first)" >&2
+        exit 1
+    fi
+    for a in "${args[@]:1}"; do
+        case "$a" in
+            *.service|*.timer|*.socket|*.mount|*.target|*.path)
+                just unit-add "${args[@]}"; exit 0 ;;
+        esac
+    done
+    just pkg-add "${args[@]}"
 
-# Resolve dotfile conflicts with a 3-way merge; pass a path for one file, or omit to merge all
-merge file="":
+# Remove one or more paths, or packages/units (GROUP + names), from tracking (leaves live state alone)
+forget +args:
+    #!/usr/bin/env bash
+    set -eo pipefail
+    args=({{ args }})
+    first=${args[0]}
+    case "$first" in
+        /etc/*|etc/*) just etc-forget "${args[@]}" ; exit 0 ;;
+        */*)          just dotfiles-forget "${args[@]}" ; exit 0 ;;
+    esac
+    if [ ${#args[@]} -lt 2 ]; then
+        echo "error: forget needs either a path, or a GROUP plus one or more pkg/unit names" >&2
+        echo "       (got single bare word: $first)" >&2
+        exit 1
+    fi
+    for a in "${args[@]:1}"; do
+        case "$a" in
+            *.service|*.timer|*.socket|*.mount|*.target|*.path)
+                just unit-forget "${args[@]}"; exit 0 ;;
+        esac
+    done
+    just pkg-forget "${args[@]}"
+
+# Show dotfile + /etc diffs; pass a path to limit to a single file
+diff *paths:
+    #!/usr/bin/env bash
+    set -eo pipefail
+    args=({{ paths }})
+    if [ ${#args[@]} -eq 0 ]; then
+        just dotfiles-diff
+        just etc-diff
+        exit 0
+    fi
+    for raw in "${args[@]}"; do
+        case "$raw" in
+            /etc/*|etc/*) just etc-diff "$raw" ;;
+            */*)          just dotfiles-diff "$raw" ;;
+            *)
+                echo "error: diff needs a path (got bare word: $raw)" >&2
+                exit 1
+                ;;
+        esac
+    done
+
+# 3-way merge dotfile or /etc conflicts; pass a path for one file, or omit to merge all
+merge *paths:
+    #!/usr/bin/env bash
+    set -eo pipefail
+    args=({{ paths }})
+    if [ ${#args[@]} -eq 0 ]; then
+        just dotfiles-merge
+        just etc-merge
+        exit 0
+    fi
+    for raw in "${args[@]}"; do
+        case "$raw" in
+            /etc/*|etc/*) just etc-merge "$raw" ;;
+            */*)          just dotfiles-merge "$raw" ;;
+            *)
+                echo "error: merge needs a path (got bare word: $raw)" >&2
+                exit 1
+                ;;
+        esac
+    done
+
+# ═══════════════════════════════════════════════════════════════════
+# Dotfiles domain (chezmoi-backed)
+# ═══════════════════════════════════════════════════════════════════
+
+# Adopt one or more dotfile paths into the chezmoi source state
+dotfiles-add +paths:
+    chezmoi add -S . {{ paths }}
+
+# Remove one or more dotfile paths from the chezmoi source state (leaves $HOME alone)
+dotfiles-forget +paths:
+    chezmoi forget -S . {{ paths }}
+
+# Re-add changes from live dotfiles back into the repo; pass paths to target specific files
+dotfiles-re-add *paths:
+    chezmoi re-add -S . {{ paths }}
+
+# Show dotfile diffs; pass a path to limit to a single file
+dotfiles-diff *paths:
+    chezmoi diff -S . {{ paths }}
+
+# 3-way merge dotfile conflicts; pass a path for one file, or omit to merge all
+dotfiles-merge *paths:
     #!/bin/sh
-    if [ -n '{{ file }}' ]; then
-        chezmoi merge -S . '{{ file }}'
+    if [ -n '{{ paths }}' ]; then
+        chezmoi merge -S . {{ paths }}
     else
         chezmoi merge-all -S .
     fi
 
-# Show per-group install coverage; pass a group name for a per-package breakdown
-groups group="":
+# Show dotfile drift (wraps 'chezmoi status')
+dotfiles-status:
+    #!/bin/sh
+    echo "=== Dotfile drift ==="
+    chezmoi status -S . || true
+
+# ═══════════════════════════════════════════════════════════════════
+# Units domain (systemd)
+# ═══════════════════════════════════════════════════════════════════
+
+# List curated systemd units grouped by systemd-units/<group>.txt with their state; pass a group to narrow
+unit-list group="":
     #!/bin/sh
     if [ -n '{{ group }}' ]; then
-        file="meta/{{ group }}.txt"
-        if [ ! -f "$file" ]; then
-            echo "error: $file does not exist" >&2
-            exit 1
-        fi
-        grep -v '^\s*#' "$file" | grep -v '^\s*$' | while read -r pkg; do
-            if pacman -Qi "$pkg" >/dev/null 2>&1; then
-                printf '  \033[32m✓\033[0m %s\n' "$pkg"
-            else
-                printf '  \033[31m✗\033[0m %s\n' "$pkg"
-            fi
-        done
-        exit 0
+        files="systemd-units/{{ group }}.txt"
+        [ -f "$files" ] || { echo "error: $files does not exist" >&2; exit 1; }
+    else
+        files="systemd-units/*.txt"
     fi
-    for file in meta/*.txt; do
-        group=$(basename "$file" .txt)
-        pkgs=$(grep -v '^\s*#' "$file" | grep -v '^\s*$')
-        total=$(echo "$pkgs" | wc -l)
-        installed=0
-        for pkg in $pkgs; do
-            pacman -Qi "$pkg" >/dev/null 2>&1 && installed=$((installed + 1))
-        done
-        if [ "$installed" -eq "$total" ]; then
-            printf '  \033[32m✓\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
-        elif [ $((installed * 2)) -ge "$total" ]; then
-            printf '  \033[33m~\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
-        else
-            printf '  \033[31m✗\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
-        fi
-    done
-
-# ═══════════════════════════════════════════════════════════════════
-# Services
-# ═══════════════════════════════════════════════════════════════════
-
-# List curated systemd units (grouped by systemd-units/<group>.txt) with state
-services:
-    #!/bin/sh
-    for file in systemd-units/*.txt; do
+    for file in $files; do
         [ -f "$file" ] || continue
         group=$(basename "$file" .txt)
         echo "=== $group ==="
@@ -355,7 +414,7 @@ services:
     done
 
 # Enable all curated systemd units (idempotent, soft-fail per unit)
-services-enable:
+unit-apply:
     #!/bin/sh
     for file in systemd-units/*.txt; do
         [ -f "$file" ] || continue
@@ -365,10 +424,10 @@ services-enable:
         done
     done
 
-# Show drift between curated services and actually-enabled services
-services-drift:
+# Show drift between curated units and actually-enabled systemd units
+unit-status:
     #!/bin/sh
-    echo "=== Service drift ==="
+    echo "=== Unit drift ==="
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
     cat systemd-units/*.txt 2>/dev/null \
         | grep -v '^\s*#' | grep -v '^\s*$' | sort -u > "$tmp/curated"
@@ -382,12 +441,56 @@ services-drift:
     comm -23 "$tmp/curated" "$tmp/enabled" | sed 's/^/  not-enabled: /'
     comm -13 "$tmp/curated" "$tmp/enabled" | comm -23 - "$tmp/ignore" | sed 's/^/  uncurated:   /'
 
+# Append one or more units to a group list and enable them (e.g. just unit-add base sshd.service)
+unit-add group +units:
+    #!/bin/sh
+    set -eu
+    file="systemd-units/{{ group }}.txt"
+    if [ ! -f "$file" ]; then
+        echo "error: $file does not exist" >&2
+        exit 1
+    fi
+    for u in {{ units }}; do
+        if grep -qxF "$u" "$file"; then
+            echo "$u already in {{ group }}.txt"
+        else
+            echo "$u" >> "$file"
+            echo "added $u to {{ group }}.txt"
+        fi
+    done
+    for u in {{ units }}; do
+        sudo systemctl enable --now "$u" \
+            || echo "  warn: could not enable $u" >&2
+    done
+
+# Remove one or more units from a group list and disable them
+unit-forget group +units:
+    #!/bin/sh
+    set -eu
+    file="systemd-units/{{ group }}.txt"
+    if [ ! -f "$file" ]; then
+        echo "error: $file does not exist" >&2
+        exit 1
+    fi
+    for u in {{ units }}; do
+        if grep -qxF "$u" "$file"; then
+            sed -i "/^$(printf '%s' "$u" | sed 's/[]\/$*.^[]/\\&/g')\$/d" "$file"
+            echo "removed $u from {{ group }}.txt"
+        else
+            echo "$u not in {{ group }}.txt"
+        fi
+    done
+    for u in {{ units }}; do
+        sudo systemctl disable --now "$u" \
+            || echo "  warn: could not disable $u" >&2
+    done
+
 # ═══════════════════════════════════════════════════════════════════
-# System config (/etc)
+# /etc domain
 # ═══════════════════════════════════════════════════════════════════
 
 # Show /etc drift: package configs modified from defaults, plus user-created files
-etc:
+etc-status:
     #!/usr/bin/env bash
     set -eo pipefail
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
@@ -513,6 +616,50 @@ etc-upstream-diff *paths:
         diff -u --label "$path (pristine)" --label "$path (live)" "$out" <("${live_reader[@]}") || true
     done
 
+# 3-way merge tracked /etc files against their live /etc counterparts (edit repo side)
+etc-merge *paths:
+    #!/usr/bin/env bash
+    set -eo pipefail
+    args=({{ paths }})
+    if [ ${#args[@]} -eq 0 ]; then
+        mapfile -t args < <(find etc -type f ! -name .ignore | sort)
+    fi
+    editor=${VISUAL:-${EDITOR:-vi}}
+    merged=0
+    for raw in "${args[@]}"; do
+        case "$raw" in
+            *..*|*/./*|./*|../*) echo "error: unsafe path: $raw" >&2; exit 1 ;;
+        esac
+        p=${raw#/}; p=${p#etc/}
+        live=/etc/$p
+        repo=etc/$p
+        [ -f "$repo" ] || { echo "skip: etc/$p not tracked" >&2; continue; }
+        # Prepare a readable copy of live (falling back to doas cat for restricted files).
+        tmp=$(mktemp)
+        trap 'rm -f "$tmp"' EXIT
+        if [ -r "$live" ]; then
+            cat -- "$live" > "$tmp"
+        elif doas test -f "$live"; then
+            doas cat -- "$live" > "$tmp"
+        else
+            echo "skip: $live (missing or unreadable)" >&2
+            rm -f "$tmp"
+            continue
+        fi
+        if cmp -s "$repo" "$tmp"; then
+            rm -f "$tmp"
+            continue
+        fi
+        # Use vim -d (vimdiff) for vim/neovim; otherwise open both and let the editor sort it.
+        case "$(basename "$editor")" in
+            vi|vim|nvim) "$editor" -d "$repo" "$tmp" ;;
+            *)           "$editor" "$repo" "$tmp" ;;
+        esac
+        rm -f "$tmp"
+        merged=$((merged + 1))
+    done
+    [ "$merged" -eq 0 ] && echo "no drift to merge"
+
 # Copy one or more /etc/<path> regular files into the repo's etc/ tree
 etc-add +paths:
     #!/usr/bin/env bash
@@ -533,7 +680,7 @@ etc-add +paths:
     echo "Run 'chezmoi apply' to sync (no-op content-wise, refreshes deploy hash)."
 
 # Re-add changes from live /etc back into the repo (no args = all tracked files)
-etc-readd *paths:
+etc-re-add *paths:
     #!/usr/bin/env bash
     set -eo pipefail
     # Build target list: explicit paths, or every tracked repo file.
@@ -578,7 +725,7 @@ etc-readd *paths:
     fi
 
 # Remove one or more files from the repo's etc/ tree (leaves live /etc untouched)
-etc-rm +paths:
+etc-forget +paths:
     #!/usr/bin/env bash
     set -eo pipefail
     for raw in {{ paths }}; do
@@ -639,7 +786,7 @@ etc-reset +paths:
 # Stop tracking one or more /etc files: reset to pristine, deploy, then drop from repo
 etc-untrack +paths:
     just etc-reset {{ paths }}
-    just etc-rm {{ paths }}
+    just etc-forget {{ paths }}
 
 # Restore live /etc/<path> to pristine pacman contents (bypasses the repo)
 etc-restore +paths:
@@ -679,23 +826,94 @@ etc-restore +paths:
     done
 
 # ═══════════════════════════════════════════════════════════════════
-# Package management
+# Package domain
 # ═══════════════════════════════════════════════════════════════════
 
-# Install one or more package groups (e.g. just install base dev wayland)
-install *groups:
+# Show package drift: missing packages in adopted groups + undeclared installed packages
+pkg-status:
     #!/bin/sh
-    for group in {{ groups }}; do
-        grep -v '^\s*#' "meta/${group}.txt" | grep -v '^\s*$' | paru -S --needed --noconfirm --ask=4 -
+    active=$(just _active-packages)
+    echo "=== Package drift ==="
+    echo "$active" | while read -r pkg; do
+        [ -z "$pkg" ] && continue
+        pacman -Qi "$pkg" >/dev/null 2>&1 || echo "  missing:    $pkg"
+    done
+    just undeclared | sed 's/^/  undeclared: /'
+
+# Print undeclared packages one per line, unindented (pipe to 'paru -Rs -' to remove them)
+undeclared:
+    #!/bin/sh
+    active=$(just _active-packages)
+    pacman -Qqe | while read -r pkg; do
+        echo "$active" | grep -qxF "$pkg" || echo "$pkg"
     done
 
-# Install every package group
-install-all:
+# Show per-group install coverage; pass a group name for a per-package breakdown
+pkg-list group="":
     #!/bin/sh
-    cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u | paru -S --needed --noconfirm --ask=4 -
+    if [ -n '{{ group }}' ]; then
+        file="meta/{{ group }}.txt"
+        if [ ! -f "$file" ]; then
+            echo "error: $file does not exist" >&2
+            exit 1
+        fi
+        grep -v '^\s*#' "$file" | grep -v '^\s*$' | while read -r pkg; do
+            if pacman -Qi "$pkg" >/dev/null 2>&1; then
+                printf '  \033[32m✓\033[0m %s\n' "$pkg"
+            else
+                printf '  \033[31m✗\033[0m %s\n' "$pkg"
+            fi
+        done
+        exit 0
+    fi
+    for file in meta/*.txt; do
+        group=$(basename "$file" .txt)
+        pkgs=$(grep -v '^\s*#' "$file" | grep -v '^\s*$')
+        total=$(echo "$pkgs" | wc -l)
+        installed=0
+        for pkg in $pkgs; do
+            pacman -Qi "$pkg" >/dev/null 2>&1 && installed=$((installed + 1))
+        done
+        if [ "$installed" -eq "$total" ]; then
+            printf '  \033[32m✓\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
+        elif [ $((installed * 2)) -ge "$total" ]; then
+            printf '  \033[33m~\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
+        else
+            printf '  \033[31m✗\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
+        fi
+    done
 
-# Append one or more packages to a group list and install them (e.g. just add dev ripgrep fd)
-add group +pkgs:
+# Install one or more package groups, or all groups if none given (e.g. just pkg-apply base dev)
+pkg-apply *groups:
+    #!/bin/sh
+    set -eu
+    if [ -n "{{ groups }}" ]; then
+        for group in {{ groups }}; do
+            grep -v '^\s*#' "meta/${group}.txt" | grep -v '^\s*$' | paru -S --needed --noconfirm --ask=4 -
+        done
+    else
+        cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u | paru -S --needed --noconfirm --ask=4 -
+    fi
+
+# Top up missing packages in groups that are already ≥50% installed (never installs new groups)
+pkg-fix:
+    #!/bin/sh
+    for file in meta/*.txt; do
+        group=$(basename "$file" .txt)
+        pkgs=$(grep -v '^\s*#' "$file" | grep -v '^\s*$')
+        total=$(echo "$pkgs" | wc -l)
+        installed=0
+        for pkg in $pkgs; do
+            pacman -Qi "$pkg" >/dev/null 2>&1 && installed=$((installed + 1))
+        done
+        if [ $((installed * 2)) -ge "$total" ] && [ "$installed" -lt "$total" ]; then
+            echo ">>> topping up $group ($installed/$total installed)"
+            echo "$pkgs" | paru -S --needed --noconfirm --ask=4 -
+        fi
+    done
+
+# Append one or more packages to a group list and install them (e.g. just pkg-add dev ripgrep fd)
+pkg-add group +pkgs:
     #!/bin/sh
     set -eu
     file="meta/{{ group }}.txt"
@@ -714,7 +932,7 @@ add group +pkgs:
     paru -S --needed {{ pkgs }}
 
 # Remove one or more packages from a group list (does NOT uninstall; the package may belong to other groups)
-remove group +pkgs:
+pkg-forget group +pkgs:
     #!/bin/sh
     set -eu
     file="meta/{{ group }}.txt"
