@@ -7,8 +7,8 @@ default:
 # Setup
 # ═══════════════════════════════════════════════════════════════════
 
-# First-time machine setup: regenerate chezmoi config, install git hooks, install base packages
-init: _chezmoi-init _install-hooks (install "base")
+# First-time machine setup: regenerate chezmoi config, install git hooks, deploy dotfiles, install base packages
+init: _chezmoi-init _install-hooks apply (install "base")
 
 
 # ═══════════════════════════════════════════════════════════════════
