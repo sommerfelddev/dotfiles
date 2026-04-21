@@ -44,8 +44,11 @@ fix:
 # Inspection
 # ═══════════════════════════════════════════════════════════════════
 
-# Show package and dotfile drift (only for groups ≥50% installed)
-status:
+# Show package and dotfile drift (runs pkg-drift + dotfile-drift)
+status: pkg-drift dotfile-drift
+
+# Show package drift: missing packages in adopted groups + undeclared installed packages
+pkg-drift:
     #!/bin/sh
     active_file=$(mktemp)
     trap 'rm -f "$active_file"' EXIT
@@ -61,18 +64,27 @@ status:
         fi
     done
     active=$(sort -u "$active_file")
-    declared=$(cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u)
     echo "=== Package drift ==="
     echo "$active" | while read -r pkg; do
         [ -z "$pkg" ] && continue
         pacman -Qi "$pkg" >/dev/null 2>&1 || echo "  missing:    $pkg"
     done
-    pacman -Qqe | while read -r pkg; do
-        echo "$declared" | grep -qxF "$pkg" || echo "  undeclared: $pkg"
-    done
-    echo ""
+    just undeclared | sed 's/^/  undeclared: /'
+
+# Show dotfile drift (wraps 'chezmoi status')
+dotfile-drift:
+    #!/bin/sh
     echo "=== Dotfile drift ==="
     chezmoi status -S . || true
+
+# Print undeclared packages (installed but not in any meta/*.txt), one per line, unindented
+# Pipeable: just undeclared | paru -Rs -
+undeclared:
+    #!/bin/sh
+    declared=$(cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u)
+    pacman -Qqe | while read -r pkg; do
+        echo "$declared" | grep -qxF "$pkg" || echo "$pkg"
+    done
 
 # Show dotfile diffs; pass a path to limit to a single file (e.g. just diff .config/nvim/init.lua)
 diff file="":
