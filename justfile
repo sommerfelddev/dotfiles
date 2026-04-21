@@ -52,12 +52,27 @@ add group pkg:
     fi
     paru -S --needed '{{ pkg }}'
 
-# Show package and dotfile drift
+# Show package and dotfile drift (only for groups ≥50% installed)
 status:
     #!/bin/sh
-    echo "=== Package drift ==="
+    active_file=$(mktemp)
+    trap 'rm -f "$active_file"' EXIT
+    for file in meta/*.txt; do
+        pkgs=$(grep -v '^\s*#' "$file" | grep -v '^\s*$')
+        total=$(echo "$pkgs" | wc -l)
+        installed=0
+        for pkg in $pkgs; do
+            pacman -Qi "$pkg" >/dev/null 2>&1 && installed=$((installed + 1))
+        done
+        if [ $((installed * 2)) -ge "$total" ]; then
+            echo "$pkgs" >> "$active_file"
+        fi
+    done
+    active=$(sort -u "$active_file")
     declared=$(cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u)
-    echo "$declared" | while read -r pkg; do
+    echo "=== Package drift ==="
+    echo "$active" | while read -r pkg; do
+        [ -z "$pkg" ] && continue
         pacman -Qi "$pkg" >/dev/null 2>&1 || echo "  missing:    $pkg"
     done
     pacman -Qqe | while read -r pkg; do
