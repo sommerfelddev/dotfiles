@@ -12,6 +12,7 @@ ghostty
 # Notifications
 mako
 libnotify
+poweralertd
 
 # Lock screen
 swaylock

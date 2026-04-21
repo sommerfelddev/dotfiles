@@ -154,4 +154,5 @@ bar {
 exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
 exec mako
+exec poweralertd
 exec "sleep 2 && ~/.config/sway/display-toggle.sh init"
