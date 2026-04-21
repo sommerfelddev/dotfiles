@@ -41,8 +41,8 @@ fix:
 # Inspection
 # ═══════════════════════════════════════════════════════════════════
 
-# Show package and dotfile drift (runs pkg-drift + dotfile-drift)
-status: pkg-drift dotfile-drift
+# Show package and dotfile drift (runs pkg-drift + dotfile-drift + etc-drift)
+status: pkg-drift dotfile-drift etc-drift
 
 # Show package drift: missing packages in adopted groups + undeclared installed packages
 pkg-drift:
@@ -69,9 +69,20 @@ undeclared:
         echo "$active" | grep -qxF "$pkg" || echo "$pkg"
     done
 
-# Show dotfile diffs; pass a path to limit to a single file (e.g. just diff .config/nvim/init.lua)
+# Show dotfile + /etc diffs; pass a path to limit to a single file (e.g. just diff .config/nvim/init.lua)
 diff file="":
-    chezmoi diff -S . {{ file }}
+    #!/usr/bin/env bash
+    set -eo pipefail
+    f='{{ file }}'
+    case "$f" in
+        /etc/*|etc/*)
+            just etc-diff "$f" ;;
+        "")
+            chezmoi diff -S .
+            just etc-diff ;;
+        *)
+            chezmoi diff -S . "$f" ;;
+    esac
 
 # Resolve dotfile conflicts with a 3-way merge; pass a path for one file, or omit to merge all
 merge file="":
