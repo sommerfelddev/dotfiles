@@ -10,14 +10,14 @@ iface=wlan0
 svc=net.connman.iwd
 
 down() {
-	printf '{"text":"wifi off","class":"down"}\n'
-	exit 0
+  printf '{"text":"wifi off","class":"down"}\n'
+  exit 0
 }
 
 # Locate the iwd object path for this interface.
 station=$(busctl --system --json=short call "$svc" / \
-	org.freedesktop.DBus.ObjectManager GetManagedObjects 2>/dev/null |
-	jq -r --arg iface "$iface" '
+  org.freedesktop.DBus.ObjectManager GetManagedObjects 2>/dev/null |
+  jq -r --arg iface "$iface" '
       (.data[0] // .data) as $objs
       | $objs | to_entries[]
       | select(.value["net.connman.iwd.Device"].Name.data == $iface)
@@ -25,13 +25,13 @@ station=$(busctl --system --json=short call "$svc" / \
 [ -n "$station" ] || down
 
 state=$(busctl --system --json=short get-property "$svc" "$station" \
-	net.connman.iwd.Station State 2>/dev/null | jq -r '.data' 2>/dev/null || true)
+  net.connman.iwd.Station State 2>/dev/null | jq -r '.data' 2>/dev/null || true)
 [ "$state" = "connected" ] || down
 
 netpath=$(busctl --system --json=short get-property "$svc" "$station" \
-	net.connman.iwd.Station ConnectedNetwork | jq -r '.data')
+  net.connman.iwd.Station ConnectedNetwork | jq -r '.data')
 ssid=$(busctl --system --json=short get-property "$svc" "$netpath" \
-	net.connman.iwd.Network Name | jq -r '.data')
+  net.connman.iwd.Network Name | jq -r '.data')
 
 # /proc/net/wireless: "<iface>: <status> <qual>. <level>. <noise>. ..."
 # We want <level> (column 4), which is dBm. Strip trailing dot.
@@ -47,4 +47,4 @@ color=$(awk -v p="$pct" 'BEGIN{
 }')
 
 printf '{"text":"%s <span color=\x27%s\x27>%s%%</span>","class":"up","tooltip":"%s · %s dBm"}\n' \
-	"$ssid" "$color" "$pct" "$iface" "$rssi"
+  "$ssid" "$color" "$pct" "$iface" "$rssi"

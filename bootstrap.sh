@@ -91,7 +91,8 @@ if [ -d /sys/firmware/efi ]; then
     warn 'no Arch Linux EFI boot entry found'
     warn 'after first kernel install, run: sudo mkinitcpio -P'
     warn 'then register the UKI with efibootmgr, for example:'
-    warn "  sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \\"
+    # shellcheck disable=SC1003 # backslash is literal text shown to the user
+    warn '  sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \'
     warn "      --label 'Arch UKI' --loader '\\EFI\\Linux\\arch-linux.efi'"
   fi
 fi
