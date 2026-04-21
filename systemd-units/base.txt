@@ -10,5 +10,8 @@ pkgstats.timer
 acpid.service
 cpupower.service
 iwd.service
+systemd-networkd.service
+systemd-networkd.socket
+systemd-networkd-wait-online.service
 tlp.service
 pcscd.socket
