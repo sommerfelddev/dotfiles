@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-text="$(zbarcam -q -1 --raw)"
+text="$(zbarcam --nodisplay -q -1 --raw)"
 printf '%s' "$text" | wl-copy
 
 echo "$text"
