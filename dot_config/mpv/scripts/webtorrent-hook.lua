@@ -1,3 +1,4 @@
+-- selene: allow(incorrect_standard_library_use, shadowing)
 -- TODO prefetch if next in playlist?
 -- TODO handle torrent with multiple video files (if webtorrent can print json)
 -- - don't close kill webtorrent while still videos unplayed? or in playlist?
@@ -22,7 +23,7 @@ local function ends_with(str, ending)
 end
 
 -- https://stackoverflow.com/questions/132397/get-back-the-output-of-os-execute-in-lua
-function os.capture(cmd, decolorize, raw)
+local function capture(cmd, decolorize, raw)
   if decolorize then
     -- https://github.com/webtorrent/webtorrent-cli/issues/132
     -- TODO webtorrent should have a way to just print json information with
@@ -84,19 +85,19 @@ function play_torrent()
       .. " 2>&1 & echo $!"
     mp.msg.info("Starting webtorrent server")
     mp.msg.info(webtorrent_command)
-    local pid = os.capture(webtorrent_command)
+    local pid = capture(webtorrent_command)
     mp.msg.info("Waiting for webtorrent server")
 
     local url_command = "tail -f "
       .. output_file
       .. " | awk '/Server running at:/ {print $4; exit}'"
-    local url = os.capture(url_command, true)
+    url = capture(url_command, true)
     mp.msg.info("Webtorrent server is up")
 
     local title_command = "awk '/(Seeding|Downloading): / "
       .. '{gsub(/(Seeding|Downloading): /, ""); print; exit}\' '
       .. output_file
-    local title = os.capture(title_command, true)
+    local title = capture(title_command, true)
     mp.msg.info("Setting media title to: " .. title)
     mp.set_property("force-media-title", title)
 
