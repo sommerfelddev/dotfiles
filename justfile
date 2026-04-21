@@ -18,6 +18,21 @@ install-all:
     #!/bin/sh
     cat meta/*.txt | grep -v '^\s*#' | grep -v '^\s*$' | sort -u | paru -S --needed -
 
+# Fill in missing packages for groups that are already partially/fully installed
+fix:
+    #!/bin/sh
+    for file in meta/*.txt; do
+        group=$(basename "$file" .txt)
+        pkgs=$(grep -v '^\s*#' "$file" | grep -v '^\s*$')
+        for pkg in $pkgs; do
+            if pacman -Qi "$pkg" >/dev/null 2>&1; then
+                echo ">>> topping up $group"
+                echo "$pkgs" | paru -S --needed -
+                break
+            fi
+        done
+    done
+
 # Add a package to a group and install it (e.g. just add dev ripgrep)
 add group pkg:
     #!/bin/sh
