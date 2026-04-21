@@ -46,8 +46,8 @@ fix:
 # Inspection
 # ═══════════════════════════════════════════════════════════════════
 
-# Show package and dotfile drift (runs pkg-drift + dotfile-drift + etc)
-status: dotfile-drift pkg-drift etc
+# Show package, dotfile, /etc, and service drift
+status: dotfile-drift pkg-drift etc services-drift
 
 # Show package drift: missing packages in adopted groups + undeclared installed packages
 pkg-drift:
