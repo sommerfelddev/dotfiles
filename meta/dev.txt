@@ -28,3 +28,4 @@ unzip
 uv
 wget
 yarn
+android-tools

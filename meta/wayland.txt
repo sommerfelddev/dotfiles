@@ -49,3 +49,4 @@ libfido2
 perl-file-mimeinfo
 qt5ct
 xdg-user-dirs
+wl-mirror

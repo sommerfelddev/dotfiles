@@ -2,3 +2,4 @@ gpg-tui
 pandoc-bin
 syncthing
 udisks2
+autenticacao-gov-pt-bin

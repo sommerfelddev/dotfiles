@@ -157,6 +157,26 @@ add group +pkgs:
     paru -S --needed {{ pkgs }}
 
 
+# Remove one or more packages from a group list and uninstall them (e.g. just remove dev ripgrep fd)
+remove group +pkgs:
+    #!/bin/sh
+    set -eu
+    file="meta/{{ group }}.txt"
+    if [ ! -f "$file" ]; then
+        echo "error: $file does not exist" >&2
+        exit 1
+    fi
+    for pkg in {{ pkgs }}; do
+        if grep -qxF "$pkg" "$file"; then
+            sed -i "/^$(printf '%s' "$pkg" | sed 's/[]\/$*.^[]/\\&/g')\$/d" "$file"
+            echo "removed $pkg from {{ group }}.txt"
+        else
+            echo "$pkg not in {{ group }}.txt"
+        fi
+    done
+    paru -Rsn {{ pkgs }}
+
+
 # ═══════════════════════════════════════════════════════════════════
 # Hidden helpers (run indirectly via the recipes above)
 # ═══════════════════════════════════════════════════════════════════
