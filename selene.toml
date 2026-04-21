@@ -1,1 +1,5 @@
-std = "lua51+nvim"
+std = "lua51+selene-globals"
+
+[lints]
+# Mixed tables are idiomatic in neovim plugin specs (lazy.nvim, which-key, etc.)
+mixed_table = "allow"

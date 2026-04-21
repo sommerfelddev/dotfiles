@@ -12,5 +12,5 @@ justfile
 .githooks/
 .stylua.toml
 selene.toml
-nvim.yml
+selene-globals.yml
 .prettierrc.json
