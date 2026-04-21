@@ -36,11 +36,13 @@ window#waybar {
 #clock,
 #battery,
 #cpu,
+#disk,
 #memory,
 #temperature,
 #network,
 #pulseaudio,
 #tray,
+#window,
 #custom-memory,
 #custom-wifi {
   padding: 0 6px;
@@ -52,6 +54,10 @@ window#waybar {
 
 #custom-memory {
   color: #8ec07c; /* aqua */
+}
+
+#disk {
+  color: #d79921; /* ochre */
 }
 
 #temperature {
