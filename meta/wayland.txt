@@ -1,6 +1,7 @@
 # Compositor
 sway
 xdg-desktop-portal-wlr
+xdg-desktop-portal-gtk
 qt5-wayland
 qt6-wayland
 
