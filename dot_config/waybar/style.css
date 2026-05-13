@@ -61,11 +61,19 @@ window#waybar {
 #custom-dock,
 #custom-notifications,
 #custom-update,
+#custom-pacdiff,
+#custom-failed-units,
+#custom-arch-audit,
+#custom-lostfiles,
 #custom-thunderbird {
   padding: 0 6px;
 }
 
-#custom-update.fresh {
+#custom-update.fresh,
+#custom-pacdiff.fresh,
+#custom-failed-units.fresh,
+#custom-arch-audit.fresh,
+#custom-lostfiles.fresh {
   padding: 0;
 }
 
@@ -75,6 +83,22 @@ window#waybar {
 
 #custom-update.critical {
   color: #fb4934; /* red — stale ≥ 7d */
+}
+
+#custom-pacdiff.warn {
+  color: #fabd2f; /* yellow — .pacnew/.pacsave waiting */
+}
+
+#custom-failed-units.critical {
+  color: #fb4934; /* red — at least one failed unit */
+}
+
+#custom-arch-audit.critical {
+  color: #fb4934; /* red — fixable CVEs in installed packages */
+}
+
+#custom-lostfiles.warn {
+  color: #fabd2f; /* yellow — unowned files under tracked dirs */
 }
 
 #cpu {

@@ -21,6 +21,10 @@
     "idle_inhibitor",
     "custom/notifications",
     "custom/update",
+    "custom/pacdiff",
+    "custom/arch-audit",
+    "custom/failed-units",
+    "custom/lostfiles",
     "custom/thunderbird",
     "clock",
     "tray",
@@ -216,6 +220,38 @@
     "return-type": "json",
     "interval": 60,
     "on-click": "ghostty --class=floating -e sh -c 'cd ~/dotfiles && just update; printf \"\\n[done — press enter] \"; read _'",
+    "tooltip": true,
+  },
+
+  "custom/pacdiff": {
+    "exec": "~/.config/waybar/pacdiff-status.sh",
+    "return-type": "json",
+    "interval": 300,
+    "on-click": "ghostty --class=floating -e sh -c 'sudo DIFFPROG=\"nvim -d\" pacdiff; printf \"\\n[done — press enter] \"; read _'",
+    "tooltip": true,
+  },
+
+  "custom/failed-units": {
+    "exec": "~/.config/waybar/failed-units-status.sh",
+    "return-type": "json",
+    "interval": 30,
+    "on-click": "ghostty --class=floating -e sh -c 'echo \"=== system ===\"; systemctl --failed; echo; echo \"=== user ===\"; systemctl --user --failed; printf \"\\n[done — press enter] \"; read _'",
+    "tooltip": true,
+  },
+
+  "custom/arch-audit": {
+    "exec": "~/.config/waybar/arch-audit-status.sh",
+    "return-type": "json",
+    "interval": 300,
+    "on-click": "ghostty --class=floating -e nvim -R /run/arch-audit.txt",
+    "tooltip": true,
+  },
+
+  "custom/lostfiles": {
+    "exec": "~/.config/waybar/lostfiles-status.sh",
+    "return-type": "json",
+    "interval": 600,
+    "on-click": "ghostty --class=floating -e nvim -R /run/lostfiles.txt",
     "tooltip": true,
   },
 
