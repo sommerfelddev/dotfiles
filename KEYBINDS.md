@@ -320,3 +320,5 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 | `Super+Tab`            | Next workspace                                |
 | `Super+Shift+Tab`      | Previous workspace                            |
 | `F7`                   | Toggle display mode (laptop-off/side-by-side) |
+| `Super+z` then `w`     | Display QR for clipboard (wqr)                |
+| `Super+z` then `r`     | Scan QR via webcam, copy to clipboard (rqr)   |

@@ -146,6 +146,15 @@ bindsym $mod+Shift+n exec makoctl dismiss --all
 # Display mode switching
 bindsym --no-repeat F7 exec ~/.config/sway/display-toggle.sh
 
+# QR codes (Super+z then r=read or w=write)
+mode "qr" {
+    bindsym r exec ~/.local/bin/rqr, mode "default"
+    bindsym w exec ~/.local/bin/wqr, mode "default"
+    bindsym Escape mode "default"
+    bindsym Return mode "default"
+}
+bindsym $mod+z mode "qr"
+
 # ── Bar ───────────────────────────────────────────────────────────────────────
 bar {
     swaybar_command waybar
