@@ -17,7 +17,7 @@
 
 set -eu
 
-REPO="${DOTFILES_REPO:-https://github.com/ruifm/dotfiles}"
+REPO="${DOTFILES_REPO:-https://github.com/sommerfelddev/dotfiles}"
 REF="${DOTFILES_REF:-master}"
 DIR="${DOTFILES_DIR:-$HOME/.local/share/dotfiles}"
 

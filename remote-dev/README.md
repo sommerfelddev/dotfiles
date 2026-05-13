@@ -9,7 +9,7 @@ the same repo — no duplication.
 On a fresh VM, as the dev user (must have sudo):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/ruifm/dotfiles/master/remote-dev/bootstrap.sh | sh
+curl -fsSL https://raw.githubusercontent.com/sommerfelddev/dotfiles/master/remote-dev/bootstrap.sh | sh
 ```
 
 Then log out and back in. Run `nvim` once to let it fetch plugins from
