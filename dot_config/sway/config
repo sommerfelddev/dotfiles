@@ -150,7 +150,7 @@ bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
 bindsym XF86Bluetooth exec ~/.config/sway/bt-toggle.sh
 bindsym XF86ScreenSaver exec "playerctl -a pause; swaylock -f -e -c 282828"
 bindsym XF86Sleep exec systemctl suspend
-bindsym XF86WLAN exec rfkill toggle wifi
+bindsym XF86WLAN exec ~/.config/waybar/wifi-toggle.sh
 bindsym XF86RFKill exec rfkill toggle all
 
 # Screenshots

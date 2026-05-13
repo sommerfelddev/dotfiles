@@ -1,0 +1,4 @@
+# Systemd units to enable when the 'bt' meta group is installed.
+# One unit per line, # comments OK.
+
+bluetooth.service

@@ -14,6 +14,7 @@
     "privacy",
     "pulseaudio",
     "custom/wifi",
+    "bluetooth",
     "idle_inhibitor",
     "custom/notifications",
     "custom/thunderbird",
@@ -144,6 +145,18 @@
       "deactivated": "IDL",
     },
     "tooltip": true,
+  },
+
+  "bluetooth": {
+    "format": "BT on",
+    "format-disabled": "BT off",
+    "format-off": "BT off",
+    "format-connected": "BT {device_alias}",
+    "format-connected-battery": "BT {device_alias} {device_battery_percentage}%",
+    "tooltip-format": "{controller_alias}\t{controller_address}",
+    "tooltip-format-connected": "{controller_alias}\n{num_connections} connected\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+    "on-click": "~/.config/sway/bt-toggle.sh",
   },
 
   "privacy": {

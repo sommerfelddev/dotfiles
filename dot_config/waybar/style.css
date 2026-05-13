@@ -40,6 +40,7 @@ window#waybar {
 #memory,
 #temperature,
 #network,
+#bluetooth,
 #pulseaudio,
 #tray,
 #window,
@@ -78,6 +79,19 @@ window#waybar {
 
 #custom-wifi.down {
   color: #928374; /* gray */
+}
+
+#bluetooth {
+  color: #83a598; /* blue when on, no connections */
+}
+
+#bluetooth.connected {
+  color: #b8bb26; /* green when a device is connected */
+}
+
+#bluetooth.disabled,
+#bluetooth.off {
+  color: #928374; /* gray when adapter is off */
 }
 
 #battery {
