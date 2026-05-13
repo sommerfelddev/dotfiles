@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly lostfiles report refresh
+
+[Timer]
+OnCalendar=weekly
+AccuracySec=12h
+Persistent=true
+RandomizedDelaySec=1h
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Refresh lostfiles report at /run/lostfiles.txt
+Documentation=man:lostfiles(1)
+ConditionPathExists=/usr/bin/lostfiles
+
+[Service]
+Type=oneshot
+Nice=19
+IOSchedulingClass=idle
+ExecStart=/bin/sh -c '/usr/bin/lostfiles >/run/lostfiles.txt.tmp && mv /run/lostfiles.txt.tmp /run/lostfiles.txt'
