@@ -119,9 +119,13 @@ mode "resize" {
 }
 bindsym $mod+r mode "resize"
 
-# Reload / exit
+# Reload / session
 bindsym $mod+Shift+c reload
-bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit sway?' -B 'Yes' 'swaymsg exit'
+bindsym $mod+Shift+e exec swaynag -t warning -m 'Session' \
+  -B 'Lock' 'playerctl -a pause; swaylock -f -e -c 282828' \
+  -B 'Logout' 'swaymsg exit' \
+  -B 'Reboot' 'doas reboot' \
+  -B 'Poweroff' 'doas poweroff'
 
 # ── Personal keybinds ─────────────────────────────────────────────────────────
 
