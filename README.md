@@ -118,7 +118,7 @@ Four sources of drift are tracked independently and combined by `just status`:
 
 - **Dotfiles** (`just dotfiles-status`): live `$HOME` files differ from the repo. Resolve with `just apply` (repo → home), `just re-add PATH` (home → repo), `just diff PATH`, or `just merge PATH`.
 - **Packages** (`just pkg-status`): installed but undeclared, or declared but missing. Resolve by adding to a `meta/` group (`just add GROUP PKG`) or uninstalling.
-- **/etc** (`just etc-status` / `just etc-diff`): modified package configs or user-created files in `/etc` that aren't in the repo. Resolve with `just etc-re-add PATH` (track), `just etc-restore PATH` (revert to package default), or `just etc-untrack PATH`.
+- **/etc** (`just etc-status` / `just etc-diff`): repo-tracked files in `etc/` that differ from or are missing on the live `/etc`. Resolve with `just etc-apply` (repo → live), `just etc-re-add PATH` (live → repo), or `just etc-untrack PATH`.
 - **Units** (`just unit-status`): enabled units not in any `systemd-units/{system,user}/*.txt`, or declared units that aren't enabled (checked for both scopes).
 
 ## Git hooks

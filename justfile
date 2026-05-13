@@ -566,42 +566,28 @@ unit-forget group +units:
 # /etc domain
 # ═══════════════════════════════════════════════════════════════════
 
-# Show /etc drift: package configs modified from defaults, plus user-created files
+# Show /etc drift: repo-tracked files that differ from or are missing on the host
 etc-status:
     #!/usr/bin/env bash
     set -eo pipefail
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
-
-    find etc -type f ! -name .ignore 2>/dev/null \
-        | sed 's|^etc/|/etc/|; s|\.tmpl$||' | sort -u > "$tmp/managed"
-
-    patterns=()
-    if [ -f etc/.ignore ]; then
-        while IFS= read -r line; do
-            [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
-            patterns+=("$line")
-        done < etc/.ignore
-    fi
-
-    keep() {
-        local path=$1
-        grep -qxF "$path" "$tmp/managed" && return 1
-        for pat in ${patterns[@]+"${patterns[@]}"}; do
-            [[ "$path" == $pat ]] && return 1
-        done
-        return 0
-    }
-
     echo "=== /etc drift ==="
-    echo "--- modified package configs ---"
-    { pacman -Qkk 2>/dev/null | grep -oP '^backup file:\s+[^:]+:\s+\K/etc/\S+' || true; } | sort -u \
-        | while IFS= read -r p; do keep "$p" && echo "  modified: $p"; :; done
-
-    echo "--- user-created (no owning package) ---"
-    { find /etc -xdev -type f -print0 2>/dev/null \
-        | xargs -0 pacman -Qo 2>&1 >/dev/null \
-        | sed -n 's/^error: No package owns //p' || true; } | sort -u \
-        | while IFS= read -r p; do keep "$p" && echo "  unowned:  $p"; :; done
+    while IFS= read -r repo; do
+        live=/etc/${repo#etc/}; live=${live%.tmpl}
+        if [ "${repo%.tmpl}" != "$repo" ]; then
+            src=$tmp/rendered
+            chezmoi execute-template <"$repo" >"$src"
+        else
+            src=$repo
+        fi
+        if [ -r "$live" ]; then
+            cmp -s "$src" "$live" || echo "  modified: $live"
+        elif doas test -f "$live" 2>/dev/null; then
+            doas cat "$live" | cmp -s "$src" - || echo "  modified: $live"
+        else
+            echo "  missing:  $live"
+        fi
+    done < <(find etc -type f ! -name .ignore | sort)
 
 # Diff repo-managed etc/<path> against live /etc/<path> (all managed files if no args)
 etc-diff *paths:
