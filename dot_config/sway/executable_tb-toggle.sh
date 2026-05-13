@@ -1,31 +1,30 @@
 #!/bin/sh
-# Toggle the Thunderbird main window between the current workspace (tiled)
-# and a hidden stash workspace. If Thunderbird isn't running yet, launch it —
-# the for_window rule in sway config will mark and park it on the stash.
+# Toggle the Thunderbird main window between the sway scratchpad and the
+# current workspace (tiled). If Thunderbird isn't running yet, launch it —
+# the for_window rule in sway config will mark it and stash it.
 
 set -eu
 
-STASH=_tb
 MARK=tb-main
 
-current_ws=$(swaymsg -t get_workspaces \
-    | jq -r '.[] | select(.focused) | .name')
-
-tb_ws=$(swaymsg -t get_tree \
-    | jq -r --arg m "$MARK" '
-        first(
-          .. | objects
-          | select(.type=="workspace")
-          | select([.. | objects | select(.marks? // [] | index($m))] | length > 0)
-          | .name
-        ) // empty')
+# Find the workspace ancestor name of the con carrying MARK.
+# __i3_scratch means the window is currently stashed in the scratchpad.
+tb_ws=$(swaymsg -t get_tree | jq -r --arg m "$MARK" '
+    first(
+      .. | objects
+      | select(.type=="workspace")
+      | select([.. | objects | select(.marks? // [] | index($m))] | length > 0)
+      | .name
+    ) // empty')
 
 if [ -z "$tb_ws" ]; then
     exec thunderbird
 fi
 
-if [ "$tb_ws" = "$current_ws" ]; then
-    swaymsg "[con_mark=\"$MARK\"] move container to workspace $STASH" >/dev/null
+if [ "$tb_ws" = "__i3_scratch" ]; then
+    # scratchpad show reveals it as floating; floating disable tiles it on the
+    # current workspace.
+    swaymsg "[con_mark=\"$MARK\"] scratchpad show, floating disable" >/dev/null
 else
-    swaymsg "[con_mark=\"$MARK\"] move container to workspace $current_ws, focus" >/dev/null
+    swaymsg "[con_mark=\"$MARK\"] move container to scratchpad" >/dev/null
 fi

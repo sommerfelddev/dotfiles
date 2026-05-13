@@ -43,7 +43,7 @@ output * bg #282828 solid_color
 for_window [class="feh"] floating enable
 for_window [app_id="imv"] floating enable
 for_window [class="Tor Browser"] floating enable
-for_window [app_id="org.mozilla.Thunderbird" title=".*Mozilla Thunderbird$"] mark --add tb-main, move container to workspace _tb
+for_window [app_id="org.mozilla.Thunderbird" title=".*Mozilla Thunderbird$"] mark --add tb-main, move container to scratchpad
 
 # ── Standard keybinds (sway defaults) ─────────────────────────────────────────
 bindsym $mod+Return exec $term
@@ -117,9 +117,9 @@ bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit sway?' -B 'Yes' 'swaymsg e
 
 # ── Personal keybinds ─────────────────────────────────────────────────────────
 
-# Workspace cycling (skips the _tb stash workspace)
-bindsym $mod+Tab exec ~/.config/sway/ws-cycle.sh next
-bindsym $mod+Shift+Tab exec ~/.config/sway/ws-cycle.sh prev
+# Workspace cycling
+bindsym $mod+Tab workspace next_on_output
+bindsym $mod+Shift+Tab workspace prev_on_output
 
 # Volume
 bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
@@ -156,8 +156,8 @@ mode "qr" {
 }
 bindsym $mod+z mode "qr"
 
-# Thunderbird toggle: main window parked on hidden workspace _tb; this pulls it
-# to the current workspace (tiled) or sends it back. Child windows (compose,
+# Thunderbird toggle: main window stashed in the scratchpad; this pulls it to
+# the current workspace (tiled) or sends it back. Child windows (compose,
 # viewer, calendar, prefs) tile normally wherever Thunderbird spawns them.
 bindsym $mod+t exec ~/.config/sway/tb-toggle.sh
 
