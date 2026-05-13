@@ -1,0 +1,8 @@
+# Wofi config (loaded automatically from ~/.config/wofi/config).
+# Vim nav alongside arrow keys, page-jumps with Ctrl-u/Ctrl-d.
+# Comma-separated key lists are supported by wofi >= 1.4.
+
+key_up=Up,k
+key_down=Down,j
+key_pgup=Page_Up,Ctrl-u
+key_pgdn=Page_Down,Ctrl-d

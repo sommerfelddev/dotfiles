@@ -36,6 +36,9 @@ wf-recorder
 # Wayland typing (used by dictate, etc)
 wtype
 
+# Emoji picker (AUR; tiny shell script, multi-backend — we drive it through wofi)
+bemoji
+
 # Image viewer
 imv
 
