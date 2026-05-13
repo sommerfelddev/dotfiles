@@ -145,6 +145,11 @@ woff2-font-awesome
 # --- wayland session ---
 # Compositor
 sway
+# Auto-tile daemon: splits new containers along the focused window's
+# longest side via sway IPC. Configured in ~/.config/swayr/config.toml
+# ([layout].auto_tile = true). Daemon runs as swayrd.service under
+# sway-session.target.
+swayr
 xdg-desktop-portal-wlr
 xdg-desktop-portal-gtk
 qt5-wayland

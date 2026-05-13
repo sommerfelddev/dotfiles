@@ -1,0 +1,15 @@
+[Unit]
+Description=swayr daemon (auto-tile + window-switcher IPC client)
+Documentation=https://sr.ht/~tsdh/swayr/
+PartOf=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=SWAYSOCK
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/swayrd
+Restart=on-failure
+RestartSec=2s
+
+[Install]
+WantedBy=sway-session.target

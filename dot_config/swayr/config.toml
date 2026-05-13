@@ -1,0 +1,9 @@
+# swayr daemon config. The daemon (swayrd) runs as a systemd user
+# service tied to sway-session.target. The only feature we use is
+# auto-tile: on every new window, swayrd issues splith or splitv on
+# the focused container based on its width-vs-height. Everything else
+# (menu launcher, format strings, …) is unused — swayr is *not* bound
+# to any keybinds here.
+
+[layout]
+auto_tile = true

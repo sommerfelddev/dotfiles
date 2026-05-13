@@ -10,6 +10,7 @@ inhibridge.service
 pass-secret-service.service
 signal.service
 swayidle.service
+swayrd.service
 waybar.service
 wob.service
 
