@@ -7,8 +7,17 @@
 set -eu
 
 selection=$(
-  makoctl history --format '[%a] %s — %b' |
-    fuzzel --dmenu --prompt 'History: '
+  makoctl history | awk '
+    /^Notification / {
+      sub(/^Notification [0-9]+: /, "")
+      summary = $0
+      next
+    }
+    /^  App name: / {
+      sub(/^  App name: /, "")
+      print "[" $0 "] " summary
+    }
+  ' | fuzzel --dmenu --prompt 'History: '
 )
 
 if [ -n "$selection" ]; then
