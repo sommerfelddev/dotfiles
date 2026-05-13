@@ -134,8 +134,8 @@ bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
 
 # Screenshots
-bindsym Print exec grim -g "$(slurp)" ~/pics/screenshots/$(date +%Y-%m-%d-%H-%M-%S).png
-bindsym Shift+Print exec grim ~/pics/screenshots/$(date +%Y-%m-%d-%H-%M-%S).png
+bindsym Print exec sh -c 'grim -g "$(slurp)" - | tee ~/pics/screenshots/$(date +%Y-%m-%d-%H-%M-%S).png | wl-copy'
+bindsym Shift+Print exec sh -c 'grim - | tee ~/pics/screenshots/$(date +%Y-%m-%d-%H-%M-%S).png | wl-copy'
 
 # Lock & pause
 bindsym $mod+Shift+s exec "playerctl -a pause; swaylock -f -e -c 282828"
