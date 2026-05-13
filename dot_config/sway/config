@@ -157,7 +157,7 @@ mode "qr" {
 bindsym $mod+z mode "qr"
 
 # Thunderbird scratchpad toggle (auto-parked on launch, see window rules)
-bindsym $mod+t [app_id="org.mozilla.Thunderbird"] scratchpad show
+bindsym $mod+t [app_id="org.mozilla.Thunderbird"] scratchpad show, resize set width 100 ppt height 100 ppt, move position center
 
 # ── Bar ───────────────────────────────────────────────────────────────────────
 bar {
