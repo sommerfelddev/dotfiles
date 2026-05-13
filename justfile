@@ -521,7 +521,7 @@ etc-status:
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
 
     find etc -type f ! -name .ignore 2>/dev/null \
-        | sed 's|^etc/|/etc/|' | sort -u > "$tmp/managed"
+        | sed 's|^etc/|/etc/|; s|\.tmpl$||' | sort -u > "$tmp/managed"
 
     patterns=()
     if [ -f etc/.ignore ]; then
@@ -564,19 +564,34 @@ etc-diff *paths:
             *..*|*/./*|./*|../*) echo "error: unsafe path: $raw" >&2; exit 1 ;;
         esac
         p=${raw#/}; p=${p#etc/}
-        live=/etc/$p
+        live=/etc/${p%.tmpl}
         repo=etc/$p
         if [ ! -f "$repo" ]; then
-            echo "skip: $live (not a regular file in etc/)" >&2; continue
+            if [ -f "$repo.tmpl" ]; then
+                repo=$repo.tmpl
+                live=/etc/$p
+            else
+                echo "skip: $live (not a regular file in etc/)" >&2; continue
+            fi
+        fi
+        # Render .tmpl sources so the diff reflects what would actually deploy.
+        if [ "${repo%.tmpl}" != "$repo" ]; then
+            rendered=$(mktemp)
+            chezmoi execute-template <"$repo" >"$rendered"
+            repo_for_diff=$rendered
+        else
+            repo_for_diff=$repo
+            rendered=
         fi
         # Fast path for world-readable files; doas fallback only when needed (e.g. /etc/doas.conf 0600).
         if [ -r "$live" ]; then
-            diff -u --label "$live" --label "$repo" "$live" "$repo" || true
+            diff -u --label "$live" --label "$repo" "$live" "$repo_for_diff" || true
         elif doas test -f "$live"; then
-            diff -u --label "$live" --label "$repo" <(doas cat "$live") "$repo" || true
+            diff -u --label "$live" --label "$repo" <(doas cat "$live") "$repo_for_diff" || true
         else
             echo "skip: $live (missing or not a regular file on host)" >&2
         fi
+        [ -n "$rendered" ] && rm -f "$rendered"
     done
 
 # Diff live /etc/<path> against pristine pacman version (defaults to all repo-managed files)
@@ -726,6 +741,13 @@ etc-re-add *paths:
     fi
     changed=0
     for p in "${targets[@]}"; do
+        # Template sources can't be reverse-rendered; skip with a note.
+        case "$p" in
+            *.tmpl)
+                echo "  skip .tmpl: etc/$p (edit the template manually)"
+                continue
+                ;;
+        esac
         live=/etc/$p
         repo=etc/$p
         [ -e "$live" ] || { echo "  missing live: $live (skipped)"; continue; }

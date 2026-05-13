@@ -1,0 +1,1 @@
+rd.luks.name={{ output "lsblk" "-no" "UUID" (printf "/dev/%s" .luksRootPartition) | trim }}=root root=/dev/mapper/root rw quiet

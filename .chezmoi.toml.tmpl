@@ -5,3 +5,9 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
 
 [diff]
   exclude = ["scripts"]
+
+[data]
+  # Block device holding the LUKS-encrypted root, without the /dev/ prefix
+  # (e.g. "nvme0n1p2", "sda2"). Resolved to a UUID at apply time via lsblk,
+  # used by etc/kernel/cmdline.tmpl.
+  luksRootPartition = {{ promptStringOnce . "luksRootPartition" "LUKS root partition (e.g. nvme0n1p2)" | quote }}
