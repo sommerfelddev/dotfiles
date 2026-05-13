@@ -397,27 +397,26 @@ dotfiles-status:
 # ═══════════════════════════════════════════════════════════════════
 # Units domain (systemd)
 # ═══════════════════════════════════════════════════════════════════
+# Group tokens: `<name>` == `system:<name>` → systemd-units/system/<name>.txt;
+# `user:<name>` → systemd-units/user/<name>.txt. System units use `sudo systemctl`,
+# user units use `systemctl --user` (no sudo). No-arg unit-list/unit-apply/unit-status
+# walk both trees.
 
-# List curated systemd units grouped by systemd-units/<group>.txt with their state; pass a group to narrow
+# List curated systemd units grouped by systemd-units/{system,user}/<group>.txt with their state; pass a group (optionally `user:`/`system:` prefixed) to narrow
 unit-list group="":
     #!/bin/sh
-    if [ -n '{{ group }}' ]; then
-        files="systemd-units/{{ group }}.txt"
-        [ -f "$files" ] || { echo "error: $files does not exist" >&2; exit 1; }
-    else
-        files="systemd-units/*.txt"
-    fi
-    for file in $files; do
-        [ -f "$file" ] || continue
+    _render() {
+        scope=$1 file=$2
+        sctl="systemctl"; [ "$scope" = user ] && sctl="systemctl --user"
         group=$(basename "$file" .txt)
-        echo "=== $group ==="
+        echo "=== ${scope}:${group} ==="
         sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file" | while read -r u; do
-            en=$(systemctl is-enabled "$u" 2>/dev/null); en=${en:-unknown}
-            ac=$(systemctl is-active  "$u" 2>/dev/null); ac=${ac:-unknown}
+            en=$($sctl is-enabled "$u" 2>/dev/null); en=${en:-unknown}
+            ac=$($sctl is-active  "$u" 2>/dev/null); ac=${ac:-unknown}
             case "$en" in
-                enabled|static|alias)         c_en=32 ;;
-                disabled|masked|not-found)    c_en=31 ;;
-                *)                            c_en=33 ;;
+                enabled|enabled-runtime|static|alias|indirect|generated) c_en=32 ;;
+                disabled|masked|not-found)                               c_en=31 ;;
+                *)                                                       c_en=33 ;;
             esac
             case "$ac" in
                 active)                       c_ac=32 ;;
@@ -426,73 +425,121 @@ unit-list group="":
             esac
             printf '  %-34s \033[%sm%-10s\033[0m \033[%sm%s\033[0m\n' "$u" "$c_en" "$en" "$c_ac" "$ac"
         done
-    done
+    }
+    g='{{ group }}'
+    if [ -n "$g" ]; then
+        case "$g" in
+            user:*)   scope=user;   name=${g#user:} ;;
+            system:*) scope=system; name=${g#system:} ;;
+            *)        scope=system; name=$g ;;
+        esac
+        file="systemd-units/${scope}/${name}.txt"
+        [ -f "$file" ] || { echo "error: $file does not exist" >&2; exit 1; }
+        _render "$scope" "$file"
+    else
+        for scope in system user; do
+            for file in systemd-units/"$scope"/*.txt; do
+                [ -f "$file" ] || continue
+                _render "$scope" "$file"
+            done
+        done
+    fi
 
-# Enable all curated systemd units (idempotent, soft-fail per unit)
+# Enable all curated systemd units (idempotent, soft-fail per unit); walks both system/ and user/ trees
 unit-apply:
     #!/bin/sh
-    for file in systemd-units/*.txt; do
+    for file in systemd-units/system/*.txt; do
         [ -f "$file" ] || continue
         sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file" | while read -r u; do
             sudo systemctl enable --now "$u" \
-                || echo "  warn: could not enable $u" >&2
+                || echo "  warn: could not enable $u (system)" >&2
+        done
+    done
+    for file in systemd-units/user/*.txt; do
+        [ -f "$file" ] || continue
+        sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file" | while read -r u; do
+            systemctl --user enable --now "$u" \
+                || echo "  warn: could not enable $u (user)" >&2
         done
     done
 
-# Show drift between curated units and actually-enabled systemd units
+# Show drift between curated units and actually-enabled systemd units (system + user)
 unit-status:
     #!/bin/sh
-    echo "=== Unit drift ==="
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
-    cat systemd-units/*.txt 2>/dev/null \
-        | sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' | sort -u > "$tmp/curated"
-    if [ -f systemd-units/.ignore ]; then
-        sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' systemd-units/.ignore | sort -u > "$tmp/ignore"
-    else
-        : > "$tmp/ignore"
-    fi
-    # Curated units missing from the system: use is-enabled to correctly
-    # handle instantiated template units (which list-unit-files does not show).
-    while read -r u; do
-        [ -z "$u" ] && continue
-        state=$(systemctl is-enabled "$u" 2>/dev/null || true)
-        case "$state" in
-            enabled|enabled-runtime|alias|static|indirect|generated) ;;
-            *) echo "  not-enabled: $u" ;;
-        esac
-    done < "$tmp/curated"
-    # Enabled unit files not in curated (minus ignore list).
-    systemctl list-unit-files --state=enabled --no-legend 2>/dev/null \
-        | awk '{print $1}' | grep -vE '@\.' | sort -u > "$tmp/enabled"
-    comm -13 "$tmp/curated" "$tmp/enabled" | comm -23 - "$tmp/ignore" | sed 's/^/  uncurated:   /'
+    _drift() {
+        scope=$1 label=$2
+        sctl="systemctl"; [ "$scope" = user ] && sctl="systemctl --user"
+        echo "=== ${label} drift ==="
+        cat systemd-units/"$scope"/*.txt 2>/dev/null \
+            | sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' | sort -u > "$tmp/curated"
+        if [ -f "systemd-units/$scope/.ignore" ]; then
+            sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "systemd-units/$scope/.ignore" | sort -u > "$tmp/ignore"
+        else
+            : > "$tmp/ignore"
+        fi
+        # Curated units missing from the system: is-enabled correctly handles
+        # instantiated template units (list-unit-files does not show those).
+        while read -r u; do
+            [ -z "$u" ] && continue
+            state=$($sctl is-enabled "$u" 2>/dev/null || true)
+            case "$state" in
+                enabled|enabled-runtime|alias|static|indirect|generated) ;;
+                *) echo "  not-enabled: $u" ;;
+            esac
+        done < "$tmp/curated"
+        # Enabled unit files not in curated (minus ignore list).
+        $sctl list-unit-files --state=enabled --no-legend 2>/dev/null \
+            | awk '{print $1}' | grep -vE '@\.' | sort -u > "$tmp/enabled"
+        comm -13 "$tmp/curated" "$tmp/enabled" | comm -23 - "$tmp/ignore" | sed 's/^/  uncurated:   /'
+    }
+    _drift system "System unit"
+    _drift user   "User unit"
 
-# Append one or more units to a group list and enable them (e.g. just unit-add base sshd.service)
+# Append one or more units to a group list and enable them (e.g. just unit-add base sshd.service; just unit-add user:graphical kanshi.service)
 unit-add group +units:
     #!/bin/sh
     set -eu
-    file="systemd-units/{{ group }}.txt"
+    g='{{ group }}'
+    case "$g" in
+        user:*)   scope=user;   name=${g#user:} ;;
+        system:*) scope=system; name=${g#system:} ;;
+        *)        scope=system; name=$g ;;
+    esac
+    file="systemd-units/${scope}/${name}.txt"
     if [ ! -f "$file" ]; then
         echo "error: $file does not exist" >&2
         exit 1
     fi
     for u in {{ units }}; do
         if grep -qxF "$u" "$file"; then
-            echo "$u already in {{ group }}.txt"
+            echo "$u already in ${scope}:${name}"
         else
             echo "$u" >> "$file"
-            echo "added $u to {{ group }}.txt"
+            echo "added $u to ${scope}:${name}"
         fi
     done
     for u in {{ units }}; do
-        sudo systemctl enable --now "$u" \
-            || echo "  warn: could not enable $u" >&2
+        if [ "$scope" = user ]; then
+            systemctl --user enable --now "$u" \
+                || echo "  warn: could not enable $u (user)" >&2
+        else
+            sudo systemctl enable --now "$u" \
+                || echo "  warn: could not enable $u (system)" >&2
+        fi
     done
 
 # Remove one or more units from a group list and disable them
 unit-forget group +units:
     #!/bin/sh
     set -eu
-    file="systemd-units/{{ group }}.txt"
+    g='{{ group }}'
+    case "$g" in
+        user:*)   scope=user;   name=${g#user:} ;;
+        system:*) scope=system; name=${g#system:} ;;
+        *)        scope=system; name=$g ;;
+    esac
+    file="systemd-units/${scope}/${name}.txt"
     if [ ! -f "$file" ]; then
         echo "error: $file does not exist" >&2
         exit 1
@@ -500,14 +547,19 @@ unit-forget group +units:
     for u in {{ units }}; do
         if grep -qxF "$u" "$file"; then
             sed -i "/^$(printf '%s' "$u" | sed 's/[]\/$*.^[]/\\&/g')\$/d" "$file"
-            echo "removed $u from {{ group }}.txt"
+            echo "removed $u from ${scope}:${name}"
         else
-            echo "$u not in {{ group }}.txt"
+            echo "$u not in ${scope}:${name}"
         fi
     done
     for u in {{ units }}; do
-        sudo systemctl disable --now "$u" \
-            || echo "  warn: could not disable $u" >&2
+        if [ "$scope" = user ]; then
+            systemctl --user disable --now "$u" \
+                || echo "  warn: could not disable $u (user)" >&2
+        else
+            sudo systemctl disable --now "$u" \
+                || echo "  warn: could not disable $u (system)" >&2
+        fi
     done
 
 # ═══════════════════════════════════════════════════════════════════

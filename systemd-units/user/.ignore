@@ -1,0 +1,4 @@
+# Systemd user-scope units to suppress from `just unit-status` uncurated output.
+# Typically defaults pulled in by graphical-session / xdg-desktop-portal that
+# are neither worth curating nor worth disabling. One unit per line, # comments OK.
+
