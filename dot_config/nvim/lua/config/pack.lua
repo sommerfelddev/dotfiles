@@ -22,20 +22,10 @@ local function clean()
 end
 
 local function update()
-  vim.api.nvim_create_autocmd("FileType", {
-    pattern = "nvim-pack",
-    once = true,
-    callback = function(args)
-      vim.schedule(function()
-        if vim.api.nvim_buf_is_valid(args.buf) then
-          vim.api.nvim_buf_call(args.buf, function()
-            vim.cmd("silent write")
-          end)
-        end
-      end)
-    end,
-  })
   vim.pack.update()
+  if vim.bo.filetype == "nvim-pack" then
+    vim.cmd("silent write")
+  end
 end
 
 local function list()
