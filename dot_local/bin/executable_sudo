@@ -1,0 +1,59 @@
+#!/bin/sh
+# sudo → doas shim that takes precedence over /usr/bin/sudo
+# (provided by doas-sudo-shim) by living in $HOME/.local/bin.
+#
+# Why a custom shim: opendoas does not implement `sudo -v` (extend the
+# auth timestamp without running a command). paru --sudoloop relies on
+# that to keep credentials fresh during long AUR builds; without it,
+# building gcc-git for an hour then mistyping the password at the install
+# step throws the whole build away. We translate the handful of sudo
+# flags paru / common scripts use into doas equivalents and swallow the
+# rest.
+#
+# Translations:
+#   -v / --validate     → doas true   (refresh persist timestamp)
+#   -k / -K             → doas -L     (clear persist timestamp)
+#   -n                  → doas -n
+#   -E -H -i -S         → silently dropped
+#   anything else       → doas "$@"
+
+set -eu
+
+forward=
+for arg; do
+	case $arg in
+		-v|--validate)
+			exec doas true
+			;;
+		-k|-K)
+			exec doas -L
+			;;
+		-h|--help)
+			exec doas -h
+			;;
+		-n)
+			forward="$forward -n"
+			;;
+		-E|-H|-i|-S|--preserve-env|--set-home|--login|--stdin)
+			# meaningless under doas; drop
+			;;
+		--)
+			shift
+			# shellcheck disable=SC2086
+			exec doas $forward "$@"
+			;;
+		-*)
+			# unknown flag — pass through and let doas complain
+			forward="$forward $arg"
+			;;
+		*)
+			# first non-flag: rest of argv is the command
+			# shellcheck disable=SC2086
+			exec doas $forward "$@"
+			;;
+	esac
+	shift
+done
+
+# Only flags, no command — treat as `sudo -v` semantics.
+exec doas true
