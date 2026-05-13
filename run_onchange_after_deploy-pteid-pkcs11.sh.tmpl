@@ -1,7 +1,7 @@
 #!/bin/sh
-# Bridge the pt.gov.autenticacao flatpak's PKCS#11 module into the LibreWolf
-# flatpak's NSS database so cartão de cidadão authentication works in the
-# browser despite the cross-sandbox isolation.
+# Bridge the pt.gov.autenticacao flatpak's PKCS#11 module into the NSS
+# database of every Mozilla-family flatpak we use, so cartão de cidadão
+# authentication / S/MIME signing works despite cross-sandbox isolation.
 #
 # Idempotent. Re-runs whenever this script or the pt.gov.autenticacao entry
 # in meta/flatpak.txt changes.
@@ -10,11 +10,9 @@
 set -eu
 
 PTEID_APP=pt.gov.autenticacao
-BROWSER_APP=io.gitlab.librewolf-community
 MODULE_NAME=pteid-mw
 
 flatpak info --user "$PTEID_APP" >/dev/null 2>&1 || exit 0
-flatpak info --user "$BROWSER_APP" >/dev/null 2>&1 || exit 0
 
 PTEID_LOC=$(flatpak info --user --show-location "$PTEID_APP" 2>/dev/null)
 [ -d "$PTEID_LOC/files" ] || exit 0
@@ -27,36 +25,47 @@ SO_DIR=$(dirname "$SO")
 SO_IN_SANDBOX="/run/host$SO"
 SO_DIR_IN_SANDBOX="/run/host$SO_DIR"
 
-flatpak override --user \
+if ! command -v modutil >/dev/null 2>&1; then
+  echo "pteid-pkcs11: modutil not found (install nss); skipping NSS registration." >&2
+  exit 0
+fi
+
+# Each line: <flatpak_app_id> <profile_subdir> <process_name>
+# - profile_subdir is the directory under ~/.var/app/<id>/ that holds the
+#   per-profile NSS DBs (cert9.db lives in each <profile>/ underneath it)
+# - process_name is the binary name to grep for to detect a running instance
+APPS="\
+io.gitlab.librewolf-community .librewolf librewolf
+org.mozilla.Thunderbird .thunderbird thunderbird"
+
+echo "$APPS" | while IFS=' ' read -r app profile_subdir proc_name; do
+  [ -n "$app" ] || continue
+  flatpak info --user "$app" >/dev/null 2>&1 || continue
+
+  flatpak override --user \
     --filesystem="$PTEID_LOC/files:ro" \
     --socket=pcsc \
     --env="LD_LIBRARY_PATH=$SO_DIR_IN_SANDBOX" \
-    "$BROWSER_APP"
+    "$app"
 
-command -v modutil >/dev/null 2>&1 || {
-    echo "pteid-pkcs11: modutil not found (install nss); skipping NSS registration." >&2
-    exit 0
-}
+  profiles_dir="$HOME/.var/app/$app/$profile_subdir"
+  [ -d "$profiles_dir" ] || continue
 
-PROFILES_DIR="$HOME/.var/app/$BROWSER_APP/.librewolf"
-[ -d "$PROFILES_DIR" ] || exit 0
-
-registered=0
-skipped=0
-for prof in "$PROFILES_DIR"/*/; do
+  registered=0
+  for prof in "$profiles_dir"/*/; do
     [ -f "$prof/cert9.db" ] || continue
     if modutil -list -dbdir "sql:$prof" 2>/dev/null | grep -q "^[[:space:]]*Name:[[:space:]]*$MODULE_NAME$"; then
-        skipped=$((skipped + 1))
-        continue
+      continue
     fi
-    if pgrep -u "$(id -u)" -x librewolf >/dev/null 2>&1; then
-        echo "pteid-pkcs11: LibreWolf is running; close it and re-run 'chezmoi apply' to register the PKCS#11 module." >&2
-        exit 0
+    if pgrep -u "$(id -u)" -x "$proc_name" >/dev/null 2>&1; then
+      echo "pteid-pkcs11: $proc_name is running; close it and re-run 'chezmoi apply' to register the PKCS#11 module." >&2
+      continue
     fi
     modutil -add "$MODULE_NAME" -libfile "$SO_IN_SANDBOX" -dbdir "sql:$prof" -force >/dev/null
     registered=$((registered + 1))
-done
+  done
 
-if [ "$registered" -gt 0 ]; then
-    echo "pteid-pkcs11: registered $MODULE_NAME in $registered LibreWolf profile(s)."
-fi
+  if [ "$registered" -gt 0 ]; then
+    echo "pteid-pkcs11: registered $MODULE_NAME in $registered $proc_name profile(s)."
+  fi
+done

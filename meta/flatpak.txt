@@ -12,6 +12,7 @@ io.gitlab.librewolf-community
 org.chromium.Chromium
 org.kde.okular
 org.libreoffice.LibreOffice
+org.mozilla.Thunderbird
 org.torproject.torbrowser-launcher
 
 # Portuguese Citizen Card (eID) middleware + GUI. Not on Flathub; ships

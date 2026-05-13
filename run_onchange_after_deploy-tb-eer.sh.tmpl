@@ -1,0 +1,77 @@
+#!/bin/sh
+# Bridge the External Editor Revived native messaging host into the
+# org.mozilla.Thunderbird flatpak. The host binary stays installed via
+# pacman (`external-editor-revived`); we relocate the manifest into the
+# sandbox and replace its binary path with a wrapper that re-enters the
+# host via flatpak-spawn.
+#
+# Idempotent. Re-runs on script changes or whenever the host-side manifest
+# content changes.
+#
+# host manifest hash: {{ output "sh" "-c" "for p in /usr/lib/mozilla/native-messaging-hosts/external_editor_revived.json /usr/lib/thunderbird/native-messaging-hosts/external_editor_revived.json; do [ -f \"$p\" ] && sha256sum \"$p\" && break; done; true" | sha256sum }}
+set -eu
+
+TB_APP=org.mozilla.Thunderbird
+MANIFEST_NAME=external_editor_revived.json
+WRAPPER_NAME=external_editor_revived.sh
+HOST_BINARY=/usr/lib/external-editor-revived/external-editor-revived
+
+flatpak info --user "$TB_APP" >/dev/null 2>&1 || exit 0
+
+# Locate the host-side manifest. Different PKGBUILDs have used different
+# install dirs; prefer the canonical mozilla path, fall back to TB-specific.
+HOST_MANIFEST=
+for candidate in \
+  /usr/lib/mozilla/native-messaging-hosts/$MANIFEST_NAME \
+  /usr/lib/thunderbird/native-messaging-hosts/$MANIFEST_NAME \
+  /usr/lib64/mozilla/native-messaging-hosts/$MANIFEST_NAME; do
+  if [ -f "$candidate" ]; then
+    HOST_MANIFEST=$candidate
+    break
+  fi
+done
+[ -n "$HOST_MANIFEST" ] || {
+  echo "tb-eer: external-editor-revived manifest not found on host; install the package or skip TB native editor." >&2
+  exit 0
+}
+
+[ -x "$HOST_BINARY" ] || {
+  echo "tb-eer: $HOST_BINARY not executable on host; skipping." >&2
+  exit 0
+}
+
+# Allow flatpak-spawn --host from inside the sandbox.
+flatpak override --user --talk-name=org.freedesktop.Flatpak "$TB_APP"
+
+# In-sandbox path the manifest will reference. TB looks for user manifests
+# at $HOME/.mozilla/native-messaging-hosts/ from inside its sandbox; from
+# outside that maps to ~/.var/app/$TB_APP/.mozilla/native-messaging-hosts/.
+SANDBOX_NMH_DIR="$HOME/.mozilla/native-messaging-hosts"
+HOST_NMH_DIR="$HOME/.var/app/$TB_APP/.mozilla/native-messaging-hosts"
+mkdir -p "$HOST_NMH_DIR"
+
+# Wrapper that re-enters the host to invoke the real binary.
+WRAPPER_HOST_PATH="$HOST_NMH_DIR/$WRAPPER_NAME"
+WRAPPER_SANDBOX_PATH="$SANDBOX_NMH_DIR/$WRAPPER_NAME"
+cat >"$WRAPPER_HOST_PATH" <<EOF
+#!/bin/sh
+exec flatpak-spawn --host "$HOST_BINARY" "\$@"
+EOF
+chmod +x "$WRAPPER_HOST_PATH"
+
+# Rewrite the manifest's "path" field to point at the wrapper as seen from
+# inside the sandbox.
+TARGET_MANIFEST="$HOST_NMH_DIR/$MANIFEST_NAME"
+if command -v jq >/dev/null 2>&1; then
+  jq --arg p "$WRAPPER_SANDBOX_PATH" '.path = $p' "$HOST_MANIFEST" >"$TARGET_MANIFEST.tmp"
+  mv "$TARGET_MANIFEST.tmp" "$TARGET_MANIFEST"
+else
+  # Fallback: simple sed on the "path": "..." line. Brittle if the file
+  # ever becomes minified or contains escaped quotes — jq is preferred.
+  escaped=$(printf '%s' "$WRAPPER_SANDBOX_PATH" | sed 's/[\/&]/\\&/g')
+  sed -E "s|(\"path\"[[:space:]]*:[[:space:]]*\")[^\"]*(\")|\1$escaped\2|" \
+    "$HOST_MANIFEST" >"$TARGET_MANIFEST.tmp"
+  mv "$TARGET_MANIFEST.tmp" "$TARGET_MANIFEST"
+fi
+
+echo "tb-eer: External Editor Revived bridged into $TB_APP."

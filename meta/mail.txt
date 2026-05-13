@@ -1,8 +1,9 @@
+# Host-side bits the org.mozilla.Thunderbird flatpak depends on.
 protonmail-bridge-core
-thunderbird
 # git send-email Perl prereqs (SMTP via local Bridge on 127.0.0.1:1025)
 perl-authen-sasl
 perl-mime-tools
 perl-net-smtp-ssl
-# Edit messages in nvim (kernel-style inline patch review without TB mangling)
+# Native messaging host binary for External Editor Revived; bridged into the
+# TB flatpak by run_onchange_after_deploy-tb-eer.sh.tmpl.
 external-editor-revived
