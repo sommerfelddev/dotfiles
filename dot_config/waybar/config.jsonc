@@ -12,6 +12,7 @@
     "network#bond",
     "battery",
     "privacy",
+    "custom/webcam",
     "pulseaudio",
     "custom/wifi",
     "bluetooth",
@@ -167,6 +168,13 @@
       { "type": "screenshare", "tooltip": true },
       { "type": "audio-in", "tooltip": true },
     ],
+  },
+
+  "custom/webcam": {
+    "exec": "~/.config/waybar/webcam-status.sh",
+    "return-type": "json",
+    "interval": 2,
+    "tooltip": true,
   },
 
   "custom/notifications": {

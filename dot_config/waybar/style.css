@@ -48,6 +48,7 @@ window#waybar {
 #privacy,
 #custom-memory,
 #custom-wifi,
+#custom-webcam,
 #custom-notifications,
 #custom-thunderbird {
   padding: 0 6px;
@@ -116,6 +117,10 @@ window#waybar {
 
 #privacy {
   color: #fb4934; /* red — only visible when active */
+}
+
+#custom-webcam.active {
+  color: #fb4934; /* red — only rendered when webcam is in use */
 }
 
 #custom-notifications {
