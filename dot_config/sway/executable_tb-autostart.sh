@@ -23,7 +23,7 @@ for _ in $(seq 1 300); do
 done
 
 # Small grace period so the SMTP listener (1025) catches up too.
-sleep 5
+sleep 10
 
 thunderbird &
 
