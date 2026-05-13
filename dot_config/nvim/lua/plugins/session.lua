@@ -1,35 +1,9 @@
-local function get_cwd_as_name()
-  local dir = vim.fn.getcwd(0)
-  return dir:gsub("[^A-Za-z0-9]", "_")
-end
-local overseer = require("overseer")
+-- overseer.nvim removed task bundles (commit "refactor!: task bundles get
+-- the axe"), so auto-session no longer persists tasks. Only DAP breakpoints
+-- are preserved across sessions below.
 
 require("auto-session").setup({
   use_git_branch = true,
-  pre_save_cmds = {
-    function()
-      overseer.save_task_bundle(
-        get_cwd_as_name(),
-        nil,
-        { on_conflict = "overwrite" }
-      )
-    end,
-  },
-  pre_restore_cmds = {
-    function()
-      for _, task in ipairs(overseer.list_tasks({})) do
-        task:dispose(true)
-      end
-    end,
-  },
-  post_restore_cmds = {
-    function()
-      overseer.load_task_bundle(
-        get_cwd_as_name(),
-        { ignore_missing = true, autostart = false }
-      )
-    end,
-  },
   save_extra_data = function(_)
     local ok, breakpoints = pcall(require, "dap.breakpoints")
     if not ok or not breakpoints then
