@@ -8,6 +8,9 @@ qt6-wayland
 # Bar & launcher
 waybar
 fuzzel
+# wofi: secondary picker used only by mako-history.sh — needs --hide-search
+# and per-key custom bindings, neither of which fuzzel supports.
+wofi
 
 # Terminal
 ghostty

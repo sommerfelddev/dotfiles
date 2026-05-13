@@ -1,0 +1,46 @@
+/* Minimal gruvbox style for wofi.
+ * Currently used only by ~/.config/waybar/mako-history.py for its
+ * arrow-only notification picker. The search input row is always hidden
+ * via --hide-search, but we still hide it here in case wofi falls back.
+ */
+
+* {
+  font-family: monospace, "Symbols Nerd Font Mono";
+  font-size: 11pt;
+}
+
+window {
+  background-color: #282828;
+  color: #ebdbb2;
+  border: 1px solid #fabd2f;
+}
+
+#input {
+  /* belt-and-suspenders: hidden via --hide-search too */
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+}
+
+#inner-box {
+  padding: 4px;
+}
+
+#entry {
+  padding: 2px 6px;
+  background-color: transparent;
+  color: #ebdbb2;
+}
+
+#entry:selected,
+#entry:focus,
+#entry selected {
+  background-color: #3c3836;
+  color: #fabd2f;
+}
+
+#text {
+  color: inherit;
+}

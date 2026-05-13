@@ -171,9 +171,9 @@ bindsym $mod+Shift+o exec ~/.local/bin/ocr
 bindsym $mod+Shift+s exec "playerctl -a pause; swaylock -f -e -c 282828"
 
 # Notifications
-bindsym $mod+n exec makoctl dismiss
-bindsym $mod+Shift+n exec makoctl dismiss --all
-bindsym $mod+Ctrl+n exec makoctl restore
+bindsym $mod+n exec ~/.config/waybar/dismiss-visible.sh top
+bindsym $mod+Shift+n exec ~/.config/waybar/dismiss-visible.sh all
+bindsym $mod+Ctrl+n exec ~/.config/waybar/restore-pending.sh
 
 # Clipboard history
 bindsym $mod+p exec sh -c 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'
@@ -185,7 +185,7 @@ bindsym --no-repeat XF86Display exec ~/.config/sway/display-toggle.sh
 # Multimedia hardware keys (uncommon)
 bindsym XF86Tools exec $term --class=floating -e pulsemixer
 bindsym XF86Keyboard exec $term --class=floating -e glow -p ~/dotfiles/KEYBINDS.md
-bindsym XF86Favorites exec ~/.config/waybar/mako-history.sh
+bindsym XF86Favorites exec ~/.config/waybar/mako-history.py
 
 # QR codes (Super+z then r=read or w=write)
 mode "qr" {

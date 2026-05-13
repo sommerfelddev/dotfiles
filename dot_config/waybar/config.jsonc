@@ -185,7 +185,7 @@
     "exec": "~/.config/waybar/mako-status.sh",
     "return-type": "json",
     "interval": 2,
-    "on-click": "~/.config/waybar/mako-history.sh",
+    "on-click": "~/.config/waybar/mako-history.py",
     "on-click-right": "makoctl dismiss --all",
     "on-click-middle": "makoctl restore",
     "tooltip": true,

@@ -327,10 +327,10 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 | `Super+i`               | Dictate toggle (whisper.cpp → wtype + clipboard)  |
 | `Super+Shift+o`         | OCR region (tesseract → clipboard)                |
 | `Super+Shift+s`         | Lock screen + pause media                         |
-| `Super+n`               | Dismiss notification                              |
-| `Super+Shift+n`         | Dismiss all notifications                         |
-| `Super+Ctrl+n`          | Restore last dismissed notification               |
-| `XF86Favorites`         | Notification history picker (copy to clipboard)   |
+| `Super+n`               | Dismiss visible notification (also marks it seen)             |
+| `Super+Shift+n`         | Dismiss all visible notifications (mark all seen)             |
+| `Super+Ctrl+n`          | Restore last dismissed; pop it back into the pending set      |
+| `XF86Favorites`         | Notification history picker (Enter re-shows + marks seen, Alt-c copies, Alt-d marks seen) |
 | `Super+p`               | Clipboard history picker (cliphist + fuzzel)      |
 | `Super+Shift+p`         | Clipboard history delete entry                    |
 | `Super+Tab`             | Next workspace                                    |
