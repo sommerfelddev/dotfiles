@@ -31,11 +31,11 @@
   },
 
   "cpu": {
-    "format": "CPU {usage}%",
-    "format-low": "CPU <span color='#b8bb26'>{usage}%</span>",
-    "format-medium": "CPU <span color='#fabd2f'>{usage}%</span>",
-    "format-high": "CPU <span color='#fe8019'>{usage}%</span>",
-    "format-critical": "CPU <span color='#fb4934'>{usage}%</span>",
+    "format": "CPU {usage}% LOAD {load:0.2f}",
+    "format-low": "CPU <span color='#b8bb26'>{usage}%</span> LOAD {load:0.2f}",
+    "format-medium": "CPU <span color='#fabd2f'>{usage}%</span> LOAD {load:0.2f}",
+    "format-high": "CPU <span color='#fe8019'>{usage}%</span> LOAD {load:0.2f}",
+    "format-critical": "CPU <span color='#fb4934'>{usage}%</span> LOAD {load:0.2f}",
     "states": {
       "low": 0,
       "medium": 30,
@@ -90,6 +90,7 @@
     "exec": "~/.config/waybar/wifi-status.sh",
     "return-type": "json",
     "interval": 10,
+    "on-click": "~/.config/waybar/wifi-toggle.sh",
   },
 
   "network#bond": {
@@ -130,6 +131,7 @@
   "clock": {
     "format": "{:%a %d %b %H:%M}",
     "tooltip-format": "{:%Y-%m-%d %H:%M:%S}",
+    "on-click": "~/.config/sway/tb-toggle.sh",
   },
 
   "tray": {
@@ -159,7 +161,7 @@
     "exec": "~/.config/waybar/mako-status.sh",
     "return-type": "json",
     "interval": 2,
-    "on-click": "makoctl dismiss",
+    "on-click": "~/.config/waybar/mako-history.sh",
     "on-click-right": "makoctl dismiss --all",
     "on-click-middle": "makoctl restore",
     "tooltip": true,
