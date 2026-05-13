@@ -3,3 +3,10 @@ show_hidden = true
 scrolloff = 10
 linemode = "mtime"
 title_format = "Yazi: {cwd}"
+
+# Override the default `open` opener so xdg-open is detached from yazi
+# (otherwise yazi treats the viewer as an unfinished task and prompts on quit).
+[opener]
+open = [
+  { run = 'xdg-open "$@"', desc = "Open", orphan = true },
+]
