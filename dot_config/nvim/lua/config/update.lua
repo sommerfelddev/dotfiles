@@ -6,11 +6,6 @@
 
 local M = {}
 
-local function say(msg)
-  io.stdout:write(msg .. "\n")
-  io.stdout:flush()
-end
-
 local function orphan_names()
   return vim
     .iter(vim.pack.get())
@@ -26,7 +21,7 @@ end
 function M.run()
   local orphans = orphan_names()
   if #orphans > 0 then
-    say(
+    print(
       ("[pack] removing %d orphan(s): %s"):format(
         #orphans,
         table.concat(orphans, ", ")
@@ -35,10 +30,10 @@ function M.run()
     vim.pack.del(orphans)
   end
 
-  say("[pack] updating plugins…")
+  print("[pack] updating plugins…")
   vim.pack.update(nil, { force = true })
 
-  say("[mason] updating tools…")
+  print("[mason] updating tools…")
   vim.cmd("MasonToolsUpdateSync")
 
   vim.cmd("qa!")
