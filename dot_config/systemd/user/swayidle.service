@@ -11,7 +11,6 @@ ExecStart=/usr/bin/swayidle -w \
         resume  'swaymsg "output * power on"' \
     timeout 330 'swaylock -f -e -c 000000' \
     before-sleep 'playerctl -a pause; swaylock -f -e -c 000000' \
-    after-resume '%h/.config/sway/display-toggle.sh apply' \
     lock         'swaylock -f -e -c 000000'
 Restart=on-failure
 RestartSec=2s

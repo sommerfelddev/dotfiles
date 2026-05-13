@@ -1,10 +1,13 @@
 #!/bin/sh
 # Display mode manager: laptop-off ↔ side-by-side.
 #   (no arg)  toggle between modes (F7 / Super+x d).
-#   init      force laptop-off on session start / external plugged in.
-#   apply     re-apply whatever is in the state file (used after resume,
-#             since sway resets output config on wake → both monitors
-#             come back enabled side-by-side regardless of saved state).
+#   apply     re-apply whatever is in the state file. Used by sway's
+#             exec_always at startup and on every config reload (sway
+#             reload re-enables all outputs side-by-side by default;
+#             this restores the user's chosen layout). First boot
+#             defaults to laptop-off when no state file exists.
+#   init      force laptop-off; used by the hotplug watcher when a
+#             newly-plugged external should preempt whatever was saved.
 
 STATE_FILE="${XDG_RUNTIME_DIR:-/tmp}/display-mode"
 
@@ -19,7 +22,7 @@ if [ -z "$EXTERNAL" ]; then
     swaymsg output "$LAPTOP" enable pos 0 0 || true
     echo "laptop-only" >"$STATE_FILE"
   fi
-  [ -z "$1" ] && notify-send "Display" "No external display connected"
+  [ -z "${1:-}" ] && notify-send "Display" "No external display connected"
   exit 0
 fi
 
@@ -28,10 +31,10 @@ fi
 LAPTOP_WIDTH=$(echo "$OUTPUTS" | jq -r ".[] | select(.name == \"$LAPTOP\") | .current_mode.width // .modes[0].width")
 [ -z "$LAPTOP_WIDTH" ] && LAPTOP_WIDTH=1920
 
-if [ "${1:-}" = "init" ]; then
-  NEXT="laptop-off"
-elif [ "${1:-}" = "apply" ]; then
+if [ "${1:-}" = "apply" ]; then
   NEXT=$(cat "$STATE_FILE" 2>/dev/null || echo "laptop-off")
+elif [ "${1:-}" = "init" ]; then
+  NEXT="laptop-off"
 else
   CURRENT=$(cat "$STATE_FILE" 2>/dev/null || echo "laptop-off")
   case "$CURRENT" in
@@ -46,12 +49,12 @@ case "$NEXT" in
     swaymsg output "$EXTERNAL" enable || true
     swaymsg workspace number 1 || true
     echo "laptop-off" >"$STATE_FILE"
-    [ -z "$1" ] && notify-send "Display" "Laptop screen off"
+    [ -z "${1:-}" ] && notify-send "Display" "Laptop screen off"
     ;;
   side-by-side)
     swaymsg output "$LAPTOP" enable pos 0 0 || true
     swaymsg output "$EXTERNAL" enable pos "$LAPTOP_WIDTH" 0 || true
     echo "side-by-side" >"$STATE_FILE"
-    [ -z "$1" ] && notify-send "Display" "Side by side"
+    [ -z "${1:-}" ] && notify-send "Display" "Side by side"
     ;;
 esac

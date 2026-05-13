@@ -238,7 +238,7 @@ bindsym $mod+t exec ~/.config/sway/tb-toggle.sh
 # ── Autostart ─────────────────────────────────────────────────────────────────
 exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP PASSWORD_STORE_DIR
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP PASSWORD_STORE_DIR
-exec "sleep 2 && ~/.config/sway/display-toggle.sh init"
+exec_always "sleep 2 && ~/.config/sway/display-toggle.sh apply"
 exec systemctl --user start sway-session.target
 exec ~/.config/sway/tb-autostart.sh
 
