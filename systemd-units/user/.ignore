@@ -2,3 +2,12 @@
 # Typically defaults pulled in by graphical-session / xdg-desktop-portal that
 # are neither worth curating nor worth disabling. One unit per line, # comments OK.
 
+# Socket-activated audio stack (pipewire + wireplumber), pulled in by the
+# session; enabled state is set by the distro package, not by us.
+pipewire.socket
+pipewire-pulse.socket
+wireplumber.service
+
+# Misc default user services we neither enable nor disable.
+p11-kit-server.socket
+xdg-user-dirs.service
