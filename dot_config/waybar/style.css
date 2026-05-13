@@ -28,6 +28,14 @@ window#waybar {
   background-color: #fb4934;
 }
 
+#custom-vpn.up {
+  color: #b8bb26;
+}
+
+#custom-vpn.down {
+  color: #928374;
+}
+
 #mode {
   color: #fabd2f;
   font-weight: bold;

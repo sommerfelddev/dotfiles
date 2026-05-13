@@ -51,8 +51,10 @@ for_window [shell=".*"] inhibit_idle fullscreen
 
 # ── Standard keybinds (sway defaults) ─────────────────────────────────────────
 bindsym $mod+Return exec $term
+bindsym $mod+Shift+Return exec $term -e yazi
 bindsym $mod+Shift+q kill
 bindsym $mod+d exec $menu
+bindsym $mod+Shift+b exec librewolf
 
 # Navigation
 bindsym $mod+h focus left

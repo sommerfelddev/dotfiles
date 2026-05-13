@@ -322,6 +322,8 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 | `XF86Sleep`             | Suspend system (systemctl suspend)                           |
 | `XF86WLAN`              | Toggle Wi-Fi (rfkill)                                        |
 | `XF86RFKill`            | Toggle all radios (rfkill)                                   |
+| `Super+Shift+Return`    | Open ghostty with yazi (file manager)                        |
+| `Super+Shift+b`         | Launch librewolf                                             |
 | `Print`                 | Region screenshot (grim+slurp)                               |
 | `Shift+Print`           | Full screenshot (grim)                                       |
 | `Super+i`               | Dictate toggle (whisper.cpp → wtype + clipboard)             |

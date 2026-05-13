@@ -1,0 +1,13 @@
+// Allow members of the `wheel` group to manage systemd-networkd links
+// (e.g. `networkctl up/down <iface>`) without a polkit password prompt.
+// This single-user system already trusts wheel for administrative work
+// via sudo-rs; networkd's polkit gate is a separate path that does not
+// honour sudoers, so a polkit rule is the idiomatic fix.
+polkit.addRule(function (action, subject) {
+  if (
+    action.id.indexOf("org.freedesktop.network1.") === 0 &&
+    subject.isInGroup("wheel")
+  ) {
+    return polkit.Result.YES;
+  }
+});
