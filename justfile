@@ -20,6 +20,21 @@ sync: apply pkg-fix unit-apply
 apply:
     chezmoi apply -S .
 
+# ═══════════════════════════════════════════════════════════════════
+# Updates
+# ═══════════════════════════════════════════════════════════════════
+
+# Update everything: system packages, Neovim plugins, Mason tools
+update: pkg-update nvim-update
+
+# Upgrade all system + AUR packages
+pkg-update:
+    paru -Syu
+
+# Update Neovim plugins (vim.pack) and Mason tools in a headless session
+nvim-update:
+    nvim --headless '+lua require("config.update").run()'
+
 # Re-add changes from live files back into the repo; pass a path to target one, or omit for all
 re-add *paths:
     #!/usr/bin/env bash
