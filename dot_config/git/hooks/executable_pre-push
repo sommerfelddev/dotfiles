@@ -1,0 +1,59 @@
+#!/bin/sh
+# Reject pushes that include commits without a good signature.
+# Activated via core.hooksPath in ~/.config/git/config so it applies to
+# every repo unless that repo overrides hooksPath itself (this dotfiles
+# repo does, pointing at .githooks/ which has its own hooks).
+#
+# Bypass for one push: git push --no-verify
+
+set -eu
+
+zero=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
+
+# %G? signature status codes from git-log:
+#   G  good signature
+#   U  good, unknown validity (e.g. trust level not set)
+#   X  good but expired signature
+#   Y  good but key is expiring
+#   R  good but key has been revoked
+#   B  bad signature
+#   E  signature cannot be checked (e.g. missing key)
+#   N  no signature
+# We accept G/U/X/Y and reject anything else.
+ok='G U X Y'
+
+fail=0
+while read -r _local_ref local_sha remote_ref remote_sha; do
+  # Branch deletion: nothing to verify on our side.
+  [ "$local_sha" = "$zero" ] && continue
+
+  if [ "$remote_sha" = "$zero" ]; then
+    # New branch: verify the commits unique to this push, excluding
+    # anything already reachable from any remote-tracking ref.
+    set -- "$local_sha" --not --remotes
+  else
+    set -- "${remote_sha}..${local_sha}"
+  fi
+
+  bad=$(git rev-list --format='%H %G? %s' --no-commit-header "$@" |
+    awk -v ok="$ok" '
+      BEGIN { split(ok, a, " "); for (i in a) good[a[i]] = 1 }
+      !($2 in good) { print }
+    ')
+
+  if [ -n "$bad" ]; then
+    if [ "$fail" -eq 0 ]; then
+      printf '\nrefusing to push: unsigned or bad-signed commits found\n' >&2
+    fi
+    printf '\non %s:\n%s\n' "$remote_ref" "$bad" >&2
+    fail=1
+  fi
+done
+
+if [ "$fail" -ne 0 ]; then
+  printf '\nfix with: git rebase --exec "git commit --amend --no-edit -S" <base>\n' >&2
+  printf 'bypass:   git push --no-verify\n\n' >&2
+  exit 1
+fi
+
+exit 0

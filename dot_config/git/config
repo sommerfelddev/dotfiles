@@ -9,6 +9,7 @@
 [core]
     whitespace = trailing-space,cr-at-eol
     pager = delta
+    hooksPath = ~/.config/git/hooks
 [branch]
     sort=-committerdate
 [diff]
