@@ -31,11 +31,6 @@ sudo ln -sfT sudo /etc/pam.d/sudo-i
 # (e.g. HandlePowerKey overrides) take effect without dropping sessions.
 sudo systemctl kill -s HUP systemd-logind
 
-# Reload udev rules and re-trigger so changes in etc/udev/rules.d/ apply
-# to already-plugged devices without a reboot or replug.
-sudo udevadm control --reload
-sudo udevadm trigger
-
 # Make sudo-rs the system-wide sudo via /usr/local/bin precedence.
 # Targets may not exist yet on first bootstrap (sudo-rs is installed by
 # the subsequent pkg-apply step); the symlinks resolve once it lands.

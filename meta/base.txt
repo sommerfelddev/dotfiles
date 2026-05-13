@@ -180,6 +180,11 @@ inhibridge
 # secrets under ~/.password-store/secret-service/.
 pass-secret-service-bin
 
+# Ships /usr/lib/udev/rules.d/50-qmk.rules, which (among many vendors)
+# tags ZSA's VID 3297 hidraw nodes with uaccess. Required for VIA /
+# usevia.app (WebHID) to talk to the ErgoDox EZ / Moonlander / Voyager.
+qmk
+
 # Clipboard
 wl-clipboard
 cliphist
