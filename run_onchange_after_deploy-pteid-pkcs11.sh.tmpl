@@ -25,47 +25,65 @@ SO_DIR=$(dirname "$SO")
 SO_IN_SANDBOX="/run/host$SO"
 SO_DIR_IN_SANDBOX="/run/host$SO_DIR"
 
-if ! command -v modutil >/dev/null 2>&1; then
-  echo "pteid-pkcs11: modutil not found (install nss); skipping NSS registration." >&2
-  exit 0
+if ! command -v modutil >/dev/null 2>&1 || ! command -v certutil >/dev/null 2>&1; then
+	echo "pteid-pkcs11: modutil/certutil not found (install nss); skipping NSS registration." >&2
+	exit 0
 fi
 
+apply_override() {
+	flatpak info --user "$1" >/dev/null 2>&1 || return 1
+	flatpak override --user \
+		--filesystem="$PTEID_LOC/files:ro" \
+		--socket=pcsc \
+		--env="LD_LIBRARY_PATH=$SO_DIR_IN_SANDBOX" \
+		"$1"
+}
+
+register_in_profile() {
+	prof="$1"
+	proc_name="$2"
+	[ -d "$prof" ] || return 0
+	if [ ! -f "$prof/cert9.db" ]; then
+		certutil -N -d "sql:$prof" --empty-password >/dev/null 2>&1 || return 0
+	fi
+	[ -f "$prof/cert9.db" ] || return 0
+	if modutil -list -dbdir "sql:$prof" 2>/dev/null | grep -q "^[[:space:]]*Name:[[:space:]]*$MODULE_NAME$"; then
+		return 0
+	fi
+	if pgrep -u "$(id -u)" -x "$proc_name" >/dev/null 2>&1; then
+		echo "pteid-pkcs11: $proc_name is running; close it and re-run 'chezmoi apply' to register the PKCS#11 module." >&2
+		return 0
+	fi
+	modutil -add "$MODULE_NAME" -libfile "$SO_IN_SANDBOX" -dbdir "sql:$prof" -force >/dev/null
+	echo "pteid-pkcs11: registered $MODULE_NAME in ${prof#"$HOME/"}"
+}
+
+# Mozilla-family flatpaks: per-profile NSS DBs under ~/.var/app/<id>/<profile_subdir>/<profile>/
 # Each line: <flatpak_app_id> <profile_subdir> <process_name>
-# - profile_subdir is the directory under ~/.var/app/<id>/ that holds the
-#   per-profile NSS DBs (cert9.db lives in each <profile>/ underneath it)
-# - process_name is the binary name to grep for to detect a running instance
-APPS="\
+MOZILLA_APPS="\
 io.gitlab.librewolf-community .librewolf librewolf
 org.mozilla.Thunderbird .thunderbird thunderbird"
 
-echo "$APPS" | while IFS=' ' read -r app profile_subdir proc_name; do
-  [ -n "$app" ] || continue
-  flatpak info --user "$app" >/dev/null 2>&1 || continue
+echo "$MOZILLA_APPS" | while IFS=' ' read -r app profile_subdir proc_name; do
+	[ -n "$app" ] || continue
+	apply_override "$app" || continue
+	profiles_dir="$HOME/.var/app/$app/$profile_subdir"
+	[ -d "$profiles_dir" ] || continue
+	for prof in "$profiles_dir"/*/; do
+		register_in_profile "$prof" "$proc_name"
+	done
+done
 
-  flatpak override --user \
-    --filesystem="$PTEID_LOC/files:ro" \
-    --socket=pcsc \
-    --env="LD_LIBRARY_PATH=$SO_DIR_IN_SANDBOX" \
-    "$app"
+# Shared-NSS flatpaks (Poppler/LibreOffice): single ~/.pki/nssdb inside the sandbox.
+# Each line: <flatpak_app_id> <process_name>
+SHARED_NSS_APPS="\
+org.kde.okular okular
+org.libreoffice.LibreOffice soffice.bin"
 
-  profiles_dir="$HOME/.var/app/$app/$profile_subdir"
-  [ -d "$profiles_dir" ] || continue
-
-  registered=0
-  for prof in "$profiles_dir"/*/; do
-    [ -f "$prof/cert9.db" ] || continue
-    if modutil -list -dbdir "sql:$prof" 2>/dev/null | grep -q "^[[:space:]]*Name:[[:space:]]*$MODULE_NAME$"; then
-      continue
-    fi
-    if pgrep -u "$(id -u)" -x "$proc_name" >/dev/null 2>&1; then
-      echo "pteid-pkcs11: $proc_name is running; close it and re-run 'chezmoi apply' to register the PKCS#11 module." >&2
-      continue
-    fi
-    modutil -add "$MODULE_NAME" -libfile "$SO_IN_SANDBOX" -dbdir "sql:$prof" -force >/dev/null
-    registered=$((registered + 1))
-  done
-
-  if [ "$registered" -gt 0 ]; then
-    echo "pteid-pkcs11: registered $MODULE_NAME in $registered $proc_name profile(s)."
-  fi
+echo "$SHARED_NSS_APPS" | while IFS=' ' read -r app proc_name; do
+	[ -n "$app" ] || continue
+	apply_override "$app" || continue
+	prof="$HOME/.var/app/$app/.pki/nssdb"
+	mkdir -p "$prof"
+	register_in_profile "$prof/" "$proc_name"
 done
