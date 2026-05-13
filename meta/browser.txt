@@ -1,2 +1,1 @@
 arkenfox-user.js
-librewolf-bin

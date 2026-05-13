@@ -41,7 +41,7 @@ case "$url" in
     setsid xdot "$url" >/dev/null 2>&1 &
     ;;
   http*)
-    librewolf "$url" >/dev/null 2>&1 &
+    flatpak run io.gitlab.librewolf-community "$url" >/dev/null 2>&1 &
     ;;
   *)
     $TERMINAL -e "$EDITOR" "$1"
