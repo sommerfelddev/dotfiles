@@ -11,11 +11,11 @@ MARK=tb-main
 thunderbird &
 
 for _ in $(seq 1 200); do
-    if swaymsg -t get_tree | jq -e --arg m "$MARK" '
+  if swaymsg -t get_tree | jq -e --arg m "$MARK" '
         [.. | objects | select(.marks? // [] | index($m))] | length > 0
     ' >/dev/null 2>&1; then
-        swaymsg "[con_mark=\"$MARK\"] move container to scratchpad" >/dev/null
-        exit 0
-    fi
-    sleep 0.1
+    swaymsg "[con_mark=\"$MARK\"] move container to scratchpad" >/dev/null
+    exit 0
+  fi
+  sleep 0.1
 done

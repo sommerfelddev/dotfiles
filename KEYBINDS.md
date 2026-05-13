@@ -223,38 +223,38 @@ Emacs mode (`bindkey -e`) is the base.
 
 ### Custom bindings (.zshrc)
 
-| Key              | Action                                  |
-| ---------------- | --------------------------------------- |
-| `Ctrl-U`         | Backward kill line                      |
-| `Ctrl-Right`     | Forward word                            |
-| `Ctrl-Left`      | Backward word                           |
-| `Alt-Right`      | Forward word                            |
-| `Alt-Left`       | Backward word                           |
-| `Ctrl-Backspace` | Backward kill word                      |
-| `Ctrl-Delete`    | Kill word                               |
-| `Ctrl-Z`         | Toggle foreground/background            |
-| `Ctrl-D`         | Exit shell (even on non-empty line)     |
-| `Ctrl-X Ctrl-E`  | Edit command in $EDITOR                 |
-| `Ctrl-Y`         | Copy command line to clipboard (OSC 52) |
-| `.`              | Smart dot expansion (.. → ../..)        |
-| `Shift-Tab`      | Accept autosuggestion                   |
-| `Up` / `Down`    | History substring search                |
-| `Ctrl-R`         | fzf history search (built-in)           |
-| `Ctrl-X Ctrl-R`  | fzf history search + execute            |
-| `Ctrl-T`         | fzf file picker (built-in)              |
-| `Alt-C`          | fzf cd (built-in)                       |
+| Key              | Action                                   |
+| ---------------- | ---------------------------------------- |
+| `Ctrl-U`         | Backward kill line                       |
+| `Ctrl-Right`     | Forward word                             |
+| `Ctrl-Left`      | Backward word                            |
+| `Alt-Right`      | Forward word                             |
+| `Alt-Left`       | Backward word                            |
+| `Ctrl-Backspace` | Backward kill word                       |
+| `Ctrl-Delete`    | Kill word                                |
+| `Ctrl-Z`         | Toggle foreground/background             |
+| `Ctrl-D`         | Exit shell (even on non-empty line)      |
+| `Ctrl-X Ctrl-E`  | Edit command in $EDITOR                  |
+| `Ctrl-Y`         | Copy command line to clipboard (OSC 52)  |
+| `.`              | Smart dot expansion (.. → ../..)         |
+| `Shift-Tab`      | Accept autosuggestion                    |
+| `Up` / `Down`    | History substring search                 |
+| `Ctrl-R`         | fzf history search (built-in)            |
+| `Ctrl-X Ctrl-R`  | fzf history search + execute             |
+| `Ctrl-T`         | fzf file picker (built-in)               |
+| `Alt-C`          | fzf cd (built-in)                        |
 | `Alt-Shift-Y`    | Copy last command's output (zellij only) |
 
 ## Ghostty
 
 ### Unbound (disabled defaults)
 
-| Key                      | Reason                |
-| ------------------------ | --------------------- |
-| `Ctrl-Shift-T`           | Zellij handles tabs   |
-| `Ctrl-Shift-N`           | Zellij handles panes  |
-| `Ctrl-Shift-O`           | Unneeded              |
-| `Ctrl-Shift-Enter`       | Zellij handles splits |
+| Key                | Reason                |
+| ------------------ | --------------------- |
+| `Ctrl-Shift-T`     | Zellij handles tabs   |
+| `Ctrl-Shift-N`     | Zellij handles panes  |
+| `Ctrl-Shift-O`     | Unneeded              |
+| `Ctrl-Shift-Enter` | Zellij handles splits |
 
 ### Custom bindings
 
@@ -302,34 +302,34 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 
 ### Personal keybinds (sway/config)
 
-| Key                    | Action                                        |
-| ---------------------- | --------------------------------------------- |
-| `XF86AudioRaiseVolume` | Volume +5%                                    |
-| `XF86AudioLowerVolume` | Volume -5%                                    |
-| `XF86AudioMute`        | Mute toggle                                   |
-| `Super+m`              | Mic mute toggle                               |
-| `Super+Shift+m`        | Speaker mute toggle                           |
-| `XF86AudioPlay`        | Play/pause                                    |
-| `XF86AudioNext`        | Next track                                    |
-| `XF86AudioPrev`        | Previous track                                |
-| `XF86MonBrightnessUp`  | Brightness +5% (brightnessctl)                |
-| `XF86MonBrightnessDown`| Brightness -5% (brightnessctl)                |
-| `XF86AudioMicMute`     | Mic mute toggle                               |
-| `XF86Bluetooth`        | Bluetooth power toggle (bluetoothctl)         |
-| `XF86ScreenSaver`      | Lock screen + pause media (same as Super+Shift+s)|
-| `XF86Sleep`            | Suspend system (systemctl suspend)            |
-| `XF86WLAN`             | Toggle Wi-Fi (rfkill)                         |
-| `XF86RFKill`           | Toggle all radios (rfkill)                    |
-| `Print`                | Region screenshot (grim+slurp)                |
-| `Shift+Print`          | Full screenshot (grim)                        |
-| `Super+Shift+s`        | Lock screen + pause media                     |
-| `Super+n`              | Dismiss notification                          |
-| `Super+Shift+n`        | Dismiss all notifications                     |
-| `Super+v`              | Clipboard history picker (cliphist + fuzzel)  |
-| `Super+Shift+v`        | Clipboard history delete entry                |
-| `Super+Tab`            | Next workspace                                |
-| `Super+Shift+Tab`      | Previous workspace                            |
-| `F7`                   | Toggle display mode (laptop-off/side-by-side) |
-| `Super+z` then `w`     | Display QR for clipboard (wqr)                |
-| `Super+z` then `r`     | Scan QR via webcam, copy to clipboard (rqr)   |
-| `Super+t`              | Toggle Thunderbird (tiled on current workspace)|
+| Key                     | Action                                            |
+| ----------------------- | ------------------------------------------------- |
+| `XF86AudioRaiseVolume`  | Volume +5%                                        |
+| `XF86AudioLowerVolume`  | Volume -5%                                        |
+| `XF86AudioMute`         | Mute toggle                                       |
+| `Super+m`               | Mic mute toggle                                   |
+| `Super+Shift+m`         | Speaker mute toggle                               |
+| `XF86AudioPlay`         | Play/pause                                        |
+| `XF86AudioNext`         | Next track                                        |
+| `XF86AudioPrev`         | Previous track                                    |
+| `XF86MonBrightnessUp`   | Brightness +5% (brightnessctl)                    |
+| `XF86MonBrightnessDown` | Brightness -5% (brightnessctl)                    |
+| `XF86AudioMicMute`      | Mic mute toggle                                   |
+| `XF86Bluetooth`         | Bluetooth power toggle (bluetoothctl)             |
+| `XF86ScreenSaver`       | Lock screen + pause media (same as Super+Shift+s) |
+| `XF86Sleep`             | Suspend system (systemctl suspend)                |
+| `XF86WLAN`              | Toggle Wi-Fi (rfkill)                             |
+| `XF86RFKill`            | Toggle all radios (rfkill)                        |
+| `Print`                 | Region screenshot (grim+slurp)                    |
+| `Shift+Print`           | Full screenshot (grim)                            |
+| `Super+Shift+s`         | Lock screen + pause media                         |
+| `Super+n`               | Dismiss notification                              |
+| `Super+Shift+n`         | Dismiss all notifications                         |
+| `Super+v`               | Clipboard history picker (cliphist + fuzzel)      |
+| `Super+Shift+v`         | Clipboard history delete entry                    |
+| `Super+Tab`             | Next workspace                                    |
+| `Super+Shift+Tab`       | Previous workspace                                |
+| `F7`                    | Toggle display mode (laptop-off/side-by-side)     |
+| `Super+z` then `w`      | Display QR for clipboard (wqr)                    |
+| `Super+z` then `r`      | Scan QR via webcam, copy to clipboard (rqr)       |
+| `Super+t`               | Toggle Thunderbird (tiled on current workspace)   |

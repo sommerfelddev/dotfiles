@@ -6,11 +6,11 @@ set -eu
 
 state=$(bluetoothctl show | awk '/Powered:/ {print $2}')
 if [ "$state" = "yes" ]; then
-	bluetoothctl power off >/dev/null
-	notify-send -t 1500 -h string:x-canonical-private-synchronous:bt \
-		'Bluetooth' 'off'
+  bluetoothctl power off >/dev/null
+  notify-send -t 1500 -h string:x-canonical-private-synchronous:bt \
+    'Bluetooth' 'off'
 else
-	bluetoothctl power on >/dev/null
-	notify-send -t 1500 -h string:x-canonical-private-synchronous:bt \
-		'Bluetooth' 'on'
+  bluetoothctl power on >/dev/null
+  notify-send -t 1500 -h string:x-canonical-private-synchronous:bt \
+    'Bluetooth' 'on'
 fi

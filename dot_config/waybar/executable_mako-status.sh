@@ -4,25 +4,25 @@
 set -eu
 
 if ! command -v makoctl >/dev/null 2>&1; then
-	printf '{"text":"","tooltip":"mako not installed","class":"off"}\n'
-	exit 0
+  printf '{"text":"","tooltip":"mako not installed","class":"off"}\n'
+  exit 0
 fi
 
-count=$(makoctl history 2>/dev/null \
-	| grep -c '"summary"' || true)
-pending=$(makoctl list 2>/dev/null \
-	| grep -c '"summary"' || true)
+count=$(makoctl history 2>/dev/null |
+  grep -c '"summary"' || true)
+pending=$(makoctl list 2>/dev/null |
+  grep -c '"summary"' || true)
 
 if [ "$pending" -gt 0 ]; then
-	text="!$pending"
-	class="pending"
+  text="!$pending"
+  class="pending"
 elif [ "$count" -gt 0 ]; then
-	text="$count"
-	class="history"
+  text="$count"
+  class="history"
 else
-	text="0"
-	class="empty"
+  text="0"
+  class="empty"
 fi
 
 printf '{"text":"%s","tooltip":"%s pending / %s history","class":"%s"}\n' \
-	"$text" "$pending" "$count" "$class"
+  "$text" "$pending" "$count" "$class"

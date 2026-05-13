@@ -18,17 +18,17 @@ tb_ws=$(swaymsg -t get_tree | jq -r --arg m "$MARK" '
     ) // empty')
 
 if [ -z "$tb_ws" ]; then
-    exec thunderbird
+  exec thunderbird
 fi
 
 if [ "$tb_ws" = "__i3_scratch" ]; then
-    # scratchpad show reveals it as floating; floating disable tiles it on the
-    # current workspace.
-    swaymsg "[con_mark=\"$MARK\"] scratchpad show, floating disable" >/dev/null
+  # scratchpad show reveals it as floating; floating disable tiles it on the
+  # current workspace.
+  swaymsg "[con_mark=\"$MARK\"] scratchpad show, floating disable" >/dev/null
 else
-    # Criteria-based move can cause sway to follow focus to the originating
-    # workspace. Pin focus back to where we started.
-    current_ws=$(swaymsg -t get_workspaces | jq -r '.[] | select(.focused) | .name')
-    swaymsg "[con_mark=\"$MARK\"] move container to scratchpad" >/dev/null
-    swaymsg "workspace \"$current_ws\"" >/dev/null
+  # Criteria-based move can cause sway to follow focus to the originating
+  # workspace. Pin focus back to where we started.
+  current_ws=$(swaymsg -t get_workspaces | jq -r '.[] | select(.focused) | .name')
+  swaymsg "[con_mark=\"$MARK\"] move container to scratchpad" >/dev/null
+  swaymsg "workspace \"$current_ws\"" >/dev/null
 fi
