@@ -200,6 +200,7 @@ All binds are in `shared_except "locked"` mode (active everywhere except locked 
 | `Alt-1` through `Alt-9` | Go to tab N                       |
 | `Alt-t`                 | New tab                           |
 | `Alt-[` / `Alt-]`       | Previous / next tab               |
+| `Alt-\`                 | Cycle swap layouts (reset sizes)  |
 | `Alt-w`                 | Toggle pane fullscreen            |
 | `Alt-x`                 | Close focused pane                |
 | `Alt-e`                 | Edit scrollback                   |

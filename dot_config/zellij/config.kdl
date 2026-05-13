@@ -17,9 +17,8 @@ attach_to_session true
 show_startup_tips false
 show_release_notes false
 
-// Clean UI: no pane borders, compact single-line status bar
+// Clean UI: no pane borders
 pane_frames false
-default_layout "compact"
 
 // Custom keybindings (merged with defaults)
 keybinds {
@@ -39,6 +38,10 @@ keybinds {
         bind "Alt t" { NewTab; }
         bind "Alt [" { GoToPreviousTab; }
         bind "Alt ]" { GoToNextTab; }
+
+        // Cycle swap layouts (tiled/stacked variants) — nearest thing to
+        // "reset pane sizes", since zellij has no equalize action.
+        bind "Alt \\" { NextSwapLayout; }
 
         // Pane management
         bind "Alt w" { ToggleFocusFullscreen; }
