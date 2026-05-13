@@ -5,10 +5,9 @@
 # from "no problems" to "non-zero" (i.e. on the post-`pacman -Syu`
 # settle), so you're nudged exactly once per upgrade wave.
 #
-# Click handler hands off to a root shell that sets DIFFPROG before
-# invoking pacdiff (sudo-rs scrubs the env by default, so passing
-# `DIFFPROG=… sudo pacdiff` or `sudo DIFFPROG=… pacdiff` doesn't
-# survive — but `sudo sh -c 'DIFFPROG=… pacdiff'` does).
+# Click handler runs `DIFFPROG='nvim -d' sudo pacdiff` in a floating
+# ghostty. DIFFPROG is propagated through sudo-rs by the env_keep policy
+# in etc/sudoers-rs (no -E needed — env_keep is unconditional pass-through).
 
 set -eu
 

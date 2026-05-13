@@ -2,6 +2,22 @@
 Defaults!/usr/bin/visudo-rs    env_keep += "SUDO_EDITOR EDITOR VISUAL"
 Defaults!/usr/local/bin/visudo env_keep += "SUDO_EDITOR EDITOR VISUAL"
 
+# Pass through interactive/UX env vars so commands run via sudo behave the
+# way they do in a normal shell. Specifically:
+#   DIFFPROG       — pacdiff(8), etckeeper, etc.
+#   EDITOR/VISUAL  — sudoedit, systemctl edit, git rebase -i under sudo, …
+#   SUDO_EDITOR    — explicit override for sudoedit
+#   PAGER/MANPAGER — pacman, systemctl, man, less wrappers
+#   LESS / LESSOPEN — `less` behaviour and preprocessor
+#   SYSTEMD_PAGER / SYSTEMD_LESS — systemctl's pager
+#   GIT_EDITOR / GIT_PAGER — git invocations under sudo
+# None of these influence privilege boundaries; they just configure
+# user-facing behaviour of programs that happen to run as root.
+Defaults env_keep += "DIFFPROG"
+Defaults env_keep += "EDITOR VISUAL SUDO_EDITOR GIT_EDITOR"
+Defaults env_keep += "PAGER MANPAGER GIT_PAGER SYSTEMD_PAGER"
+Defaults env_keep += "LESS LESSOPEN SYSTEMD_LESS"
+
 # Sanitize PATH for elevated commands.
 Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/bin"
 
