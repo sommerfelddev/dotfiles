@@ -13,6 +13,7 @@ dog
 duf
 fastfetch
 fd
+fwupd
 fzf
 gdu
 git
@@ -45,6 +46,7 @@ ripgrep
 rsync
 sbctl
 sd
+smartmontools
 systemd-resolvconf
 tldr
 tlp

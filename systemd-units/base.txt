@@ -1,9 +1,9 @@
 # Systemd units to enable when the 'base' meta group is installed.
 # One unit per line, # comments OK.
 
-fstrim.timer
 systemd-timesyncd.service
 systemd-resolved.service
+systemd-oomd.service
 reflector.timer
 paccache.timer
 pkgstats.timer
@@ -14,3 +14,6 @@ systemd-networkd.service
 systemd-networkd-wait-online.service
 tlp.service
 pcscd.socket
+smartd.service
+btrfs-scrub@-.timer
+fwupd-refresh.timer
