@@ -1,0 +1,62 @@
+#!/bin/sh
+# Bridge the pt.gov.autenticacao flatpak's PKCS#11 module into the LibreWolf
+# flatpak's NSS database so cartão de cidadão authentication works in the
+# browser despite the cross-sandbox isolation.
+#
+# Idempotent. Re-runs whenever this script or the pt.gov.autenticacao entry
+# in meta/flatpak.txt changes.
+#
+# pteid entry hash: {{ output "sh" "-c" (printf "grep '^pt\\.gov\\.autenticacao' %q/meta/flatpak.txt 2>/dev/null || true" .chezmoi.sourceDir) | sha256sum }}
+set -eu
+
+PTEID_APP=pt.gov.autenticacao
+BROWSER_APP=io.gitlab.librewolf-community
+MODULE_NAME=pteid-mw
+
+flatpak info --user "$PTEID_APP" >/dev/null 2>&1 || exit 0
+flatpak info --user "$BROWSER_APP" >/dev/null 2>&1 || exit 0
+
+PTEID_LOC=$(flatpak info --user --show-location "$PTEID_APP" 2>/dev/null)
+[ -d "$PTEID_LOC/files" ] || exit 0
+
+SO=$(find "$PTEID_LOC/files" -name 'libpteidpkcs11.so' -type f 2>/dev/null | head -1)
+[ -n "$SO" ] && [ -f "$SO" ] || exit 0
+SO_DIR=$(dirname "$SO")
+
+# flatpak --filesystem mounts host paths under /run/host inside the sandbox.
+SO_IN_SANDBOX="/run/host$SO"
+SO_DIR_IN_SANDBOX="/run/host$SO_DIR"
+
+flatpak override --user \
+    --filesystem="$PTEID_LOC/files:ro" \
+    --socket=pcsc \
+    --env="LD_LIBRARY_PATH=$SO_DIR_IN_SANDBOX" \
+    "$BROWSER_APP"
+
+command -v modutil >/dev/null 2>&1 || {
+    echo "pteid-pkcs11: modutil not found (install nss); skipping NSS registration." >&2
+    exit 0
+}
+
+PROFILES_DIR="$HOME/.var/app/$BROWSER_APP/.librewolf"
+[ -d "$PROFILES_DIR" ] || exit 0
+
+registered=0
+skipped=0
+for prof in "$PROFILES_DIR"/*/; do
+    [ -f "$prof/cert9.db" ] || continue
+    if modutil -list -dbdir "sql:$prof" 2>/dev/null | grep -q "^[[:space:]]*Name:[[:space:]]*$MODULE_NAME$"; then
+        skipped=$((skipped + 1))
+        continue
+    fi
+    if pgrep -u "$(id -u)" -x librewolf >/dev/null 2>&1; then
+        echo "pteid-pkcs11: LibreWolf is running; close it and re-run 'chezmoi apply' to register the PKCS#11 module." >&2
+        exit 0
+    fi
+    modutil -add "$MODULE_NAME" -libfile "$SO_IN_SANDBOX" -dbdir "sql:$prof" -force >/dev/null
+    registered=$((registered + 1))
+done
+
+if [ "$registered" -gt 0 ]; then
+    echo "pteid-pkcs11: registered $MODULE_NAME in $registered LibreWolf profile(s)."
+fi

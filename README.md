@@ -82,6 +82,7 @@ Everything is driven by [just](https://just.systems/) recipes against four paral
 | `systemd-units/{system,user}/*.txt` | `just unit-apply`, `just unit-status`       | Units to enable, split by scope. `system/` files pair by name with `meta/` groups (`system/base.txt` ↔ `meta/base.txt`); `user/` files are standalone. Recipe group token: `<name>` / `system:<name>` / `user:<name>`. |
 | `etc/`                              | `run_onchange_after_deploy-etc.sh.tmpl`     | System-level configs deployed to `/etc/` via a chezmoi onchange hook.                                                                                                                                                  |
 | `firefox/`                          | `run_onchange_after_deploy-firefox.sh.tmpl` | LibreWolf `user-overrides.js` + `userChrome.css` (kept under the familiar `firefox/` name).                                                                                                                            |
+| (cartão de cidadão)                 | `run_onchange_after_deploy-pteid-pkcs11.sh.tmpl` | Bridges the `pt.gov.autenticacao` flatpak's PKCS#11 module into the LibreWolf flatpak's NSS DB (filesystem + `--socket=pcsc` override + `modutil -add`). No-op unless both flatpaks are installed. |
 
 ## Recipes at a glance
 
