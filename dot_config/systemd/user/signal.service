@@ -1,0 +1,14 @@
+[Unit]
+Description=Signal Desktop (flatpak)
+PartOf=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/flatpak run org.signal.Signal --start-in-tray
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=sway-session.target
