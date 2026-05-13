@@ -1,1 +1,2 @@
 protonmail-bridge-core
+thunderbird

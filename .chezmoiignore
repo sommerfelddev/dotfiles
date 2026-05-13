@@ -5,6 +5,7 @@ meta/
 systemd-units/
 etc/
 firefox/
+thunderbird/
 justfile
 just-lib.sh
 selene.toml
