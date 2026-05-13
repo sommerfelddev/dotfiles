@@ -4,3 +4,5 @@ thunderbird
 perl-authen-sasl
 perl-mime-tools
 perl-net-smtp-ssl
+# Edit messages in nvim (kernel-style inline patch review without TB mangling)
+external-editor-revived

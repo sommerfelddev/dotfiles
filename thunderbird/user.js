@@ -18,7 +18,10 @@ user_pref("mail.inline_attachments", false);
 user_pref("mail.mdn.report.enabled", false);
 user_pref("mail.incorporate.return_receipt", 0);
 
-/** Compose — plain text, format=flowed wrap at 72 **/
+/** Compose — plain text, format=flowed wrap at 72.
+ ** For kernel-style patch review, use the External Editor Revived addon
+ ** (Ctrl-E in compose); it bypasses TB's editor so flowed/wrap/top-post
+ ** below don't apply to those messages. **/
 user_pref("mail.identity.default.compose_html", false);
 user_pref("mail.default_html_action", 2);
 user_pref("mailnews.send_plaintext_flowed", true);
