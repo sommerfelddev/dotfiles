@@ -64,7 +64,7 @@ bindsym $mod+Return exec $term
 bindsym $mod+Shift+Return exec $term -e yazi
 bindsym $mod+Shift+q kill
 bindsym $mod+d exec $menu
-bindsym $mod+Shift+b exec librewolf
+bindsym $mod+Shift+b exec flatpak run io.gitlab.librewolf-community
 
 # Navigation
 bindsym $mod+h focus left
