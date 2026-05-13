@@ -17,6 +17,7 @@
     "clock",
     "idle_inhibitor",
     "privacy",
+    "custom/notifications",
     "tray",
   ],
 
@@ -151,5 +152,15 @@
       { "type": "screenshare", "tooltip": true },
       { "type": "audio-in", "tooltip": true },
     ],
+  },
+
+  "custom/notifications": {
+    "exec": "~/.config/waybar/mako-status.sh",
+    "return-type": "json",
+    "interval": 2,
+    "on-click": "makoctl dismiss",
+    "on-click-right": "makoctl dismiss --all",
+    "on-click-middle": "makoctl restore",
+    "tooltip": true,
   },
 }
