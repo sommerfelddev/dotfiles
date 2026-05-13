@@ -1,11 +1,16 @@
 [Unit]
 Description=Signal Desktop (flatpak)
 PartOf=graphical-session.target
-After=graphical-session.target
+Requires=waybar.service
+After=graphical-session.target waybar.service
 ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 Type=simple
+# Wait until waybar has registered org.kde.StatusNotifierWatcher on the
+# user bus, otherwise Signal launches without a tray icon and there is
+# no way to raise the window.
+ExecStartPre=/bin/sh -c 'for _ in $(seq 1 60); do busctl --user --timeout=1 status org.kde.StatusNotifierWatcher >/dev/null 2>&1 && exit 0; sleep 0.5; done; exit 1'
 ExecStart=/usr/bin/flatpak run org.signal.Signal --start-in-tray
 Restart=on-failure
 RestartSec=5s
