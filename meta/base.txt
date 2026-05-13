@@ -174,10 +174,11 @@ swayidle
 inhibridge
 
 # org.freedesktop.secrets D-Bus implementation backed by pass. Required
-# by Signal Desktop (flatpak) and other libsecret consumers; D-Bus
-# activated, no service to enable. Stores secrets under
-# ~/.password-store/secret-service/.
-pass-secret-service
+# by Signal Desktop (flatpak) and other libsecret consumers. Ships both
+# a D-Bus activation file and a systemd user unit; we enable the unit
+# explicitly so it's visible in `systemctl --user status`. Stores
+# secrets under ~/.password-store/secret-service/.
+pass-secret-service-bin
 
 # Clipboard
 wl-clipboard
