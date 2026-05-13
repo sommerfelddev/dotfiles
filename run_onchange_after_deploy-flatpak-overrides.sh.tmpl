@@ -19,3 +19,13 @@ apply io.mpv.Mpv --filesystem=xdg-config/mpv:ro
 # LibreWolf needs raw /dev access for v4l2 webcams. Flatpak has no
 # finer-grained device option, so this opens video/dri/snd at once.
 apply io.gitlab.librewolf-community --device=all
+
+# Host fonts (notably noto-fonts-emoji) for every flatpak. Without this,
+# browsers and other GUI apps fall back to tofu boxes for emoji and
+# nerd-font glyphs. Applied globally with `flatpak override --user`
+# (no app argument).
+flatpak override --user \
+	--filesystem=/usr/share/fonts:ro \
+	--filesystem=/usr/local/share/fonts:ro \
+	--filesystem=xdg-data/fonts:ro \
+	--filesystem=xdg-config/fontconfig:ro
