@@ -7,21 +7,21 @@ set -eu
 
 cd "$CHEZMOI_SOURCE_DIR"
 find etc -type f ! -name .ignore | while IFS= read -r src; do
-	case "$src" in
-	*.tmpl)
-		dest="/${src%.tmpl}"
-		tmp=$(mktemp)
-		chezmoi execute-template <"$src" >"$tmp"
-		sudo install -D -m 0644 -o root -g root "$tmp" "$dest"
-		rm -f "$tmp"
-		;;
-	etc/sudoers-rs)
-		sudo install -D -m 0440 -o root -g root "$src" "/${src}"
-		;;
-	*)
-		sudo install -D -m 0644 -o root -g root "$src" "/${src}"
-		;;
-	esac
+  case "$src" in
+    *.tmpl)
+      dest="/${src%.tmpl}"
+      tmp=$(mktemp)
+      chezmoi execute-template <"$src" >"$tmp"
+      sudo install -D -m 0644 -o root -g root "$tmp" "$dest"
+      rm -f "$tmp"
+      ;;
+    etc/sudoers-rs)
+      sudo install -D -m 0440 -o root -g root "$src" "/${src}"
+      ;;
+    *)
+      sudo install -D -m 0644 -o root -g root "$src" "/${src}"
+      ;;
+  esac
 done
 
 # sudo-rs: /etc/pam.d/sudo-i is a symlink to /etc/pam.d/sudo

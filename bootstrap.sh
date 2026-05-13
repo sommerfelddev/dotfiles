@@ -67,15 +67,20 @@ else
 fi
 
 # 5. run just init — this deploys chezmoi, installs the 'base' meta list
-#    (which pulls in sudo-rs), deploys /etc/sudoers-rs and /etc/pam.d/sudo,
-#    creates /usr/local/bin/{sudo,su,visudo,sudoedit} symlinks pointing at
+#    (which pulls in sudo-rs), deploys /etc/sudoers-rs, /etc/pam.d/sudo,
+#    and the AssumeInstalled = sudo line in /etc/pacman.conf, creates
+#    /usr/local/bin/{sudo,su,visudo,sudoedit} symlinks pointing at
 #    sudo-rs, and installs git hooks.
-#    The classic 'sudo' package installed in step 2 stays alongside
-#    sudo-rs as a safety net; remove it manually with `sudo pacman -Rns
-#    sudo` once you've verified `sudo --version` reports sudo-rs.
 cd "$DOTFILES_DIR"
 log 'running just init'
 just init
+
+# 5b. remove the classic sudo package — base-devel's dependency is
+#     satisfied by the AssumeInstalled = sudo line written above.
+if pacman -Qq sudo >/dev/null 2>&1 && pacman -Qq sudo-rs >/dev/null 2>&1; then
+  log 'removing classic sudo (sudo-rs takes over)'
+  sudo pacman -Rns --noconfirm sudo || warn 'failed to remove sudo; remove it manually later'
+fi
 
 # 6. refresh pacman mirrorlist once via reflector (config deployed by chezmoi)
 log 'refreshing pacman mirrorlist via reflector'
