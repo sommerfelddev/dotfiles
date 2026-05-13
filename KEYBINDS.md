@@ -243,6 +243,7 @@ Emacs mode (`bindkey -e`) is the base.
 | `Ctrl-X Ctrl-R`  | fzf history search + execute            |
 | `Ctrl-T`         | fzf file picker (built-in)              |
 | `Alt-C`          | fzf cd (built-in)                       |
+| `Alt-Shift-Y`    | Copy last command's output (zellij only) |
 
 ## Ghostty
 
