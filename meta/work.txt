@@ -7,4 +7,5 @@ intel-oneapi-dpcpp-cpp
 llvm
 openmp
 python-pytest
+snx-rs
 xdot
