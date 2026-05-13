@@ -35,7 +35,6 @@ require("which-key").setup({
     { "<leader>g", group = "[G]it" },
     { "<leader>h", group = "Git [H]unk", mode = { "n", "v" } },
     { "<leader>o", group = "[O]verseer" },
-    { "<leader>r", group = "[R]efactor" },
     { "<leader>w", group = "[W]orkspace" },
     { "<leader>t", group = "[T]oggle" },
   },

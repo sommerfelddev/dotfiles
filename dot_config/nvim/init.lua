@@ -56,7 +56,6 @@ vim.pack.add({
   gh("kylechui/nvim-surround"),
   gh("chrisgrieser/nvim-various-textobjs"),
   gh("monaqa/dial.nvim"),
-  gh("ThePrimeagen/refactoring.nvim"),
   gh("nvim-lua/plenary.nvim"),
 
   -- Git
