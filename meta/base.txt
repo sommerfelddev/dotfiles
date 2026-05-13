@@ -27,6 +27,7 @@ man-db
 man-pages
 neovim
 nfs-utils
+nftables
 nmap
 ocl-icd
 openssh

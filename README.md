@@ -121,6 +121,14 @@ Four sources of drift are tracked independently and combined by `just status`:
 - **/etc** (`just etc-status` / `just etc-diff`): repo-tracked files in `etc/` that differ from or are missing on the live `/etc`. Resolve with `just etc-apply` (repo → live), `just etc-re-add PATH` (live → repo), or `just etc-untrack PATH`.
 - **Units** (`just unit-status`): enabled units not in any `systemd-units/{system,user}/*.txt`, or declared units that aren't enabled (checked for both scopes).
 
+## Firewall
+
+Stateful nftables firewall with a laptop profile: default-deny inbound, allow outbound, loopback + established + ICMP/ICMPv6 + DHCPv6 client only. Ruleset at `etc/nftables.conf`; enabled via `nftables.service` in `systemd-units/system/base.txt`. Kernel hardening (rp_filter, no redirects, no source-route, log_martians) lives in `etc/sysctl.d/99-sysctl.conf`.
+
+The ruleset is scoped to `table inet filter` and uses `destroy table inet filter` on reload, so podman/netavark's own tables are preserved. Don't `systemctl stop nftables` — the package ExecStop runs a global `nft flush ruleset` which would nuke podman rules. Reload with `sudo systemctl reload nftables` or `sudo nft -f /etc/nftables.conf` instead.
+
+Verify with `sudo nft list ruleset`.
+
 ## Git hooks
 
 Activated by `just init` via `git config core.hooksPath .githooks`:
