@@ -20,11 +20,14 @@ state=${XDG_RUNTIME_DIR:-/tmp}/mako-dismissed
 # starts with "Notification N: <summary>". Visible bubbles live in
 # `list`, closed ones in `history`; their id-spaces are disjoint.
 extract_ids() {
-  makoctl "$1" 2>/dev/null \
-    | sed -n 's/^Notification \([0-9][0-9]*\):.*/\1/p'
+  makoctl "$1" 2>/dev/null |
+    sed -n 's/^Notification \([0-9][0-9]*\):.*/\1/p'
 }
 
-all_ids=$( { extract_ids list; extract_ids history; } | sort -un)
+all_ids=$({
+  extract_ids list
+  extract_ids history
+} | sort -un)
 
 # Prune stale ids (no longer present in mako) from the dismissed file.
 if [ -s "$state" ] && [ -n "$all_ids" ]; then

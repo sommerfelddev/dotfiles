@@ -123,15 +123,22 @@ def run_wofi(input_text: str, lines: int) -> tuple[int, str]:
         "wofi",
         "--dmenu",
         "--hide-search",
-        "--prompt", "Notifications",
-        "--define", "key_custom_0=Alt-c",
-        "--define", "key_custom_1=Alt-d",
-        "--lines", str(lines),
+        "--prompt",
+        "Notifications",
+        "--define",
+        "key_custom_0=Alt-c",
+        "--define",
+        "key_custom_1=Alt-d",
+        "--lines",
+        str(lines),
     ]
     if style.exists():
         cmd += ["--style", str(style)]
     proc = subprocess.run(
-        cmd, input=input_text, text=True, capture_output=True,
+        cmd,
+        input=input_text,
+        text=True,
+        capture_output=True,
     )
     return proc.returncode, proc.stdout.strip()
 

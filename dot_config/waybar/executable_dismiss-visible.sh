@@ -18,8 +18,8 @@ command -v makoctl >/dev/null 2>&1 || exit 0
 
 # This makoctl has no -f; extract ids from the text dump.
 list_ids() {
-  makoctl list 2>/dev/null \
-    | sed -n 's/^Notification \([0-9][0-9]*\):.*/\1/p'
+  makoctl list 2>/dev/null |
+    sed -n 's/^Notification \([0-9][0-9]*\):.*/\1/p'
 }
 
 case "$mode" in

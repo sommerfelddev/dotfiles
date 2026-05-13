@@ -13,20 +13,24 @@ PASS_PW=email/protonmail-bridge/pass
 HOST=127.0.0.1
 PORT=1143
 
-emit() { printf '%s\n' "$1"; exit 0; }
+emit() {
+  printf '%s\n' "$1"
+  exit 0
+}
 
 # Cheap reachability probe — avoids a 30s python TLS timeout when the bridge
 # is down (e.g. before it has finished unlocking on a fresh login).
-ncat -z -w 1 "$HOST" "$PORT" 2>/dev/null || \
+ncat -z -w 1 "$HOST" "$PORT" 2>/dev/null ||
   emit '{"text":"󰵂","tooltip":"bridge unreachable","class":"error","alt":"error"}'
 
-user=$(pass show "$PASS_USER" 2>/dev/null) || \
+user=$(pass show "$PASS_USER" 2>/dev/null) ||
   emit '{"text":"󰵂","tooltip":"missing pass entry: '"$PASS_USER"'","class":"error","alt":"error"}'
-pw=$(pass show "$PASS_PW" 2>/dev/null) || \
+pw=$(pass show "$PASS_PW" 2>/dev/null) ||
   emit '{"text":"󰵂","tooltip":"missing pass entry: '"$PASS_PW"'","class":"error","alt":"error"}'
 
-n=$(PROTONMAIL_BRIDGE_USER="$user" PROTONMAIL_BRIDGE_PASS="$pw" \
-  python3 - "$HOST" "$PORT" <<'PY' 2>/dev/null || true
+n=$(
+  PROTONMAIL_BRIDGE_USER="$user" PROTONMAIL_BRIDGE_PASS="$pw" \
+    python3 - "$HOST" "$PORT" <<'PY' 2>/dev/null || true
 import imaplib, os, ssl, sys
 host, port = sys.argv[1], int(sys.argv[2])
 ctx = ssl.create_default_context()
@@ -45,7 +49,7 @@ PY
 )
 
 case "$n" in
-  '')   emit '{"text":"󰵂","tooltip":"IMAP query failed","class":"error","alt":"error"}' ;;
-  0)    emit '{"text":"󰇮","tooltip":"Inbox: no unread","class":"empty","alt":"empty"}' ;;
-  *)    emit "$(printf '{"text":"󰇮 %s","tooltip":"Inbox: %s unread","class":"unread","alt":"unread"}' "$n" "$n")" ;;
+  '') emit '{"text":"󰵂","tooltip":"IMAP query failed","class":"error","alt":"error"}' ;;
+  0) emit '{"text":"󰇮","tooltip":"Inbox: no unread","class":"empty","alt":"empty"}' ;;
+  *) emit "$(printf '{"text":"󰇮 %s","tooltip":"Inbox: %s unread","class":"unread","alt":"unread"}' "$n" "$n")" ;;
 esac

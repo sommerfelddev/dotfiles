@@ -65,9 +65,9 @@ stop_and_transcribe() {
 
   text="$(
     whisper-cli -m "$model" -f "$wav_file" \
-      -l "$lang" -nt -np -t "$(nproc)" 2>"$log_file" \
-      | tr -s '[:space:]' ' ' \
-      | sed -e 's/^ //; s/ $//'
+      -l "$lang" -nt -np -t "$(nproc)" 2>"$log_file" |
+      tr -s '[:space:]' ' ' |
+      sed -e 's/^ //; s/ $//'
   )"
 
   if [ -z "$text" ]; then

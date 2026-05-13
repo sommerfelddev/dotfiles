@@ -7,17 +7,13 @@ title_format = "Yazi: {cwd}"
 # Override the default `open` opener so xdg-open is detached from yazi
 # (otherwise yazi treats the viewer as an unfinished task and prompts on quit).
 [opener]
-open = [
-  { run = 'xdg-open "$@"', desc = "Open", orphan = true },
-]
-view-md = [
-  { run = 'okular "$@"', desc = "View with Okular", orphan = true },
-]
+open = [{ run = 'xdg-open "$@"', desc = "Open", orphan = true }]
+view-md = [{ run = 'okular "$@"', desc = "View with Okular", orphan = true }]
 
 # Open markdown with okular directly (bypasses xdg-open / mimeapps).
 [open]
 prepend_rules = [
-  { name = "*.md",          use = "view-md" },
-  { name = "*.markdown",    use = "view-md" },
+  { name = "*.md", use = "view-md" },
+  { name = "*.markdown", use = "view-md" },
   { mime = "text/markdown", use = "view-md" },
 ]

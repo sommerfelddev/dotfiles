@@ -15,10 +15,10 @@ style=$HOME/.config/wofi/style.css
 
 set +e
 selection=$(
-  cliphist list \
-    | wofi --dmenu --hide-search --prompt Clip \
-           --define key_custom_0=Alt-d \
-           ${style:+--style "$style"}
+  cliphist list |
+    wofi --dmenu --hide-search --prompt Clip \
+      --define key_custom_0=Alt-d \
+      ${style:+--style "$style"}
 )
 rc=$?
 set -e
@@ -26,7 +26,7 @@ set -e
 [ -z "$selection" ] && exit 0
 
 case "$mode:$rc" in
-  pick:0)             printf '%s' "$selection" | cliphist decode | wl-copy ;;
-  pick:10)            printf '%s' "$selection" | cliphist delete ;;
-  delete:0|delete:10) printf '%s' "$selection" | cliphist delete ;;
+  pick:0) printf '%s' "$selection" | cliphist decode | wl-copy ;;
+  pick:10) printf '%s' "$selection" | cliphist delete ;;
+  delete:0 | delete:10) printf '%s' "$selection" | cliphist delete ;;
 esac

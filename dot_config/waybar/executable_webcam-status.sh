@@ -6,7 +6,7 @@ set -eu
 
 devs=$(echo /dev/video[0-9]*)
 case "$devs" in
-  '/dev/video[0-9]*') exit 0 ;;  # no devices present
+  '/dev/video[0-9]*') exit 0 ;; # no devices present
 esac
 
 # fuser exits 0 when at least one device has an opener, 1 otherwise. Stderr

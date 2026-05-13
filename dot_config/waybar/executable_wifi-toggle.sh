@@ -14,7 +14,10 @@ device=$(busctl --system --json=short call "$svc" / \
       | select(.value["net.connman.iwd.Device"].Name.data == $iface)
       | .key')
 
-[ -n "$device" ] || { notify-send -u critical "wifi" "iwd device $iface not found"; exit 1; }
+[ -n "$device" ] || {
+  notify-send -u critical "wifi" "iwd device $iface not found"
+  exit 1
+}
 
 powered=$(busctl --system --json=short get-property "$svc" "$device" \
   net.connman.iwd.Device Powered | jq -r '.data')
