@@ -1,0 +1,7 @@
+# Shokz OpenMeet (Loop120 dongle, 3511:2EF2) emits HID Consumer-page Power
+# (scancode c0030 -> KEY_POWER) on enumeration AND when the headset is
+# powered off, which causes systemd-logind to shut down the host. Suppress
+# only that scancode; KEY_MUTE / volume / media keys on the same Consumer
+# Control node remain functional.
+evdev:input:b0003v3511p2EF2*
+ KEYBOARD_KEY_c0030=reserved
