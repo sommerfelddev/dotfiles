@@ -267,6 +267,7 @@ Emacs mode (`bindkey -e`) is the base.
 | `Alt-d`                             | Scroll page down                   |
 | `Alt-g`                             | Scroll to top                      |
 | `Alt-Shift-g`                       | Scroll to bottom                   |
+| `Ctrl-Alt-Up` / `Ctrl-Alt-Down`     | Jump to previous / next shell prompt (OSC 133) |
 
 ## Yazi
 

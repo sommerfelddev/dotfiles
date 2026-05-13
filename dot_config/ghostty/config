@@ -35,3 +35,7 @@ keybind = alt+u=scroll_page_up
 keybind = alt+d=scroll_page_down
 keybind = alt+g=scroll_to_top
 keybind = alt+shift+g=scroll_to_bottom
+
+# Jump between shell prompts (requires OSC 133, emitted by ghostty's zsh integration)
+keybind = ctrl+alt+up=jump_to_prompt:-1
+keybind = ctrl+alt+down=jump_to_prompt:1
