@@ -1,8 +1,20 @@
-# Flathub app IDs. Managed by `just pkg-*` recipes via the magic
-# `flatpak` group name (see justfile). Installed with --user scope.
+# Flatpak apps. Managed by `just pkg-*` recipes via the magic `flatpak`
+# group name (see justfile). Installed with --user scope.
+#
+# Each non-comment line is one of:
+#   <app.id>            installed from Flathub
+#   <app.id>  <url>     installed from the .flatpak bundle at <url>
+#
+# Bundle entries are re-downloaded on `just flatpak-update` whenever the
+# version embedded in the URL differs from the installed version.
 
 io.gitlab.librewolf-community
 org.chromium.Chromium
 org.kde.okular
 org.libreoffice.LibreOffice
 org.torproject.torbrowser-launcher
+
+# Portuguese Citizen Card (eID) middleware + GUI. Not on Flathub; ships
+# as a standalone .flatpak bundle from upstream. Bump version by editing
+# the URL when amagovpt/autenticacao.gov publishes a new release.
+pt.gov.autenticacao  https://github.com/amagovpt/autenticacao.gov/releases/download/v3.14.0/pteid-mw-3.14.0-pcsclite-2.3.flatpak

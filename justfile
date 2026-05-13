@@ -31,9 +31,26 @@ update: pkg-update nvim-update flatpak-update
 pkg-update:
     paru -Syu
 
-# Update all user-scope flatpaks
+# Update all user-scope flatpaks (Flathub apps + URL bundles when their version changes)
 flatpak-update:
+    #!/bin/sh
+    set -eu
     flatpak update --user -y --noninteractive
+    [ -f meta/flatpak.txt ] || exit 0
+    awk '!/^[[:space:]]*(#|$)/ && NF>=2 {print $1, $2}' meta/flatpak.txt \
+        | while read -r id url; do
+            url_ver=$(echo "$url" | grep -oE 'v?[0-9]+(\.[0-9]+)+' | head -1 | sed 's/^v//')
+            installed_ver=$(flatpak info --user "$id" 2>/dev/null \
+                | awk -F: '/^[[:space:]]*Version:/ {gsub(/^[[:space:]]+|[[:space:]]+$/,"",$2); print $2; exit}')
+            if [ -n "$url_ver" ] && [ "$url_ver" = "$installed_ver" ]; then
+                continue
+            fi
+            echo ">>> updating $id from $url"
+            tmp=$(mktemp --suffix=.flatpak)
+            curl -fsSL -o "$tmp" "$url"
+            flatpak install --user -y --noninteractive --reinstall "$tmp"
+            rm -f "$tmp"
+        done
 
 # Update Neovim plugins (vim.pack) and Mason tools in a headless session
 nvim-update:
@@ -928,7 +945,7 @@ pkg-status:
         pacman -Qi "$pkg" >/dev/null 2>&1 || echo "  missing:    $pkg"
     done
     if [ -f meta/flatpak.txt ]; then
-        sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' meta/flatpak.txt | while read -r id; do
+        awk '!/^[[:space:]]*(#|$)/ {print $1}' meta/flatpak.txt | while read -r id; do
             [ -z "$id" ] && continue
             printf '%s\n' "$flatpaks" | grep -qxF "$id" || echo "  missing:    flatpak: $id"
         done
@@ -943,7 +960,7 @@ undeclared:
         echo "$active" | grep -qxF "$pkg" || echo "$pkg"
     done
     if [ -f meta/flatpak.txt ]; then
-        declared=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' meta/flatpak.txt)
+        declared=$(awk '!/^[[:space:]]*(#|$)/ {print $1}' meta/flatpak.txt)
         flatpak list --user --app --columns=application 2>/dev/null | while read -r id; do
             [ -z "$id" ] && continue
             echo "$declared" | grep -qxF "$id" || echo "flatpak: $id"
@@ -968,18 +985,33 @@ pkg-list group="":
             echo "error: $file does not exist" >&2
             exit 1
         fi
-        sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file" | while read -r pkg; do
-            if is_installed '{{ group }}' "$pkg"; then
-                printf '  \033[32m✓\033[0m %s\n' "$pkg"
-            else
-                printf '  \033[31m✗\033[0m %s\n' "$pkg"
-            fi
-        done
+        if [ '{{ group }}' = "flatpak" ]; then
+            parser='!/^[[:space:]]*(#|$)/ {print $1}'
+            awk "$parser" "$file" | while read -r pkg; do
+                if is_installed '{{ group }}' "$pkg"; then
+                    printf '  \033[32m✓\033[0m %s\n' "$pkg"
+                else
+                    printf '  \033[31m✗\033[0m %s\n' "$pkg"
+                fi
+            done
+        else
+            sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file" | while read -r pkg; do
+                if is_installed '{{ group }}' "$pkg"; then
+                    printf '  \033[32m✓\033[0m %s\n' "$pkg"
+                else
+                    printf '  \033[31m✗\033[0m %s\n' "$pkg"
+                fi
+            done
+        fi
         exit 0
     fi
     for file in meta/*.txt; do
         group=$(basename "$file" .txt)
-        pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
+        if [ "$group" = "flatpak" ]; then
+            pkgs=$(awk '!/^[[:space:]]*(#|$)/ {print $1}' "$file")
+        else
+            pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
+        fi
         total=$(echo "$pkgs" | wc -l)
         installed=0
         for pkg in $pkgs; do
@@ -998,35 +1030,23 @@ pkg-list group="":
 pkg-apply *groups:
     #!/bin/sh
     set -eu
-    install_flatpaks() {
-        # $@: flathub app ids
-        [ "$#" -gt 0 ] || return 0
-        flatpak remote-add --if-not-exists --user flathub \
-            https://dl.flathub.org/repo/flathub.flatpakrepo >/dev/null
-        flatpak install --user -y --noninteractive flathub "$@"
-    }
     if [ -n "{{ groups }}" ]; then
         for group in {{ groups }}; do
             file="meta/${group}.txt"
+            if [ "$group" = "flatpak" ]; then
+                just _flatpak-install
+                continue
+            fi
             pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
             [ -n "$pkgs" ] || continue
-            if [ "$group" = "flatpak" ]; then
-                # shellcheck disable=SC2086
-                install_flatpaks $pkgs
-            else
-                printf '%s\n' "$pkgs" | paru -S --needed --noconfirm --ask=4 -
-            fi
+            printf '%s\n' "$pkgs" | paru -S --needed --noconfirm --ask=4 -
         done
     else
         find meta -maxdepth 1 -name '*.txt' ! -name 'flatpak.txt' -print0 \
             | xargs -0 cat \
             | sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' \
             | sort -u | paru -S --needed --noconfirm --ask=4 -
-        if [ -f meta/flatpak.txt ]; then
-            ids=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' meta/flatpak.txt)
-            # shellcheck disable=SC2086
-            [ -n "$ids" ] && install_flatpaks $ids
-        fi
+        [ -f meta/flatpak.txt ] && just _flatpak-install
     fi
 
 # Top up missing packages in groups that are already ≥50% installed (never installs new groups)
@@ -1035,7 +1055,11 @@ pkg-fix:
     flatpaks=$(flatpak list --user --app --columns=application 2>/dev/null || true)
     for file in meta/*.txt; do
         group=$(basename "$file" .txt)
-        pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
+        if [ "$group" = "flatpak" ]; then
+            pkgs=$(awk '!/^[[:space:]]*(#|$)/ {print $1}' "$file")
+        else
+            pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
+        fi
         total=$(echo "$pkgs" | wc -l)
         installed=0
         for pkg in $pkgs; do
@@ -1048,10 +1072,7 @@ pkg-fix:
         if [ $((installed * 2)) -ge "$total" ] && [ "$installed" -lt "$total" ]; then
             echo ">>> topping up $group ($installed/$total installed)"
             if [ "$group" = "flatpak" ]; then
-                flatpak remote-add --if-not-exists --user flathub \
-                    https://dl.flathub.org/repo/flathub.flatpakrepo >/dev/null
-                # shellcheck disable=SC2086
-                flatpak install --user -y --noninteractive flathub $pkgs
+                just _flatpak-install
             else
                 echo "$pkgs" | paru -S --needed --noconfirm --ask=4 -
             fi
@@ -1110,6 +1131,34 @@ _chezmoi-init:
 
 _install-hooks:
     git config core.hooksPath .githooks
+
+# Install all flatpaks declared in meta/flatpak.txt. Flathub IDs are batched
+# into a single install call; URL bundles are downloaded and installed only
+# when the app id is not already present (use `flatpak-update` to pick up
+# new versions of bundle entries).
+_flatpak-install:
+    #!/bin/sh
+    set -eu
+    [ -f meta/flatpak.txt ] || exit 0
+    flatpak remote-add --if-not-exists --user flathub \
+        https://dl.flathub.org/repo/flathub.flatpakrepo >/dev/null
+    flathub_ids=$(awk '!/^[[:space:]]*(#|$)/ && NF==1 {print $1}' meta/flatpak.txt)
+    if [ -n "$flathub_ids" ]; then
+        # shellcheck disable=SC2086
+        flatpak install --user -y --noninteractive flathub $flathub_ids
+    fi
+    installed=$(flatpak list --user --app --columns=application 2>/dev/null || true)
+    awk '!/^[[:space:]]*(#|$)/ && NF>=2 {print $1, $2}' meta/flatpak.txt \
+        | while read -r id url; do
+            if printf '%s\n' "$installed" | grep -qxF "$id"; then
+                continue
+            fi
+            echo ">>> downloading $id from $url"
+            tmp=$(mktemp --suffix=.flatpak)
+            curl -fsSL -o "$tmp" "$url"
+            flatpak install --user -y --noninteractive "$tmp"
+            rm -f "$tmp"
+        done
 
 # Print packages from pacman groups that are ≥50% installed (adopted), one per line
 _active-packages:
