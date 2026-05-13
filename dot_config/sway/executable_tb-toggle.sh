@@ -8,12 +8,10 @@ set -eu
 STASH=_tb
 MARK=tb-main
 
-tree=$(swaymsg -t get_tree)
+current_ws=$(swaymsg -t get_workspaces \
+    | jq -r '.[] | select(.focused) | .name')
 
-current_ws=$(printf '%s' "$tree" \
-    | jq -r 'first(.. | objects | select(.type=="workspace" and .focused) | .name) // empty')
-
-tb_ws=$(printf '%s' "$tree" \
+tb_ws=$(swaymsg -t get_tree \
     | jq -r --arg m "$MARK" '
         first(
           .. | objects
