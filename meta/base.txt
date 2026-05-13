@@ -1,5 +1,6 @@
 # --- core ---
 acpid
+arch-audit
 base
 base-devel
 bash-completion
@@ -21,7 +22,9 @@ glow
 htop
 iwd
 jq
+kernel-modules-hook
 linux-firmware
+lostfiles
 lsd
 lshw
 man-db
@@ -246,3 +249,4 @@ tesseract-data-por
 # WHISPER_MODEL in the script's environment to use a different ggml model.
 whisper.cpp-vulkan
 whisper.cpp-model-base
+act
