@@ -1,14 +1,26 @@
 #!/bin/sh
-# Reject pushes that include commits without a good signature.
+# Reject pushes that include commits without a good signature, or whose
+# committer does not match this repo's user.name / user.email.
+# (Author is left free so rebased / amended foreign commits are fine
+# as long as you are the one re-committing them.)
+#
 # Activated via core.hooksPath in ~/.config/git/config so it applies to
 # every repo unless that repo overrides hooksPath itself (this dotfiles
-# repo does, pointing at .githooks/ which has its own hooks).
+# repo does, pointing at .githooks/ which delegates here).
 #
 # Bypass for one push: git push --no-verify
 
 set -eu
 
 zero=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
+
+expected_name=$(git config user.name || true)
+expected_email=$(git config user.email || true)
+
+if [ -z "$expected_name" ] || [ -z "$expected_email" ]; then
+  printf 'pre-push: user.name or user.email is unset; refusing.\n' >&2
+  exit 1
+fi
 
 # %G? signature status codes from git-log:
 #   G  good signature
@@ -35,15 +47,28 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
     set -- "${remote_sha}..${local_sha}"
   fi
 
-  bad=$(git rev-list --format='%H %G? %s' --no-commit-header "$@" |
-    awk -v ok="$ok" '
+  # One pass: per-commit emit SHA <TAB> %G? <TAB> committer-name
+  # <TAB> committer-email <TAB> subject. Tabs aren't valid in identity
+  # fields, so awk -F'\t' parses unambiguously.
+  bad=$(git rev-list --format='%H%x09%G?%x09%cn%x09%ce%x09%s' \
+    --no-commit-header "$@" |
+    awk -F'\t' -v ok="$ok" -v en="$expected_name" -v ee="$expected_email" '
       BEGIN { split(ok, a, " "); for (i in a) good[a[i]] = 1 }
-      !($2 in good) { print }
+      {
+        reasons = ""
+        if (!($2 in good)) reasons = reasons " [sig=" $2 "]"
+        if ($3 != en || $4 != ee) {
+          reasons = reasons " [committer=" $3 " <" $4 ">]"
+        }
+        if (reasons != "") print $1 reasons "  " $5
+      }
     ')
 
   if [ -n "$bad" ]; then
     if [ "$fail" -eq 0 ]; then
-      printf '\nrefusing to push: unsigned or bad-signed commits found\n' >&2
+      printf '\nrefusing to push: bad commits found\n' >&2
+      printf '(expected committer: %s <%s>)\n' \
+        "$expected_name" "$expected_email" >&2
     fi
     printf '\non %s:\n%s\n' "$remote_ref" "$bad" >&2
     fail=1
@@ -51,8 +76,9 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
 done
 
 if [ "$fail" -ne 0 ]; then
-  printf '\nfix with: git rebase --exec "git commit --amend --no-edit -S" <base>\n' >&2
-  printf 'bypass:   git push --no-verify\n\n' >&2
+  printf '\nfix:    git rebase --exec "git commit --amend --no-edit -S" <base>\n' >&2
+  printf '        (re-stamps committer to your current identity and re-signs)\n' >&2
+  printf 'bypass: git push --no-verify\n\n' >&2
   exit 1
 fi
 
