@@ -61,3 +61,8 @@ user_pref("mail.pane_config.dynamic", 2);
 /** Calendar **/
 user_pref("calendar.week.start", 1);
 user_pref("calendar.timezone.useSystemTimezone", true);
+// Kill the floating dismiss/snooze reminder dialog; TB still fires
+// libnotify-backed desktop notifications (caught by mako).
+user_pref("calendar.alarms.show", false);
+user_pref("calendar.alarms.showmissed", false);
+user_pref("calendar.alarms.playsound", false);
