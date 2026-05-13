@@ -52,17 +52,17 @@ user_pref("browser.formfill.enable", false);
 /** OpenPGP — use system gpg-agent/keys instead of TB's internal store **/
 user_pref("mail.openpgp.allow_external_gnupg", true);
 
-/** UI / notifications — mako handles the rest **/
+/** UI / notifications — mako handles mail biff toasts on Linux **/
 user_pref("mail.shell.checkDefaultClient", false);
 user_pref("mail.biff.play_sound", false);
-user_pref("mail.biff.show_alert", false);
+// Keep show_alert=true so libnotify/mako fires on new mail
+// (mail.biff.use_system_alert=true routes TB's alert through libnotify).
 user_pref("mail.pane_config.dynamic", 2);
 
 /** Calendar **/
 user_pref("calendar.week.start", 1);
 user_pref("calendar.timezone.useSystemTimezone", true);
-// Kill the floating dismiss/snooze reminder dialog; TB still fires
-// libnotify-backed desktop notifications (caught by mako).
-user_pref("calendar.alarms.show", false);
-user_pref("calendar.alarms.showmissed", false);
+// TB has no libnotify-only path for calendar alarms; the in-app Reminders
+// dialog IS the alarm UI. Leave alarms.show=true so events fire at all.
+// Set playsound=false to keep it silent.
 user_pref("calendar.alarms.playsound", false);
