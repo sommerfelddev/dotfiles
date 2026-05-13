@@ -1,6 +1,8 @@
 # Compositor
 sway
 xdg-desktop-portal-wlr
+qt5-wayland
+qt6-wayland
 
 # Bar & launcher
 waybar
