@@ -44,6 +44,7 @@ for_window [class="feh"] floating enable
 for_window [app_id="imv"] floating enable
 for_window [class="Tor Browser"] floating enable
 for_window [app_id="org.mozilla.Thunderbird" title=".*Mozilla Thunderbird$"] mark --add tb-main
+for_window [shell=".*"] inhibit_idle fullscreen
 
 # ── Standard keybinds (sway defaults) ─────────────────────────────────────────
 bindsym $mod+Return exec $term
