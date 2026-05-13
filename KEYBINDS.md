@@ -304,46 +304,46 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 
 ### Personal keybinds (sway/config)
 
-| Key                     | Action                                                                                    |
-| ----------------------- | ----------------------------------------------------------------------------------------- |
-| `XF86AudioRaiseVolume`  | Volume +5%                                                                                |
-| `XF86AudioLowerVolume`  | Volume -5%                                                                                |
-| `XF86AudioMute`         | Mute toggle                                                                               |
-| `Super+m`               | Mic mute toggle                                                                           |
-| `Super+Shift+m`         | Speaker mute toggle                                                                       |
-| `XF86AudioPlay`         | Play/pause                                                                                |
-| `XF86AudioNext`         | Next track                                                                                |
-| `XF86AudioPrev`         | Previous track                                                                            |
-| `XF86MonBrightnessUp`   | Brightness +5% (brightnessctl)                                                            |
-| `XF86MonBrightnessDown` | Brightness -5% (brightnessctl)                                                            |
-| `XF86AudioMicMute`      | Mic mute toggle                                                                           |
-| `XF86Bluetooth`         | Bluetooth power toggle (bluetoothctl)                                                     |
-| `XF86ScreenSaver`       | Lock screen + pause media (same as Super+Shift+s)                                         |
-| `XF86Sleep`             | Suspend system (systemctl suspend)                                                        |
-| `XF86WLAN`              | Toggle Wi-Fi (rfkill)                                                                     |
-| `XF86RFKill`            | Toggle all radios (rfkill)                                                                |
-| `Print`                 | Region screenshot (grim+slurp)                                                            |
-| `Shift+Print`           | Full screenshot (grim)                                                                    |
-| `Super+i`               | Dictate toggle (whisper.cpp → wtype + clipboard)                                          |
-| `Super+Shift+o`         | OCR region (tesseract → clipboard)                                                        |
-| `Super+Shift+s`         | Lock screen + pause media                                                                 |
-| `Super+n`               | Dismiss visible notification (also marks it seen)                                         |
-| `Super+Shift+n`         | Dismiss all visible notifications (mark all seen)                                         |
-| `Super+Ctrl+n`          | Restore last dismissed; pop it back into the pending set                                  |
-| `XF86Favorites`         | Notification history picker (Enter re-shows + marks seen, Alt-c copies, Alt-d marks seen) |
-| `Super+p`               | Clipboard history picker (wofi; Enter pastes, Alt-d deletes)                              |
-| `Super+Shift+p`         | Clipboard history delete entry (Enter deletes)                                            |
-| `Super+period`          | Emoji picker (bemoji → wofi; types + copies)                                              |
-| `Super+Tab`             | Next workspace                                                                            |
-| `Super+Shift+Tab`       | Previous workspace                                                                        |
-| `Super+]`               | Focus next window in container (monocle cycling)                                          |
-| `Super+[`               | Focus prev window in container (monocle cycling)                                          |
-| `XF86Display`           | Toggle display mode (laptop-off/side-by-side)                                             |
-| `XF86Tools`             | Floating pulsemixer (audio mixer TUI)                                                     |
-| `XF86Keyboard`          | Floating glow pager for `~/dotfiles/KEYBINDS.md`                                          |
-| `Super+z` then `w`      | Display QR for clipboard (wqr)                                                            |
-| `Super+z` then `r`      | Scan QR via webcam, copy to clipboard (rqr)                                               |
-| `Super+t`               | Toggle Thunderbird (tiled on current workspace)                                           |
+| Key                     | Action                                                                  |
+| ----------------------- | ----------------------------------------------------------------------- |
+| `XF86AudioRaiseVolume`  | Volume +5%                                                              |
+| `XF86AudioLowerVolume`  | Volume -5%                                                              |
+| `XF86AudioMute`         | Mute toggle                                                             |
+| `Super+m`               | Mic mute toggle                                                         |
+| `Super+Shift+m`         | Speaker mute toggle                                                     |
+| `XF86AudioPlay`         | Play/pause                                                              |
+| `XF86AudioNext`         | Next track                                                              |
+| `XF86AudioPrev`         | Previous track                                                          |
+| `XF86MonBrightnessUp`   | Brightness +5% (brightnessctl)                                          |
+| `XF86MonBrightnessDown` | Brightness -5% (brightnessctl)                                          |
+| `XF86AudioMicMute`      | Mic mute toggle                                                         |
+| `XF86Bluetooth`         | Bluetooth power toggle (bluetoothctl)                                   |
+| `XF86ScreenSaver`       | Lock screen + pause media (same as Super+Shift+s)                       |
+| `XF86Sleep`             | Suspend system (systemctl suspend)                                      |
+| `XF86WLAN`              | Toggle Wi-Fi (rfkill)                                                   |
+| `XF86RFKill`            | Toggle all radios (rfkill)                                              |
+| `Print`                 | Region screenshot (grim+slurp)                                          |
+| `Shift+Print`           | Full screenshot (grim)                                                  |
+| `Super+i`               | Dictate toggle (whisper.cpp → wtype + clipboard)                        |
+| `Super+Shift+o`         | OCR region (tesseract → clipboard)                                      |
+| `Super+Shift+s`         | Lock screen + pause media                                               |
+| `Super+n`               | Dismiss visible notification (also marks it seen)                       |
+| `Super+Shift+n`         | Dismiss all visible notifications (mark all seen)                       |
+| `Super+Ctrl+n`          | Restore last dismissed; pop it back into the pending set                |
+| `XF86Favorites`         | Notification history picker (Enter copies + dismisses, Alt-d dismisses) |
+| `Super+p`               | Clipboard history picker (wofi; Enter pastes, Alt-d deletes)            |
+| `Super+Shift+p`         | Clipboard history delete entry (Enter deletes)                          |
+| `Super+period`          | Emoji picker (bemoji → wofi; types + copies)                            |
+| `Super+Tab`             | Next workspace                                                          |
+| `Super+Shift+Tab`       | Previous workspace                                                      |
+| `Super+]`               | Focus next window in container (monocle cycling)                        |
+| `Super+[`               | Focus prev window in container (monocle cycling)                        |
+| `XF86Display`           | Toggle display mode (laptop-off/side-by-side)                           |
+| `XF86Tools`             | Floating pulsemixer (audio mixer TUI)                                   |
+| `XF86Keyboard`          | Floating glow pager for `~/dotfiles/KEYBINDS.md`                        |
+| `Super+z` then `w`      | Display QR for clipboard (wqr)                                          |
+| `Super+z` then `r`      | Scan QR via webcam, copy to clipboard (rqr)                             |
+| `Super+t`               | Toggle Thunderbird (tiled on current workspace)                         |
 
 ## Typing / Input
 

@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """Notification history picker.
 
-Lists mako's history annotated with pending/seen status. Default action
-re-emits the notification (so the bubble pops again) and marks it seen.
-Alt-c copies "summary\\nbody" to the clipboard via wl-copy.
-Alt-d marks the entry seen without re-showing.
+Lists pending mako notifications (visible bubbles + history). Entries
+previously dismissed via this picker are hidden so the list shrinks as
+you process it.
+
+Keys:
+  Enter   copy "summary\\nbody" to the clipboard and dismiss the entry
+  Alt-d   dismiss without copying
+  Esc     cancel
 
 State file: $XDG_RUNTIME_DIR/mako-dismissed (one id per line, per-session).
 """
@@ -15,6 +19,7 @@ import os
 import re
 import subprocess
 from pathlib import Path
+from typing import Any
 
 STATE = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp")) / "mako-dismissed"
 
@@ -32,7 +37,7 @@ def _run_makoctl(subcmd: str) -> str:
         return ""
 
 
-def _parse_block(out: str) -> list[dict]:
+def _parse_block(out: str) -> list[dict[str, Any]]:
     """Parse mako's text dump.
 
     Format (per notification):
@@ -43,8 +48,8 @@ def _parse_block(out: str) -> list[dict]:
           [        <body cont>]
           Urgency: <urgency>
     """
-    notifs: list[dict] = []
-    cur: dict | None = None
+    notifs: list[dict[str, Any]] = []
+    cur: dict[str, Any] | None = None
     last_field: str | None = None
     for line in out.splitlines():
         m = RECORD_RE.match(line)
@@ -63,22 +68,26 @@ def _parse_block(out: str) -> list[dict]:
             last_field = key
             continue
         if last_field == "body" and line.startswith("        "):
-            cur["body"] = (cur.get("body", "") + " " + line.strip()).strip()
+            cur["body"] = (str(cur.get("body", "")) + " " + line.strip()).strip()
     if cur is not None:
         notifs.append(cur)
     return notifs
 
 
-def parse_history() -> list[dict]:
-    """Return visible + history notifications, deduped by id, visible first."""
+def parse_history(dismissed: set[str]) -> list[dict[str, Any]]:
+    """Return visible + history notifications, deduped by id, visible first.
+
+    Entries whose id is in `dismissed` are filtered out.
+    """
     visible = _parse_block(_run_makoctl("list"))
     history = _parse_block(_run_makoctl("history"))
     seen: set[int] = set()
-    out: list[dict] = []
+    out: list[dict[str, Any]] = []
     for n in visible + history:
-        if n["id"] in seen:
+        nid = int(n["id"])
+        if nid in seen or str(nid) in dismissed:
             continue
-        seen.add(n["id"])
+        seen.add(nid)
         out.append(n)
     return out
 
@@ -91,7 +100,7 @@ def load_dismissed() -> set[str]:
 
 def save_dismissed(ids: set[str]) -> None:
     payload = "\n".join(sorted(ids, key=lambda s: int(s) if s.isdigit() else 0))
-    STATE.write_text(payload + ("\n" if ids else ""))
+    _ = STATE.write_text(payload + ("\n" if ids else ""))
 
 
 def add_dismissed(nid: int) -> None:
@@ -100,16 +109,14 @@ def add_dismissed(nid: int) -> None:
     save_dismissed(ids)
 
 
-def fmt_line(n: dict, dismissed: set[str]) -> str:
-    pending = str(n["id"]) not in dismissed
-    mark = "●" if pending else " "
-    app = (n.get("app_name") or "?").strip() or "?"
-    summary = (n.get("summary") or "").strip()
-    body = (n.get("body") or "").strip()
+def fmt_line(n: dict[str, Any]) -> str:
+    app = (str(n.get("app_name") or "?")).strip() or "?"
+    summary = str(n.get("summary") or "").strip()
+    body = str(n.get("body") or "").strip()
     text = summary if not body else f"{summary} — {body}"
     text = text.replace("\t", " ").replace("\r", " ")
     # Trailing id sentinel for parsing on selection.
-    return f"[{mark}] [{app}] {text}\t#{n['id']}"
+    return f"[{app}] {text}\t#{n['id']}"
 
 
 def parse_selection(line: str) -> int | None:
@@ -126,9 +133,7 @@ def run_wofi(input_text: str, lines: int) -> tuple[int, str]:
         "--prompt",
         "Notifications",
         "--define",
-        "key_custom_0=Alt-c",
-        "--define",
-        "key_custom_1=Alt-d",
+        "key_custom_0=Alt-d",
         "--lines",
         str(lines),
     ]
@@ -139,19 +144,20 @@ def run_wofi(input_text: str, lines: int) -> tuple[int, str]:
         input=input_text,
         text=True,
         capture_output=True,
+        check=False,
     )
     return proc.returncode, proc.stdout.strip()
 
 
 def main() -> None:
-    notifs = parse_history()
     dismissed = load_dismissed()
+    notifs = parse_history(dismissed)
 
     if not notifs:
-        run_wofi("(no notifications)\n", 1)
+        _ = run_wofi("(no notifications)\n", 1)
         return
 
-    lines_text = "\n".join(fmt_line(n, dismissed) for n in notifs) + "\n"
+    lines_text = "\n".join(fmt_line(n) for n in notifs) + "\n"
     rc, sel = run_wofi(lines_text, min(len(notifs), 15))
 
     if not sel or sel.startswith("(no "):
@@ -164,23 +170,14 @@ def main() -> None:
     if notif is None:
         return
 
-    summary = (notif.get("summary") or "").strip()
-    body = (notif.get("body") or "").strip()
-    app = (notif.get("app_name") or "").strip()
+    summary = str(notif.get("summary") or "").strip()
+    body = str(notif.get("body") or "").strip()
     clip_text = f"{summary}\n{body}".strip()
 
-    if rc == 10:  # Alt-c → copy
-        subprocess.run(["wl-copy"], input=clip_text, text=True)
-    elif rc == 11:  # Alt-d → mark seen, no re-show
+    if rc == 10:  # Alt-d → dismiss without copy
         add_dismissed(nid)
-    elif rc == 0:  # Enter → re-emit + mark seen
-        cmd = ["notify-send"]
-        if app:
-            cmd += ["-a", app]
-        cmd.append(summary or "(no summary)")
-        if body:
-            cmd.append(body)
-        subprocess.run(cmd)
+    elif rc == 0:  # Enter → copy + dismiss
+        _ = subprocess.run(["wl-copy"], input=clip_text, text=True, check=False)
         add_dismissed(nid)
 
 
