@@ -1,6 +1,10 @@
 #!/bin/sh
-# Toggle display mode: laptop-off ↔ side-by-side
-# Bound to F7 in sway config; also runs at startup with "init"
+# Display mode manager: laptop-off ↔ side-by-side.
+#   (no arg)  toggle between modes (F7 / Super+x d).
+#   init      force laptop-off on session start / external plugged in.
+#   apply     re-apply whatever is in the state file (used after resume,
+#             since sway resets output config on wake → both monitors
+#             come back enabled side-by-side regardless of saved state).
 
 STATE_FILE="${XDG_RUNTIME_DIR:-/tmp}/display-mode"
 
@@ -24,8 +28,10 @@ fi
 LAPTOP_WIDTH=$(echo "$OUTPUTS" | jq -r ".[] | select(.name == \"$LAPTOP\") | .current_mode.width // .modes[0].width")
 [ -z "$LAPTOP_WIDTH" ] && LAPTOP_WIDTH=1920
 
-if [ "$1" = "init" ]; then
+if [ "${1:-}" = "init" ]; then
   NEXT="laptop-off"
+elif [ "${1:-}" = "apply" ]; then
+  NEXT=$(cat "$STATE_FILE" 2>/dev/null || echo "laptop-off")
 else
   CURRENT=$(cat "$STATE_FILE" 2>/dev/null || echo "laptop-off")
   case "$CURRENT" in
