@@ -7,7 +7,7 @@ ConditionEnvironment=WAYLAND_DISPLAY
 [Service]
 Type=simple
 ExecStartPre=/usr/bin/sh -c 'rm -f "$XDG_RUNTIME_DIR/wob.sock" && mkfifo "$XDG_RUNTIME_DIR/wob.sock"'
-ExecStart=/usr/bin/sh -c 'exec /usr/bin/wob <"$XDG_RUNTIME_DIR/wob.sock"'
+ExecStart=/usr/bin/sh -c 'exec tail -f "$XDG_RUNTIME_DIR/wob.sock" | /usr/bin/wob'
 ExecStopPost=/usr/bin/rm -f %t/wob.sock
 Restart=on-failure
 RestartSec=2s
