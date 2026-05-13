@@ -117,9 +117,9 @@ bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit sway?' -B 'Yes' 'swaymsg e
 
 # ── Personal keybinds ─────────────────────────────────────────────────────────
 
-# Workspace cycling
-bindsym $mod+Tab workspace next_on_output
-bindsym $mod+Shift+Tab workspace prev_on_output
+# Workspace cycling (skips the _tb stash workspace)
+bindsym $mod+Tab exec ~/.config/sway/ws-cycle.sh next
+bindsym $mod+Shift+Tab exec ~/.config/sway/ws-cycle.sh prev
 
 # Volume
 bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
