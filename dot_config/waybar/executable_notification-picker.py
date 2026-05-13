@@ -1,53 +1,30 @@
 #!/usr/bin/env python3
-"""Notification history picker.
+"""Notification picker.
 
-Lists pending mako notifications (visible bubbles + history). Entries
-dismissed via this picker are hidden so the list shrinks as you process it.
-The picker re-opens after each selection so multiple notifications can be
-processed in one go; Esc closes it.
-
-Keys:
-  Enter   copy "summary\\nbody" to the clipboard, dismiss the entry, reopen
-  Esc     close the picker
-
-State file: $XDG_RUNTIME_DIR/mako-dismissed (one id per line, per-session).
+Lists currently-visible mako notifications. Selecting one copies its
+"summary\\nbody" to the clipboard and dismisses it via `makoctl dismiss
+-n <id>`. The picker re-opens after each selection so multiple
+notifications can be processed in one go; Esc closes it.
 """
 
 from __future__ import annotations
 
-import os
 import re
 import subprocess
 from pathlib import Path
 from typing import Any
 
-STATE = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp")) / "mako-dismissed"
-
-
 RECORD_RE = re.compile(r"^Notification (\d+):\s?(.*)$")
 FIELD_RE = re.compile(r"^  ([A-Za-z][A-Za-z ]*?):\s*(.*)$")
 
 
-def _run_makoctl(subcmd: str) -> str:
+def list_notifications() -> list[dict[str, Any]]:
     try:
-        return subprocess.run(
-            ["makoctl", subcmd], capture_output=True, text=True, check=True
+        out = subprocess.run(
+            ["makoctl", "list"], capture_output=True, text=True, check=True
         ).stdout
     except (subprocess.CalledProcessError, FileNotFoundError):
-        return ""
-
-
-def _parse_block(out: str) -> list[dict[str, Any]]:
-    """Parse mako's text dump.
-
-    Format (per notification):
-        Notification N: <summary>
-          App name: <app>
-          [Category: <cat>]
-          [Body: <body line>]
-          [        <body cont>]
-          Urgency: <urgency>
-    """
+        return []
     notifs: list[dict[str, Any]] = []
     cur: dict[str, Any] | None = None
     last_field: str | None = None
@@ -74,48 +51,12 @@ def _parse_block(out: str) -> list[dict[str, Any]]:
     return notifs
 
 
-def parse_history(dismissed: set[str]) -> list[dict[str, Any]]:
-    """Return visible + history notifications, deduped by id, visible first.
-
-    Entries whose id is in `dismissed` are filtered out.
-    """
-    visible = _parse_block(_run_makoctl("list"))
-    history = _parse_block(_run_makoctl("history"))
-    seen: set[int] = set()
-    out: list[dict[str, Any]] = []
-    for n in visible + history:
-        nid = int(n["id"])
-        if nid in seen or str(nid) in dismissed:
-            continue
-        seen.add(nid)
-        out.append(n)
-    return out
-
-
-def load_dismissed() -> set[str]:
-    STATE.parent.mkdir(parents=True, exist_ok=True)
-    STATE.touch(exist_ok=True)
-    return {x for x in STATE.read_text().split() if x}
-
-
-def save_dismissed(ids: set[str]) -> None:
-    payload = "\n".join(sorted(ids, key=lambda s: int(s) if s.isdigit() else 0))
-    _ = STATE.write_text(payload + ("\n" if ids else ""))
-
-
-def add_dismissed(nid: int) -> None:
-    ids = load_dismissed()
-    ids.add(str(nid))
-    save_dismissed(ids)
-
-
 def fmt_line(n: dict[str, Any]) -> str:
     app = (str(n.get("app_name") or "?")).strip() or "?"
     summary = str(n.get("summary") or "").strip()
     body = str(n.get("body") or "").strip()
     text = summary if not body else f"{summary} — {body}"
     text = text.replace("\t", " ").replace("\r", " ")
-    # Trailing id sentinel for parsing on selection.
     return f"[{app}] {text}\t#{n['id']}"
 
 
@@ -145,9 +86,7 @@ def run_wofi(input_text: str, lines: int) -> str:
 
 def main() -> None:
     while True:
-        dismissed = load_dismissed()
-        notifs = parse_history(dismissed)
-
+        notifs = list_notifications()
         if not notifs:
             _ = run_wofi("(no notifications)\n", 1)
             return
@@ -168,7 +107,7 @@ def main() -> None:
         body = str(notif.get("body") or "").strip()
         clip_text = f"{summary}\n{body}".strip()
         _ = subprocess.run(["wl-copy"], input=clip_text, text=True, check=False)
-        add_dismissed(nid)
+        _ = subprocess.run(["makoctl", "dismiss", "-n", str(nid)], check=False)
 
 
 if __name__ == "__main__":

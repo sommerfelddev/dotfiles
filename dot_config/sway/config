@@ -186,9 +186,9 @@ bindsym $mod+Shift+o exec ~/.local/bin/ocr
 bindsym $mod+Shift+s exec "playerctl -a pause; swaylock -f -e -c 000000"
 
 # Notifications
-bindsym $mod+n exec ~/.config/waybar/dismiss-visible.sh top
-bindsym $mod+Shift+n exec ~/.config/waybar/dismiss-visible.sh all
-bindsym $mod+Ctrl+n exec ~/.config/waybar/restore-pending.sh
+bindsym $mod+n exec makoctl dismiss
+bindsym $mod+Shift+n exec makoctl dismiss --all
+bindsym $mod+Ctrl+n exec makoctl restore
 
 # Clipboard history
 bindsym $mod+p exec ~/.config/waybar/clip-picker.sh pick
@@ -203,7 +203,7 @@ bindsym --no-repeat XF86Display exec ~/.config/sway/display-toggle.sh
 # Multimedia hardware keys (uncommon)
 bindsym XF86Tools exec $term --class=floating -e pulsemixer
 bindsym XF86Keyboard exec $term --class=floating -e glow -p ~/dotfiles/KEYBINDS.md
-bindsym XF86Favorites exec ~/.config/waybar/mako-history.py
+bindsym XF86Favorites exec ~/.config/waybar/notification-picker.py
 
 # Quick scratch tools
 bindsym $mod+Shift+t exec $term --class=floating -e sh -c 'nvim "$XDG_RUNTIME_DIR/scratch-$(date +%s).txt"'
@@ -221,7 +221,7 @@ bindsym $mod+z mode "qr"
 # System / hardware submode — non-XF86 alternatives for the rarely used
 # hardware toggles and TUI launchers above. Enter with Super+x; mnemonic
 # letters (b=bluetooth, w=wifi, r=rfkill, s=sleep, d=display,
-# v=volume-mixer, k=keybinds, m=mako-history).
+# v=volume-mixer, k=keybinds, m=notification-picker).
 mode "system" {
     bindsym b exec ~/.config/sway/bt-toggle.sh, mode "default"
     bindsym w exec ~/.config/waybar/wifi-toggle.sh, mode "default"
@@ -230,7 +230,7 @@ mode "system" {
     bindsym d exec ~/.config/sway/display-toggle.sh, mode "default"
     bindsym v exec $term --class=floating -e pulsemixer, mode "default"
     bindsym k exec $term --class=floating -e glow -p ~/dotfiles/KEYBINDS.md, mode "default"
-    bindsym m exec ~/.config/waybar/mako-history.py, mode "default"
+    bindsym m exec ~/.config/waybar/notification-picker.py, mode "default"
     bindsym n exec makoctl mode -t do-not-disturb, mode "default"
     bindsym Escape mode "default"
     bindsym Return mode "default"

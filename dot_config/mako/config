@@ -7,7 +7,7 @@ border-radius=0
 padding=8
 margin=4
 width=300
-default-timeout=5000
+default-timeout=0
 anchor=top-right
 max-history=50
 
@@ -19,7 +19,6 @@ border-color=#fabd2f
 
 [urgency=critical]
 border-color=#fb4934
-default-timeout=0
 
 [mode=do-not-disturb]
 invisible=1

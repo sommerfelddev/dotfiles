@@ -338,10 +338,10 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 | `Super+i`               | Dictate toggle (whisper.cpp → wtype + clipboard)              |
 | `Super+Shift+o`         | OCR region (tesseract → clipboard)                            |
 | `Super+Shift+s`         | Lock screen + pause media                                     |
-| `Super+n`               | Dismiss visible notification (also marks it seen)             |
-| `Super+Shift+n`         | Dismiss all visible notifications (mark all seen)             |
-| `Super+Ctrl+n`          | Restore last dismissed; pop it back into the pending set      |
-| `XF86Favorites`         | Notification history picker (Enter copies + dismisses)        |
+| `Super+n`               | Dismiss top visible notification                              |
+| `Super+Shift+n`         | Dismiss all visible notifications                             |
+| `Super+Ctrl+n`          | Restore last dismissed notification (undo)                    |
+| `XF86Favorites`         | Notification picker (Enter copies + dismisses)                |
 | `Super+p`               | Clipboard history picker (wofi; Enter pastes, Alt-d deletes)  |
 | `Super+Shift+p`         | Clipboard history delete entry (Enter deletes)                |
 | `Super+period`          | Emoji picker (bemoji → wofi; types + copies)                  |
@@ -372,7 +372,7 @@ launchers.
 | `d`               | `XF86Display`   | Display mode toggle         |
 | `v`               | `XF86Tools`     | Floating pulsemixer         |
 | `k`               | `XF86Keyboard`  | Floating glow KEYBINDS.md   |
-| `m`               | `XF86Favorites` | mako notification history   |
+| `m`               | `XF86Favorites` | Notification picker         |
 | `n`               | —               | Toggle Do-Not-Disturb (mako)|
 | `Escape`/`Return` | —               | exit submode                |
 

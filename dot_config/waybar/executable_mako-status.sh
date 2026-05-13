@@ -1,56 +1,21 @@
 #!/bin/sh
-# Waybar status: count of *pending* notifications, where pending = ids in
-# mako's history/list that have NOT been explicitly dismissed by the user
-# via Mod+n / Mod+Shift+n / the history picker.
-#
-# State file: $XDG_RUNTIME_DIR/mako-dismissed (per-session, plain id list).
+# Waybar status: count of currently-visible mako notifications. With
+# default-timeout=0 in mako/config, "visible" == "pending"; once a
+# notification is dismissed it's gone and never comes back.
 
 set -eu
 
 if ! command -v makoctl >/dev/null 2>&1; then
-  printf '{"text":"","tooltip":"mako not installed","class":"off"}
-'
+  printf '{"text":"","tooltip":"mako not installed","class":"off"}\n'
   exit 0
 fi
 
-state=${XDG_RUNTIME_DIR:-/tmp}/mako-dismissed
-: >>"$state"
+count=$(makoctl list 2>/dev/null |
+  grep -c '^Notification [0-9][0-9]*:' || true)
 
-# This makoctl has no -f flag; parse the text dump. Each notification
-# starts with "Notification N: <summary>". Visible bubbles live in
-# `list`, closed ones in `history`; their id-spaces are disjoint.
-extract_ids() {
-  makoctl "$1" 2>/dev/null |
-    sed -n 's/^Notification \([0-9][0-9]*\):.*/\1/p'
-}
-
-all_ids=$({
-  extract_ids list
-  extract_ids history
-} | sort -un)
-
-# Prune stale ids (no longer present in mako) from the dismissed file.
-if [ -s "$state" ] && [ -n "$all_ids" ]; then
-  tmp=$(mktemp)
-  printf '%s
-' "$all_ids" >"$tmp.all"
-  grep -Fxf "$tmp.all" "$state" >"$tmp" 2>/dev/null || :
-  mv "$tmp" "$state"
-  rm -f "$tmp.all"
-fi
-
-if [ -z "$all_ids" ]; then
-  pending=0
+if [ "$count" -gt 0 ]; then
+  printf '{"text":"󰂞 %s","tooltip":"%s pending","class":"pending"}\n' \
+    "$count" "$count"
 else
-  pending=$(printf '%s
-' "$all_ids" | grep -Fxvf "$state" | grep -c . || true)
-fi
-
-if [ "$pending" -gt 0 ]; then
-  printf '{"text":"󰂞 %s","tooltip":"%s pending","class":"pending"}
-' \
-    "$pending" "$pending"
-else
-  printf '{"text":"󰂜","tooltip":"no pending notifications","class":"empty"}
-'
+  printf '{"text":"󰂜","tooltip":"no pending notifications","class":"empty"}\n'
 fi
