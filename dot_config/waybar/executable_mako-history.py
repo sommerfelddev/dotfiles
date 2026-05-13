@@ -17,50 +17,42 @@ import subprocess
 from pathlib import Path
 
 STATE = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp")) / "mako-dismissed"
-RECORD_RE = re.compile(r"^Notification (\d+):\s*$")
-FIELD_RE = re.compile(r"^  ([A-Za-z][A-Za-z ]*?):\s*(.*)$")
 
 
-def _run_makoctl(subcmd: str) -> str:
+def _run_makoctl_f(subcmd: str) -> list[dict]:
+    """Use makoctl -f to get one tab-separated record per notification.
+
+    Body fields containing literal newlines spread across multiple lines;
+    we glue them back to the previous record.
+    """
     try:
-        return subprocess.run(
-            ["makoctl", subcmd], capture_output=True, text=True, check=True
+        out = subprocess.run(
+            ["makoctl", subcmd, "-f", "%i\t%a\t%s\t%b"],
+            capture_output=True, text=True, check=True,
         ).stdout
     except (subprocess.CalledProcessError, FileNotFoundError):
-        return ""
-
-
-def _parse_block(out: str) -> list[dict]:
+        return []
     notifs: list[dict] = []
-    cur: dict | None = None
-    last_field: str | None = None
-    for line in out.splitlines():
-        m = RECORD_RE.match(line)
-        if m:
-            if cur is not None:
-                notifs.append(cur)
-            cur = {"id": int(m.group(1))}
-            last_field = None
-            continue
-        if cur is None:
-            continue
-        m = FIELD_RE.match(line)
-        if m:
-            key = m.group(1).strip().lower().replace(" ", "_")
-            cur[key] = m.group(2)
-            last_field = key
-            continue
-        if last_field == "body" and line.startswith("        "):
-            cur["body"] = (cur.get("body", "") + " " + line.strip()).strip()
-    if cur is not None:
-        notifs.append(cur)
+    for raw in out.splitlines():
+        parts = raw.split("\t", 3)
+        if len(parts) == 4 and parts[0].isdigit():
+            notifs.append(
+                {
+                    "id": int(parts[0]),
+                    "app_name": parts[1],
+                    "summary": parts[2],
+                    "body": parts[3],
+                }
+            )
+        elif notifs:
+            notifs[-1]["body"] = (notifs[-1]["body"] + " " + raw).strip()
     return notifs
 
 
 def parse_history() -> list[dict]:
     """Return visible + history notifications, deduped by id, visible first."""
-    visible = _parse_block(_run_makoctl("list"))
-    history = _parse_block(_run_makoctl("history"))
+    visible = _run_makoctl_f("list")
+    history = _run_makoctl_f("history")
     seen: set[int] = set()
     out: list[dict] = []
     for n in visible + history:
