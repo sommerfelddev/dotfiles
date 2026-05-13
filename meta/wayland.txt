@@ -45,5 +45,6 @@ zathura-pdf-mupdf
 libfido2
 perl-file-mimeinfo
 qt5ct
+qt6ct
 xdg-user-dirs
 wl-mirror
