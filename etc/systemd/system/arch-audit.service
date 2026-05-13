@@ -1,0 +1,10 @@
+[Unit]
+Description=Refresh arch-audit upgradable-CVE report at /run/arch-audit.txt
+Documentation=https://gitlab.archlinux.org/archlinux/arch-audit
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/usr/bin/arch-audit
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c '/usr/bin/arch-audit --upgradable >/run/arch-audit.txt.tmp && mv /run/arch-audit.txt.tmp /run/arch-audit.txt'

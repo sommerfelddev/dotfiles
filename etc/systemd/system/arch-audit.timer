@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily arch-audit report refresh
+
+[Timer]
+OnCalendar=daily
+AccuracySec=1h
+Persistent=true
+RandomizedDelaySec=1h
+
+[Install]
+WantedBy=timers.target
