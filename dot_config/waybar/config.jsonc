@@ -9,7 +9,6 @@
     "cpu",
     "temperature",
     "custom/memory",
-    "disk",
     "network#bond",
     "battery",
     "privacy",
@@ -18,8 +17,8 @@
     "idle_inhibitor",
     "custom/notifications",
     "custom/thunderbird",
-    "tray",
     "clock",
+    "tray",
   ],
 
   "sway/workspaces": {
@@ -31,11 +30,11 @@
   },
 
   "cpu": {
-    "format": "CPU {usage}% LOAD {load:0.2f}",
-    "format-low": "CPU <span color='#b8bb26'>{usage}%</span> LOAD {load:0.2f}",
-    "format-medium": "CPU <span color='#fabd2f'>{usage}%</span> LOAD {load:0.2f}",
-    "format-high": "CPU <span color='#fe8019'>{usage}%</span> LOAD {load:0.2f}",
-    "format-critical": "CPU <span color='#fb4934'>{usage}%</span> LOAD {load:0.2f}",
+    "format": "CPU {usage}% {load:0.2f}",
+    "format-low": "CPU <span color='#b8bb26'>{usage}%</span> {load:0.2f}",
+    "format-medium": "CPU <span color='#fabd2f'>{usage}%</span> {load:0.2f}",
+    "format-high": "CPU <span color='#fe8019'>{usage}%</span> {load:0.2f}",
+    "format-critical": "CPU <span color='#fb4934'>{usage}%</span> {load:0.2f}",
     "states": {
       "low": 0,
       "medium": 30,
