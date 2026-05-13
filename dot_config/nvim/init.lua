@@ -125,3 +125,4 @@ require("plugins.init")
 
 require("config.keymaps")
 require("config.autocmds")
+require("config.pack")
