@@ -157,6 +157,8 @@ bindsym $mod+Shift+s exec "playerctl -a pause; swaylock -f -e -c 282828"
 # Notifications
 bindsym $mod+n exec makoctl dismiss
 bindsym $mod+Shift+n exec makoctl dismiss --all
+bindsym $mod+Ctrl+n exec makoctl restore
+bindsym $mod+Mod1+n exec makoctl menu fuzzel --dmenu --prompt 'Notifications: '
 
 # Clipboard history
 bindsym $mod+p exec sh -c 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'

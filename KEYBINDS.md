@@ -325,6 +325,8 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 | `Super+Shift+s`         | Lock screen + pause media                         |
 | `Super+n`               | Dismiss notification                              |
 | `Super+Shift+n`         | Dismiss all notifications                         |
+| `Super+Ctrl+n`          | Restore last dismissed notification               |
+| `Super+Alt+n`           | Notification history picker (mako + fuzzel)       |
 | `Super+p`               | Clipboard history picker (cliphist + fuzzel)      |
 | `Super+Shift+p`         | Clipboard history delete entry                    |
 | `Super+Tab`             | Next workspace                                    |
