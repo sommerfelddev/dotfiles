@@ -34,6 +34,7 @@ input type:touchpad {
 # ── Behavior ──────────────────────────────────────────────────────────────────
 focus_follows_mouse yes
 seat * hide_cursor 3000
+seat * xcursor_theme Adwaita 24
 
 # ── Output ────────────────────────────────────────────────────────────────────
 output * bg #282828 solid_color
@@ -155,3 +156,6 @@ exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CU
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
 exec "sleep 2 && ~/.config/sway/display-toggle.sh init"
 exec systemctl --user start sway-session.target
+
+# GTK4 reads dark mode from gsettings (settings.ini's prefer-dark is GTK3 only).
+exec gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
