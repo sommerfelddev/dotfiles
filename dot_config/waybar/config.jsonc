@@ -20,6 +20,7 @@
 
   "sway/workspaces": {
     "disable-scroll": true,
+    "ignore-list": ["_tb"],
   },
 
   "sway/window": {
