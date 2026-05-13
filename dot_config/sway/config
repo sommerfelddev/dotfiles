@@ -180,9 +180,7 @@ bindsym $mod+z mode "qr"
 bindsym $mod+t exec ~/.config/sway/tb-toggle.sh
 
 # ── Bar ───────────────────────────────────────────────────────────────────────
-bar {
-    swaybar_command waybar
-}
+# Managed by waybar.service (pulled in via sway-session.target).
 
 # ── Autostart ─────────────────────────────────────────────────────────────────
 exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
