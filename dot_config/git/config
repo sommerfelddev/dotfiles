@@ -133,3 +133,16 @@
     path = config-personal
 [includeIf "gitdir:~/dev/personal/"]
     path = config-personal
+[sendemail]
+    smtpServer = 127.0.0.1
+    smtpServerPort = 1025
+    smtpEncryption = tls
+    smtpDomain = localhost
+    confirm = auto
+    suppresscc = self
+    chainReplyTo = false
+    thread = true
+    annotate = true
+    assume8bitEncoding = UTF-8
+[credential "smtp://127.0.0.1:1025"]
+    helper = "!f() { test \"$1\" = get && printf 'password=%s\\n' \"$(pass show proton/bridge-smtp)\"; }; f"
