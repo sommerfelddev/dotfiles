@@ -55,8 +55,10 @@ user_pref("mail.openpgp.allow_external_gnupg", true);
 /** UI / notifications — mako handles mail biff toasts on Linux **/
 user_pref("mail.shell.checkDefaultClient", false);
 user_pref("mail.biff.play_sound", false);
-// Keep show_alert=true so libnotify/mako fires on new mail
-// (mail.biff.use_system_alert=true routes TB's alert through libnotify).
+// Pin show_alert=true: removing the line doesn't reset prefs.js, so force
+// it here. use_system_alert=true routes the alert through libnotify/mako.
+user_pref("mail.biff.show_alert", true);
+user_pref("mail.biff.use_system_alert", true);
 user_pref("mail.pane_config.dynamic", 2);
 
 /** Calendar **/
