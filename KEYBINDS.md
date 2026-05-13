@@ -207,6 +207,15 @@ All binds are in `shared_except "locked"` mode (active everywhere except locked 
 | `Alt-q`                 | Detach session                    |
 | `Alt--` / `Alt-=`       | Resize decrease / increase        |
 | `Ctrl-h/j/k/l`          | Move focus (vim-zellij-navigator) |
+| `Alt-Shift-P`           | Enter Pane mode                   |
+| `Alt-Shift-T`           | Enter Tab mode                    |
+| `Alt-Shift-R`           | Enter Resize mode                 |
+| `Alt-Shift-S`           | Enter Scroll mode                 |
+| `Alt-Shift-O`           | Enter Session mode                |
+| `Alt-Shift-Z`           | Enter Locked mode                 |
+| `Alt-Shift-Q`           | Quit zellij                       |
+
+Mode-entry keys are relocated from their zellij defaults (`Ctrl-p/t/r/s/o/g/q`, `Ctrl-b` TMUX dropped) to `Alt-Shift-*` so the `Ctrl-*` keys pass through to zsh and nvim. Only `Ctrl-h/j/k/l` remain intercepted (for pane navigation).
 
 ## Zsh
 

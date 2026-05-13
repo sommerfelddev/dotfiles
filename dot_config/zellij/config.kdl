@@ -23,6 +23,20 @@ pane_frames false
 // Custom keybindings (merged with defaults)
 keybinds {
     shared_except "locked" {
+        // Free up Ctrl+* keys so they pass through to zsh / nvim.
+        // Mode-entry relocated to Alt+Shift+* below. Ctrl+h/j/k/l are kept
+        // by the vim-zellij-navigator binds further down.
+        unbind "Ctrl b" "Ctrl g" "Ctrl n" "Ctrl o" "Ctrl p" "Ctrl q" "Ctrl s" "Ctrl t"
+
+        // Mode entry (Alt+Shift+<first-letter-of-mode>)
+        bind "Alt Shift P" { SwitchToMode "Pane"; }
+        bind "Alt Shift T" { SwitchToMode "Tab"; }
+        bind "Alt Shift R" { SwitchToMode "Resize"; }
+        bind "Alt Shift S" { SwitchToMode "Scroll"; }
+        bind "Alt Shift O" { SwitchToMode "Session"; }
+        bind "Alt Shift Z" { SwitchToMode "Locked"; }
+        bind "Alt Shift Q" { Quit; }
+
         // Direct tab access (Alt+number)
         bind "Alt 1" { GoToTab 1; }
         bind "Alt 2" { GoToTab 2; }
