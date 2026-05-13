@@ -8,10 +8,8 @@ if ! command -v makoctl >/dev/null 2>&1; then
   exit 0
 fi
 
-count=$(makoctl history 2>/dev/null |
-  grep -c '"summary"' || true)
-pending=$(makoctl list 2>/dev/null |
-  grep -c '"summary"' || true)
+count=$(makoctl history --format '%i' 2>/dev/null | grep -c . || true)
+pending=$(makoctl list --format '%i' 2>/dev/null | grep -c . || true)
 
 if [ "$pending" -gt 0 ]; then
   text="NTF !$pending"
