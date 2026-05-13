@@ -49,6 +49,7 @@ window#waybar {
 #custom-memory,
 #custom-wifi,
 #custom-webcam,
+#custom-dock,
 #custom-notifications,
 #custom-thunderbird {
   padding: 0 6px;
@@ -121,6 +122,10 @@ window#waybar {
 
 #custom-webcam.active {
   color: #fb4934; /* red — only rendered when webcam is in use */
+}
+
+#custom-dock.docked {
+  color: #b8bb26; /* green — desk mode */
 }
 
 #custom-notifications {

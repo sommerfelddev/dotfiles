@@ -10,6 +10,7 @@
     "temperature",
     "custom/memory",
     "network#bond",
+    "custom/dock",
     "battery",
     "privacy",
     "custom/webcam",
@@ -178,6 +179,13 @@
     "exec": "~/.config/waybar/webcam-status.sh",
     "return-type": "json",
     "interval": 2,
+    "tooltip": true,
+  },
+
+  "custom/dock": {
+    "exec": "~/.config/waybar/dock-status.sh",
+    "return-type": "json",
+    "interval": 5,
     "tooltip": true,
   },
 
