@@ -9,3 +9,4 @@ justfile
 just-lib.sh
 selene.toml
 selene-globals.yml
+dot_config/nvim/nvim-pack-lock.json
