@@ -21,13 +21,6 @@ local function clean()
   vim.pack.del(names)
 end
 
-local function update()
-  vim.pack.update()
-  if vim.bo.filetype == "nvim-pack" then
-    vim.cmd("silent write")
-  end
-end
-
 local function list()
   local plugs = vim.pack.get()
   table.sort(plugs, function(a, b)
@@ -64,15 +57,15 @@ vim.api.nvim_create_user_command("PackClean", clean, {
   desc = "Remove plugins not declared in vim.pack.add()",
 })
 
-vim.api.nvim_create_user_command("PackUpdate", update, {
-  desc = "Update all plugins (auto-confirms the preview buffer)",
+vim.api.nvim_create_user_command("PackUpdate", vim.pack.update, {
+  desc = "Update all plugins (shows confirm buffer — :w to apply, :q to cancel)",
 })
 
 vim.api.nvim_create_user_command("PackSync", function()
   clean()
-  update()
+  vim.pack.update()
 end, {
-  desc = "Clean orphan plugins then update the rest",
+  desc = "Clean orphan plugins then open update confirm buffer",
 })
 
 vim.api.nvim_create_user_command("PackList", list, {
