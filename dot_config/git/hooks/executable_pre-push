@@ -58,11 +58,12 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
   fi
 
   # One pass: per-commit emit
-  #   SHA \t %G? \t cn \t ce \t an \t ae \t subject
-  # Tabs aren't valid in identity fields, so awk -F'\t' parses
-  # unambiguously.
+  #   SHA \t %G? \t cn \t ce \t an \t ae \t co-authored-by-list \t subject
+  # Co-authored-by trailers are joined with 0x1f (unit separator) which
+  # cannot appear in identity strings. Tabs aren't valid in identity
+  # fields either, so awk -F'\t' parses unambiguously.
   bad=$(git rev-list \
-    --format='%H%x09%G?%x09%cn%x09%ce%x09%an%x09%ae%x09%s' \
+    --format='%H%x09%G?%x09%cn%x09%ce%x09%an%x09%ae%x09%(trailers:key=Co-authored-by,valueonly,unfold,separator=%x1f)%x09%s' \
     --no-commit-header "$@" |
     awk -F'\t' \
       -v ok="$ok" \
@@ -86,7 +87,15 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
         if (is_agent(tolower($5 " " $6))) {
           reasons = reasons " [agent-author=" $5 " <" $6 ">]"
         }
-        if (reasons != "") print $1 reasons "  " $7
+        if ($7 != "") {
+          n_co = split($7, coauthors, "\037")
+          for (i = 1; i <= n_co; i++) {
+            if (coauthors[i] != "" && is_agent(tolower(coauthors[i]))) {
+              reasons = reasons " [agent-coauthor=" coauthors[i] "]"
+            }
+          }
+        }
+        if (reasons != "") print $1 reasons "  " $8
       }
     ')
 
