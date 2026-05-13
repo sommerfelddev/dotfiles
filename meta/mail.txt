@@ -1,1 +1,1 @@
-protonmail-bridge-nogui
+protonmail-bridge-free-core
