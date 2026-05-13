@@ -7,17 +7,23 @@
 set -eu
 
 MARK=tb-main
+BRIDGE_HOST=127.0.0.1
 BRIDGE_PORT=1143
 
-# Wait for protonmail-bridge's IMAP listener before launching Thunderbird so
-# TB doesn't pop up a "failed to login to 127.0.0.1" error on cold boot. Give
-# up after ~15s and launch anyway — the user can reconnect manually.
-for _ in $(seq 1 150); do
-  if ss -ltnH "sport = :$BRIDGE_PORT" 2>/dev/null | grep -q .; then
-    break
-  fi
-  sleep 0.1
+# protonmail-bridge opens the IMAP socket early (before the keyring is
+# unlocked), so "port is listening" is not enough — TB will race and pop up
+# "failed to login to 127.0.0.1". Wait for the real IMAP '* OK' greeting,
+# which the bridge only sends once it can actually service logins.
+for _ in $(seq 1 300); do
+  banner=$(ncat -w 1 -i 1 "$BRIDGE_HOST" "$BRIDGE_PORT" </dev/null 2>/dev/null | head -c 64)
+  case "$banner" in
+    "* OK"*) break ;;
+  esac
+  sleep 0.2
 done
+
+# Small grace period so the SMTP listener (1025) catches up too.
+sleep 1
 
 thunderbird &
 
