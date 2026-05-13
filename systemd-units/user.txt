@@ -6,6 +6,7 @@
 cliphist-image.service
 cliphist-text.service
 display-watcher.service
+inhibridge.service
 signal.service
 swayidle.service
 waybar.service

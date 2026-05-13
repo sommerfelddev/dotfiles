@@ -1,0 +1,15 @@
+[Unit]
+Description=Bridge org.freedesktop.ScreenSaver inhibits to systemd-inhibit
+Documentation=https://codeberg.org/Scrumplex/inhibridge
+PartOf=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=DBUS_SESSION_BUS_ADDRESS
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/inhibridge
+Restart=on-failure
+RestartSec=2s
+
+[Install]
+WantedBy=sway-session.target

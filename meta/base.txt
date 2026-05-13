@@ -168,6 +168,10 @@ poweralertd
 # Lock screen
 swaylock
 swayidle
+# Bridge browsers' org.freedesktop.ScreenSaver inhibits to systemd-inhibit
+# so swayidle honors them (e.g. video calls, fullscreen video). Without
+# this swayidle would still time out and lock during a Meet call.
+inhibridge
 
 # Clipboard
 wl-clipboard

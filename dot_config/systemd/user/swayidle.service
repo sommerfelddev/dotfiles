@@ -1,16 +1,22 @@
 [Unit]
-Description=Idle manager for Wayland (lock + DPMS + before-sleep)
+Description=Idle manager for Wayland (lock + DPMS + post-resume grace)
 PartOf=graphical-session.target
 After=graphical-session.target
 ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 Type=simple
+# We deliberately do NOT lock on `before-sleep`; instead we lock only
+# after a grace period post-resume, so a quick wake-and-keep-using
+# doesn't require the password. `before-sleep` only pauses media so the
+# call/track doesn't run on into suspend. The `lock` action still
+# handles explicit `loginctl lock-session` immediately.
 ExecStart=/usr/bin/swayidle -w \
     timeout 300 'swaylock -f -e -c 282828' \
     timeout 360 'swaymsg "output * power off"' \
         resume  'swaymsg "output * power on"' \
-    before-sleep 'playerctl -a pause; swaylock -f -e -c 282828' \
+    before-sleep 'playerctl -a pause' \
+    after-resume '%h/.config/sway/resume-lock-grace.sh 30' \
     lock         'swaylock -f -e -c 282828'
 Restart=on-failure
 RestartSec=2s
