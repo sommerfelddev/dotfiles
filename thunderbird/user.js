@@ -25,6 +25,10 @@ user_pref("mailnews.send_plaintext_flowed", true);
 user_pref("mail.compose.default_to_paragraph", false);
 user_pref("mailnews.wraplength", 72);
 
+/** Replies — top-post to match what most recipients expect **/
+user_pref("mail.identity.default.reply_on_top", 1);
+user_pref("mail.identity.default.sig_bottom", false);
+
 /** Outgoing headers — don't leak TB version **/
 user_pref("mailnews.headers.showUserAgent", false);
 user_pref("general.useragent.override", "");
