@@ -43,7 +43,7 @@ output * bg #282828 solid_color
 for_window [class="feh"] floating enable
 for_window [app_id="imv"] floating enable
 for_window [class="Tor Browser"] floating enable
-for_window [app_id="org.mozilla.Thunderbird"] move to scratchpad
+for_window [app_id="org.mozilla.Thunderbird" title=".*Mozilla Thunderbird$"] move to scratchpad
 
 # ── Standard keybinds (sway defaults) ─────────────────────────────────────────
 bindsym $mod+Return exec $term
@@ -157,7 +157,7 @@ mode "qr" {
 bindsym $mod+z mode "qr"
 
 # Thunderbird scratchpad toggle (auto-parked on launch, see window rules)
-bindsym $mod+t [app_id="org.mozilla.Thunderbird"] scratchpad show, resize set width 100 ppt height 100 ppt, move position center
+bindsym $mod+t [app_id="org.mozilla.Thunderbird" title=".*Mozilla Thunderbird$"] scratchpad show, resize set width 100 ppt height 100 ppt, move position center
 
 # ── Bar ───────────────────────────────────────────────────────────────────────
 bar {
