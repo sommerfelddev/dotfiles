@@ -353,6 +353,9 @@ compdef l=lsd la=lsd lt=lsd
 export GPG_TTY=$TTY
 gpg-connect-agent updatestartuptty /bye &>/dev/null
 
+# ── direnv (per-project env via .envrc; nix-direnv loaded from direnvrc) ─────
+eval "$(direnv hook zsh)"
+
 # ── Zoxide (smart directory jumping) ──────────────────────────────────────────
 # z foo → jump to frecency-ranked dir matching "foo"
 # zi    → interactive picker with fzf

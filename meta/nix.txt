@@ -1,0 +1,16 @@
+# Nix package manager (multi-user daemon mode).
+#
+# Used purely for hermetic per-project dev shells via `nix develop` +
+# direnv `use flake`. Not a replacement for paru/pacman, not home-manager,
+# not NixOS — just a sandboxed second package manager that gives every
+# project a reproducible toolchain pinned in its own flake.lock.
+#
+# Pairs with:
+#   - systemd-units/system/nix.txt  (enables nix-daemon.socket)
+#   - etc/nix/nix.conf              (flakes, trusted-users=@wheel, GC roots)
+#   - dot_config/direnv/direnvrc    (loads nix-direnv; pinned via source_url)
+#   - dot_config/nix/templates/     (flake templates: nix flake init -t ~/.config/nix/templates)
+#
+# nix-direnv itself is not packaged for Arch — it's loaded at runtime via
+# direnv's source_url with a content hash, so no extra package needed.
+nix

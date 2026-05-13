@@ -1,6 +1,7 @@
 android-tools
 curl
 difftastic
+direnv
 git-absorb
 git-delta
 github-cli

@@ -1,0 +1,3 @@
+# Nix builder daemon — socket-activated, idle-friendly.
+# The .service spawns on first client connect; the .socket is what gets enabled.
+nix-daemon.socket

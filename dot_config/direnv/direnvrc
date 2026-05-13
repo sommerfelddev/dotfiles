@@ -1,0 +1,14 @@
+# Global direnv runtime config.
+#
+# Loads nix-direnv on demand. nix-direnv is NOT packaged for Arch and we
+# refuse to depend on -git AUR packages, so we fetch the loader from
+# upstream pinned by version + content hash. direnv caches it under
+# $XDG_CACHE_HOME/direnv/, so the network fetch happens exactly once
+# per pin bump.
+#
+# To upgrade: bump the version in the URL and replace the sha256 with
+# the new one. direnv prints the expected hash on mismatch.
+if ! has nix_direnv_version || ! nix_direnv_version 3.1.1; then
+  source_url "https://raw.githubusercontent.com/nix-community/nix-direnv/3.1.1/direnvrc" \
+    "sha256-p+fzQdrms/hDa7g+soShAybJNo4bN4SIAeSfqNKgD5I="
+fi
