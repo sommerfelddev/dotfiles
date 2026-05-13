@@ -25,3 +25,8 @@ apply io.gitlab.librewolf-community --device=all
 # offers; the host udev rule (etc/udev/rules.d/50-zsa.rules) restricts
 # which hidraw nodes the user can actually open.
 apply io.github.ungoogled_software.ungoogled_chromium --device=all
+
+# Teams-for-Linux needs read access to our chezmoi-managed hicolor icon
+# tree so the per-profile --appIcon= path resolves inside the sandbox
+# (used by teams-sii.desktop / teams-xsight.desktop).
+apply com.github.IsmaelMartinez.teams_for_linux --filesystem=xdg-data/icons:ro

@@ -1,8 +1,8 @@
 [Desktop Entry]
 Name=Teams (Sii)
 Comment=Microsoft Teams — Sii account
-Exec=flatpak run com.github.IsmaelMartinez.teams_for_linux --class=teams-sii --user-data-dir={{ .chezmoi.homeDir }}/.var/app/com.github.IsmaelMartinez.teams_for_linux/config/profile-sii --appTitle=Teams\ —\ Sii %U
-Icon=com.github.IsmaelMartinez.teams_for_linux
+Exec=flatpak run com.github.IsmaelMartinez.teams_for_linux --class=teams-sii --user-data-dir={{ .chezmoi.homeDir }}/.var/app/com.github.IsmaelMartinez.teams_for_linux/config/profile-sii --appIcon={{ .chezmoi.homeDir }}/.local/share/icons/hicolor/256x256/apps/teams-sii.png "--appTitle=Teams — Sii" %U
+Icon=teams-sii
 Terminal=false
 Type=Application
 Categories=Network;InstantMessaging;

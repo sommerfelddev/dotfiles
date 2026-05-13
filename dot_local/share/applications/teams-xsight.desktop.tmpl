@@ -1,8 +1,8 @@
 [Desktop Entry]
 Name=Teams (XSight)
 Comment=Microsoft Teams — XSight account
-Exec=flatpak run com.github.IsmaelMartinez.teams_for_linux --class=teams-xsight --user-data-dir={{ .chezmoi.homeDir }}/.var/app/com.github.IsmaelMartinez.teams_for_linux/config/profile-xsight --appTitle=Teams\ —\ XSight %U
-Icon=com.github.IsmaelMartinez.teams_for_linux
+Exec=flatpak run com.github.IsmaelMartinez.teams_for_linux --class=teams-xsight --user-data-dir={{ .chezmoi.homeDir }}/.var/app/com.github.IsmaelMartinez.teams_for_linux/config/profile-xsight --appIcon={{ .chezmoi.homeDir }}/.local/share/icons/hicolor/256x256/apps/teams-xsight.png "--appTitle=Teams — XSight" %U
+Icon=teams-xsight
 Terminal=false
 Type=Application
 Categories=Network;InstantMessaging;
