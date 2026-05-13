@@ -1,1 +1,1 @@
-protonmail-bridge-free-core
+protonmail-bridge-core
