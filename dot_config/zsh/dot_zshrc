@@ -48,6 +48,7 @@ zstyle ':completion:*' completer _expand_alias _complete _ignored _match _approx
 zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}  # colorize file completions like ls
 zstyle ':completion:*' use-cache on                            # cache completions (speeds up pip, dpkg, etc.)
 zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh"
+zstyle ':completion:*' rehash true                             # rebuild PATH hash on every completion (catches paru, cargo, pip, manual installs)
 zstyle ':completion:*:match:*' original only                   # only show original when pattern-matching
 zstyle ':completion:*:functions' ignored-patterns '_*'         # hide internal completion functions
 zstyle ':completion:*:*:kill:*' menu yes select                # interactive menu for kill completion
