@@ -10,7 +10,7 @@
   track these) and generated caches (pacman post-install regenerates
   them, so they will never be pacman-owned).
 */ -}}
-{{ output "sh" "-c" (printf "cd %q && find etc -type f ! -name .ignore | sed -e 's|^etc|/etc|' -e 's|\\.tmpl$||' | LC_ALL=C sort -u" .chezmoi.sourceDir) -}}
+{{ output "sh" "-c" (printf "cd %q && find etc -type f ! -name .ignore | sed -e 's|^etc|/etc|' -e 's|\\.tmpl$||' | awk -F/ 'BEGIN{OFS=\"/\"} {print; for (i=NF-1; i>1; i--) {$NF=\"\"; sub(/\\/$/, \"\"); print}}' | LC_ALL=C sort -u" .chezmoi.sourceDir) -}}
 # sudo-rs deploy script symlinks /etc/pam.d/sudo-i -> sudo
 /etc/pam.d/sudo-i
 # Host-private systemd-networkd units (contain secrets, not tracked)

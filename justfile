@@ -18,7 +18,7 @@ sync: apply pkg-fix unit-apply
 
 # Deploy dotfiles AND /etc atomically (chezmoi apply; /etc handled by onchange template)
 apply:
-    chezmoi apply -S .
+    chezmoi apply -S . -v
 
 # ═══════════════════════════════════════════════════════════════════
 # Updates
