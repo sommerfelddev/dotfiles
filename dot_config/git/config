@@ -138,6 +138,7 @@
     smtpServerPort = 1025
     smtpEncryption = tls
     smtpDomain = localhost
+    smtpSslCertPath =
     confirm = auto
     suppresscc = self
     chainReplyTo = false
