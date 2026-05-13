@@ -9,6 +9,7 @@ margin=4
 width=300
 default-timeout=5000
 anchor=top-right
+max-history=50
 
 [urgency=low]
 border-color=#8ec07c
