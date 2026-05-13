@@ -274,7 +274,7 @@ copy-last-output() {
 		zle -M "copy-last-output: previous command produced no output"
 		return 0
 	fi
-	printf '%s\n' "${lines[start,end]}" | wl-copy
+	print -r -- "${(F)lines[start,end]}" | wl-copy
 	zle -M "copied $((end - start + 1)) line(s) of last command output"
 }
 zle -N copy-last-output
