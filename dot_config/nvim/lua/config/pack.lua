@@ -25,6 +25,38 @@ local function update()
   vim.pack.update(nil, { force = true })
 end
 
+local function list()
+  local plugs = vim.pack.get()
+  table.sort(plugs, function(a, b)
+    return a.spec.name < b.spec.name
+  end)
+  local lines = {}
+  for _, p in ipairs(plugs) do
+    local mark = p.active and "●" or "○"
+    local ver = p.spec.version
+    if type(ver) == "table" then
+      ver = tostring(ver)
+    end
+    table.insert(
+      lines,
+      string.format(
+        "%s %-40s %-12s %s",
+        mark,
+        p.spec.name,
+        (p.rev or ""):sub(1, 8),
+        ver or ""
+      )
+    )
+  end
+  vim.api.nvim_echo(
+    vim.tbl_map(function(l)
+      return { l .. "\n" }
+    end, lines),
+    false,
+    {}
+  )
+end
+
 vim.api.nvim_create_user_command("PackClean", clean, {
   desc = "Remove plugins not declared in vim.pack.add()",
 })
@@ -38,4 +70,8 @@ vim.api.nvim_create_user_command("PackSync", function()
   update()
 end, {
   desc = "Clean orphan plugins then update the rest",
+})
+
+vim.api.nvim_create_user_command("PackList", list, {
+  desc = "List managed plugins (● active, ○ orphan)",
 })
