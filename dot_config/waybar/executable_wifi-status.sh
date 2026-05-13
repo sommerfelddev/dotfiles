@@ -10,7 +10,7 @@ iface=wlan0
 svc=net.connman.iwd
 
 down() {
-  printf '{"text":"wifi off","class":"down"}\n'
+  printf '{"text":"󰖪","class":"down"}\n'
   exit 0
 }
 
@@ -46,5 +46,5 @@ color=$(awk -v p="$pct" 'BEGIN{
 	else print "#b8bb26"
 }')
 
-printf '{"text":"%s <span color=\x27%s\x27>%s%%</span>","class":"up","tooltip":"%s · %s dBm"}\n' \
+printf '{"text":"󰖩 %s <span color=\x27%s\x27>%s%%</span>","class":"up","tooltip":"%s · %s dBm"}\n' \
   "$ssid" "$color" "$pct" "$iface" "$rssi"

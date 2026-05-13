@@ -103,9 +103,10 @@
   },
 
   "battery": {
-    "format": "BAT {capacity}%",
-    "format-charging": "CHR {capacity}%",
-    "format-plugged": "PLG {capacity}%",
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-plugged": "󰚥 {capacity}%",
+    "format-icons": ["󰁺", "󰁼", "󰁾", "󰂀", "󰂂", "󰁹"],
     "states": {
       "warning": 30,
       "critical": 15,
@@ -113,12 +114,15 @@
   },
 
   "pulseaudio": {
-    "format": "VOL {volume}%",
-    "format-low": "VOL <span color='#b8bb26'>{volume}%</span>",
-    "format-medium": "VOL <span color='#fabd2f'>{volume}%</span>",
-    "format-high": "VOL <span color='#fe8019'>{volume}%</span>",
-    "format-critical": "VOL <span color='#fb4934'>{volume}%</span>",
-    "format-muted": "MUTE",
+    "format": "{icon} {volume}%",
+    "format-low": "{icon} <span color='#b8bb26'>{volume}%</span>",
+    "format-medium": "{icon} <span color='#fabd2f'>{volume}%</span>",
+    "format-high": "{icon} <span color='#fe8019'>{volume}%</span>",
+    "format-critical": "{icon} <span color='#fb4934'>{volume}%</span>",
+    "format-muted": "󰖁",
+    "format-icons": {
+      "default": ["󰕿", "󰖀", "󰕾"],
+    },
     "states": {
       "low": 0,
       "medium": 50,
@@ -142,18 +146,18 @@
   "idle_inhibitor": {
     "format": "{icon}",
     "format-icons": {
-      "activated": "INH",
-      "deactivated": "IDL",
+      "activated": "󰛑",
+      "deactivated": "󰛐",
     },
     "tooltip": true,
   },
 
   "bluetooth": {
-    "format": "BT on",
-    "format-disabled": "BT off",
-    "format-off": "BT off",
-    "format-connected": "BT {device_alias}",
-    "format-connected-battery": "BT {device_alias} {device_battery_percentage}%",
+    "format": "󰂯",
+    "format-disabled": "󰂲",
+    "format-off": "󰂲",
+    "format-connected": "󰂰 {device_alias}",
+    "format-connected-battery": "󰂰 {device_alias} {device_battery_percentage}%",
     "tooltip-format": "{controller_alias}\t{controller_address}",
     "tooltip-format-connected": "{controller_alias}\n{num_connections} connected\n{device_enumerate}",
     "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",

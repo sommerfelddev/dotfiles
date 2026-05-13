@@ -12,13 +12,13 @@ count=$(makoctl history 2>/dev/null | grep -c '^Notification ' || true)
 pending=$(makoctl list 2>/dev/null | grep -c '^Notification ' || true)
 
 if [ "$pending" -gt 0 ]; then
-  text="NTF !$pending"
+  text="󰂞 $pending"
   class="pending"
 elif [ "$count" -gt 0 ]; then
-  text="NTF $count"
+  text="󱇨 $count"
   class="history"
 else
-  text="NTF 0"
+  text="󰂜"
   class="empty"
 fi
 

@@ -12,7 +12,7 @@ esac
 # fuser exits 0 when at least one device has an opener, 1 otherwise. Stderr
 # carries 'PID' for each match; redirect it away.
 if fuser $devs >/dev/null 2>&1; then
-  printf '{"text":"CAM","tooltip":"webcam in use","class":"active","alt":"active"}\n'
+  printf '{"text":"󰵝","tooltip":"webcam in use","class":"active","alt":"active"}\n'
 else
   printf '{"text":"","alt":"idle"}\n'
 fi
