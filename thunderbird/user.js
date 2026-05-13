@@ -9,6 +9,9 @@
  * Accounts, passwords, mailboxes, calendar/contact data stay local.
  */
 
+/** Startup — no start.thunderbird.net page **/
+user_pref("mailnews.start_page.enabled", false);
+
 /** Reading — no remote content, no read receipts **/
 user_pref("mailnews.message_display.disable_remote_image", true);
 user_pref("mail.inline_attachments", false);
