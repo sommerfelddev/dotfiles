@@ -135,6 +135,18 @@ bindsym XF86AudioPlay exec playerctl play-pause
 bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
 
+# Brightness
+bindsym XF86MonBrightnessUp exec brightnessctl set +5%
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+
+# ThinkPad multimedia keys
+bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+bindsym XF86Bluetooth exec ~/.config/sway/bt-toggle.sh
+bindsym XF86ScreenSaver exec "playerctl -a pause; swaylock -f -e -c 282828"
+bindsym XF86Sleep exec systemctl suspend
+bindsym XF86WLAN exec rfkill toggle wifi
+bindsym XF86RFKill exec rfkill toggle all
+
 # Screenshots
 bindsym Print exec sh -c 'grim -g "$(slurp)" - | tee ~/pics/screenshots/$(date +%Y-%m-%d-%H-%M-%S).png | wl-copy'
 bindsym Shift+Print exec sh -c 'grim - | tee ~/pics/screenshots/$(date +%Y-%m-%d-%H-%M-%S).png | wl-copy'
