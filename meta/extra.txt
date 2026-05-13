@@ -12,5 +12,5 @@ tesseract-data-por
 # Speech-to-text (used by ~/.local/bin/dictate)
 # `base` multilingual: ~142 MB, ~7-10x realtime on a 4c CPU. Override
 # WHISPER_MODEL in the script's environment to use a different ggml model.
-whisper.cpp
+whisper.cpp-vulkan
 whisper.cpp-model-base
