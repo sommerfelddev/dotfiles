@@ -53,6 +53,12 @@ for_window [class="Tor Browser"] floating enable
 for_window [app_id="org.mozilla.Thunderbird" title=".*Mozilla Thunderbird$"] mark --add tb-main
 for_window [shell=".*"] inhibit_idle fullscreen
 
+# virt-viewer / virt-manager grab the Mod key via the keyboard-shortcuts-inhibit
+# Wayland protocol. Refuse so $mod+... bindings keep working while the VM has focus.
+for_window [app_id="virt-viewer"] shortcuts_inhibitor disable
+for_window [app_id="remote-viewer"] shortcuts_inhibitor disable
+for_window [app_id="virt-manager"] shortcuts_inhibitor disable
+
 # ── Standard keybinds (sway defaults) ─────────────────────────────────────────
 bindsym $mod+Return exec $term
 bindsym $mod+Shift+Return exec $term -e yazi
