@@ -27,10 +27,9 @@ done
 # sudo-rs: /etc/pam.d/sudo-i is a symlink to /etc/pam.d/sudo
 sudo ln -sfT sudo /etc/pam.d/sudo-i
 
-# Recompile the udev hardware database so any etc/udev/hwdb.d/*.hwdb files
-# we just deployed take effect on next device event.
-sudo systemd-hwdb update
-sudo udevadm trigger --subsystem-match=input --action=change
+# Reload systemd-logind so changes under /etc/systemd/logind.conf.d/
+# (e.g. HandlePowerKey overrides) take effect without dropping sessions.
+sudo systemctl kill -s HUP systemd-logind
 
 # Make sudo-rs the system-wide sudo via /usr/local/bin precedence.
 # Targets may not exist yet on first bootstrap (sudo-rs is installed by
