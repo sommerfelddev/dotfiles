@@ -35,7 +35,7 @@ case "$url" in
     setsid rssadd "$url" >/dev/null 2>&1 &
     ;;
   mailto:*)
-    setsid aerc "$url" >/dev/null 2>&1 &
+    xdg-open "$url" >/dev/null 2>&1 &
     ;;
   *.dot)
     setsid xdot "$url" >/dev/null 2>&1 &
