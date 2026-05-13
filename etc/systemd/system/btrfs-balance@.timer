@@ -1,0 +1,12 @@
+[Unit]
+Description=Monthly btrfs balance on %f
+Documentation=man:btrfs-balance(8)
+
+[Timer]
+OnCalendar=monthly
+AccuracySec=1d
+Persistent=true
+RandomizedDelaySec=1h
+
+[Install]
+WantedBy=timers.target
