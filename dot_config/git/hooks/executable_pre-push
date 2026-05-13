@@ -1,8 +1,11 @@
 #!/bin/sh
-# Reject pushes that include commits without a good signature, or whose
-# committer does not match this repo's user.name / user.email.
-# (Author is left free so rebased / amended foreign commits are fine
-# as long as you are the one re-committing them.)
+# Reject pushes that include commits which:
+#   * lack a good signature, or
+#   * have a committer different from this repo's user.name / user.email, or
+#   * have an author that looks like a coding agent (Copilot, Claude,
+#     Codex, ChatGPT, Cursor, Aider, Devin, ...) -- I want my name on
+#     anything I push, even when an agent helped write it. Use
+#     `git commit --amend --reset-author` after agent-assisted work.
 #
 # Activated via core.hooksPath in ~/.config/git/config so it applies to
 # every repo unless that repo overrides hooksPath itself (this dotfiles
@@ -34,6 +37,13 @@ fi
 # We accept G/U/X/Y and reject anything else.
 ok='G U X Y'
 
+# Case-insensitive substrings that disqualify an author. Matched against
+# "<name> <email>" lowercased. Plain substring matching (index()) is
+# used in the awk below to dodge regex-escaping pitfalls. Keep this list
+# narrow on purpose: false positives are worse than misses (a slipped
+# commit can be amended and force-pushed; a noisy hook gets disabled).
+agent_subs='copilot claude codex chatgpt cursor aider devin [bot] @openai. @anthropic.'
+
 fail=0
 while read -r _local_ref local_sha remote_ref remote_sha; do
   # Branch deletion: nothing to verify on our side.
@@ -47,20 +57,36 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
     set -- "${remote_sha}..${local_sha}"
   fi
 
-  # One pass: per-commit emit SHA <TAB> %G? <TAB> committer-name
-  # <TAB> committer-email <TAB> subject. Tabs aren't valid in identity
-  # fields, so awk -F'\t' parses unambiguously.
-  bad=$(git rev-list --format='%H%x09%G?%x09%cn%x09%ce%x09%s' \
+  # One pass: per-commit emit
+  #   SHA \t %G? \t cn \t ce \t an \t ae \t subject
+  # Tabs aren't valid in identity fields, so awk -F'\t' parses
+  # unambiguously.
+  bad=$(git rev-list \
+    --format='%H%x09%G?%x09%cn%x09%ce%x09%an%x09%ae%x09%s' \
     --no-commit-header "$@" |
-    awk -F'\t' -v ok="$ok" -v en="$expected_name" -v ee="$expected_email" '
-      BEGIN { split(ok, a, " "); for (i in a) good[a[i]] = 1 }
+    awk -F'\t' \
+      -v ok="$ok" \
+      -v en="$expected_name" \
+      -v ee="$expected_email" \
+      -v agent_subs="$agent_subs" '
+      BEGIN {
+        split(ok, a, " "); for (i in a) good[a[i]] = 1
+        n_subs = split(agent_subs, subs, " ")
+      }
+      function is_agent(s,    i) {
+        for (i = 1; i <= n_subs; i++) if (index(s, subs[i])) return 1
+        return 0
+      }
       {
         reasons = ""
         if (!($2 in good)) reasons = reasons " [sig=" $2 "]"
         if ($3 != en || $4 != ee) {
           reasons = reasons " [committer=" $3 " <" $4 ">]"
         }
-        if (reasons != "") print $1 reasons "  " $5
+        if (is_agent(tolower($5 " " $6))) {
+          reasons = reasons " [agent-author=" $5 " <" $6 ">]"
+        }
+        if (reasons != "") print $1 reasons "  " $7
       }
     ')
 
@@ -76,9 +102,11 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
 done
 
 if [ "$fail" -ne 0 ]; then
-  printf '\nfix:    git rebase --exec "git commit --amend --no-edit -S" <base>\n' >&2
-  printf '        (re-stamps committer to your current identity and re-signs)\n' >&2
-  printf 'bypass: git push --no-verify\n\n' >&2
+  printf '\nfix sig + committer:\n' >&2
+  printf '  git rebase --exec "git commit --amend --no-edit -S" <base>\n' >&2
+  printf 'fix author (re-stamp yourself as author, keep agent out):\n' >&2
+  printf '  git rebase --exec "git commit --amend --no-edit --reset-author -S" <base>\n' >&2
+  printf 'bypass:\n  git push --no-verify\n\n' >&2
   exit 1
 fi
 
