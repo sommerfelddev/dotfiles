@@ -317,6 +317,8 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 | `Super+Shift+s`        | Lock screen + pause media                     |
 | `Super+n`              | Dismiss notification                          |
 | `Super+Shift+n`        | Dismiss all notifications                     |
+| `Super+v`              | Clipboard history picker (cliphist + fuzzel)  |
+| `Super+Shift+v`        | Clipboard history delete entry                |
 | `Super+Tab`            | Next workspace                                |
 | `Super+Shift+Tab`      | Previous workspace                            |
 | `F7`                   | Toggle display mode (laptop-off/side-by-side) |

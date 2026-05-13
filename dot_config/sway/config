@@ -144,6 +144,10 @@ bindsym $mod+Shift+s exec "playerctl -a pause; swaylock -f -e -c 282828"
 bindsym $mod+n exec makoctl dismiss
 bindsym $mod+Shift+n exec makoctl dismiss --all
 
+# Clipboard history
+bindsym $mod+v exec sh -c 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'
+bindsym $mod+Shift+v exec sh -c 'cliphist list | fuzzel --dmenu | cliphist delete'
+
 # Display mode switching
 bindsym --no-repeat F7 exec ~/.config/sway/display-toggle.sh
 

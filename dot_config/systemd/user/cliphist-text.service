@@ -1,0 +1,14 @@
+[Unit]
+Description=Clipboard history (text) via cliphist
+PartOf=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/wl-paste --type text --watch cliphist store
+Restart=on-failure
+RestartSec=2s
+
+[Install]
+WantedBy=sway-session.target

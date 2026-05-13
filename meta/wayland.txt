@@ -22,6 +22,7 @@ swayidle
 
 # Clipboard
 wl-clipboard
+cliphist
 
 # Screenshots & recording
 grim
