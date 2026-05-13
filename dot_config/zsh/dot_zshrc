@@ -260,6 +260,28 @@ za() {
 	esac
 }
 
+# Re-import session env from the running sway process. Useful inside a
+# stale zellij pane whose server was started in a different session
+# (e.g. attached over SSH, then reattached locally, or vice versa).
+reload-env() {
+	local pid
+	pid=$(pgrep -u "$UID" -x sway | head -1) || {
+		echo "reload-env: no sway process found for $USER" >&2
+		return 1
+	}
+	local kv
+	while IFS= read -r -d '' kv; do
+		case $kv in
+			WAYLAND_DISPLAY=*|SWAYSOCK=*|DISPLAY=*|\
+			DBUS_SESSION_BUS_ADDRESS=*|XDG_RUNTIME_DIR=*|\
+			XDG_CURRENT_DESKTOP=*|XDG_SESSION_TYPE=*|\
+			SSH_AUTH_SOCK=*)
+				export "$kv"
+				;;
+		esac
+	done < "/proc/$pid/environ"
+}
+
 # Just
 alias j='just'
 
