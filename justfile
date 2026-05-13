@@ -52,9 +52,11 @@ flatpak-update:
             rm -f "$tmp"
         done
 
-# Update Neovim plugins (vim.pack) and Mason tools, interactively so the diff buffer is visible
+# Update Neovim plugins (vim.pack) and Mason tools, interactively so the diff buffer is visible.
+# `cd` to $HOME first so auto-session's suppressed_dirs rule kicks in and we don't
+# load/save a project session for what's really just an admin chore.
 nvim-update:
-    nvim '+lua require("config.update").run()'
+    cd && nvim '+lua require("config.update").run()'
 
 # Re-add changes from live files back into the repo; pass a path to target one, or omit for all
 re-add *paths:
