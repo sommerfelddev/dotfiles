@@ -136,7 +136,7 @@ bindsym Print exec grim -g "$(slurp)" ~/pics/screenshots/$(date +%Y-%m-%d-%H-%M-
 bindsym Shift+Print exec grim ~/pics/screenshots/$(date +%Y-%m-%d-%H-%M-%S).png
 
 # Lock & pause
-bindsym $mod+Shift+s exec "playerctl -a pause; swaylock -f -c 282828"
+bindsym $mod+Shift+s exec "playerctl -a pause; swaylock -f -i -c 282828"
 
 # Notifications
 bindsym $mod+n exec makoctl dismiss
@@ -155,3 +155,10 @@ exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CU
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
 exec "sleep 2 && ~/.config/sway/display-toggle.sh init"
 exec systemctl --user start sway-session.target
+
+# Idle: lock at 5min (matches IdleActionSec), blank at 6min, lock before sleep.
+exec swayidle -w \
+    timeout 300 'swaylock -f -i -c 282828' \
+    timeout 360 'swaymsg "output * power off"' \
+        resume 'swaymsg "output * power on"' \
+    before-sleep 'playerctl -a pause; swaylock -f -i -c 282828'

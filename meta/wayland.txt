@@ -16,6 +16,7 @@ poweralertd
 
 # Lock screen
 swaylock
+swayidle
 
 # Clipboard
 wl-clipboard
