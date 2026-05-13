@@ -22,7 +22,20 @@ local function clean()
 end
 
 local function update()
-  vim.pack.update(nil, { force = true })
+  vim.api.nvim_create_autocmd("FileType", {
+    pattern = "nvim-pack",
+    once = true,
+    callback = function(args)
+      vim.schedule(function()
+        if vim.api.nvim_buf_is_valid(args.buf) then
+          vim.api.nvim_buf_call(args.buf, function()
+            vim.cmd("silent write")
+          end)
+        end
+      end)
+    end,
+  })
+  vim.pack.update()
 end
 
 local function list()
@@ -62,7 +75,7 @@ vim.api.nvim_create_user_command("PackClean", clean, {
 })
 
 vim.api.nvim_create_user_command("PackUpdate", update, {
-  desc = "Update all plugins without confirmation",
+  desc = "Update all plugins (auto-confirms the preview buffer)",
 })
 
 vim.api.nvim_create_user_command("PackSync", function()
