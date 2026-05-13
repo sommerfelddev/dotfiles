@@ -4,6 +4,9 @@ syncthing
 udisks2
 autenticacao-gov-pt-bin
 
+# Flatpak runtime (apps tracked in meta/flatpak.txt)
+flatpak
+
 # OCR (used by ~/.local/bin/ocr)
 tesseract
 tesseract-data-eng

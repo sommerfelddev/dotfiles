@@ -24,12 +24,16 @@ apply:
 # Updates
 # ═══════════════════════════════════════════════════════════════════
 
-# Update everything: system packages, Neovim plugins, Mason tools
-update: pkg-update nvim-update
+# Update everything: system packages, Neovim plugins, Mason tools, flatpaks
+update: pkg-update nvim-update flatpak-update
 
 # Upgrade all system + AUR packages
 pkg-update:
     paru -Syu
+
+# Update all user-scope flatpaks
+flatpak-update:
+    flatpak update --user -y --noninteractive
 
 # Update Neovim plugins (vim.pack) and Mason tools in a headless session
 nvim-update:
@@ -917,25 +921,47 @@ etc-restore +paths:
 # Show package drift: missing packages in adopted groups + undeclared installed packages
 pkg-status:
     #!/bin/sh
-    active=$(just _active-packages)
+    flatpaks=$(flatpak list --user --app --columns=application 2>/dev/null || true)
     echo "=== Package drift ==="
-    echo "$active" | while read -r pkg; do
+    just _active-packages | while read -r pkg; do
         [ -z "$pkg" ] && continue
         pacman -Qi "$pkg" >/dev/null 2>&1 || echo "  missing:    $pkg"
     done
+    if [ -f meta/flatpak.txt ]; then
+        sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' meta/flatpak.txt | while read -r id; do
+            [ -z "$id" ] && continue
+            printf '%s\n' "$flatpaks" | grep -qxF "$id" || echo "  missing:    flatpak: $id"
+        done
+    fi
     just undeclared | sed 's/^/  undeclared: /'
 
-# Print undeclared packages one per line, unindented (pipe to 'paru -Rs -' to remove them)
+# Print undeclared packages one per line, unindented (pipe to 'paru -Rs -' to remove pacman entries)
 undeclared:
     #!/bin/sh
     active=$(just _active-packages)
     pacman -Qqe | while read -r pkg; do
         echo "$active" | grep -qxF "$pkg" || echo "$pkg"
     done
+    if [ -f meta/flatpak.txt ]; then
+        declared=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' meta/flatpak.txt)
+        flatpak list --user --app --columns=application 2>/dev/null | while read -r id; do
+            [ -z "$id" ] && continue
+            echo "$declared" | grep -qxF "$id" || echo "flatpak: $id"
+        done
+    fi
 
 # Show per-group install coverage; pass a group name for a per-package breakdown
 pkg-list group="":
     #!/bin/sh
+    is_installed() {
+        # $1: group name, $2: package/app id
+        if [ "$1" = "flatpak" ]; then
+            printf '%s\n' "$_flatpaks" | grep -qxF "$2"
+        else
+            pacman -Qi "$2" >/dev/null 2>&1
+        fi
+    }
+    _flatpaks=$(flatpak list --user --app --columns=application 2>/dev/null || true)
     if [ -n '{{ group }}' ]; then
         file="meta/{{ group }}.txt"
         if [ ! -f "$file" ]; then
@@ -943,7 +969,7 @@ pkg-list group="":
             exit 1
         fi
         sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file" | while read -r pkg; do
-            if pacman -Qi "$pkg" >/dev/null 2>&1; then
+            if is_installed '{{ group }}' "$pkg"; then
                 printf '  \033[32m✓\033[0m %s\n' "$pkg"
             else
                 printf '  \033[31m✗\033[0m %s\n' "$pkg"
@@ -957,7 +983,7 @@ pkg-list group="":
         total=$(echo "$pkgs" | wc -l)
         installed=0
         for pkg in $pkgs; do
-            pacman -Qi "$pkg" >/dev/null 2>&1 && installed=$((installed + 1))
+            is_installed "$group" "$pkg" && installed=$((installed + 1))
         done
         if [ "$installed" -eq "$total" ]; then
             printf '  \033[32m✓\033[0m %-10s %d/%d\n' "$group" "$installed" "$total"
@@ -972,28 +998,63 @@ pkg-list group="":
 pkg-apply *groups:
     #!/bin/sh
     set -eu
+    install_flatpaks() {
+        # $@: flathub app ids
+        [ "$#" -gt 0 ] || return 0
+        flatpak remote-add --if-not-exists --user flathub \
+            https://dl.flathub.org/repo/flathub.flatpakrepo >/dev/null
+        flatpak install --user -y --noninteractive flathub "$@"
+    }
     if [ -n "{{ groups }}" ]; then
         for group in {{ groups }}; do
-            sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "meta/${group}.txt" | paru -S --needed --noconfirm --ask=4 -
+            file="meta/${group}.txt"
+            pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
+            [ -n "$pkgs" ] || continue
+            if [ "$group" = "flatpak" ]; then
+                # shellcheck disable=SC2086
+                install_flatpaks $pkgs
+            else
+                printf '%s\n' "$pkgs" | paru -S --needed --noconfirm --ask=4 -
+            fi
         done
     else
-        cat meta/*.txt | sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' | sort -u | paru -S --needed --noconfirm --ask=4 -
+        find meta -maxdepth 1 -name '*.txt' ! -name 'flatpak.txt' -print0 \
+            | xargs -0 cat \
+            | sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' \
+            | sort -u | paru -S --needed --noconfirm --ask=4 -
+        if [ -f meta/flatpak.txt ]; then
+            ids=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' meta/flatpak.txt)
+            # shellcheck disable=SC2086
+            [ -n "$ids" ] && install_flatpaks $ids
+        fi
     fi
 
 # Top up missing packages in groups that are already ≥50% installed (never installs new groups)
 pkg-fix:
     #!/bin/sh
+    flatpaks=$(flatpak list --user --app --columns=application 2>/dev/null || true)
     for file in meta/*.txt; do
         group=$(basename "$file" .txt)
         pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
         total=$(echo "$pkgs" | wc -l)
         installed=0
         for pkg in $pkgs; do
-            pacman -Qi "$pkg" >/dev/null 2>&1 && installed=$((installed + 1))
+            if [ "$group" = "flatpak" ]; then
+                printf '%s\n' "$flatpaks" | grep -qxF "$pkg" && installed=$((installed + 1))
+            else
+                pacman -Qi "$pkg" >/dev/null 2>&1 && installed=$((installed + 1))
+            fi
         done
         if [ $((installed * 2)) -ge "$total" ] && [ "$installed" -lt "$total" ]; then
             echo ">>> topping up $group ($installed/$total installed)"
-            echo "$pkgs" | paru -S --needed --noconfirm --ask=4 -
+            if [ "$group" = "flatpak" ]; then
+                flatpak remote-add --if-not-exists --user flathub \
+                    https://dl.flathub.org/repo/flathub.flatpakrepo >/dev/null
+                # shellcheck disable=SC2086
+                flatpak install --user -y --noninteractive flathub $pkgs
+            else
+                echo "$pkgs" | paru -S --needed --noconfirm --ask=4 -
+            fi
         fi
     done
 
@@ -1014,7 +1075,13 @@ pkg-add group +pkgs:
             echo "added $pkg to {{ group }}.txt"
         fi
     done
-    paru -S --needed {{ pkgs }}
+    if [ '{{ group }}' = "flatpak" ]; then
+        flatpak remote-add --if-not-exists --user flathub \
+            https://dl.flathub.org/repo/flathub.flatpakrepo >/dev/null
+        flatpak install --user -y --noninteractive flathub {{ pkgs }}
+    else
+        paru -S --needed {{ pkgs }}
+    fi
 
 # Remove one or more packages from a group list (does NOT uninstall; the package may belong to other groups)
 pkg-forget group +pkgs:
@@ -1044,10 +1111,11 @@ _chezmoi-init:
 _install-hooks:
     git config core.hooksPath .githooks
 
-# Print packages from groups that are ≥50% installed (adopted), one per line
+# Print packages from pacman groups that are ≥50% installed (adopted), one per line
 _active-packages:
     #!/bin/sh
     for file in meta/*.txt; do
+        [ "$(basename "$file")" = "flatpak.txt" ] && continue
         pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
         total=$(echo "$pkgs" | wc -l)
         installed=0

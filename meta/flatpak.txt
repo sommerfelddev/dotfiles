@@ -1,0 +1,7 @@
+# Flathub app IDs. Managed by `just pkg-*` recipes via the magic
+# `flatpak` group name (see justfile). Installed with --user scope.
+
+org.chromium.Chromium
+org.kde.okular
+org.libreoffice.LibreOffice
+org.torproject.torbrowser-launcher
