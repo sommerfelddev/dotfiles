@@ -25,7 +25,7 @@ apply:
 # ═══════════════════════════════════════════════════════════════════
 
 # Update everything: system packages, Neovim plugins, Mason tools, flatpaks
-update: pkg-update nvim-update flatpak-update
+update: pkg-update flatpak-update
 
 # Upgrade all system + AUR packages
 pkg-update:

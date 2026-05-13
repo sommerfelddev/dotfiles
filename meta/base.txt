@@ -173,6 +173,12 @@ swayidle
 # this swayidle would still time out and lock during a Meet call.
 inhibridge
 
+# org.freedesktop.secrets D-Bus implementation backed by pass. Required
+# by Signal Desktop (flatpak) and other libsecret consumers; D-Bus
+# activated, no service to enable. Stores secrets under
+# ~/.password-store/secret-service/.
+pass-secret-service
+
 # Clipboard
 wl-clipboard
 cliphist
