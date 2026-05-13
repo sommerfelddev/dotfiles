@@ -2,12 +2,10 @@
 """Notification history picker.
 
 Lists pending mako notifications (visible bubbles + history). Entries
-previously dismissed via this picker are hidden so the list shrinks as
-you process it.
+dismissed via this picker are hidden so the list shrinks as you process it.
 
 Keys:
   Enter   copy "summary\\nbody" to the clipboard and dismiss the entry
-  Alt-d   dismiss without copying
   Esc     cancel
 
 State file: $XDG_RUNTIME_DIR/mako-dismissed (one id per line, per-session).
@@ -124,7 +122,7 @@ def parse_selection(line: str) -> int | None:
     return int(m.group(1)) if m else None
 
 
-def run_wofi(input_text: str, lines: int) -> tuple[int, str]:
+def run_wofi(input_text: str, lines: int) -> str:
     style = Path.home() / ".config/wofi/style.css"
     cmd = [
         "wofi",
@@ -132,21 +130,15 @@ def run_wofi(input_text: str, lines: int) -> tuple[int, str]:
         "--hide-search",
         "--prompt",
         "Notifications",
-        "--define",
-        "key_custom_0=Alt-d",
         "--lines",
         str(lines),
     ]
     if style.exists():
         cmd += ["--style", str(style)]
     proc = subprocess.run(
-        cmd,
-        input=input_text,
-        text=True,
-        capture_output=True,
-        check=False,
+        cmd, input=input_text, text=True, capture_output=True, check=False
     )
-    return proc.returncode, proc.stdout.strip()
+    return proc.stdout.strip()
 
 
 def main() -> None:
@@ -158,8 +150,7 @@ def main() -> None:
         return
 
     lines_text = "\n".join(fmt_line(n) for n in notifs) + "\n"
-    rc, sel = run_wofi(lines_text, min(len(notifs), 15))
-
+    sel = run_wofi(lines_text, min(len(notifs), 15))
     if not sel or sel.startswith("(no "):
         return
 
@@ -173,12 +164,8 @@ def main() -> None:
     summary = str(notif.get("summary") or "").strip()
     body = str(notif.get("body") or "").strip()
     clip_text = f"{summary}\n{body}".strip()
-
-    if rc == 10:  # Alt-d → dismiss without copy
-        add_dismissed(nid)
-    elif rc == 0:  # Enter → copy + dismiss
-        _ = subprocess.run(["wl-copy"], input=clip_text, text=True, check=False)
-        add_dismissed(nid)
+    _ = subprocess.run(["wl-copy"], input=clip_text, text=True, check=False)
+    add_dismissed(nid)
 
 
 if __name__ == "__main__":
