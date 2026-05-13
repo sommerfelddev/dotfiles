@@ -203,6 +203,8 @@ All binds are in `shared_except "locked"` mode (active everywhere except locked 
 | `Alt-\`                 | Cycle swap layouts (reset sizes)  |
 | `Alt-w`                 | Toggle pane fullscreen            |
 | `Alt-x`                 | Close focused pane                |
+| <code>Alt-&#124;</code> | Vertical split (new pane right)   |
+| `Alt-_`                 | Horizontal split (new pane below) |
 | `Alt-e`                 | Edit scrollback                   |
 | `Alt-q`                 | Detach session                    |
 | `Alt--` / `Alt-=`       | Resize decrease / increase        |

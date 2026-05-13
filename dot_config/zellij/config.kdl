@@ -62,6 +62,12 @@ keybinds {
         bind "Alt x" { CloseFocus; }
         bind "Alt e" { EditScrollback; }
 
+        // Explicit splits (tmux-style mnemonics: | vertical, _ horizontal).
+        // Bypasses NewPane's aspect-ratio auto-direction which misfires on
+        // widescreens with pane_frames disabled.
+        bind "Alt |" { NewPane "Right"; }
+        bind "Alt _" { NewPane "Down"; }
+
         // Session
         bind "Alt q" { Detach; }
 
