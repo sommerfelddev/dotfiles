@@ -1,8 +1,10 @@
--- Headless update orchestrator. Invoked from the justfile via:
---   nvim --headless +'lua require("config.update").run()'
+-- Update orchestrator. Invoked from the justfile via:
+--   nvim +'lua require("config.update").run()'
 --
 -- Cleans orphan plugins, applies plugin updates without prompting, then
--- runs :MasonToolsUpdateSync (blocking variant intended for headless use).
+-- runs :MasonToolsUpdateSync. Run interactively (not --headless) so the
+-- diff buffer that vim.pack.update opens is actually visible — that
+-- buffer IS the changelog. Quit manually with :qa once reviewed.
 
 local M = {}
 
@@ -35,8 +37,6 @@ function M.run()
 
   print("[mason] updating tools…")
   vim.cmd("MasonToolsUpdateSync")
-
-  vim.cmd("qa!")
 end
 
 return M

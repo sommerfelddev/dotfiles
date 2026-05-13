@@ -20,6 +20,7 @@
     "bluetooth",
     "idle_inhibitor",
     "custom/notifications",
+    "custom/update",
     "custom/thunderbird",
     "clock",
     "tray",
@@ -207,6 +208,14 @@
     "on-click": "~/.config/waybar/mako-history.py",
     "on-click-right": "makoctl dismiss --all",
     "on-click-middle": "makoctl restore",
+    "tooltip": true,
+  },
+
+  "custom/update": {
+    "exec": "~/.config/waybar/update-status.sh",
+    "return-type": "json",
+    "interval": 60,
+    "on-click": "ghostty --class=floating -e sh -c 'cd ~/dotfiles && just update; printf \"\\n[done — press enter] \"; read _'",
     "tooltip": true,
   },
 

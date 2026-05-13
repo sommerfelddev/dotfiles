@@ -52,9 +52,9 @@ flatpak-update:
             rm -f "$tmp"
         done
 
-# Update Neovim plugins (vim.pack) and Mason tools in a headless session
+# Update Neovim plugins (vim.pack) and Mason tools, interactively so the diff buffer is visible
 nvim-update:
-    nvim --headless '+lua require("config.update").run()'
+    nvim '+lua require("config.update").run()'
 
 # Re-add changes from live files back into the repo; pass a path to target one, or omit for all
 re-add *paths:

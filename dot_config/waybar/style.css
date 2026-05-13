@@ -60,8 +60,21 @@ window#waybar {
 #custom-webcam,
 #custom-dock,
 #custom-notifications,
+#custom-update,
 #custom-thunderbird {
   padding: 0 6px;
+}
+
+#custom-update.fresh {
+  padding: 0;
+}
+
+#custom-update.warn {
+  color: #fabd2f; /* yellow — stale 24h–7d */
+}
+
+#custom-update.critical {
+  color: #fb4934; /* red — stale ≥ 7d */
 }
 
 #cpu {
