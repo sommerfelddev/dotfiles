@@ -180,7 +180,7 @@ bindsym $mod+p exec ~/.config/waybar/clip-picker.sh pick
 bindsym $mod+Shift+p exec ~/.config/waybar/clip-picker.sh delete
 
 # Emoji picker (bemoji → wofi → wtype + clipboard)
-bindsym $mod+period exec env BEMOJI_PICKER_CMD="wofi --dmenu --prompt Emoji --style $HOME/.config/wofi/style.css" bemoji -tc
+bindsym $mod+period exec ~/.config/sway/emoji-picker.sh
 
 # Display mode switching
 bindsym --no-repeat XF86Display exec ~/.config/sway/display-toggle.sh
