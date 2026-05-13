@@ -9,8 +9,8 @@
 # version embedded in the URL differs from the installed version.
 
 io.gitlab.librewolf-community
+io.github.ungoogled_software.ungoogled_chromium
 io.mpv.Mpv
-org.chromium.Chromium
 org.kde.okular
 org.libreoffice.LibreOffice
 org.mozilla.Thunderbird
