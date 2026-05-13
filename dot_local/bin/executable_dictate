@@ -1,0 +1,87 @@
+#!/usr/bin/env sh
+# Push-to-talk dictation. Toggle: 1st invocation starts recording;
+# 2nd stops, transcribes via whisper.cpp, types the result into the focused
+# window with wtype, and copies it to the clipboard.
+#
+# Pacman:  pipewire-pulse (parecord), wtype, wl-clipboard, libnotify
+# AUR:     whisper.cpp, whisper.cpp-model-large-v3-turbo-q5_0
+#
+# Override via env:
+#   WHISPER_MODEL  path to a ggml-*.bin model
+#   WHISPER_LANG   language code or 'auto' (default: auto)
+
+set -eu
+
+state_dir="${XDG_RUNTIME_DIR:-/tmp}/dictate"
+pid_file="$state_dir/pid"
+wav_file="$state_dir/audio.wav"
+log_file="$state_dir/whisper.log"
+default_model='/usr/share/whisper.cpp-model-large-v3-turbo-q5_0/ggml-large-v3-turbo-q5_0.bin'
+model="${WHISPER_MODEL:-$default_model}"
+lang="${WHISPER_LANG:-auto}"
+
+mkdir -p "$state_dir"
+
+is_recording() {
+  [ -r "$pid_file" ] && kill -0 "$(cat "$pid_file")" 2>/dev/null
+}
+
+start_recording() {
+  if ! command -v whisper-cli >/dev/null; then
+    notify-send -u critical "🎙️ dictate" \
+      "whisper-cli not found. Install whisper.cpp (AUR)."
+    exit 1
+  fi
+  if [ ! -r "$model" ]; then
+    notify-send -u critical "🎙️ dictate" \
+      "Model missing: $model. Install whisper.cpp-model-large-v3-turbo-q5_0 (AUR)."
+    exit 1
+  fi
+  rm -f "$wav_file"
+  parecord --format=s16le --rate=16000 --channels=1 "$wav_file" \
+    >"$log_file" 2>&1 &
+  echo "$!" >"$pid_file"
+  notify-send -t 1500 "🎙️ Recording…" "Press the bind again to stop."
+}
+
+stop_and_transcribe() {
+  pid="$(cat "$pid_file")"
+  rm -f "$pid_file"
+  kill -TERM "$pid" 2>/dev/null || true
+  # Give parecord up to 2s to flush the WAV header.
+  i=0
+  while kill -0 "$pid" 2>/dev/null && [ "$i" -lt 20 ]; do
+    sleep 0.1
+    i=$((i + 1))
+  done
+  kill -KILL "$pid" 2>/dev/null || true
+
+  if [ ! -s "$wav_file" ]; then
+    notify-send -u low "🎙️ dictate" "No audio captured."
+    exit 1
+  fi
+
+  notify-send -t 1500 "🎙️ Transcribing…"
+
+  text="$(
+    whisper-cli -m "$model" -f "$wav_file" \
+      -l "$lang" -nt -np -t "$(nproc)" 2>"$log_file" \
+      | tr -s '[:space:]' ' ' \
+      | sed -e 's/^ //; s/ $//'
+  )"
+
+  if [ -z "$text" ]; then
+    notify-send -u low "🎙️ dictate" "Empty transcription. See $log_file."
+    exit 1
+  fi
+
+  printf '%s' "$text" | wl-copy
+  wtype -- "$text"
+  notify-send -t 2500 "🎙️ Dictated" "$text"
+}
+
+if is_recording; then
+  stop_and_transcribe
+else
+  start_recording
+fi

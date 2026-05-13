@@ -1,0 +1,39 @@
+#!/usr/bin/env sh
+# OCR a screen region (default) or an image file → clipboard.
+#
+# Usage:
+#   ocr           # interactive: select a region with slurp, OCR it
+#   ocr <file>    # OCR an image file
+#
+# Requires: tesseract (+tesseract-data-eng, tesseract-data-por),
+#           grim, slurp, wl-clipboard, libnotify.
+#
+# Override languages via TESSERACT_LANG (e.g. TESSERACT_LANG=eng).
+
+set -eu
+
+lang="${TESSERACT_LANG:-eng+por}"
+
+if [ "${1:-}" ]; then
+  [ -r "$1" ] || { notify-send -u critical "📋 OCR" "Cannot read: $1"; exit 1; }
+  text="$(tesseract "$1" - -l "$lang" 2>/dev/null || true)"
+else
+  region="$(slurp 2>/dev/null)" || exit 0
+  text="$(grim -g "$region" - | tesseract - - -l "$lang" 2>/dev/null || true)"
+fi
+
+# Trim trailing whitespace per line; collapse runs of blank lines; drop
+# leading blanks.
+text="$(printf '%s\n' "$text" | awk '
+  { sub(/[[:space:]]+$/, "") }
+  NF { print; blank = 0; next }
+  !blank { print; blank = 1 }
+' | sed -e '/./,$!d')"
+
+if [ -z "$text" ]; then
+  notify-send -u low "📋 OCR" "No text detected."
+  exit 1
+fi
+
+printf '%s' "$text" | wl-copy
+notify-send -t 3000 "📋 OCR copied" "$(printf '%s' "$text" | head -c 200)"

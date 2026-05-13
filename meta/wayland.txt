@@ -30,6 +30,9 @@ grim
 slurp
 wf-recorder
 
+# Wayland typing (used by dictate, etc)
+wtype
+
 # Image viewer
 imv
 

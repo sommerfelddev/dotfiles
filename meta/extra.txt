@@ -3,3 +3,12 @@ pandoc-bin
 syncthing
 udisks2
 autenticacao-gov-pt-bin
+
+# OCR (used by ~/.local/bin/ocr)
+tesseract
+tesseract-data-eng
+tesseract-data-por
+
+# Speech-to-text (used by ~/.local/bin/dictate)
+whisper.cpp
+whisper.cpp-model-large-v3-turbo-q5_0
