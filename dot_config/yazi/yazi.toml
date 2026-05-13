@@ -10,10 +10,14 @@ title_format = "Yazi: {cwd}"
 open = [
   { run = 'xdg-open "$@"', desc = "Open", orphan = true },
 ]
+view-md = [
+  { run = 'okular "$@"', desc = "View with Okular", orphan = true },
+]
 
-# Route markdown through xdg-open (→ okular) instead of $EDITOR.
+# Open markdown with okular directly (bypasses xdg-open / mimeapps).
 [open]
 prepend_rules = [
-  { name = "*.md",          use = "open" },
-  { mime = "text/markdown", use = "open" },
+  { name = "*.md",          use = "view-md" },
+  { name = "*.markdown",    use = "view-md" },
+  { mime = "text/markdown", use = "view-md" },
 ]
