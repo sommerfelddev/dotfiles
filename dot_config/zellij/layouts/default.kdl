@@ -1,13 +1,13 @@
-// Default layout with tab-bar and status-bar at the top.
+// status-bar (keybind hints + tips, 2 lines) at top, tab-bar at bottom.
 // Overrides zellij's built-in "default" layout when placed here.
 layout {
-    pane size=1 borderless=true {
-        plugin location="zellij:tab-bar"
-    }
     pane size=2 borderless=true {
         plugin location="zellij:status-bar"
     }
     pane split_direction="vertical" {
         pane
+    }
+    pane size=1 borderless=true {
+        plugin location="zellij:tab-bar"
     }
 }
