@@ -40,9 +40,8 @@ imv
 zbar
 xorg-xwayland # needed for zbarcam's X11 preview
 
-# Document viewer
-zathura
-zathura-pdf-mupdf
+# Document viewer is the org.pwmt.zathura flatpak (see meta/flatpak.txt) so
+# PDFs handed off from the browser/mail sandbox stay sandboxed.
 
 # Misc
 brightnessctl

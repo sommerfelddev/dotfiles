@@ -1,0 +1,17 @@
+#!/bin/sh
+# Read-only host config bindings for flatpaks that should pick up our
+# chezmoi-managed ~/.config/<app>/ rather than maintaining a separate
+# in-sandbox copy. Idempotent; flatpak override merges entries.
+#
+# script hash: {{ output "sh" "-c" (printf "sha256sum %q/run_onchange_after_deploy-flatpak-overrides.sh.tmpl 2>/dev/null || true" .chezmoi.sourceDir) }}
+set -eu
+
+apply() {
+	app=$1
+	shift
+	flatpak info --user "$app" >/dev/null 2>&1 || return 0
+	flatpak override --user "$@" "$app"
+}
+
+apply org.pwmt.zathura --filesystem=xdg-config/zathura:ro
+apply io.mpv.Mpv --filesystem=xdg-config/mpv:ro

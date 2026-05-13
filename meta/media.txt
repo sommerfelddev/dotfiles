@@ -1,3 +1,7 @@
+# Native mpv is kept for streamlink piping and the /tmp/mpvsocket IPC
+# integration; the io.mpv.Mpv flatpak (meta/flatpak.txt) is set as the
+# mimeapps default for video/* so files handed off by the browser/mail
+# sandbox stay sandboxed.
 mpv
 streamlink
 yt-dlp
