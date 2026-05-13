@@ -30,6 +30,7 @@ case "$mode" in
     ;;
   all)
     list_ids >>"$state" || true
+    makoctl history 2>/dev/null | sed -n 's/^Notification \([0-9][0-9]*\):.*/\1/p' >>"$state" || true
     makoctl dismiss --all
     ;;
   *)
