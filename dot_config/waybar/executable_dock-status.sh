@@ -21,7 +21,7 @@ for dev in /sys/bus/usb/devices/*/; do
 done
 
 if [ "$docked" -eq 1 ]; then
-  printf '{"text":"󰓁","tooltip":"Docked: ThinkPad USB-C Dock Gen2","class":"docked","alt":"docked"}\n'
+  printf '{"text":"⚓","tooltip":"Docked: ThinkPad USB-C Dock Gen2","class":"docked","alt":"docked"}\n'
 else
   printf '{"text":"","tooltip":"Undocked","class":"undocked","alt":"undocked"}\n'
 fi
