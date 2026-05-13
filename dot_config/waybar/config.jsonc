@@ -227,7 +227,7 @@
     "exec": "~/.config/waybar/pacdiff-status.sh",
     "return-type": "json",
     "interval": 300,
-    "on-click": "ghostty --class=floating -e sh -c 'sudo DIFFPROG=\"nvim -d\" pacdiff; printf \"\\n[done — press enter] \"; read _'",
+    "on-click": "ghostty --class=floating -e sh -c 'sudo sh -c \"DIFFPROG=\\\"nvim -d\\\" pacdiff\"; printf \"\\n[done — press enter] \"; read _'",
     "tooltip": true,
   },
 
