@@ -26,5 +26,9 @@ if [ "$tb_ws" = "__i3_scratch" ]; then
     # current workspace.
     swaymsg "[con_mark=\"$MARK\"] scratchpad show, floating disable" >/dev/null
 else
+    # Criteria-based move can cause sway to follow focus to the originating
+    # workspace. Pin focus back to where we started.
+    current_ws=$(swaymsg -t get_workspaces | jq -r '.[] | select(.focused) | .name')
     swaymsg "[con_mark=\"$MARK\"] move container to scratchpad" >/dev/null
+    swaymsg "workspace \"$current_ws\"" >/dev/null
 fi
