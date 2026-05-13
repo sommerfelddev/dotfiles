@@ -16,6 +16,7 @@
     "battery",
     "clock",
     "idle_inhibitor",
+    "privacy",
     "tray",
   ],
 
@@ -140,5 +141,15 @@
       "deactivated": "—",
     },
     "tooltip": true,
+  },
+
+  "privacy": {
+    "icon-spacing": 4,
+    "icon-size": 14,
+    "transition-duration": 250,
+    "modules": [
+      { "type": "screenshare", "tooltip": true },
+      { "type": "audio-in", "tooltip": true },
+    ],
   },
 }
