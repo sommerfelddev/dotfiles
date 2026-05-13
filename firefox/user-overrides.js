@@ -19,6 +19,15 @@ user_pref("browser.eme.ui.enabled", false); // hide DRM UI toggle
 /** Network **/
 user_pref("network.dns.disableIPv6", false); // keep IPv6 enabled
 
+/** Loopback callbacks (VPN/SSO clients like snx-rs, Forticlient) **/
+// snx-rs and similar VPN clients land SAML callbacks on http://127.0.0.1:<port>/<token>.
+// LibreWolf hardens beyond arkenfox by force-upgrading loopback to HTTPS and enabling
+// LNA blocking; both break the plain-HTTP loopback handoff. Restoring stock Firefox /
+// arkenfox behaviour for loopback only. arkenfox 1245 deliberately leaves upgrade_local
+// commented out and does not touch network.lna.*. See LibreWolf issues #2954, #2962.
+user_pref("dom.security.https_only_mode.upgrade_local", false);
+user_pref("network.lna.local-network-to-localhost.skip-checks", true);
+
 /** Resist Fingerprinting **/
 user_pref("privacy.resistFingerprinting.testGranularityMask", 4);
 user_pref("privacy.resistFingerprinting.exemptedDomains", "meet.google.com,teams.microsoft.com");
