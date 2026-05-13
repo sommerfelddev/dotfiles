@@ -27,7 +27,7 @@ sleep 1
 
 thunderbird &
 
-for _ in $(seq 1 200); do
+for _ in $(seq 1 600); do
   if swaymsg -t get_tree | jq -e --arg m "$MARK" '
         [.. | objects | select(.marks? // [] | index($m))] | length > 0
     ' >/dev/null 2>&1; then
