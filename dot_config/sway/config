@@ -192,6 +192,10 @@ bindsym XF86Tools exec $term --class=floating -e pulsemixer
 bindsym XF86Keyboard exec $term --class=floating -e glow -p ~/dotfiles/KEYBINDS.md
 bindsym XF86Favorites exec ~/.config/waybar/mako-history.py
 
+# Quick scratch tools
+bindsym $mod+Shift+t exec $term --class=floating -e sh -c 'nvim "$XDG_RUNTIME_DIR/scratch-$(date +%s).txt"'
+bindsym $mod+c exec $term --class=floating -e ipython
+
 # QR codes (Super+z then r=read or w=write)
 mode "qr" {
     bindsym r exec ~/.local/bin/rqr, mode "default"

@@ -34,6 +34,7 @@ window#waybar {
 
 #custom-vpn.down {
   color: #928374;
+  background-color: rgba(251, 73, 52, 0.15);
 }
 
 #mode {
