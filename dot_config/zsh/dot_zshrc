@@ -31,7 +31,13 @@ bindkey -e
 
 # ── Prompt ────────────────────────────────────────────────────────────────────
 autoload -Uz colors && colors
-source /usr/share/git/completion/git-prompt.sh
+# git-prompt.sh: distro-managed on Arch, nix-store-managed on the VM
+for _f in \
+	/usr/share/git/completion/git-prompt.sh \
+	$HOME/.nix-profile/share/git/contrib/completion/git-prompt.sh; do
+	[[ -r $_f ]] && { source "$_f"; break; }
+done
+unset _f
 PROMPT='%B%{$fg[green]%}%n%{$reset_color%}@%{$fg[cyan]%}%m%{$reset_color%}:%b%{$fg[yellow]%}%~%{$reset_color%}$(__git_ps1 " (%s)")%(?..[%{$fg[red]%}%?%{$reset_color%}]) %(!.#.>) '
 
 # ── Completion ────────────────────────────────────────────────────────────────
@@ -375,15 +381,32 @@ _fzf_compgen_path() { fd --hidden --follow --exclude ".git" . "$1" }
 _fzf_compgen_dir()  { fd --type d --hidden --follow --exclude ".git" . "$1" }
 
 # ── Plugins (must be sourced last) ────────────────────────────────────────────
+# Plugin locations: Arch system path first, ~/.nix-profile fallback for VM HM.
+_source_first() {
+	local f
+	for f in "$@"; do
+		[[ -r $f ]] && { source "$f"; return 0; }
+	done
+	return 1
+}
+
 # Highlight config must be set BEFORE sourcing the plugin
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 typeset -A ZSH_HIGHLIGHT_STYLES
 ZSH_HIGHLIGHT_STYLES[comment]='fg=yellow'
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+_source_first \
+	/usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+	$HOME/.nix-profile/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+_source_first \
+	/usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh \
+	$HOME/.nix-profile/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 bindkey '^[[Z' autosuggest-accept  # Shift-Tab to accept suggestion
 
-source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+_source_first \
+	/usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh \
+	$HOME/.nix-profile/share/zsh-history-substring-search/zsh-history-substring-search.zsh
 [[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   history-substring-search-up
 [[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" history-substring-search-down
+
+unfunction _source_first
