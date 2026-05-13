@@ -21,13 +21,16 @@ RECORD_RE = re.compile(r"^Notification (\d+):\s*$")
 FIELD_RE = re.compile(r"^  ([A-Za-z][A-Za-z ]*?):\s*(.*)$")
 
 
-def parse_history() -> list[dict]:
+def _run_makoctl(subcmd: str) -> str:
     try:
-        out = subprocess.run(
-            ["makoctl", "history"], capture_output=True, text=True, check=True
+        return subprocess.run(
+            ["makoctl", subcmd], capture_output=True, text=True, check=True
         ).stdout
     except (subprocess.CalledProcessError, FileNotFoundError):
-        return []
+        return ""
+
+
+def _parse_block(out: str) -> list[dict]:
     notifs: list[dict] = []
     cur: dict | None = None
     last_field: str | None = None
@@ -47,12 +50,25 @@ def parse_history() -> list[dict]:
             cur[key] = m.group(2)
             last_field = key
             continue
-        # Body / continuation lines (mako indents with 8 spaces).
         if last_field == "body" and line.startswith("        "):
             cur["body"] = (cur.get("body", "") + " " + line.strip()).strip()
     if cur is not None:
         notifs.append(cur)
     return notifs
+
+
+def parse_history() -> list[dict]:
+    """Return visible + history notifications, deduped by id, visible first."""
+    visible = _parse_block(_run_makoctl("list"))
+    history = _parse_block(_run_makoctl("history"))
+    seen: set[int] = set()
+    out: list[dict] = []
+    for n in visible + history:
+        if n["id"] in seen:
+            continue
+        seen.add(n["id"])
+        out.append(n)
+    return out
 
 
 def load_dismissed() -> set[str]:
