@@ -15,6 +15,7 @@
     "network#bond",
     "battery",
     "clock",
+    "idle_inhibitor",
     "tray",
   ],
 
@@ -130,5 +131,14 @@
 
   "tray": {
     "spacing": 8,
+  },
+
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+      "activated": "INH",
+      "deactivated": "—",
+    },
+    "tooltip": true,
   },
 }
