@@ -6,16 +6,11 @@ ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 Type=simple
-# `before-sleep` deliberately only pauses media -- it does not lock.
-# sway pauses its idle counter during suspend and resets on the first
-# input event after resume, so the existing `timeout 300` already
-# gives a 5-minute grace post-wake without a separate mechanism. The
-# `lock` action still handles explicit `loginctl lock-session`.
 ExecStart=/usr/bin/swayidle -w \
-    timeout 300 'swaylock -f -e -c 282828' \
-    timeout 360 'swaymsg "output * power off"' \
+    timeout 300 'swaymsg "output * power off"' \
         resume  'swaymsg "output * power on"' \
-    before-sleep 'playerctl -a pause' \
+    timeout 330 'swaylock -f -e -c 282828' \
+    before-sleep 'playerctl -a pause; swaylock -f -e -c 282828' \
     lock         'swaylock -f -e -c 282828'
 Restart=on-failure
 RestartSec=2s
