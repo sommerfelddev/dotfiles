@@ -139,6 +139,8 @@ bindsym $mod+Shift+Tab workspace prev_on_output
 bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
 bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
 bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym $mod+Ctrl+k exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym $mod+Ctrl+j exec pactl set-sink-volume @DEFAULT_SINK@ -5%
 bindsym $mod+Shift+m exec pactl set-sink-mute @DEFAULT_SINK@ toggle
 bindsym $mod+m exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
 
@@ -146,10 +148,15 @@ bindsym $mod+m exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
 bindsym XF86AudioPlay exec playerctl play-pause
 bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
+bindsym $mod+Ctrl+space exec playerctl play-pause
+bindsym $mod+Ctrl+l exec playerctl next
+bindsym $mod+Ctrl+h exec playerctl previous
 
 # Brightness
 bindsym XF86MonBrightnessUp exec brightnessctl set +5%
 bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym $mod+Ctrl+bracketright exec brightnessctl set +5%
+bindsym $mod+Ctrl+bracketleft exec brightnessctl set 5%-
 
 # ThinkPad multimedia keys
 bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
@@ -204,6 +211,24 @@ mode "qr" {
     bindsym Return mode "default"
 }
 bindsym $mod+z mode "qr"
+
+# System / hardware submode — non-XF86 alternatives for the rarely used
+# hardware toggles and TUI launchers above. Enter with Super+x; mnemonic
+# letters (b=bluetooth, w=wifi, r=rfkill, s=sleep, d=display,
+# v=volume-mixer, k=keybinds, m=mako-history).
+mode "system" {
+    bindsym b exec ~/.config/sway/bt-toggle.sh, mode "default"
+    bindsym w exec ~/.config/waybar/wifi-toggle.sh, mode "default"
+    bindsym r exec rfkill toggle all, mode "default"
+    bindsym s exec systemctl suspend, mode "default"
+    bindsym d exec ~/.config/sway/display-toggle.sh, mode "default"
+    bindsym v exec $term --class=floating -e pulsemixer, mode "default"
+    bindsym k exec $term --class=floating -e glow -p ~/dotfiles/KEYBINDS.md, mode "default"
+    bindsym m exec ~/.config/waybar/mako-history.py, mode "default"
+    bindsym Escape mode "default"
+    bindsym Return mode "default"
+}
+bindsym $mod+x mode "system"
 
 # Thunderbird toggle: main window stashed in the scratchpad; this pulls it to
 # the current workspace (tiled) or sends it back. Child windows (compose,

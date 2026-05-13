@@ -307,15 +307,22 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 | Key                     | Action                                                        |
 | ----------------------- | ------------------------------------------------------------- |
 | `XF86AudioRaiseVolume`  | Volume +5%                                                    |
+| `Super+Ctrl+k`          | Volume +5% (non-XF86 alt)                                     |
 | `XF86AudioLowerVolume`  | Volume -5%                                                    |
+| `Super+Ctrl+j`          | Volume -5% (non-XF86 alt)                                     |
 | `XF86AudioMute`         | Mute toggle                                                   |
 | `Super+m`               | Mic mute toggle                                               |
 | `Super+Shift+m`         | Speaker mute toggle                                           |
 | `XF86AudioPlay`         | Play/pause                                                    |
+| `Super+Ctrl+space`      | Play/pause (non-XF86 alt)                                     |
 | `XF86AudioNext`         | Next track                                                    |
+| `Super+Ctrl+l`          | Next track (non-XF86 alt)                                     |
 | `XF86AudioPrev`         | Previous track                                                |
+| `Super+Ctrl+h`          | Previous track (non-XF86 alt)                                 |
 | `XF86MonBrightnessUp`   | Brightness +5% (brightnessctl)                                |
+| `Super+Ctrl+]`          | Brightness +5% (non-XF86 alt)                                 |
 | `XF86MonBrightnessDown` | Brightness -5% (brightnessctl)                                |
+| `Super+Ctrl+[`          | Brightness -5% (non-XF86 alt)                                 |
 | `XF86AudioMicMute`      | Mic mute toggle                                               |
 | `XF86Bluetooth`         | Bluetooth power toggle (bluetoothctl)                         |
 | `XF86ScreenSaver`       | Lock screen + pause media (same as Super+Shift+s)             |
@@ -348,6 +355,25 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 | `Super+z` then `w`      | Display QR for clipboard (wqr)                                |
 | `Super+z` then `r`      | Scan QR via webcam, copy to clipboard (rqr)                   |
 | `Super+t`               | Toggle Thunderbird (tiled on current workspace)               |
+
+### System submode (sway/config)
+
+`Super+x` enters `mode "system"` (mode name shown in waybar). One letter
+runs the action and exits the mode; `Escape` or `Return` exits without
+acting. Provides non-XF86 access to the rare hardware toggles and TUI
+launchers.
+
+| In `system` mode  | XF86 equivalent | Action                      |
+| ----------------- | --------------- | --------------------------- |
+| `b`               | `XF86Bluetooth` | Bluetooth power toggle      |
+| `w`               | `XF86WLAN`      | Wi-Fi toggle (rfkill wifi)  |
+| `r`               | `XF86RFKill`    | Toggle all radios (rfkill)  |
+| `s`               | `XF86Sleep`     | Suspend (systemctl suspend) |
+| `d`               | `XF86Display`   | Display mode toggle         |
+| `v`               | `XF86Tools`     | Floating pulsemixer         |
+| `k`               | `XF86Keyboard`  | Floating glow KEYBINDS.md   |
+| `m`               | `XF86Favorites` | mako notification history   |
+| `Escape`/`Return` | —               | exit submode                |
 
 ## Typing / Input
 
