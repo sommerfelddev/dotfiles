@@ -43,6 +43,7 @@ output * bg #282828 solid_color
 # ── Window rules ──────────────────────────────────────────────────────────────
 for_window [class="feh"] floating enable
 for_window [app_id="imv"] floating enable
+for_window [app_id="floating"] floating enable
 for_window [class="Tor Browser"] floating enable
 for_window [app_id="org.mozilla.Thunderbird" title=".*Mozilla Thunderbird$"] mark --add tb-main
 for_window [shell=".*"] inhibit_idle fullscreen
@@ -162,14 +163,18 @@ bindsym $mod+Shift+s exec "playerctl -a pause; swaylock -f -e -c 282828"
 bindsym $mod+n exec makoctl dismiss
 bindsym $mod+Shift+n exec makoctl dismiss --all
 bindsym $mod+Ctrl+n exec makoctl restore
-bindsym $mod+Mod1+n exec ~/.config/waybar/mako-history.sh
 
 # Clipboard history
 bindsym $mod+p exec sh -c 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'
 bindsym $mod+Shift+p exec sh -c 'cliphist list | fuzzel --dmenu | cliphist delete'
 
 # Display mode switching
-bindsym --no-repeat F7 exec ~/.config/sway/display-toggle.sh
+bindsym --no-repeat XF86Display exec ~/.config/sway/display-toggle.sh
+
+# Multimedia hardware keys (uncommon)
+bindsym XF86Tools exec $term --class=floating -e pulsemixer
+bindsym XF86Keyboard exec $term --class=floating -e glow -p ~/dotfiles/KEYBINDS.md
+bindsym XF86Favorites exec ~/.config/waybar/mako-history.sh
 
 # QR codes (Super+z then r=read or w=write)
 mode "qr" {

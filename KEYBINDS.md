@@ -328,14 +328,16 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 | `Super+n`               | Dismiss notification                              |
 | `Super+Shift+n`         | Dismiss all notifications                         |
 | `Super+Ctrl+n`          | Restore last dismissed notification               |
-| `Super+Alt+n`           | Notification history picker (copy to clipboard)   |
+| `XF86Favorites`         | Notification history picker (copy to clipboard)   |
 | `Super+p`               | Clipboard history picker (cliphist + fuzzel)      |
 | `Super+Shift+p`         | Clipboard history delete entry                    |
 | `Super+Tab`             | Next workspace                                    |
 | `Super+Shift+Tab`       | Previous workspace                                |
 | `Super+]`               | Focus next window in container (monocle cycling)  |
 | `Super+[`               | Focus prev window in container (monocle cycling)  |
-| `F7`                    | Toggle display mode (laptop-off/side-by-side)     |
+| `XF86Display`           | Toggle display mode (laptop-off/side-by-side)     |
+| `XF86Tools`             | Floating pulsemixer (audio mixer TUI)             |
+| `XF86Keyboard`          | Floating glow pager for `~/dotfiles/KEYBINDS.md`  |
 | `Super+z` then `w`      | Display QR for clipboard (wqr)                    |
 | `Super+z` then `r`      | Scan QR via webcam, copy to clipboard (rqr)       |
 | `Super+t`               | Toggle Thunderbird (tiled on current workspace)   |

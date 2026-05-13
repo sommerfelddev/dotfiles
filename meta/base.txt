@@ -17,6 +17,7 @@ fwupd
 fzf
 gdu
 git
+glow
 htop
 iwd
 jq
