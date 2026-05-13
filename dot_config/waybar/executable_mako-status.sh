@@ -14,13 +14,13 @@ pending=$(makoctl list 2>/dev/null |
   grep -c '"summary"' || true)
 
 if [ "$pending" -gt 0 ]; then
-  text="!$pending"
+  text="NTF !$pending"
   class="pending"
 elif [ "$count" -gt 0 ]; then
-  text="$count"
+  text="NTF $count"
   class="history"
 else
-  text="0"
+  text="NTF 0"
   class="empty"
 fi
 

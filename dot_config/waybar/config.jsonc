@@ -139,7 +139,7 @@
     "format": "{icon}",
     "format-icons": {
       "activated": "INH",
-      "deactivated": "—",
+      "deactivated": "IDL",
     },
     "tooltip": true,
   },

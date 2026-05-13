@@ -43,8 +43,11 @@ window#waybar {
 #pulseaudio,
 #tray,
 #window,
+#idle_inhibitor,
+#privacy,
 #custom-memory,
-#custom-wifi {
+#custom-wifi,
+#custom-notifications {
   padding: 0 6px;
 }
 
@@ -86,6 +89,30 @@ window#waybar {
 
 #clock {
   color: #ebdbb2; /* fg */
+}
+
+#idle_inhibitor {
+  color: #928374; /* gray when idle allowed */
+}
+
+#idle_inhibitor.activated {
+  color: #fabd2f; /* yellow when inhibited */
+}
+
+#privacy {
+  color: #fb4934; /* red — only visible when active */
+}
+
+#custom-notifications {
+  color: #928374; /* gray baseline */
+}
+
+#custom-notifications.history {
+  color: #8ec07c; /* aqua — seen, not dismissed */
+}
+
+#custom-notifications.pending {
+  color: #fe8019; /* orange — unread */
 }
 
 #battery.warning {
