@@ -341,3 +341,46 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 | `Super+z` then `w`      | Display QR for clipboard (wqr)                    |
 | `Super+z` then `r`      | Scan QR via webcam, copy to clipboard (rqr)       |
 | `Super+t`               | Toggle Thunderbird (tiled on current workspace)   |
+
+## Typing / Input
+
+Layout: `us(altgr-intl)` with Caps→Esc and Right Ctrl as Compose
+(`xkb_options caps:escape,compose:rctrl`). Normal `'` `"` `` ` `` `~` `^`
+behave as-is; accents only fire through AltGr or Compose.
+
+### AltGr (Right Alt) — one or two keystrokes
+
+| Keys              | Output                                  |
+| ----------------- | --------------------------------------- |
+| `AltGr+5`         | `€`                                     |
+| `AltGr+'` then v  | `á é í ó ú ý` (dead acute)              |
+| `AltGr+~` then v  | `ã õ ñ` (dead tilde)                    |
+| `AltGr+^` then v  | `â ê î ô û` (dead circumflex)           |
+| `` AltGr+` `` v   | `à è ì ò ù` (dead grave)                |
+| `AltGr+,` then c  | `ç` (dead cedilla)                      |
+| `AltGr+Shift+1`   | `¡`                                     |
+| `AltGr+Shift+/`   | `¿`                                     |
+| `AltGr+s`         | `ß`                                     |
+
+Capitals: hold Shift while pressing the target letter (`AltGr+'` then
+`Shift+a` → `Á`).
+
+### Compose (Right Ctrl) — discoverable, extensible
+
+Standard sequences from the system Compose table plus custom PT-PT extras
+in `~/.XCompose`. Press and release Compose, then the sequence.
+
+| Sequence            | Output             |
+| ------------------- | ------------------ |
+| `Compose ' a`       | `á` (any vowel)    |
+| `Compose ~ a`       | `ã` / `õ` / `ñ`    |
+| `Compose ^ a`       | `â` / `ê` / `ô`    |
+| `Compose , c`       | `ç`                |
+| `Compose < <`       | `«` (PT-PT)        |
+| `Compose > >`       | `»` (PT-PT)        |
+| `Compose = e`       | `€`                |
+| `Compose o _`       | `º`                |
+| `Compose a _`       | `ª`                |
+| `Compose - - -`     | `—` (em dash)      |
+| `Compose - - .`     | `–` (en dash)      |
+| `Compose . . .`     | `…`                |

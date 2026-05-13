@@ -1,0 +1,22 @@
+# ~/.XCompose — custom Compose sequences layered on top of system defaults.
+# Compose key is Right Ctrl (sway: xkb_options compose:rctrl).
+# Loaded automatically by libxkbcommon clients (sway/ghostty/foot/firefox/thunderbird).
+
+include "%L"   # pull in the full system Compose table (á, ã, ç, €, etc.)
+
+# ── PT-PT quotation marks ─────────────────────────────────────────────────────
+<Multi_key> <less> <less>             : "«"   guillemotleft
+<Multi_key> <greater> <greater>       : "»"   guillemotright
+
+# ── Euro (also directly on AltGr+5, this is the discoverable fallback) ────────
+<Multi_key> <e> <equal>               : "€"   EuroSign
+<Multi_key> <equal> <e>               : "€"   EuroSign
+
+# ── Ordinal indicators (PT dates, addresses: 1.º, 2.ª) ────────────────────────
+<Multi_key> <o> <underscore>          : "º"   masculine
+<Multi_key> <a> <underscore>          : "ª"   feminine
+
+# ── Dashes and ellipsis (handy in prose) ──────────────────────────────────────
+<Multi_key> <minus> <minus> <minus>   : "—"   emdash
+<Multi_key> <minus> <minus> <period>  : "–"   endash
+<Multi_key> <period> <period> <period>: "…"   ellipsis

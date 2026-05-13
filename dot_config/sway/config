@@ -20,7 +20,8 @@ client.urgent           #fb4934 #282828 #ebdbb2 #fb4934   #fb4934
 # ── Input ─────────────────────────────────────────────────────────────────────
 input type:keyboard {
     xkb_layout us
-    xkb_options caps:escape
+    xkb_variant altgr-intl
+    xkb_options caps:escape,compose:rctrl
     repeat_delay 300
     repeat_rate 50
 }
