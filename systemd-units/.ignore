@@ -8,6 +8,7 @@ systemd-networkd.socket
 systemd-networkd-resolve-hook.socket
 systemd-networkd-varlink.socket
 systemd-networkd-varlink-metrics.socket
+systemd-oomd.socket
 systemd-resolved-monitor.socket
 systemd-resolved-varlink.socket
 systemd-userdbd.socket

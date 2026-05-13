@@ -6,7 +6,6 @@ systemd-resolved.service
 systemd-oomd.service
 reflector.timer
 paccache.timer
-pkgstats.timer
 acpid.service
 cpupower.service
 iwd.service

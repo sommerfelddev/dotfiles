@@ -451,9 +451,19 @@ unit-status:
     else
         : > "$tmp/ignore"
     fi
+    # Curated units missing from the system: use is-enabled to correctly
+    # handle instantiated template units (which list-unit-files does not show).
+    while read -r u; do
+        [ -z "$u" ] && continue
+        state=$(systemctl is-enabled "$u" 2>/dev/null || true)
+        case "$state" in
+            enabled|enabled-runtime|alias|static|indirect|generated) ;;
+            *) echo "  not-enabled: $u" ;;
+        esac
+    done < "$tmp/curated"
+    # Enabled unit files not in curated (minus ignore list).
     systemctl list-unit-files --state=enabled --no-legend 2>/dev/null \
         | awk '{print $1}' | grep -vE '@\.' | sort -u > "$tmp/enabled"
-    comm -23 "$tmp/curated" "$tmp/enabled" | sed 's/^/  not-enabled: /'
     comm -13 "$tmp/curated" "$tmp/enabled" | comm -23 - "$tmp/ignore" | sed 's/^/  uncurated:   /'
 
 # Append one or more units to a group list and enable them (e.g. just unit-add base sshd.service)
