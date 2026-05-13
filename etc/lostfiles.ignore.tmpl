@@ -1,0 +1,35 @@
+{{- /*
+  Auto-generated ignore list for /usr/bin/lostfiles.
+  Consumed by lostfiles.service via grep -vFxf.
+
+  The first block is the absolute path of every file this repo deploys
+  under /etc/, computed at chezmoi-apply time from the source tree —
+  adding or removing files in etc/ keeps this in sync automatically.
+
+  The second block lists host-private files (we deliberately don't
+  track these) and generated caches (pacman post-install regenerates
+  them, so they will never be pacman-owned).
+*/ -}}
+{{ output "sh" "-c" (printf "cd %q && find etc -type f ! -name .ignore | sed -e 's|^etc|/etc|' -e 's|\\.tmpl$||' | LC_ALL=C sort -u" .chezmoi.sourceDir) -}}
+# sudo-rs deploy script symlinks /etc/pam.d/sudo-i -> sudo
+/etc/pam.d/sudo-i
+# Host-private systemd-networkd units (contain secrets, not tracked)
+/etc/systemd/network/99-hodor.netdev
+/etc/systemd/network/99-hodor.network
+/etc/systemd/network/99-mandibles.netdev
+/etc/systemd/network/99-mandibles.network
+# Host-private getty autologin override (contains username, not tracked)
+/etc/systemd/system/getty@tty1.service.d
+/etc/systemd/system/getty@tty1.service.d/override.conf
+# Generated caches (pacman hooks regenerate; never package-owned)
+/usr/lib/gdk-pixbuf-2.0
+/usr/lib/gdk-pixbuf-2.0/2.10.0
+/usr/lib/gtk-4.0
+/usr/lib/gtk-4.0/4.0.0
+/usr/lib/gtk-4.0/4.0.0/media
+/usr/lib/gtk-4.0/4.0.0/media/giomodule.cache
+/usr/lib/gtk-4.0/4.0.0/printbackends
+/usr/lib/gtk-4.0/4.0.0/printbackends/giomodule.cache
+# Runtime state directories
+/etc/iwd
+/etc/userdb

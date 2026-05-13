@@ -7,4 +7,4 @@ ConditionPathExists=/usr/bin/lostfiles
 Type=oneshot
 Nice=19
 IOSchedulingClass=idle
-ExecStart=/bin/sh -c '/usr/bin/lostfiles >/run/lostfiles.txt.tmp && mv /run/lostfiles.txt.tmp /run/lostfiles.txt'
+ExecStart=/bin/sh -c '/usr/bin/lostfiles | { if [ -f /etc/lostfiles.ignore ]; then grep -vFxf /etc/lostfiles.ignore; else cat; fi; } >/run/lostfiles.txt.tmp && mv /run/lostfiles.txt.tmp /run/lostfiles.txt'
