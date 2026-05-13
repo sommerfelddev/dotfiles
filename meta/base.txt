@@ -200,6 +200,9 @@ xorg-xwayland # needed for zbarcam's X11 preview
 
 # Misc
 brightnessctl
+# Volume/brightness OSD overlay (driven by ~/.config/sway/{vol,brightness}-osd.sh
+# writing percentages to $XDG_RUNTIME_DIR/wob.sock).
+wob
 libfido2
 perl-file-mimeinfo
 qt5ct

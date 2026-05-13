@@ -10,6 +10,7 @@ inhibridge.service
 signal.service
 swayidle.service
 waybar.service
+wob.service
 
 # --- mail (overridden via drop-ins in dot_config/systemd/user/) ---
 protonmail-bridge.service

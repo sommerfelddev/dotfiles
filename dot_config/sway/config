@@ -132,12 +132,12 @@ bindsym $mod+Tab workspace next_on_output
 bindsym $mod+Shift+Tab workspace prev_on_output
 
 # Volume
-bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
-bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
-bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
-bindsym $mod+Ctrl+k exec pactl set-sink-volume @DEFAULT_SINK@ +5%
-bindsym $mod+Ctrl+j exec pactl set-sink-volume @DEFAULT_SINK@ -5%
-bindsym $mod+Shift+m exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym XF86AudioRaiseVolume exec ~/.config/sway/vol-osd.sh up
+bindsym XF86AudioLowerVolume exec ~/.config/sway/vol-osd.sh down
+bindsym XF86AudioMute exec ~/.config/sway/vol-osd.sh mute
+bindsym $mod+Ctrl+k exec ~/.config/sway/vol-osd.sh up
+bindsym $mod+Ctrl+j exec ~/.config/sway/vol-osd.sh down
+bindsym $mod+Shift+m exec ~/.config/sway/vol-osd.sh mute
 bindsym $mod+m exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
 
 # Media
@@ -149,10 +149,10 @@ bindsym $mod+Ctrl+l exec playerctl next
 bindsym $mod+Ctrl+h exec playerctl previous
 
 # Brightness
-bindsym XF86MonBrightnessUp exec brightnessctl set +5%
-bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
-bindsym $mod+Ctrl+bracketright exec brightnessctl set +5%
-bindsym $mod+Ctrl+bracketleft exec brightnessctl set 5%-
+bindsym XF86MonBrightnessUp exec ~/.config/sway/brightness-osd.sh up
+bindsym XF86MonBrightnessDown exec ~/.config/sway/brightness-osd.sh down
+bindsym $mod+Ctrl+bracketright exec ~/.config/sway/brightness-osd.sh up
+bindsym $mod+Ctrl+bracketleft exec ~/.config/sway/brightness-osd.sh down
 
 # ThinkPad multimedia keys
 bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
@@ -221,6 +221,7 @@ mode "system" {
     bindsym v exec $term --class=floating -e pulsemixer, mode "default"
     bindsym k exec $term --class=floating -e glow -p ~/dotfiles/KEYBINDS.md, mode "default"
     bindsym m exec ~/.config/waybar/mako-history.py, mode "default"
+    bindsym n exec makoctl mode -t do-not-disturb, mode "default"
     bindsym Escape mode "default"
     bindsym Return mode "default"
 }

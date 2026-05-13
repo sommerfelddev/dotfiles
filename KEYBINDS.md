@@ -373,6 +373,7 @@ launchers.
 | `v`               | `XF86Tools`     | Floating pulsemixer         |
 | `k`               | `XF86Keyboard`  | Floating glow KEYBINDS.md   |
 | `m`               | `XF86Favorites` | mako notification history   |
+| `n`               | —               | Toggle Do-Not-Disturb (mako)|
 | `Escape`/`Return` | —               | exit submode                |
 
 ## Typing / Input
