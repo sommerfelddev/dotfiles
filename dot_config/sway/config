@@ -43,6 +43,7 @@ output * bg #282828 solid_color
 for_window [class="feh"] floating enable
 for_window [app_id="imv"] floating enable
 for_window [class="Tor Browser"] floating enable
+for_window [app_id="thunderbird"] move to scratchpad
 
 # ── Standard keybinds (sway defaults) ─────────────────────────────────────────
 bindsym $mod+Return exec $term
@@ -155,6 +156,9 @@ mode "qr" {
 }
 bindsym $mod+z mode "qr"
 
+# Thunderbird scratchpad toggle (auto-parked on launch, see window rules)
+bindsym $mod+t [app_id="thunderbird"] scratchpad show
+
 # ── Bar ───────────────────────────────────────────────────────────────────────
 bar {
     swaybar_command waybar
@@ -165,6 +169,7 @@ exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CU
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
 exec "sleep 2 && ~/.config/sway/display-toggle.sh init"
 exec systemctl --user start sway-session.target
+exec thunderbird
 
 # GTK4 reads dark mode from gsettings (settings.ini's prefer-dark is GTK3 only).
 exec gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
