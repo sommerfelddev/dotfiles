@@ -22,8 +22,6 @@ keybind = ctrl+shift+t=unbind
 keybind = ctrl+shift+n=unbind
 keybind = ctrl+shift+o=unbind
 keybind = ctrl+shift+enter=unbind
-keybind = ctrl+shift+page_up=unbind
-keybind = ctrl+shift+page_down=unbind
 
 # Scroll keybinds (for use outside zellij)
 keybind = ctrl+shift+up=scroll_page_lines:-1
@@ -35,7 +33,3 @@ keybind = alt+u=scroll_page_up
 keybind = alt+d=scroll_page_down
 keybind = alt+g=scroll_to_top
 keybind = alt+shift+g=scroll_to_bottom
-
-# Jump between shell prompts (requires OSC 133, emitted by ghostty's zsh integration)
-keybind = ctrl+alt+up=jump_to_prompt:-1
-keybind = ctrl+alt+down=jump_to_prompt:1
