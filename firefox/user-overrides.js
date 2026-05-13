@@ -16,6 +16,16 @@ user_pref("extensions.formautofill.heuristics.enabled", false);
 /** DRM **/
 user_pref("browser.eme.ui.enabled", false); // hide DRM UI toggle
 
+/** OpenH264 for WebRTC (MS Teams, any H.264-only conferencing) **/
+// LibreWolf disables the GMP provider and the OpenH264 plugin, and pretends
+// media.webrtc.hw.h264.enabled=true covers it. On Linux Mozilla's FFmpeg
+// doesn't ship H.264 encode (patent policy), so Teams gets no usable encoder
+// and remote participants see no video while local preview works.
+// arkenfox 2020 deliberately leaves GMP alone; this aligns with arkenfox.
+user_pref("media.gmp-provider.enabled", true);
+user_pref("media.gmp-gmpopenh264.enabled", true);
+user_pref("media.gmp-manager.url", "https://aus5.mozilla.org/update/3/GMP/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml");
+
 /** Network **/
 user_pref("network.dns.disableIPv6", false); // keep IPv6 enabled
 
