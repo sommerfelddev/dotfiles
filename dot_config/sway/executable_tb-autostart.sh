@@ -14,7 +14,7 @@ BRIDGE_PORT=1143
 # unlocked), so "port is listening" is not enough — TB will race and pop up
 # "failed to login to 127.0.0.1". Wait for the real IMAP '* OK' greeting,
 # which the bridge only sends once it can actually service logins.
-for _ in $(seq 1 900); do
+for _ in $(seq 1 300); do
   banner=$(ncat -w 1 -i 1 "$BRIDGE_HOST" "$BRIDGE_PORT" </dev/null 2>/dev/null | head -c 64)
   case "$banner" in
     "* OK"*) break ;;
