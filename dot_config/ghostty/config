@@ -4,7 +4,7 @@ theme = Gruvbox Dark
 # Cursor — block blink; disable shell integration cursor override
 cursor-style = block
 cursor-style-blink = true
-shell-integration-features = no-cursor
+shell-integration-features = no-cursor,ssh-env,ssh-terminfo
 
 # OSC 52 clipboard for zellij (default is "ask" which prompts each time)
 clipboard-read = allow
