@@ -1,0 +1,14 @@
+# User-scope systemd units to enable. One unit per line, # comments OK.
+# Enabled by `just unit-apply` via `systemctl --user enable`.
+
+# --- sway session (all WantedBy=sway-session.target; sway itself starts
+# sway-session.target on login) ---
+cliphist-image.service
+cliphist-text.service
+display-watcher.service
+signal.service
+swayidle.service
+waybar.service
+
+# --- mail (overridden via drop-ins in dot_config/systemd/user/) ---
+protonmail-bridge.service

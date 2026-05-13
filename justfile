@@ -292,7 +292,7 @@ status: dotfiles-status etc-status pkg-status unit-status
 # For 2-arg verbs (add, forget): the 2nd arg is the discriminator.
 # ═══════════════════════════════════════════════════════════════════
 
-# Add one or more paths (dotfile/etc) or packages/units (GROUP + names) to the repo
+# Add one or more paths (dotfile/etc), units, or packages (GROUP + names) to the repo
 add +args:
     #!/usr/bin/env bash
     set -eo pipefail
@@ -302,20 +302,21 @@ add +args:
         /etc/*|etc/*) just etc-add "${args[@]}" ; exit 0 ;;
         */*)          just dotfiles-add "${args[@]}" ; exit 0 ;;
     esac
-    if [ ${#args[@]} -lt 2 ]; then
-        echo "error: add needs either a path, or a GROUP plus one or more pkg/unit names" >&2
-        echo "       (got single bare word: $first)" >&2
-        exit 1
-    fi
-    for a in "${args[@]:1}"; do
+    # Units: any arg looks like a unit (no GROUP prefix; scope is inferred).
+    for a in "${args[@]}"; do
         case "$a" in
             *.service|*.timer|*.socket|*.mount|*.target|*.path)
                 just unit-add "${args[@]}"; exit 0 ;;
         esac
     done
+    if [ ${#args[@]} -lt 2 ]; then
+        echo "error: add needs either a path, a unit name, or a GROUP plus one or more pkg names" >&2
+        echo "       (got single bare word: $first)" >&2
+        exit 1
+    fi
     just pkg-add "${args[@]}"
 
-# Remove one or more paths, or packages/units (GROUP + names), from tracking (leaves live state alone)
+# Remove one or more paths, units, or packages (GROUP + names) from tracking (leaves live state alone)
 forget +args:
     #!/usr/bin/env bash
     set -eo pipefail
@@ -325,17 +326,17 @@ forget +args:
         /etc/*|etc/*) just etc-forget "${args[@]}" ; exit 0 ;;
         */*)          just dotfiles-forget "${args[@]}" ; exit 0 ;;
     esac
-    if [ ${#args[@]} -lt 2 ]; then
-        echo "error: forget needs either a path, or a GROUP plus one or more pkg/unit names" >&2
-        echo "       (got single bare word: $first)" >&2
-        exit 1
-    fi
-    for a in "${args[@]:1}"; do
+    for a in "${args[@]}"; do
         case "$a" in
             *.service|*.timer|*.socket|*.mount|*.target|*.path)
                 just unit-forget "${args[@]}"; exit 0 ;;
         esac
     done
+    if [ ${#args[@]} -lt 2 ]; then
+        echo "error: forget needs either a path, a unit name, or a GROUP plus one or more pkg names" >&2
+        echo "       (got single bare word: $first)" >&2
+        exit 1
+    fi
     just pkg-forget "${args[@]}"
 
 # Show dotfile + /etc diffs; pass a path to limit to a single file
@@ -418,19 +419,21 @@ dotfiles-status:
 # ═══════════════════════════════════════════════════════════════════
 # Units domain (systemd)
 # ═══════════════════════════════════════════════════════════════════
-# Group tokens: `<name>` == `system:<name>` → systemd-units/system/<name>.txt;
-# `user:<name>` → systemd-units/user/<name>.txt. System units use `sudo systemctl`,
-# user units use `systemctl --user` (no sudo). No-arg unit-list/unit-apply/unit-status
-# walk both trees.
+# systemd-units domain
+# ═══════════════════════════════════════════════════════════════════
+#
+# Two flat lists: systemd-units/system.txt (enabled via `sudo systemctl`)
+# and systemd-units/user.txt (enabled via `systemctl --user`). No groups.
+# unit-add / unit-forget infer scope by probing the unit's existence with
+# systemctl [--user] cat — caller doesn't pass a scope.
 
-# List curated systemd units grouped by systemd-units/{system,user}/<group>.txt with their state; pass a group (optionally `user:`/`system:` prefixed) to narrow
-unit-list group="":
+# List curated systemd units with their enabled/active state
+unit-list:
     #!/bin/sh
     _render() {
         scope=$1 file=$2
         sctl="systemctl"; [ "$scope" = user ] && sctl="systemctl --user"
-        group=$(basename "$file" .txt)
-        echo "=== ${scope}:${group} ==="
+        echo "=== ${scope} ==="
         sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file" | while read -r u; do
             en=$($sctl is-enabled "$u" 2>/dev/null); en=${en:-unknown}
             ac=$($sctl is-active  "$u" 2>/dev/null); ac=${ac:-unknown}
@@ -447,42 +450,27 @@ unit-list group="":
             printf '  %-34s \033[%sm%-10s\033[0m \033[%sm%s\033[0m\n' "$u" "$c_en" "$en" "$c_ac" "$ac"
         done
     }
-    g='{{ group }}'
-    if [ -n "$g" ]; then
-        case "$g" in
-            user:*)   scope=user;   name=${g#user:} ;;
-            system:*) scope=system; name=${g#system:} ;;
-            *)        scope=system; name=$g ;;
-        esac
-        file="systemd-units/${scope}/${name}.txt"
-        [ -f "$file" ] || { echo "error: $file does not exist" >&2; exit 1; }
+    for scope in system user; do
+        file="systemd-units/${scope}.txt"
+        [ -f "$file" ] || continue
         _render "$scope" "$file"
-    else
-        for scope in system user; do
-            for file in systemd-units/"$scope"/*.txt; do
-                [ -f "$file" ] || continue
-                _render "$scope" "$file"
-            done
-        done
-    fi
+    done
 
-# Enable all curated systemd units (idempotent, soft-fail per unit); walks both system/ and user/ trees
+# Enable all curated systemd units (idempotent, soft-fail per unit); walks system + user lists
 unit-apply:
     #!/bin/sh
-    for file in systemd-units/system/*.txt; do
-        [ -f "$file" ] || continue
-        sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file" | while read -r u; do
+    if [ -f systemd-units/system.txt ]; then
+        sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' systemd-units/system.txt | while read -r u; do
             sudo systemctl enable --now "$u" \
                 || echo "  warn: could not enable $u (system)" >&2
         done
-    done
-    for file in systemd-units/user/*.txt; do
-        [ -f "$file" ] || continue
-        sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file" | while read -r u; do
+    fi
+    if [ -f systemd-units/user.txt ]; then
+        sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' systemd-units/user.txt | while read -r u; do
             systemctl --user enable --now "$u" \
                 || echo "  warn: could not enable $u (user)" >&2
         done
-    done
+    fi
 
 # Show drift between curated units and actually-enabled systemd units (system + user)
 unit-status:
@@ -492,10 +480,13 @@ unit-status:
         scope=$1 label=$2
         sctl="systemctl"; [ "$scope" = user ] && sctl="systemctl --user"
         echo "=== ${label} drift ==="
-        cat systemd-units/"$scope"/*.txt 2>/dev/null \
-            | sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' | sort -u > "$tmp/curated"
-        if [ -f "systemd-units/$scope/.ignore" ]; then
-            sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "systemd-units/$scope/.ignore" | sort -u > "$tmp/ignore"
+        if [ -f "systemd-units/${scope}.txt" ]; then
+            sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "systemd-units/${scope}.txt" | sort -u > "$tmp/curated"
+        else
+            : > "$tmp/curated"
+        fi
+        if [ -f "systemd-units/${scope}.ignore" ]; then
+            sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "systemd-units/${scope}.ignore" | sort -u > "$tmp/ignore"
         else
             : > "$tmp/ignore"
         fi
@@ -517,30 +508,35 @@ unit-status:
     _drift system "System unit"
     _drift user   "User unit"
 
-# Append one or more units to a group list and enable them (e.g. just unit-add base sshd.service; just unit-add user:graphical kanshi.service)
-unit-add group +units:
+# Append one or more units to the curated list and enable them; scope is
+
+# inferred by probing `systemctl [--user] cat <unit>` (system wins on tie).
+unit-add +units:
     #!/bin/sh
     set -eu
-    g='{{ group }}'
-    case "$g" in
-        user:*)   scope=user;   name=${g#user:} ;;
-        system:*) scope=system; name=${g#system:} ;;
-        *)        scope=system; name=$g ;;
-    esac
-    file="systemd-units/${scope}/${name}.txt"
-    if [ ! -f "$file" ]; then
-        echo "error: $file does not exist" >&2
-        exit 1
-    fi
+    _scope() {
+        u=$1
+        sys=0 usr=0
+        systemctl cat "$u"        >/dev/null 2>&1 && sys=1
+        systemctl --user cat "$u" >/dev/null 2>&1 && usr=1
+        if   [ "$sys" = 1 ]; then echo system
+        elif [ "$usr" = 1 ]; then echo user
+        else                      echo unknown
+        fi
+    }
     for u in {{ units }}; do
+        scope=$(_scope "$u")
+        if [ "$scope" = unknown ]; then
+            echo "error: $u not found at either scope (install the package first)" >&2
+            exit 1
+        fi
+        file="systemd-units/${scope}.txt"
         if grep -qxF "$u" "$file"; then
-            echo "$u already in ${scope}:${name}"
+            echo "$u already in ${scope}"
         else
             echo "$u" >> "$file"
-            echo "added $u to ${scope}:${name}"
+            echo "added $u to ${scope}"
         fi
-    done
-    for u in {{ units }}; do
         if [ "$scope" = user ]; then
             systemctl --user enable --now "$u" \
                 || echo "  warn: could not enable $u (user)" >&2
@@ -550,30 +546,26 @@ unit-add group +units:
         fi
     done
 
-# Remove one or more units from a group list and disable them
-unit-forget group +units:
+# Remove one or more units from the curated list and disable them; scope is
+
+# inferred from which list currently contains the unit.
+unit-forget +units:
     #!/bin/sh
     set -eu
-    g='{{ group }}'
-    case "$g" in
-        user:*)   scope=user;   name=${g#user:} ;;
-        system:*) scope=system; name=${g#system:} ;;
-        *)        scope=system; name=$g ;;
-    esac
-    file="systemd-units/${scope}/${name}.txt"
-    if [ ! -f "$file" ]; then
-        echo "error: $file does not exist" >&2
-        exit 1
-    fi
     for u in {{ units }}; do
-        if grep -qxF "$u" "$file"; then
-            sed -i "/^$(printf '%s' "$u" | sed 's/[]\/$*.^[]/\\&/g')\$/d" "$file"
-            echo "removed $u from ${scope}:${name}"
-        else
-            echo "$u not in ${scope}:${name}"
+        scope=
+        for s in system user; do
+            if [ -f "systemd-units/${s}.txt" ] && grep -qxF "$u" "systemd-units/${s}.txt"; then
+                scope=$s; break
+            fi
+        done
+        if [ -z "$scope" ]; then
+            echo "$u not in any curated list" >&2
+            continue
         fi
-    done
-    for u in {{ units }}; do
+        file="systemd-units/${scope}.txt"
+        sed -i "/^$(printf '%s' "$u" | sed 's/[]\/$*.^[]/\\&/g')\$/d" "$file"
+        echo "removed $u from ${scope}"
         if [ "$scope" = user ]; then
             systemctl --user disable --now "$u" \
                 || echo "  warn: could not disable $u (user)" >&2
@@ -1026,7 +1018,7 @@ pkg-list group="":
         fi
     done
 
-# Install one or more package groups, or all groups if none given (e.g. just pkg-apply base dev)
+# Install one or more package groups, or all groups if none given (e.g. just pkg-apply base intel)
 pkg-apply *groups:
     #!/bin/sh
     set -eu
@@ -1079,7 +1071,7 @@ pkg-fix:
         fi
     done
 
-# Append one or more packages to a group list and install them (e.g. just pkg-add dev ripgrep fd)
+# Append one or more packages to a group list and install them (e.g. just pkg-add base ripgrep fd)
 pkg-add group +pkgs:
     #!/bin/sh
     set -eu
@@ -1135,6 +1127,7 @@ _install-hooks:
 # Install all flatpaks declared in meta/flatpak.txt. Flathub IDs are batched
 # into a single install call; URL bundles are downloaded and installed only
 # when the app id is not already present (use `flatpak-update` to pick up
+
 # new versions of bundle entries).
 _flatpak-install:
     #!/bin/sh

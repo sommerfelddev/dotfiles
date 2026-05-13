@@ -1,3 +1,4 @@
+# --- core ---
 acpid
 base
 base-devel
@@ -66,3 +67,182 @@ zsh-completions
 zsh-history-substring-search
 zsh-syntax-highlighting
 zram-generator
+
+# --- bluetooth ---
+bluez
+bluez-utils
+ell
+
+# --- nix (multi-user daemon mode for hermetic per-project dev shells via
+# `nix develop` + direnv `use flake`. Not a replacement for paru/pacman,
+# not home-manager, not NixOS — just a sandboxed second package manager
+# that gives every project a reproducible toolchain pinned in its own
+# flake.lock. Pairs with: systemd-units/system.txt (enables
+# nix-daemon.socket), etc/nix/nix.conf, dot_config/direnv/direnvrc,
+# dot_config/nix/templates/. nix-direnv itself is loaded at runtime via
+# direnv's source_url with a content hash, so no extra package needed.) ---
+nix
+
+# --- dev ---
+android-tools
+ccache
+clang
+cmake
+curl
+difftastic
+direnv
+doxygen
+gdb
+git-absorb
+git-delta
+github-cli
+go
+hyperfine
+jdk-openjdk
+just
+lld
+lldb
+luarocks
+mergiraf
+mold
+ninja
+npm
+perf
+podman-compose
+podman-docker
+rust-analyzer
+rustup
+samply
+sccache
+strace
+t-rec
+uv
+valgrind
+
+# --- sound ---
+alsa-utils
+pipewire
+pipewire-alsa
+pipewire-jack
+pipewire-pulse
+playerctl
+pulsemixer
+# noisetorch  # optional
+
+# --- fonts ---
+noto-fonts-emoji
+otf-font-awesome
+otf-latinmodern-math
+ttf-dejavu
+ttf-fira-code
+ttf-font-awesome
+ttf-noto-nerd
+woff2-font-awesome
+
+# --- wayland session ---
+# Compositor
+sway
+xdg-desktop-portal-wlr
+xdg-desktop-portal-gtk
+qt5-wayland
+qt6-wayland
+
+# Bar & launcher
+waybar
+fuzzel
+# wofi: secondary picker used only by mako-history.sh — needs --hide-search
+# and per-key custom bindings, neither of which fuzzel supports.
+wofi
+
+# Terminal
+ghostty
+
+# Notifications
+mako
+libnotify
+poweralertd
+
+# Lock screen
+swaylock
+swayidle
+
+# Clipboard
+wl-clipboard
+cliphist
+
+# Screenshots & recording
+grim
+slurp
+wf-recorder
+
+# Wayland typing (used by dictate, etc)
+wtype
+
+# Emoji picker (AUR; tiny shell script, multi-backend — we drive it through wofi)
+bemoji
+
+# Image viewer
+imv
+
+# QR
+zbar
+xorg-xwayland # needed for zbarcam's X11 preview
+
+# Document viewer is the org.pwmt.zathura flatpak (see meta/flatpak.txt) so
+# PDFs handed off from the browser/mail sandbox stay sandboxed.
+
+# Misc
+brightnessctl
+libfido2
+perl-file-mimeinfo
+qt5ct
+qt6ct
+xdg-user-dirs
+wl-mirror
+
+# --- browser (LibreWolf flatpak; arkenfox-user.js is the host-side
+# hardening overlay deployed by run_onchange_after_deploy-firefox.sh.tmpl) ---
+arkenfox-user.js
+
+# --- mail (host-side bits the org.mozilla.Thunderbird flatpak depends on) ---
+protonmail-bridge-core
+# git send-email Perl prereqs (SMTP via local Bridge on 127.0.0.1:1025)
+perl-authen-sasl
+perl-mime-tools
+perl-net-smtp-ssl
+# Native messaging host binary for External Editor Revived; bridged into
+# the TB flatpak by run_onchange_after_deploy-tb-eer.sh.tmpl.
+external-editor-revived
+
+# --- media (native mpv kept for streamlink piping and the /tmp/mpvsocket
+# IPC integration; the io.mpv.Mpv flatpak (meta/flatpak.txt) is set as
+# the mimeapps default for video/* so files handed off by the
+# browser/mail sandbox stay sandboxed) ---
+mpv
+streamlink
+yt-dlp
+
+# --- desktop extras ---
+gpg-tui
+pandoc-bin
+syncthing
+udisks2
+
+# Flatpak runtime (apps tracked in meta/flatpak.txt)
+flatpak
+
+# Smartcard stack (cartão de cidadão reader + PKCS#11 bridge into flatpak
+# browsers). pcscd.socket is enabled by systemd-units/system.txt.
+pcsclite
+ccid
+
+# OCR (used by ~/.local/bin/ocr)
+tesseract
+tesseract-data-eng
+tesseract-data-por
+
+# Speech-to-text (used by ~/.local/bin/dictate)
+# `base` multilingual: ~142 MB, ~7-10x realtime on a 4c CPU. Override
+# WHISPER_MODEL in the script's environment to use a different ggml model.
+whisper.cpp-vulkan
+whisper.cpp-model-base

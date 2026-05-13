@@ -1,9 +1,0 @@
-# User units that compose the sway graphical session.
-# All are WantedBy=sway-session.target so enabling them wires them into
-# the session; sway itself starts sway-session.target on login.
-cliphist-image.service
-cliphist-text.service
-display-watcher.service
-signal.service
-swayidle.service
-waybar.service

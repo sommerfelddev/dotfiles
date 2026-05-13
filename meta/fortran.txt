@@ -1,3 +1,0 @@
-fortitude-bin
-fortran-fpm-bin
-gcc-fortran

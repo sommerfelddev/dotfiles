@@ -1,0 +1,30 @@
+# System-scope systemd units to enable. One unit per line, # comments OK.
+# Enabled by `just unit-apply` via `sudo systemctl enable`.
+
+# --- core ---
+systemd-timesyncd.service
+systemd-resolved.service
+systemd-oomd.service
+reflector.timer
+paccache.timer
+acpid.service
+cpupower.service
+iwd.service
+nftables.service
+systemd-networkd.service
+systemd-networkd-wait-online.service
+tlp.service
+pcscd.socket
+smartd.service
+btrfs-scrub@-.timer
+fwupd-refresh.timer
+
+# --- bluetooth ---
+bluetooth.service
+
+# --- btc ---
+tor.service
+
+# --- nix (socket-activated builder daemon; the .service spawns on first
+# client connect, the .socket is what gets enabled) ---
+nix-daemon.socket

@@ -1,4 +1,4 @@
-# Systemd units to suppress from 'just services-drift' uncurated output.
+# Systemd units to suppress from `just unit-status` uncurated output.
 # Typically distro defaults enabled by systemd presets that are neither
 # worth curating nor worth disabling. One unit per line, # comments OK.
 
