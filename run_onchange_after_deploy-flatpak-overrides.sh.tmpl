@@ -19,3 +19,9 @@ apply io.mpv.Mpv --filesystem=xdg-config/mpv:ro
 # LibreWolf needs raw /dev access for v4l2 webcams. Flatpak has no
 # finer-grained device option, so this opens video/dri/snd at once.
 apply io.gitlab.librewolf-community --device=all
+
+# Ungoogled Chromium needs /dev/hidraw* for WebHID (e.g. usevia.app
+# configuring ZSA keyboards). --device=all is the only knob flatpak
+# offers; the host udev rule (etc/udev/rules.d/50-zsa.rules) restricts
+# which hidraw nodes the user can actually open.
+apply io.github.ungoogled_software.ungoogled_chromium --device=all
