@@ -8,7 +8,6 @@ choose
 cpupower
 curlie
 dashbinsh
-doas-sudo-shim
 dog
 duf
 fastfetch
@@ -49,6 +48,7 @@ rsync
 sbctl
 sd
 smartmontools
+sudo-rs
 systemd-resolvconf
 tldr
 tlp

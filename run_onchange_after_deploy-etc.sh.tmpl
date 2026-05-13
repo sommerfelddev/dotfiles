@@ -7,20 +7,30 @@ set -eu
 
 cd "$CHEZMOI_SOURCE_DIR"
 find etc -type f ! -name .ignore | while IFS= read -r src; do
-    case "$src" in
-        *.tmpl)
-            dest="/${src%.tmpl}"
-            tmp=$(mktemp)
-            chezmoi execute-template <"$src" >"$tmp"
-            doas install -D -m 0644 -o root -g root "$tmp" "$dest"
-            rm -f "$tmp"
-            ;;
-        *)
-            dest="/${src}"
-            doas install -D -m 0644 -o root -g root "$src" "$dest"
-            ;;
-    esac
+	case "$src" in
+	*.tmpl)
+		dest="/${src%.tmpl}"
+		tmp=$(mktemp)
+		chezmoi execute-template <"$src" >"$tmp"
+		sudo install -D -m 0644 -o root -g root "$tmp" "$dest"
+		rm -f "$tmp"
+		;;
+	etc/sudoers-rs)
+		sudo install -D -m 0440 -o root -g root "$src" "/${src}"
+		;;
+	*)
+		sudo install -D -m 0644 -o root -g root "$src" "/${src}"
+		;;
+	esac
 done
 
-# doas refuses to parse /etc/doas.conf unless it's 0400 root:root
-doas chmod 0400 /etc/doas.conf
+# sudo-rs: /etc/pam.d/sudo-i is a symlink to /etc/pam.d/sudo
+sudo ln -sfT sudo /etc/pam.d/sudo-i
+
+# Make sudo-rs the system-wide sudo via /usr/local/bin precedence.
+# Targets may not exist yet on first bootstrap (sudo-rs is installed by
+# the subsequent pkg-apply step); the symlinks resolve once it lands.
+sudo ln -sfT /usr/bin/sudo-rs /usr/local/bin/sudo
+sudo ln -sfT /usr/bin/sudo-rs /usr/local/bin/sudoedit
+sudo ln -sfT /usr/bin/su-rs /usr/local/bin/su
+sudo ln -sfT /usr/bin/visudo-rs /usr/local/bin/visudo

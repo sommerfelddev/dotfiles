@@ -1,0 +1,13 @@
+# Keep $EDITOR / $VISUAL when running visudo.
+Defaults!/usr/bin/visudo-rs    env_keep += "SUDO_EDITOR EDITOR VISUAL"
+Defaults!/usr/local/bin/visudo env_keep += "SUDO_EDITOR EDITOR VISUAL"
+
+# Sanitize PATH for elevated commands.
+Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/bin"
+
+# Root and the wheel group can run anything (after a password prompt).
+root   ALL=(ALL:ALL) ALL
+%wheel ALL=(ALL:ALL) ALL
+
+# Passwordless poweroff/reboot (parity with the previous doas.conf).
+%wheel ALL=(ALL) NOPASSWD: /usr/bin/poweroff, /usr/bin/reboot

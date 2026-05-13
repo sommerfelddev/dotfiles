@@ -53,7 +53,7 @@ zstyle ':completion:*:functions' ignored-patterns '_*'         # hide internal c
 zstyle ':completion:*:*:kill:*' menu yes select                # interactive menu for kill completion
 zstyle ':completion:*:kill:*' force-list always                # always show process list for kill
 zstyle ':completion:*:cd:*' ignore-parents parent pwd          # cd never completes . or ..
-zstyle ':completion::complete:*' gain-privileges 1             # use doas/sudo for privileged completions
+zstyle ':completion::complete:*' gain-privileges 1             # use sudo for privileged completions
 zstyle -e ':completion:*:approximate:*' \
 	max-errors 'reply=($((($#PREFIX+$#SUFFIX)/3))numeric)'    # allow 1 typo per 3 chars typed
 
@@ -200,13 +200,11 @@ alias ip="ip -color=auto"
 alias lsip="ip -human -color=auto --brief address show"
 alias ipa="ip -stats -details -human -color=auto address show"
 alias ipecho='curl ipecho.net/plain'
-alias ss='doas ss -tupnl'
+alias ss='sudo ss -tupnl'
 
 # Privilege escalation
-alias sudo='doas'
-alias sudoedit='doasedit'
-alias gimme='doas chown $USER:$(id -gn $USER)'
-alias pacdiff='doas pacdiff'
+alias gimme='sudo chown $USER:$(id -gn $USER)'
+alias pacdiff='sudo pacdiff'
 
 # Pacman
 alias pacopt='comm -13 <(pacman -Qqdt | sort) <(pacman -Qqdtt | sort)'
@@ -216,7 +214,7 @@ alias g='git'
 
 # Systemd
 alias sys='systemctl'
-alias ssys='doas systemctl'
+alias ssys='sudo systemctl'
 alias sysu='systemctl --user'
 
 # Navigation

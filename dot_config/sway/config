@@ -124,8 +124,8 @@ bindsym $mod+Shift+c reload
 bindsym $mod+Shift+e exec swaynag -t warning -m 'Session' \
   -B 'Lock' 'playerctl -a pause; swaylock -f -e -c 282828' \
   -B 'Logout' 'swaymsg exit' \
-  -B 'Reboot' 'doas /usr/bin/reboot' \
-  -B 'Poweroff' 'doas /usr/bin/poweroff'
+  -B 'Reboot' 'sudo /usr/bin/reboot' \
+  -B 'Poweroff' 'sudo /usr/bin/poweroff'
 
 # ── Personal keybinds ─────────────────────────────────────────────────────────
 

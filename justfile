@@ -603,8 +603,8 @@ etc-status:
         fi
         if [ -r "$live" ]; then
             cmp -s "$src" "$live" || echo "  modified: $live"
-        elif doas test -f "$live" 2>/dev/null; then
-            doas cat "$live" | cmp -s "$src" - || echo "  modified: $live"
+        elif sudo test -f "$live" 2>/dev/null; then
+            sudo cat "$live" | cmp -s "$src" - || echo "  modified: $live"
         else
             echo "  missing:  $live"
         fi
@@ -642,11 +642,11 @@ etc-diff *paths:
             repo_for_diff=$repo
             rendered=
         fi
-        # Fast path for world-readable files; doas fallback only when needed (e.g. /etc/doas.conf 0600).
+        # Fast path for world-readable files; sudo fallback only when needed (e.g. /etc/sudo.conf 0600).
         if [ -r "$live" ]; then
             diff -u --label "$live" --label "$repo" "$live" "$repo_for_diff" || true
-        elif doas test -f "$live"; then
-            diff -u --label "$live" --label "$repo" <(doas cat "$live") "$repo_for_diff" || true
+        elif sudo test -f "$live"; then
+            diff -u --label "$live" --label "$repo" <(sudo cat "$live") "$repo_for_diff" || true
         else
             echo "skip: $live (missing or not a regular file on host)" >&2
         fi
@@ -672,7 +672,7 @@ etc-upstream-diff *paths:
             [ -f "$cache" ] && { echo "$cache"; return 0; }
         done
         echo "  fetching $pkg from mirror..." >&2
-        doas pacman -Sw --noconfirm "$pkg" >/dev/null || true
+        sudo pacman -Sw --noconfirm "$pkg" >/dev/null || true
         for ext in zst xz; do
             cache="/var/cache/pacman/pkg/${pkg}-${ver}-${arch}.pkg.tar.${ext}"
             [ -f "$cache" ] && { echo "$cache"; return 0; }
@@ -697,8 +697,8 @@ etc-upstream-diff *paths:
         path=/etc/$p
         if [ -r "$path" ]; then
             live_reader=(cat "$path")
-        elif doas test -f "$path"; then
-            live_reader=(doas cat "$path")
+        elif sudo test -f "$path"; then
+            live_reader=(sudo cat "$path")
         else
             [ "$explicit" = 1 ] && { echo "error: $path missing or unreadable" >&2; exit 1; }
             echo "skip: $path (missing or unreadable)" >&2; continue
@@ -733,13 +733,13 @@ etc-merge *paths:
         live=/etc/$p
         repo=etc/$p
         [ -f "$repo" ] || { echo "skip: etc/$p not tracked" >&2; continue; }
-        # Prepare a readable copy of live (falling back to doas cat for restricted files).
+        # Prepare a readable copy of live (falling back to sudo cat for restricted files).
         tmp=$(mktemp)
         trap 'rm -f "$tmp"' EXIT
         if [ -r "$live" ]; then
             cat -- "$live" > "$tmp"
-        elif doas test -f "$live"; then
-            doas cat -- "$live" > "$tmp"
+        elif sudo test -f "$live"; then
+            sudo cat -- "$live" > "$tmp"
         else
             echo "skip: $live (missing or unreadable)" >&2
             rm -f "$tmp"
@@ -771,8 +771,8 @@ etc-add +paths:
         [ -f "$path" ] || { echo "error: $path is not a regular file (symlinks/dirs not supported)" >&2; exit 1; }
         dest="etc/${path#/etc/}"
         mkdir -p "$(dirname "$dest")"
-        doas cp -a "$path" "$dest"
-        doas chown "$USER:$USER" "$dest"
+        sudo cp -a "$path" "$dest"
+        sudo chown "$USER:$USER" "$dest"
         echo "added: $path -> $dest"
     done
     echo
@@ -814,7 +814,7 @@ etc-re-add *paths:
         if [ -r "$live" ]; then
             cat -- "$live" > "$repo.tmp"
         else
-            doas cat -- "$live" > "$repo.tmp"
+            sudo cat -- "$live" > "$repo.tmp"
         fi
         if cmp -s "$repo" "$repo.tmp"; then
             rm -f "$repo.tmp"
@@ -875,7 +875,7 @@ etc-reset +paths:
         done
         if [ -z "$cache" ]; then
             echo "  fetching $pkg from mirror..." >&2
-            doas pacman -Sw --noconfirm "$pkg" >/dev/null || true
+            sudo pacman -Sw --noconfirm "$pkg" >/dev/null || true
             for ext in zst xz; do
                 c="/var/cache/pacman/pkg/${pkg}-${ver}-${arch}.pkg.tar.${ext}"
                 [ -f "$c" ] && { cache="$c"; break; }
@@ -916,7 +916,7 @@ etc-restore +paths:
         done
         if [ -z "$cache" ]; then
             echo "  fetching $pkg from mirror..." >&2
-            doas pacman -Sw --noconfirm "$pkg" >/dev/null || true
+            sudo pacman -Sw --noconfirm "$pkg" >/dev/null || true
             for ext in zst xz; do
                 c="/var/cache/pacman/pkg/${pkg}-${ver}-${arch}.pkg.tar.${ext}"
                 [ -f "$c" ] && { cache="$c"; break; }
@@ -927,7 +927,7 @@ etc-restore +paths:
             || { echo "error: $live not present in $pkg archive" >&2; exit 1; }
         # Extract with -p to preserve owner/mode/mtime so pacman -Qkk sees the
         # file as unmodified (same metadata as install time, not just same bytes).
-        doas bsdtar -xpf "$cache" -C / "${live#/}"
+        sudo bsdtar -xpf "$cache" -C / "${live#/}"
         echo "restored (from $pkg): $live"
     done
 

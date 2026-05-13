@@ -23,7 +23,7 @@ Leader: `Space` | Local leader: `,`
 | n    | `[w` / `]w`  | Prev/next warning+ diagnostic       |
 | n    | `[e` / `]e`  | Prev/next error diagnostic          |
 | n    | `yp`         | Yank current file path to clipboard |
-|      | `:DoasWrite` | Write file with doas privileges     |
+|      | `:SudoWrite` | Write file with sudo privileges     |
 
 ### Navigation (plugins/init.lua)
 

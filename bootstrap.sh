@@ -67,8 +67,12 @@ else
 fi
 
 # 5. run just init — this deploys chezmoi, installs the 'base' meta list
-#    (swapping sudo for doas-sudo-shim via paru -S --ask=4), deploys
-#    /etc/doas.conf, and installs git hooks.
+#    (which pulls in sudo-rs), deploys /etc/sudoers-rs and /etc/pam.d/sudo,
+#    creates /usr/local/bin/{sudo,su,visudo,sudoedit} symlinks pointing at
+#    sudo-rs, and installs git hooks.
+#    The classic 'sudo' package installed in step 2 stays alongside
+#    sudo-rs as a safety net; remove it manually with `sudo pacman -Rns
+#    sudo` once you've verified `sudo --version` reports sudo-rs.
 cd "$DOTFILES_DIR"
 log 'running just init'
 just init
