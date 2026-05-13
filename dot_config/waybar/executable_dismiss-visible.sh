@@ -16,14 +16,20 @@ mkdir -p "$(dirname "$state")"
 
 command -v makoctl >/dev/null 2>&1 || exit 0
 
+# This makoctl has no -f; extract ids from the text dump.
+list_ids() {
+  makoctl list 2>/dev/null \
+    | sed -n 's/^Notification \([0-9][0-9]*\):.*/\1/p'
+}
+
 case "$mode" in
   top)
-    id=$(makoctl list -f '%i' 2>/dev/null | head -n1 || true)
+    id=$(list_ids | head -n1 || true)
     [ -n "${id:-}" ] && printf '%s\n' "$id" >>"$state"
     makoctl dismiss
     ;;
   all)
-    makoctl list -f '%i' 2>/dev/null >>"$state" || true
+    list_ids >>"$state" || true
     makoctl dismiss --all
     ;;
   *)
