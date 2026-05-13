@@ -2,10 +2,17 @@ bear
 compiledb
 cuda
 cvise
+dnsmasq
+edk2-ovmf
 git-lfs
 intel-oneapi-dpcpp-cpp
+libvirt
 llvm
 openmp
 python-pytest
+qemu-desktop
 snx-rs
+swtpm
+virt-manager
+virtiofsd
 xdot

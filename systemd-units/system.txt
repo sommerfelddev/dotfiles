@@ -31,3 +31,7 @@ tor.service
 # --- nix (socket-activated builder daemon; the .service spawns on first
 # client connect, the .socket is what gets enabled) ---
 nix-daemon.socket
+
+# --- libvirt (socket-activated; daemons spawn on first virsh/virt-manager
+# connect, the .socket is what gets enabled) ---
+libvirtd.socket
