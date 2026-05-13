@@ -124,7 +124,7 @@ bindsym $mod+r mode "resize"
 # Reload / session
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+e exec swaynag -t warning -m 'Session' \
-  -B 'Lock' 'playerctl -a pause; swaylock -f -e -c 282828' \
+  -B 'Lock' 'playerctl -a pause; swaylock -f -e -c 000000' \
   -B 'Logout' 'swaymsg exit' \
   -B 'Reboot' 'sudo /usr/bin/reboot' \
   -B 'Poweroff' 'sudo /usr/bin/poweroff'
@@ -161,7 +161,7 @@ bindsym $mod+Ctrl+bracketleft exec brightnessctl set 5%-
 # ThinkPad multimedia keys
 bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
 bindsym XF86Bluetooth exec ~/.config/sway/bt-toggle.sh
-bindsym XF86ScreenSaver exec "playerctl -a pause; swaylock -f -e -c 282828"
+bindsym XF86ScreenSaver exec "playerctl -a pause; swaylock -f -e -c 000000"
 bindsym XF86Sleep exec systemctl suspend
 bindsym XF86WLAN exec ~/.config/waybar/wifi-toggle.sh
 bindsym XF86RFKill exec rfkill toggle all
@@ -177,7 +177,7 @@ bindsym $mod+i exec ~/.local/bin/dictate
 bindsym $mod+Shift+o exec ~/.local/bin/ocr
 
 # Lock & pause
-bindsym $mod+Shift+s exec "playerctl -a pause; swaylock -f -e -c 282828"
+bindsym $mod+Shift+s exec "playerctl -a pause; swaylock -f -e -c 000000"
 
 # Notifications
 bindsym $mod+n exec ~/.config/waybar/dismiss-visible.sh top
