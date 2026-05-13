@@ -7,8 +7,13 @@ ConditionEnvironment=WAYLAND_DISPLAY
 [Service]
 Type=simple
 ExecStart=/usr/bin/flatpak run org.signal.Signal --start-in-tray
+# Electron + "minimize to tray" turns SIGTERM into a window-close which
+# hides instead of exits, so systemd would wait for the stop timeout
+# before SIGKILLing. Use flatpak's instance manager to kill it directly.
+ExecStop=/usr/bin/flatpak kill org.signal.Signal
 Restart=on-failure
 RestartSec=5s
+TimeoutStopSec=10s
 
 [Install]
 WantedBy=sway-session.target
