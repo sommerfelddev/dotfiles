@@ -17,6 +17,7 @@
     "idle_inhibitor",
     "privacy",
     "custom/notifications",
+    "custom/thunderbird",
     "tray",
     "clock",
   ],
@@ -161,6 +162,14 @@
     "on-click": "makoctl dismiss",
     "on-click-right": "makoctl dismiss --all",
     "on-click-middle": "makoctl restore",
+    "tooltip": true,
+  },
+
+  "custom/thunderbird": {
+    "exec": "~/.config/waybar/tb-unread.sh",
+    "return-type": "json",
+    "interval": 60,
+    "on-click": "~/.config/sway/tb-toggle.sh",
     "tooltip": true,
   },
 }

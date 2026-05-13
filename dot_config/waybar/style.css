@@ -47,7 +47,8 @@ window#waybar {
 #privacy,
 #custom-memory,
 #custom-wifi,
-#custom-notifications {
+#custom-notifications,
+#custom-thunderbird {
   padding: 0 6px;
 }
 
@@ -113,6 +114,18 @@ window#waybar {
 
 #custom-notifications.pending {
   color: #fe8019; /* orange — unread */
+}
+
+#custom-thunderbird {
+  color: #928374; /* gray when inbox is empty */
+}
+
+#custom-thunderbird.unread {
+  color: #fe8019; /* orange — has unread mail */
+}
+
+#custom-thunderbird.error {
+  color: #fb4934; /* red — bridge down or creds missing */
 }
 
 #battery.warning {
