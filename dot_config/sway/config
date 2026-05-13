@@ -40,6 +40,10 @@ seat * xcursor_theme Adwaita 24
 
 # ── Output ────────────────────────────────────────────────────────────────────
 output * bg #282828 solid_color
+# Per-output enable/disable/position is written by display-toggle.sh and
+# re-read by sway on every reload. Sway's `include` silently no-ops if the
+# file doesn't exist (first boot, before the script has run).
+include ~/.config/sway/outputs.conf
 
 # ── Window rules ──────────────────────────────────────────────────────────────
 for_window [class="feh"] floating enable
@@ -238,7 +242,7 @@ bindsym $mod+t exec ~/.config/sway/tb-toggle.sh
 # ── Autostart ─────────────────────────────────────────────────────────────────
 exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP PASSWORD_STORE_DIR
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP PASSWORD_STORE_DIR
-exec_always "sleep 2 && ~/.config/sway/display-toggle.sh apply"
+exec "sleep 2 && ~/.config/sway/display-toggle.sh apply"
 exec systemctl --user start sway-session.target
 exec ~/.config/sway/tb-autostart.sh
 
