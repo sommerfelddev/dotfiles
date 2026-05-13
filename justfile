@@ -211,6 +211,7 @@ lint *target:
     _lint_sh()       { _need shellcheck shellcheck; shellcheck "$@"; }
     _lint_zsh()      { _need shellcheck shellcheck; shellcheck --shell=bash "$@"; }
     _lint_py()       { _need ruff ruff;             ruff check "$@"; }
+    _lint_pytype()   { _need basedpyright basedpyright; basedpyright "$@"; }
     _lint_toml()     { _need taplo taplo-cli;       taplo lint "$@"; }
 
     target='{{ target }}'
@@ -228,6 +229,7 @@ lint *target:
 
       mapfile -t files < <(_find_by_ext py)
       [ ${#files[@]} -gt 0 ] && { _lint_py "${files[@]}" || rc=$?; }
+      [ ${#files[@]} -gt 0 ] && { _lint_pytype "${files[@]}" || rc=$?; }
 
       mapfile -t files < <(_find_by_ext toml)
       [ ${#files[@]} -gt 0 ] && { _lint_toml "${files[@]}" || rc=$?; }
@@ -244,7 +246,7 @@ lint *target:
     case "$target" in
       *.lua)                                   _lint_lua  "$target" ;;
       *.sh)                                    _lint_sh   "$target" ;;
-      *.py)                                    _lint_py   "$target" ;;
+      *.py)                                    _lint_py   "$target"; _lint_pytype "$target" ;;
       *.toml)                                  _lint_toml "$target" ;;
       *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  echo "skip: $target (no linter; use check-fmt)" >&2; exit 0 ;;
       *)
@@ -264,7 +266,7 @@ lint *target:
 doctor:
     #!/usr/bin/env bash
     rc=0
-    for tool in stylua selene shfmt shellcheck ruff taplo prettier just; do
+    for tool in stylua selene shfmt shellcheck ruff basedpyright taplo prettier just; do
         if command -v "$tool" >/dev/null 2>&1; then
             printf '  ✓ %s (%s)\n' "$tool" "$(command -v "$tool")"
         else

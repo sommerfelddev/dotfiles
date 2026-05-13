@@ -1,0 +1,11 @@
+{
+  "typeCheckingMode": "standard",
+  "include": ["**/*.py"],
+  "exclude": [
+    "**/.git/**",
+    "**/.venv/**",
+    "**/node_modules/**",
+    "dot_config/ipython/profile_default/ipython_config.py"
+  ],
+  "reportMissingTypeStubs": false
+}
