@@ -3,10 +3,12 @@
 
 Lists pending mako notifications (visible bubbles + history). Entries
 dismissed via this picker are hidden so the list shrinks as you process it.
+The picker re-opens after each selection so multiple notifications can be
+processed in one go; Esc closes it.
 
 Keys:
-  Enter   copy "summary\\nbody" to the clipboard and dismiss the entry
-  Esc     cancel
+  Enter   copy "summary\\nbody" to the clipboard, dismiss the entry, reopen
+  Esc     close the picker
 
 State file: $XDG_RUNTIME_DIR/mako-dismissed (one id per line, per-session).
 """
@@ -142,30 +144,31 @@ def run_wofi(input_text: str, lines: int) -> str:
 
 
 def main() -> None:
-    dismissed = load_dismissed()
-    notifs = parse_history(dismissed)
+    while True:
+        dismissed = load_dismissed()
+        notifs = parse_history(dismissed)
 
-    if not notifs:
-        _ = run_wofi("(no notifications)\n", 1)
-        return
+        if not notifs:
+            _ = run_wofi("(no notifications)\n", 1)
+            return
 
-    lines_text = "\n".join(fmt_line(n) for n in notifs) + "\n"
-    sel = run_wofi(lines_text, min(len(notifs), 15))
-    if not sel or sel.startswith("(no "):
-        return
+        lines_text = "\n".join(fmt_line(n) for n in notifs) + "\n"
+        sel = run_wofi(lines_text, min(len(notifs), 15))
+        if not sel or sel.startswith("(no "):
+            return
 
-    nid = parse_selection(sel)
-    if nid is None:
-        return
-    notif = next((n for n in notifs if n["id"] == nid), None)
-    if notif is None:
-        return
+        nid = parse_selection(sel)
+        if nid is None:
+            return
+        notif = next((n for n in notifs if n["id"] == nid), None)
+        if notif is None:
+            return
 
-    summary = str(notif.get("summary") or "").strip()
-    body = str(notif.get("body") or "").strip()
-    clip_text = f"{summary}\n{body}".strip()
-    _ = subprocess.run(["wl-copy"], input=clip_text, text=True, check=False)
-    add_dismissed(nid)
+        summary = str(notif.get("summary") or "").strip()
+        body = str(notif.get("body") or "").strip()
+        clip_text = f"{summary}\n{body}".strip()
+        _ = subprocess.run(["wl-copy"], input=clip_text, text=True, check=False)
+        add_dismissed(nid)
 
 
 if __name__ == "__main__":
