@@ -14,11 +14,11 @@
     "custom/wifi",
     "network#bond",
     "battery",
-    "clock",
     "idle_inhibitor",
     "privacy",
     "custom/notifications",
     "tray",
+    "clock",
   ],
 
   "sway/workspaces": {
