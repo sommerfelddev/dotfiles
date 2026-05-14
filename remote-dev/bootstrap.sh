@@ -8,7 +8,8 @@
 #   1. Install Nix (Determinate Systems installer, multi-user).
 #   2. Clone (or fast-forward) the dotfiles repo to ~/.local/share/dotfiles.
 #   3. Run `home-manager switch --flake .../remote-dev#vm`.
-#   4. Add Nix-store zsh to /etc/shells and chsh the user.
+#   4. Install python3.11 via `uv` (needed by Mason pip installs).
+#   5. Add Nix-store zsh to /etc/shells and chsh the user.
 #
 # Environment overrides:
 #   DOTFILES_REPO   Git URL (default: https://github.com/ruifm/dotfiles)
@@ -34,29 +35,8 @@ else
   log "Nix already installed, skipping installer."
 fi
 
-# ── 1b. Mason prerequisites from apt ──────────────────────────────────────────
-# Mason (in neovim) installs some LSPs/linters via pip into per-package venvs.
-# We need a python3.11 that (a) meets Mason's >=3.10 version requirement
-# (Ubuntu 20.04's /usr/bin/python3 is 3.8 — too old) and (b) accepts
-# manylinux wheels. Nix's python rejects manylinux wheels by design (its
-# libc is patched), which forces pip to compile `nodejs-wheel-binaries`
-# (pulled in by basedpyright) from source — that build then fails on
-# Ubuntu 20.04's gcc 9.4 (no C++20 support).
-#
-# Solution: install python3.11 from the deadsnakes PPA. It's Ubuntu-native
-# with full manylinux acceptance, and the versioned binary (python3.11)
-# does NOT shadow the system /usr/bin/python3 — leaf-tools policy intact.
-if command -v sudo >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
-  if ! command -v python3.11 >/dev/null 2>&1; then
-    log "Installing python3.11 from deadsnakes PPA (required for Mason pip installs)…"
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-      software-properties-common
-    sudo add-apt-repository -y ppa:deadsnakes/ppa
-    sudo apt-get update -qq
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-      python3.11 python3.11-venv
-  fi
-fi
+# ── 1b. (moved to step 4 — uv comes from the nix profile, only available
+#         after `home-manager switch`) ─────────────────────────────────────────
 
 # Source nix env for the rest of this script (installer writes
 # /etc/profile.d/nix.sh but the current shell hasn't sourced it).
@@ -88,7 +68,32 @@ nix --extra-experimental-features 'nix-command flakes' \
   run home-manager/master -- \
   switch --impure --flake "$DIR/remote-dev#vm" -b backup
 
-# ── 4. chsh to nix-store zsh ─────────────────────────────────────────────────
+# ── 4. Mason's python interpreter (via uv from the nix profile) ──────────────
+# Mason installs some LSPs/linters into per-package pip venvs. We need a
+# python3.11 that:
+#   (a) meets Mason's >=3.10 version requirement (Ubuntu 20.04 ships
+#       /usr/bin/python3 = 3.8 — too old), and
+#   (b) accepts manylinux wheels (Nix's python rejects them by design;
+#       pip then falls back to compiling `nodejs-wheel-binaries` from
+#       source, which fails on the host's gcc 9.4 — needs C++20).
+#
+# `uv python install 3.11` fetches a portable CPython build (python-build-
+# standalone, manylinux-compatible) into ~/.local/share/uv/python/. We
+# symlink its `python3.11` into ~/.local/bin/ (already on PATH from
+# zprofile) so Mason discovers it. Does NOT shadow /usr/bin/python3 —
+# leaf-tools policy intact. Works on any distro/release, no PPA required.
+UV_BIN="$HOME/.nix-profile/bin/uv"
+if [ -x "$UV_BIN" ]; then
+  if [ ! -x "$HOME/.local/bin/python3.11" ]; then
+    log "Installing python3.11 via uv (required for Mason pip installs)…"
+    "$UV_BIN" python install 3.11
+    UV_PY311="$("$UV_BIN" python find 3.11)"
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$UV_PY311" "$HOME/.local/bin/python3.11"
+  fi
+fi
+
+# ── 5. chsh to nix-store zsh ─────────────────────────────────────────────────
 NIX_ZSH="$HOME/.nix-profile/bin/zsh"
 if [ -x "$NIX_ZSH" ]; then
   if ! grep -qxF "$NIX_ZSH" /etc/shells 2>/dev/null; then

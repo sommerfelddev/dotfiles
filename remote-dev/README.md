@@ -134,19 +134,19 @@ git log --show-signature -1
 - **Network for first nvim launch**: `vim.pack.add` fetches plugins
   from GitHub on first start. Mason will also fetch LSP servers using
   `nodejs`/`uv` from this profile.
-- **Mason pip installs need `python3.11`**: a handful of Mason
-  packages (basedpyright, autotools-language-server, codespell,
-  mdformat, nginx-language-server, systemdlint, yamllint) install
-  themselves into per-pkg venvs via pip. Ubuntu 20.04's
-  `/usr/bin/python3` is 3.8 (too old, and `basedpyright` pulls
-  `nodejs-wheel-binaries` whose only Linux wheels are manylinux —
-  rejected by Nix's python, forcing a source build that needs gcc 12+).
-  `bootstrap.sh` installs `python3.11` from the deadsnakes PPA — it's
-  Ubuntu-native, accepts manylinux wheels, and the versioned name
-  (`python3.11`) leaves `/usr/bin/python3` untouched. On an existing
-  VM run `sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt-get
-update && sudo apt-get install python3.11 python3.11-venv` once,
-  then `:MasonToolsInstall` (or `:MasonInstallAll`) in nvim.
+- **Mason pip installs need a managed `python3.11`**: a handful of Mason
+  packages (basedpyright, autotools-language-server, codespell, mdformat,
+  nginx-language-server, systemdlint, yamllint) install themselves into
+  per-pkg venvs via pip. Ubuntu 20.04's `/usr/bin/python3` is 3.8 (too
+  old; also `basedpyright` pulls `nodejs-wheel-binaries` whose only
+  Linux wheels are manylinux — rejected by Nix's python, which forces a
+  source build that needs gcc 12+). `bootstrap.sh` runs `uv python
+install 3.11` (uv is in the nix profile) and symlinks the resulting
+  binary to `~/.local/bin/python3.11`. It's a portable manylinux-aware
+  CPython, and the versioned name leaves `/usr/bin/python3` untouched.
+  On an existing VM run `uv python install 3.11 && ln -sf "$(uv python
+find 3.11)" ~/.local/bin/python3.11` once, then `:MasonToolsInstall`
+  (or `:MasonInstallAll`) in nvim.
 - **Ubuntu apt collisions**: Nix-installed binaries appear first in
   PATH. The leaf-tools policy above exists precisely to keep this
   shadowing contained to harmless tools.
