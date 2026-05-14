@@ -1,11 +1,10 @@
 #!/bin/sh
 # xdg-open shim that hands every URL to the flatpak ungoogled-chromium.
 #
-# Used by snx-rs (which calls `xdg-open` via the `opener` crate) to land
-# the SAML callback inside a browser that won't HTTPS-upgrade or LNA-block
-# the loopback handoff to 127.0.0.1:7779. Wired up via a systemd --user
-# drop-in (dot_config/systemd/user/snx-rs.service.d/10-chromium-saml.conf)
-# that prepends this directory to the daemon's PATH — it does NOT shadow
+# Used by `snxctl connect` (via the snxctl-chromium wrapper) so the
+# Check Point SAML callback lands in a browser that won't HTTPS-upgrade
+# or LNA-block the loopback handoff to 127.0.0.1:7779. The wrapper
+# prepends this directory to snxctl's PATH — this file does NOT shadow
 # the system-wide xdg-open for any other process.
 exec flatpak run io.github.ungoogled_software.ungoogled_chromium \
-  --new-window "$@"
+  "$@"
