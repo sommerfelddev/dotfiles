@@ -41,8 +41,12 @@ export LESS="-F --RAW-CONTROL-CHARS"
 
 # ── GPG / SSH ─────────────────────────────────────────────────────────────────
 unset SSH_AGENT_PID
-SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
-export SSH_AUTH_SOCK
+# If we're inside an SSH session with a forwarded agent socket, keep it.
+# Otherwise route SSH auth through the local gpg-agent.
+if [[ -z "$SSH_CONNECTION" || -z "$SSH_AUTH_SOCK" ]]; then
+	SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+	export SSH_AUTH_SOCK
+fi
 
 # ── FZF ───────────────────────────────────────────────────────────────────────
 export FZF_DEFAULT_COMMAND="fd --type file --follow --hidden --exclude .git --color=always"
