@@ -12,7 +12,17 @@
   outputs = { self, nixpkgs, home-manager, ... }:
     let
       system = "x86_64-linux";
-      pkgs = import nixpkgs { inherit system; config.allowUnfree = false; };
+      pkgs = import nixpkgs {
+        inherit system;
+        # Whitelist specific unfree packages (claude-code, github-copilot-cli)
+        # instead of globally setting allowUnfree, so a typo elsewhere can't
+        # silently pull in additional unfree deps.
+        config.allowUnfreePredicate = pkg:
+          builtins.elem (nixpkgs.lib.getName pkg) [
+            "claude-code"
+            "github-copilot-cli"
+          ];
+      };
     in
     {
       homeConfigurations.vm = home-manager.lib.homeManagerConfiguration {
