@@ -1,0 +1,27 @@
+[Unit]
+Description=Microsoft Teams — Sii account (flatpak)
+PartOf=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=simple
+# Mirrors the Exec= line in teams-sii.desktop. --user-data-dir isolates this
+# instance from teams-xsight; --class is for sway window matching.
+ExecStart=/usr/bin/flatpak run com.github.IsmaelMartinez.teams_for_linux \
+  --class=teams-sii \
+  --user-data-dir=%h/.var/app/com.github.IsmaelMartinez.teams_for_linux/config/profile-sii \
+  --appIcon=%h/.local/share/icons/hicolor/256x256/apps/teams-sii.png \
+  "--appTitle=Teams — Sii"
+# Both Teams instances share the same flatpak app id, so we can't use
+# `flatpak kill <app-id>` in ExecStop (it would also kill the xsight one).
+# KillMode=mixed sends SIGTERM to the main process only — teams-for-linux
+# treats that as a real Quit (not tray-hide), and SIGKILL hits stragglers
+# after the stop timeout if Electron misbehaves.
+KillMode=mixed
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=15s
+
+[Install]
+WantedBy=sway-session.target

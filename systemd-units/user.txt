@@ -11,6 +11,8 @@ pass-secret-service.service
 signal.service
 swayidle.service
 swayrd.service
+teams-sii.service
+teams-xsight.service
 waybar.service
 wob.service
 

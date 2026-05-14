@@ -1,0 +1,37 @@
+#!/bin/sh
+# snxctl-chromium: `snxctl connect` with the flatpak ungoogled-chromium as
+# the SAML browser. Bypasses LibreWolf's loopback HTTPS-upgrade + LNA block
+# that prevent snx-rs's 127.0.0.1:7779 SAML callback from completing.
+#
+# How it works
+# ------------
+# A tracked drop-in
+# (~/.config/systemd/user/snx-rs.service.d/10-chromium-saml.conf) prepends
+# ~/.local/share/snx-rs/bin to the daemon's PATH. That directory contains
+# an `xdg-open` shim that flatpak-runs ungoogled-chromium. snx-rs uses the
+# `opener` crate which spawns `xdg-open` — the shim wins.
+#
+# This script just makes sure the daemon picks up the override (it only
+# loads Environment= at start time, so a freshly-edited drop-in needs a
+# daemon-reload + service restart) and then runs `snxctl connect`.
+set -eu
+
+SERVICE=snx-rs.service
+
+if ! systemctl --user cat "$SERVICE" >/dev/null 2>&1; then
+  printf '%s: %s is not a known user unit; aborting.\n' "${0##*/}" "$SERVICE" >&2
+  exit 1
+fi
+
+current_path=$(systemctl --user show -p Environment --value "$SERVICE")
+case "$current_path" in
+  *"$HOME/.local/share/snx-rs/bin"*) ;;
+  *)
+    echo "${0##*/}: applying chromium SAML drop-in (daemon-reload + restart)…" >&2
+    systemctl --user daemon-reload
+    systemctl --user restart "$SERVICE"
+    sleep 1
+    ;;
+esac
+
+exec snxctl connect "$@"
