@@ -30,24 +30,27 @@ GitHub on first launch.
 
 ## Updating after a dotfiles change
 
-Two flavours of update:
+Run from `~/.local/share/dotfiles/remote-dev`:
 
 ```sh
-# (a) Config-only change (nvim/zellij/zsh/git/ssh): no rebuild needed.
-git -C ~/.local/share/dotfiles pull
-
-# (b) Package set in home.nix changed: rebuild HM.
-cd ~/.local/share/dotfiles/remote-dev
-home-manager switch --impure --flake '.#vm' -b backup
+just update     # pull + home-manager switch (handles everything)
 ```
 
-> The flake ref is single-quoted because the shared zshrc enables
-> `extendedglob`, which would otherwise interpret `.#vm` as a glob pattern
-> and fail with `zsh: no matches found`.
+Or piece-by-piece if you know which one you need:
+
+```sh
+just pull       # config-only changes (nvim/zellij/zsh/git/ssh): no rebuild needed
+just switch     # rebuild home-manager from the current checkout
+```
+
+> `just update` runs `pull` then `switch`. The home-manager invocation
+> uses `--impure --flake '.#vm' -b backup`; the single-quotes around the
+> flake ref matter because our zsh enables `extendedglob`, which would
+> otherwise interpret `.#vm` as a glob pattern.
 
 ## Adding a tool
 
-Edit `home.nix`, add to `home.packages`, then `home-manager switch`.
+Edit `home.nix`, add to `home.packages`, then `just switch` (or `just update`).
 
 ## Single-shell policy (leaf tools only)
 

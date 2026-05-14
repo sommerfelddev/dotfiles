@@ -1,0 +1,21 @@
+# Recipes for the remote-dev VM. Run from ~/.local/share/dotfiles/remote-dev.
+
+# Show available recipes (default)
+default:
+    @just --list
+
+# Pull latest dotfiles and rebuild Home-Manager profile
+update: pull switch
+
+# Pull latest dotfiles only (config-only changes, no nix rebuild)
+pull:
+    git -C {{ justfile_directory() }}/.. pull --ff-only
+
+# Rebuild Home-Manager profile from the current checkout (no pull)
+switch:
+    home-manager switch --impure --flake '{{ justfile_directory() }}#vm' -b backup
+
+# Garbage-collect old home-manager generations and nix store
+gc:
+    home-manager expire-generations '-7 days'
+    nix-collect-garbage -d
