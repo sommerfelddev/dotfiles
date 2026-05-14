@@ -82,8 +82,14 @@ in
     clang-tools
 
     # Editor/AI agent runtimes — NOT for project builds (see policy above)
-    nodejs # Mason npm LSPs; system python3 stays at /usr/bin/python3
-    uv     # Mason python LSPs in isolated venvs; brings `uv`/`uvx` only
+    nodejs_24 # Mason npm LSPs + copilot-language-server (needs Node 24, see ai.lua)
+    uv        # Mason python LSPs in isolated venvs; brings `uv`/`uvx` only
+    jre # for Mason's groovy-language-server (headless Java runtime)
+
+    # Mason fallbacks: Mason's pip/cargo installers can't run on this VM
+    # under our leaf-tools policy, so we provide these binaries on PATH and
+    # let nvim/Mason find them there instead of trying to build them.
+    shellharden
 
     # AI coding agents
     claude-code

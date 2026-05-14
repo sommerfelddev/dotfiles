@@ -34,6 +34,21 @@ else
   log "Nix already installed, skipping installer."
 fi
 
+# ── 1b. Mason prerequisites from apt ──────────────────────────────────────────
+# Mason (in neovim) installs some LSPs/linters via pip into per-package venvs.
+# Ubuntu ships python3 without the venv module by default, so without
+# python3-venv every pip-based Mason package silently fails to install.
+# Affected: autotools-language-server, codespell, mdformat, nginx-language-server,
+# systemdlint. We deliberately don't pull python3 into the Nix profile (it
+# would shadow Ubuntu's and break system builds — see remote-dev/home.nix).
+if command -v sudo >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
+  if ! dpkg -s python3-venv >/dev/null 2>&1; then
+    log "Installing python3-venv via apt (required for Mason pip installs)…"
+    sudo apt-get update -qq
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-venv
+  fi
+fi
+
 # Source nix env for the rest of this script (installer writes
 # /etc/profile.d/nix.sh but the current shell hasn't sourced it).
 if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then

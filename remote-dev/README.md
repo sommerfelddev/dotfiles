@@ -134,6 +134,13 @@ git log --show-signature -1
 - **Network for first nvim launch**: `vim.pack.add` fetches plugins
   from GitHub on first start. Mason will also fetch LSP servers using
   `nodejs`/`uv` from this profile.
+- **Mason pip installs need `python3-venv`**: a handful of Mason
+  packages (autotools-language-server, codespell, mdformat,
+  nginx-language-server, systemdlint) install themselves into per-pkg
+  venvs via `python3 -m venv`. Ubuntu ships `python3` without the
+  `venv` module by default. `bootstrap.sh` installs `python3-venv`
+  via apt; on an existing VM run `sudo apt-get install python3-venv`
+  once, then `:MasonToolsInstall` (or `:MasonInstallAll`) in nvim.
 - **Ubuntu apt collisions**: Nix-installed binaries appear first in
   PATH. The leaf-tools policy above exists precisely to keep this
   shadowing contained to harmless tools.

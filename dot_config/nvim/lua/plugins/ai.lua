@@ -1,12 +1,19 @@
+-- Prefer the chezmoi-pinned Node 24 (host has Arch's system node 26, which
+-- breaks copilot-language-server — see
+-- ~/.local/share/chezmoi/run_onchange_after_install-copilot-node.sh). Fall
+-- back to `node` on PATH for hosts that don't run chezmoi (remote-dev VM
+-- via Nix Home-Manager, where home.nix pins nodejs_24 in the profile).
+local pinned_node = vim.fs.joinpath(
+  vim.env.XDG_DATA_HOME or (vim.env.HOME .. "/.local/share"),
+  "copilot-node/bin/node"
+)
+local copilot_node = vim.fn.executable(pinned_node) == 1 and pinned_node
+  or "node"
+
 require("copilot").setup({
   suggestion = { enabled = false },
   panel = { enabled = false },
-  -- Pinned Node 24 runtime; system nodejs (26.x) is incompatible with
-  -- copilot-language-server. See ~/.local/share/chezmoi/run_onchange_after_install-copilot-node.sh
-  copilot_node_command = vim.fs.joinpath(
-    vim.env.XDG_DATA_HOME or (vim.env.HOME .. "/.local/share"),
-    "copilot-node/bin/node"
-  ),
+  copilot_node_command = copilot_node,
   server_opts_overrides = {
     settings = {
       telemetry = {
