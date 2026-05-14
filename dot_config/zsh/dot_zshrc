@@ -42,6 +42,13 @@ PROMPT='%B%{$fg[green]%}%n%{$reset_color%}@%{$fg[cyan]%}%m%{$reset_color%}:%b%{$
 
 # ── Completion ────────────────────────────────────────────────────────────────
 fpath=($XDG_DATA_HOME/zsh/completion $fpath)
+# Pick up completions shipped by nix-installed packages on the remote-dev VM
+# (Ubuntu's system zsh doesn't add the nix-profile share dirs to fpath).
+for _d in "$HOME/.nix-profile/share/zsh/site-functions" \
+          "$HOME/.nix-profile/share/zsh/vendor-completions"; do
+	[[ -d $_d ]] && fpath=($_d $fpath)
+done
+unset _d
 autoload -Uz compinit && compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
 
 zstyle ':completion:*' menu select                       # arrow-key driven menu for ambiguous completions
@@ -344,16 +351,20 @@ alias gdbr='gdb -ex start --args'
 alias copilot='gh copilot --autopilot --enable-all-github-mcp-tools --yolo --resume'
 
 # ── Alias completions ─────────────────────────────────────────────────────────
-# Guard each compdef on the target command being installed; otherwise zsh
-# prints `compdef: unknown command or service: foo` on every login (e.g. on
-# minimal remote-dev VMs where `just`/`lsd` aren't part of the system).
+# Guard each compdef on the target's completion function actually being
+# loaded; otherwise zsh prints `compdef: unknown command or service: foo`
+# on every login (the binary being present isn't enough — the zsh
+# completion file `_foo` must be in fpath and registered by compinit).
+# Notably triggers on the remote-dev VM where nix-installed packages
+# ship completions into /home/.../share/zsh/site-functions but Ubuntu's
+# system zsh doesn't add that path to fpath by default.
 # Usage: _dot_compdef <target-cmd> <alias>=<target> [<alias>=<target>...]
-_dot_compdef() { (( $+commands[$1] )) && compdef "${@:2}" }
-_dot_compdef git     g=git
-_dot_compdef just    j=just
-_dot_compdef nvim    n=nvim ndiff=nvim nd=nvim nview=nvim nv=nvim
+_dot_compdef() { (( $+_comps[$1] )) && compdef "${@:2}" }
+_dot_compdef git       g=git
+_dot_compdef just      j=just
+_dot_compdef nvim      n=nvim ndiff=nvim nd=nvim nview=nvim nv=nvim
 _dot_compdef systemctl sys=systemctl ssys=systemctl sysu=systemctl
-_dot_compdef lsd     l=lsd la=lsd lt=lsd
+_dot_compdef lsd       l=lsd la=lsd lt=lsd
 unfunction _dot_compdef
 
 # ── GPG agent ─────────────────────────────────────────────────────────────────
