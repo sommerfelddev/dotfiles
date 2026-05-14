@@ -344,11 +344,17 @@ alias gdbr='gdb -ex start --args'
 alias copilot='gh copilot --autopilot --enable-all-github-mcp-tools --yolo --resume'
 
 # ── Alias completions ─────────────────────────────────────────────────────────
-compdef g=git
-compdef j=just
-compdef n=nvim ndiff=nvim nd=nvim nview=nvim nv=nvim
-compdef sys=systemctl ssys=systemctl sysu=systemctl
-compdef l=lsd la=lsd lt=lsd
+# Guard each compdef on the target command being installed; otherwise zsh
+# prints `compdef: unknown command or service: foo` on every login (e.g. on
+# minimal remote-dev VMs where `just`/`lsd` aren't part of the system).
+# Usage: _dot_compdef <target-cmd> <alias>=<target> [<alias>=<target>...]
+_dot_compdef() { (( $+commands[$1] )) && compdef "${@:2}" }
+_dot_compdef git     g=git
+_dot_compdef just    j=just
+_dot_compdef nvim    n=nvim ndiff=nvim nd=nvim nview=nvim nv=nvim
+_dot_compdef systemctl sys=systemctl ssys=systemctl sysu=systemctl
+_dot_compdef lsd     l=lsd la=lsd lt=lsd
+unfunction _dot_compdef
 
 # ── GPG agent ─────────────────────────────────────────────────────────────────
 # Set GPG_TTY to this shell's actual TTY (not the login console) and tell
