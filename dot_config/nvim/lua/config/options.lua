@@ -48,9 +48,23 @@ vim.opt.completeopt = { "menuone", "noselect", "popup", "fuzzy", "nearest" }
 opt.scrolloff = 999 -- keep cursor vertically centered
 opt.sidescrolloff = 5 -- horizontal scroll margin
 
--- Clipboard (deferred to avoid blocking startup on clipboard detection)
+-- Clipboard (deferred to avoid blocking startup on clipboard detection).
+-- On SSH sessions there is no wl-copy/xclip, so we wire nvim's built-in
+-- OSC 52 provider — the terminal emulator (ghostty/zellij) forwards the
+-- escape sequence to the host's clipboard. Paste over OSC 52 isn't widely
+-- supported by terminals (security), so we only override copy and leave
+-- paste as a no-op; bracketed paste still works for inserting clipboard
+-- contents into the buffer via the terminal.
 vim.schedule(function()
-  opt.clipboard = vim.env.SSH_TTY and "" or "unnamedplus"
+  if vim.env.SSH_TTY then
+    local osc52 = require("vim.ui.clipboard.osc52")
+    vim.g.clipboard = {
+      name = "OSC 52",
+      copy = { ["+"] = osc52.copy("+"), ["*"] = osc52.copy("*") },
+      paste = { ["+"] = osc52.paste("+"), ["*"] = osc52.paste("*") },
+    }
+  end
+  opt.clipboard = "unnamedplus"
 end)
 
 opt.mouse = "a" -- enable mouse in all modes
