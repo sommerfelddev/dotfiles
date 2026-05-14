@@ -12,7 +12,8 @@ ExecStart=/usr/bin/flatpak run com.github.IsmaelMartinez.teams_for_linux \
   --class=teams-xsight \
   --user-data-dir=%h/.var/app/com.github.IsmaelMartinez.teams_for_linux/config/profile-xsight \
   --appIcon=%h/.local/share/icons/hicolor/256x256/apps/teams-xsight.png \
-  "--appTitle=Teams — XSight"
+  "--appTitle=Teams — XSight" \
+  --minimized=true
 # Both Teams instances share the same flatpak app id, so we can't use
 # `flatpak kill <app-id>` in ExecStop (it would also kill the sii one).
 # KillMode=mixed sends SIGTERM to the main process only — teams-for-linux
