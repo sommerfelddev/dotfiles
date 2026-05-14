@@ -8,7 +8,8 @@ choice=$(printf '%s\n' \
   "  Logout" \
   "  Reboot" \
   "  Poweroff" |
-  wofi --dmenu --hide-search --prompt='power' \
+  wofi --dmenu --prompt='power' \
+    --matching=fuzzy --insensitive \
     --style "$HOME/.config/wofi/style.css")
 
 case "$choice" in
