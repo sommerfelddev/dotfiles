@@ -26,16 +26,16 @@ emit_empty() {
 [ -r "$LOG" ] || emit_empty
 
 # Pacman log lines look like: [2026-05-07T08:30:00+0000] [PACMAN] starting full system upgrade
-last=$(grep -F '[PACMAN] starting full system upgrade' "$LOG" \
-  | tail -n1 \
-  | sed -n 's/^\[\([^]]*\)\].*/\1/p')
+last=$(grep -F '[PACMAN] starting full system upgrade' "$LOG" |
+  tail -n1 |
+  sed -n 's/^\[\([^]]*\)\].*/\1/p')
 [ -n "$last" ] || emit_empty
 
 last_epoch=$(date -d "$last" +%s 2>/dev/null) || emit_empty
 now=$(date +%s)
-elapsed=$(( now - last_epoch ))
-hours=$(( elapsed / 3600 ))
-days=$(( hours / 24 ))
+elapsed=$((now - last_epoch))
+hours=$((elapsed / 3600))
+days=$((hours / 24))
 
 [ "$hours" -lt 24 ] && emit_empty
 
@@ -65,12 +65,12 @@ last_notified=0
 if [ -f "$STATE" ]; then
   last_notified=$(cat "$STATE" 2>/dev/null || printf 0)
   case "$last_notified" in
-    ''|*[!0-9]*) last_notified=0 ;;
+    '' | *[!0-9]*) last_notified=0 ;;
   esac
 fi
 
-if [ $(( now - last_notified )) -ge 86400 ] \
-  && command -v notify-send >/dev/null 2>&1; then
+if [ $((now - last_notified)) -ge 86400 ] &&
+  command -v notify-send >/dev/null 2>&1; then
   notify-send \
     --app-name=system-update \
     --urgency="$urgency" \

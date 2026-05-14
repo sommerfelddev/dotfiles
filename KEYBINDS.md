@@ -363,18 +363,18 @@ runs the action and exits the mode; `Escape` or `Return` exits without
 acting. Provides non-XF86 access to the rare hardware toggles and TUI
 launchers.
 
-| In `system` mode  | XF86 equivalent | Action                      |
-| ----------------- | --------------- | --------------------------- |
-| `b`               | `XF86Bluetooth` | Bluetooth power toggle      |
-| `w`               | `XF86WLAN`      | Wi-Fi toggle (rfkill wifi)  |
-| `r`               | `XF86RFKill`    | Toggle all radios (rfkill)  |
-| `s`               | `XF86Sleep`     | Suspend (systemctl suspend) |
-| `d`               | `XF86Display`   | Display mode toggle         |
-| `v`               | `XF86Tools`     | Floating pulsemixer         |
-| `k`               | `XF86Keyboard`  | Floating glow KEYBINDS.md   |
-| `m`               | `XF86Favorites` | Notification picker         |
-| `n`               | —               | Toggle Do-Not-Disturb (mako)|
-| `Escape`/`Return` | —               | exit submode                |
+| In `system` mode  | XF86 equivalent | Action                       |
+| ----------------- | --------------- | ---------------------------- |
+| `b`               | `XF86Bluetooth` | Bluetooth power toggle       |
+| `w`               | `XF86WLAN`      | Wi-Fi toggle (rfkill wifi)   |
+| `r`               | `XF86RFKill`    | Toggle all radios (rfkill)   |
+| `s`               | `XF86Sleep`     | Suspend (systemctl suspend)  |
+| `d`               | `XF86Display`   | Display mode toggle          |
+| `v`               | `XF86Tools`     | Floating pulsemixer          |
+| `k`               | `XF86Keyboard`  | Floating glow KEYBINDS.md    |
+| `m`               | `XF86Favorites` | Notification picker          |
+| `n`               | —               | Toggle Do-Not-Disturb (mako) |
+| `Escape`/`Return` | —               | exit submode                 |
 
 ## Typing / Input
 

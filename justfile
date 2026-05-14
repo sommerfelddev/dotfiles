@@ -54,6 +54,7 @@ flatpak-update:
 
 # Update Neovim plugins (vim.pack) and Mason tools, interactively so the diff buffer is visible.
 # `cd` to $HOME first so auto-session's suppressed_dirs rule kicks in and we don't
+
 # load/save a project session for what's really just an admin chore.
 nvim-update:
     cd && nvim '+lua require("config.update").run()'
