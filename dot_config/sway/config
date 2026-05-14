@@ -182,6 +182,9 @@ bindsym $mod+i exec ~/.local/bin/dictate
 # OCR — crop a region, copy text to clipboard (tesseract)
 bindsym $mod+Shift+o exec ~/.local/bin/ocr
 
+# VPN OTP — type current TOTP via wtype, fall back to clipboard
+bindsym $mod+o exec ~/.config/sway/type-vpn-otp.sh
+
 # Lock & pause
 bindsym $mod+Shift+s exec "playerctl -a pause; swaylock -f -e -c 000000"
 

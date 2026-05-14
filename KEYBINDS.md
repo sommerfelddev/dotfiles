@@ -337,6 +337,7 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 | `Shift+Print`           | Full screenshot (grim)                                        |
 | `Super+i`               | Dictate toggle (whisper.cpp → wtype + clipboard)              |
 | `Super+Shift+o`         | OCR region (tesseract → clipboard)                            |
+| `Super+o`               | Type VPN TOTP via wtype (clipboard fallback)                  |
 | `Super+Shift+s`         | Lock screen + pause media                                     |
 | `Super+n`               | Dismiss top visible notification                              |
 | `Super+Shift+n`         | Dismiss all visible notifications                             |
