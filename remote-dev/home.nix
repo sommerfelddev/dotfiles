@@ -97,10 +97,12 @@ in
       ln -s ${pkgs.python311}/bin/python3.11 $out/bin/python3.11
     '')
 
-    # Mason fallbacks: Mason's pip/cargo installers can't run on this VM
-    # under our leaf-tools policy, so we provide these binaries on PATH and
-    # let nvim/Mason find them there instead of trying to build them.
-    shellharden
+    # Rust toolchain for Mason packages whose only install source is
+    # `cargo install` (shellharden). The host has these via the Arch
+    # package manager; on the VM Mason needs cargo+rustc on PATH or it
+    # bails with ENOENT.
+    cargo
+    rustc
 
     # AI coding agents
     claude-code
