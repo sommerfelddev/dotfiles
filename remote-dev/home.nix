@@ -140,8 +140,14 @@ in
   };
 
   # ~/.ssh/config from the dotfiles tree (read-only); keys + known_hosts
-  # stay machine-local on the VM.
-  home.file.".ssh/config".source = link "private_dot_ssh/config";
+  # stay machine-local on the VM. We can't symlink via home.file because
+  # mkOutOfStoreSymlink exposes the working-tree perms (0664 under Ubuntu's
+  # default umask 002) and OpenSSH refuses any group-writable ssh_config.
+  # Materialize a real 0600 file via activation instead.
+  home.activation.sshConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run install -D -m 600 \
+      "${dotfiles}/private_dot_ssh/config" "$HOME/.ssh/config"
+  '';
 
   # ZDOTDIR redirect so login shells find ~/.config/zsh/.zprofile etc.
   home.file.".zshenv".text = ''
