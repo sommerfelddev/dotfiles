@@ -348,6 +348,7 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 | `Super+period`          | Emoji picker (bemoji → wofi; types + copies)                  |
 | `Super+Tab`             | Next workspace                                                |
 | `Super+Shift+Tab`       | Previous workspace                                            |
+| `Super+1`…`Super+0`     | Switch to workspace N; re-press jumps back to previous one    |
 | `Super+]`               | Focus next window in container (monocle cycling)              |
 | `Super+[`               | Focus prev window in container (monocle cycling)              |
 | `XF86Display`           | Toggle display mode (laptop-off/side-by-side)                 |
