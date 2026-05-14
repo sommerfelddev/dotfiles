@@ -151,15 +151,13 @@ if [[ "$TERM" == (xterm-ghostty|st*|screen*|xterm*|rxvt*|tmux*|putty*|konsole*|g
 	add-zsh-hook -Uz preexec xterm_title_preexec
 fi
 
-# ── Zellij tab naming (dir:cmd like tmux) ────────────────────────────────────
-if [[ -n "$ZELLIJ" ]]; then
-	_zellij_dir() { [[ "$PWD" == "$HOME" ]] && echo '~' || echo "${PWD##*/}"; }
-	_zellij_tab_idx() { echo $(( $(zellij action current-tab-info 2>/dev/null | grep -oP 'position: \K\d+') + 1 )); }
-	_zellij_tab_precmd()  { zellij action rename-tab "$(_zellij_tab_idx):$(_zellij_dir)" 2>/dev/null; }
-	_zellij_tab_preexec() { zellij action rename-tab "$(_zellij_tab_idx):$(_zellij_dir):${1%% *}" 2>/dev/null; }
-	add-zsh-hook precmd _zellij_tab_precmd
-	add-zsh-hook preexec _zellij_tab_preexec
-fi
+# ── Zellij tab naming ─────────────────────────────────────────────────────────
+# Intentionally NOT renaming tabs from the shell. Zellij's built-in "Tab #N"
+# is the only label that stays correct through session resurrection and
+# auto-renumbering after a tab is closed; once a tab gets a custom name, the
+# tab-bar plugin uses that name verbatim and there is no IPC event for shells
+# to react to layout changes. The zsh prompt already shows CWD inside the
+# pane, so a duplicated label in the tab bar was pure noise.
 
 # ── Recent directories ────────────────────────────────────────────────────────
 autoload -Uz chpwd_recent_dirs cdr
