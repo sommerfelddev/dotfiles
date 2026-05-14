@@ -19,50 +19,63 @@ require("mason-lspconfig").setup({
   },
 })
 require("mason-tool-installer").setup({
-  ensure_installed = {
-    "actionlint",
-    "autotools-language-server",
-    "basedpyright",
-    "bash-language-server",
-    "clangd",
-    "codelldb",
-    "codespell",
-    "css-lsp",
-    "dockerfile-language-server",
-    "gh",
-    "gh-actions-language-server",
-    "groovy-language-server",
-    "hadolint",
-    "html-lsp",
-    "jq",
-    "json-lsp",
-    "jsonlint",
-    "just-lsp",
-    "lua-language-server",
-    "markdownlint",
-    "mdformat",
-    "neocmakelsp",
-    "nginx-config-formatter",
-    "nginx-language-server",
-    "npm-groovy-lint",
-    "prettier",
-    "ruff",
-    "rust-analyzer",
-    "selene",
-    "shellcheck",
-    "shellharden",
-    "shfmt",
-    "stylelint",
-    "stylua",
-    "systemd-lsp",
-    "systemdlint",
-    "taplo",
-    "typescript-language-server",
-    "typos",
-    "yaml-language-server",
-    "yamllint",
-    "yq",
-  },
+  ensure_installed = (function()
+    local tools = {
+      "actionlint",
+      "autotools-language-server",
+      "basedpyright",
+      "bash-language-server",
+      "clangd",
+      "codelldb",
+      "codespell",
+      "css-lsp",
+      "dockerfile-language-server",
+      "gh",
+      "gh-actions-language-server",
+      "groovy-language-server",
+      "hadolint",
+      "html-lsp",
+      "jq",
+      "json-lsp",
+      "jsonlint",
+      "just-lsp",
+      "lua-language-server",
+      "markdownlint",
+      "mdformat",
+      "neocmakelsp",
+      "nginx-config-formatter",
+      "nginx-language-server",
+      "npm-groovy-lint",
+      "prettier",
+      "ruff",
+      "rust-analyzer",
+      "selene",
+      "shellcheck",
+      "shellharden",
+      "shfmt",
+      "stylelint",
+      "stylua",
+      "systemd-lsp",
+      "systemdlint",
+      "taplo",
+      "typescript-language-server",
+      "typos",
+      "yaml-language-server",
+      "yamllint",
+      "yq",
+    }
+    -- Skip Mason install when the tool is already on PATH from the system
+    -- (e.g. shellharden via nix-profile on the remote-dev VM, where Mason's
+    -- cargo-build install path would fail). Mason's runners still discover
+    -- PATH binaries, so conform.nvim/nvim-lint keep working.
+    local filtered = {}
+    for _, name in ipairs(tools) do
+      if vim.fn.executable(name) ~= 1 then
+        table.insert(filtered, name)
+      end
+    end
+    return filtered
+  end)(),
 })
 
 vim.api.nvim_create_autocmd("LspAttach", {
