@@ -129,6 +129,8 @@
     update=!git fetch && git merge --ff-only
 [includeIf "gitdir:/home/*/work/"]
     path = config-work
+[includeIf "gitdir:/home/swuser/"]
+    path = config-work
 [includeIf "gitdir:~/doxfiles/.git"]
     path = config-personal
 [includeIf "gitdir:~/dev/copilot/.git"]
