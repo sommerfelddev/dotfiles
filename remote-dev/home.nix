@@ -84,7 +84,18 @@ in
     # Editor/AI agent runtimes — NOT for project builds (see policy above)
     nodejs_24 # Mason npm LSPs + copilot-language-server (needs Node 24, see ai.lua)
     uv        # Mason python LSPs in isolated venvs; brings `uv`/`uvx` only
-    jre # for Mason's groovy-language-server (headless Java runtime)
+    jre       # for Mason's groovy-language-server (headless Java runtime)
+
+    # Mason's pip-installer probes `python3.13`, `python3.12`, ..., `python3.10`
+    # in PATH (in addition to `python3`) when picking an interpreter for the
+    # per-pkg venvs it creates. Ubuntu 20.04 ships only `python3` = 3.8 which
+    # is too old for codespell/mdformat/yamllint/etc. We expose ONLY the
+    # versioned `python3.11` binary so we don't shadow the system `python3`
+    # (preserving the leaf-tools policy: system builds keep using /usr/bin/python3).
+    (pkgs.runCommand "python311-versioned-only" { } ''
+      mkdir -p $out/bin
+      ln -s ${pkgs.python311}/bin/python3.11 $out/bin/python3.11
+    '')
 
     # Mason fallbacks: Mason's pip/cargo installers can't run on this VM
     # under our leaf-tools policy, so we provide these binaries on PATH and
