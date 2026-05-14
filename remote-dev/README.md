@@ -38,8 +38,12 @@ git -C ~/.local/share/dotfiles pull
 
 # (b) Package set in home.nix changed: rebuild HM.
 cd ~/.local/share/dotfiles/remote-dev
-home-manager switch --impure --flake .#vm -b backup
+home-manager switch --impure --flake '.#vm' -b backup
 ```
+
+> The flake ref is single-quoted because the shared zshrc enables
+> `extendedglob`, which would otherwise interpret `.#vm` as a glob pattern
+> and fail with `zsh: no matches found`.
 
 ## Adding a tool
 
