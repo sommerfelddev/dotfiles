@@ -36,16 +36,25 @@ fi
 
 # ── 1b. Mason prerequisites from apt ──────────────────────────────────────────
 # Mason (in neovim) installs some LSPs/linters via pip into per-package venvs.
-# Ubuntu ships python3 without the venv module by default, so without
-# python3-venv every pip-based Mason package silently fails to install.
-# Affected: autotools-language-server, codespell, mdformat, nginx-language-server,
-# systemdlint. We deliberately don't pull python3 into the Nix profile (it
-# would shadow Ubuntu's and break system builds — see remote-dev/home.nix).
+# We need a python3.11 that (a) meets Mason's >=3.10 version requirement
+# (Ubuntu 20.04's /usr/bin/python3 is 3.8 — too old) and (b) accepts
+# manylinux wheels. Nix's python rejects manylinux wheels by design (its
+# libc is patched), which forces pip to compile `nodejs-wheel-binaries`
+# (pulled in by basedpyright) from source — that build then fails on
+# Ubuntu 20.04's gcc 9.4 (no C++20 support).
+#
+# Solution: install python3.11 from the deadsnakes PPA. It's Ubuntu-native
+# with full manylinux acceptance, and the versioned binary (python3.11)
+# does NOT shadow the system /usr/bin/python3 — leaf-tools policy intact.
 if command -v sudo >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
-  if ! dpkg -s python3-venv >/dev/null 2>&1; then
-    log "Installing python3-venv via apt (required for Mason pip installs)…"
+  if ! command -v python3.11 >/dev/null 2>&1; then
+    log "Installing python3.11 from deadsnakes PPA (required for Mason pip installs)…"
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+      software-properties-common
+    sudo add-apt-repository -y ppa:deadsnakes/ppa
     sudo apt-get update -qq
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-venv
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+      python3.11 python3.11-venv
   fi
 fi
 

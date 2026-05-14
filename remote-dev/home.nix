@@ -86,16 +86,14 @@ in
     uv        # Mason python LSPs in isolated venvs; brings `uv`/`uvx` only
     jre       # for Mason's groovy-language-server (headless Java runtime)
 
-    # Mason's pip-installer probes `python3.13`, `python3.12`, ..., `python3.10`
-    # in PATH (in addition to `python3`) when picking an interpreter for the
-    # per-pkg venvs it creates. Ubuntu 20.04 ships only `python3` = 3.8 which
-    # is too old for codespell/mdformat/yamllint/etc. We expose ONLY the
-    # versioned `python3.11` binary so we don't shadow the system `python3`
-    # (preserving the leaf-tools policy: system builds keep using /usr/bin/python3).
-    (pkgs.runCommand "python311-versioned-only" { } ''
-      mkdir -p $out/bin
-      ln -s ${pkgs.python311}/bin/python3.11 $out/bin/python3.11
-    '')
+    # NB: python3.11 for Mason is NOT installed here — see bootstrap.sh.
+    # Nix's python disables manylinux wheel support by design (its libc is
+    # patched and doesn't satisfy any manylinux policy), so pip in a
+    # nix-python venv falls back to source builds for packages like
+    # `nodejs-wheel-binaries` (pulled in by basedpyright). That source build
+    # then fails on Ubuntu 20.04's gcc 9.4 (no C++20). Bootstrap installs
+    # `python3.11` via the deadsnakes PPA instead — Ubuntu-native binary
+    # with full manylinux wheel acceptance.
 
     # Rust toolchain for Mason packages whose only install source is
     # `cargo install` (shellharden). The host has these via the Arch
