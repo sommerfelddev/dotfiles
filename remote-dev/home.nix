@@ -41,6 +41,7 @@ in
     sd
     choose
     zoxide
+    just
 
     # Viewers
     bat
