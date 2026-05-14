@@ -135,18 +135,24 @@ git log --show-signature -1
   from GitHub on first start. Mason will also fetch LSP servers using
   `nodejs`/`uv` from this profile.
 - **Mason pip installs need a managed `python3.11`**: a handful of Mason
-  packages (basedpyright, autotools-language-server, codespell, mdformat,
+  packages (autotools-language-server, codespell, mdformat,
   nginx-language-server, systemdlint, yamllint) install themselves into
-  per-pkg venvs via pip. Ubuntu 20.04's `/usr/bin/python3` is 3.8 (too
-  old; also `basedpyright` pulls `nodejs-wheel-binaries` whose only
-  Linux wheels are manylinux — rejected by Nix's python, which forces a
-  source build that needs gcc 12+). `bootstrap.sh` runs `uv python
-install 3.11` (uv is in the nix profile) and symlinks the resulting
-  binary to `~/.local/bin/python3.11`. It's a portable manylinux-aware
-  CPython, and the versioned name leaves `/usr/bin/python3` untouched.
-  On an existing VM run `uv python install 3.11 && ln -sf "$(uv python
-find 3.11)" ~/.local/bin/python3.11` once, then `:MasonToolsInstall`
-  (or `:MasonInstallAll`) in nvim.
+  per-pkg venvs via pip. Ubuntu 20.04's `/usr/bin/python3` is 3.8 — too
+  old. `bootstrap.sh` runs `uv python install 3.11` (uv is in the nix
+  profile) and symlinks the resulting binary to
+  `~/.local/bin/python3.11`. The versioned name leaves
+  `/usr/bin/python3` untouched. On an existing VM run
+  `uv python install 3.11 && ln -sf "$(uv python find 3.11)" ~/.local/bin/python3.11`
+  once, then `:MasonToolsInstall` (or `:MasonInstallAll`) in nvim.
+- **`basedpyright` is provided by nix, not Mason**: its pypi distro
+  pulls `nodejs-wheel-binaries`, which ships only `manylinux_2_28`
+  Linux wheels. Neither Nix's python nor uv's standalone
+  (`manylinux2014`-tagged) accepts those, so pip falls back to
+  compiling Node 24 from source — which fails on Ubuntu 20.04's
+  gcc 9.4 (needs gcc ≥10 for `-std=gnu++20`). `home.nix` adds
+  `pkgs.basedpyright`; the matching AUR package (`basedpyright-bin`)
+  is in `meta/base.txt` for Arch. `mason-tool-installer` no longer tries
+  to install it (see `dot_config/nvim/lua/plugins/lsp.lua`).
 - **Ubuntu apt collisions**: Nix-installed binaries appear first in
   PATH. The leaf-tools policy above exists precisely to keep this
   shadowing contained to harmless tools.

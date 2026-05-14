@@ -89,6 +89,7 @@ nix
 
 # --- dev ---
 android-tools
+basedpyright-bin
 ccache
 clang
 cmake

@@ -22,7 +22,12 @@ require("mason-tool-installer").setup({
   ensure_installed = {
     "actionlint",
     "autotools-language-server",
-    "basedpyright",
+    -- basedpyright: provided by the system pkg manager (basedpyright-bin from
+    -- AUR on Arch, pkgs.basedpyright in remote-dev/home.nix on the VM). Mason's pypi
+    -- distro pulls `nodejs-wheel-binaries` whose Linux wheels are only
+    -- manylinux_2_28; uv's standalone python (manylinux2014) rejects them and
+    -- pip falls back to building Node from source, which fails on Ubuntu
+    -- 20.04's gcc 9.4 (<10, no -std=gnu++20). lspconfig finds it on PATH.
     "bash-language-server",
     "clangd",
     "codelldb",

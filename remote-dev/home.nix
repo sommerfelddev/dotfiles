@@ -85,6 +85,10 @@ in
     nodejs_24 # Mason npm LSPs + copilot-language-server (needs Node 24, see ai.lua)
     uv        # Mason python LSPs in isolated venvs; brings `uv`/`uvx` only
     jre       # for Mason's groovy-language-server (headless Java runtime)
+    basedpyright # see lsp.lua: Mason's pypi distro can't install on Ubuntu 20.04
+                 # (nodejs-wheel-binaries has only manylinux_2_28 wheels which
+                 # uv's python rejects since it's manylinux2014; source build
+                 # of Node 24 needs gcc >=10 and host gcc is 9.4)
 
     # NB: python3.11 for Mason is NOT installed here — see bootstrap.sh
     # step 4. Nix's python disables manylinux wheel support by design
