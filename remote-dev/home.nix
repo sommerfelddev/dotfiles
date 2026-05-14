@@ -52,6 +52,7 @@ in
     git
     gh
     delta
+    mergiraf
 
     # JSON / YAML
     jq
