@@ -15,9 +15,19 @@ in
   home.stateVersion = "25.05";
 
   # ── Packages ────────────────────────────────────────────────────────────────
-  # Mirrors the dev-tool subset of `meta/base.txt` on the Arch host. Tools that
-  # only make sense on a workstation (procs/gdu/duf for sysadmin, lazygit
-  # unused, node/yarn only needed for markdown-preview on GUI) are excluded.
+  # Policy: this profile carries leaf CLI tools plus editor/AI-agent
+  # runtimes (node, uv). It must NEVER carry anything the project build
+  # might invoke. Forbidden on PATH (would shadow Ubuntu's and break
+  # builds against the system sysroot/libc): cc, c++, gcc, g++, clang,
+  # clang++, ld, ld.lld, ar, nm, objcopy, make, cmake, ninja, meson,
+  # pkg-config, autoconf, automake, libtool, python, python3, pip,
+  # cargo, rustc, go. If a project needs a newer toolchain, put it in
+  # a project-local flake.nix + direnv `.envrc`, NOT here.
+  #
+  # Allowed runtimes (used only by Mason/editor/AI agents): node, npm,
+  # npx (via `nodejs`), uv, uvx (via `uv` — does NOT install a python3,
+  # manages its own interpreters under XDG). clang-tools is allowed
+  # because it ships only formatters/linters/clangd, no compiler driver.
   home.packages = with pkgs; [
     # Editor + multiplexer
     neovim
@@ -30,6 +40,7 @@ in
     fzf
     sd
     choose
+    zoxide
 
     # Viewers
     bat
@@ -66,6 +77,17 @@ in
     gnupg
     pass
 
+    # C/C++ source tooling (no compiler driver in PATH)
+    clang-tools
+
+    # Editor/AI agent runtimes — NOT for project builds (see policy above)
+    nodejs # Mason npm LSPs; system python3 stays at /usr/bin/python3
+    uv     # Mason python LSPs in isolated venvs; brings `uv`/`uvx` only
+
+    # AI coding agents
+    claude-code
+    github-copilot-cli # NB: pkgs.copilot-cli is AWS Copilot, NOT this
+
     # Zsh and plugins (sourced from $HOME/.nix-profile/share/... by the shared zshrc)
     zsh
     zsh-syntax-highlighting
@@ -90,7 +112,14 @@ in
     "zsh/.zprofile".source    = link "dot_config/zsh/dot_zprofile";
     "ghostty".source          = link "dot_config/ghostty";   # for terminfo refs only
     "direnv/direnvrc".source  = link "dot_config/direnv/direnvrc";
+    "git/config".source       = link "dot_config/git/config";
+    "git/attributes".source   = link "dot_config/git/attributes";
+    "git/ignore".source       = link "dot_config/git/ignore";
   };
+
+  # ~/.ssh/config from the dotfiles tree (read-only); keys + known_hosts
+  # stay machine-local on the VM.
+  home.file.".ssh/config".source = link "private_dot_ssh/config";
 
   # ZDOTDIR redirect so login shells find ~/.config/zsh/.zprofile etc.
   home.file.".zshenv".text = ''

@@ -359,15 +359,15 @@ export GPG_TTY=$TTY
 gpg-connect-agent updatestartuptty /bye &>/dev/null
 
 # ── direnv (per-project env via .envrc; nix-direnv loaded from direnvrc) ─────
-eval "$(direnv hook zsh)"
+command -v direnv >/dev/null && eval "$(direnv hook zsh)"
 
 # ── Zoxide (smart directory jumping) ──────────────────────────────────────────
 # z foo → jump to frecency-ranked dir matching "foo"
 # zi    → interactive picker with fzf
-eval "$(zoxide init zsh)"
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 
 # ── FZF ───────────────────────────────────────────────────────────────────────
-source <(fzf --zsh)
+command -v fzf >/dev/null && source <(fzf --zsh)
 
 # Ctrl-X Ctrl-R: search history with fzf and immediately execute
 fzf-history-widget-accept() {
