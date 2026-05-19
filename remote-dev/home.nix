@@ -161,6 +161,7 @@ in
     # so map each hook to its stripped name explicitly. The executable bit
     # comes from the working-tree file mode (git resolves the symlink).
     "git/hooks/pre-push".source = link "dot_config/git/hooks/executable_pre-push";
+    "git/hooks/commit-msg".source = link "dot_config/git/hooks/executable_commit-msg";
   };
 
   # ── Rootless podman config ──────────────────────────────────────────────────
