@@ -157,6 +157,39 @@ git log --show-signature -1
   PATH. The leaf-tools policy above exists precisely to keep this
   shadowing contained to harmless tools.
 
+## Podman (rootless)
+
+Nix can't manage setuid helpers, `/etc/subuid`/`/etc/subgid`, or kernel
+cmdline. Do this once on the VM as root:
+
+```sh
+sudo apt install -y uidmap
+grep "^$USER:" /etc/subuid /etc/subgid || \
+  sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 "$USER"
+```
+
+Then enable cgroups v2 (required for rootless CPU/memory limits on
+Ubuntu 20.04, which still defaults to v1):
+
+```sh
+sudo sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="\1 systemd.unified_cgroup_hierarchy=1"|' /etc/default/grub
+sudo update-grub
+sudo reboot
+```
+
+Verify after reboot:
+
+```sh
+stat -fc %T /sys/fs/cgroup/    # → cgroup2fs
+podman info | grep -E 'cgroupVersion|graphDriverName|networkBackend'
+# expected: cgroupVersion: v2, graphDriverName: overlay, networkBackend: netavark
+podman run --rm docker.io/library/alpine echo hi
+```
+
+The home-manager profile already installs `podman`, `crun`, `conmon`,
+`netavark`, `aardvark-dns`, `slirp4netns`, and `passt`, and writes
+sensible `~/.config/containers/{registries,storage,policy}.conf` files.
+
 ## How it's wired
 
 `home.nix` uses `config.lib.file.mkOutOfStoreSymlink` so the symlinks

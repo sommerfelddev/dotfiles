@@ -116,6 +116,17 @@ in
     zsh-syntax-highlighting
     zsh-autosuggestions
     zsh-history-substring-search
+
+    # Rootless podman (see README "Podman" section for host prerequisites).
+    # The nix `podman` is wrapped to find these helpers via /nix/store paths,
+    # so we don't need to write a containers.conf for `helper_binaries_dir`.
+    podman
+    crun         # OCI runtime (lighter than runc; default for rootless)
+    conmon       # container monitor process
+    netavark     # default network stack on podman 4+
+    aardvark-dns # DNS for netavark networks
+    slirp4netns  # rootless user-mode networking
+    passt        # pasta backend (slirp4netns successor; podman picks it up)
   ];
 
   # ── direnv + nix-direnv ─────────────────────────────────────────────────────
@@ -138,6 +149,32 @@ in
     "git/config".source       = link "dot_config/git/config";
     "git/attributes".source   = link "dot_config/git/attributes";
     "git/ignore".source       = link "dot_config/git/ignore";
+  };
+
+  # ── Rootless podman config ──────────────────────────────────────────────────
+  # Kept inline (not in the chezmoi tree) because Arch's system-wide
+  # /etc/containers defaults already work there; these files exist only
+  # to give nix's user-installed podman sane rootless defaults.
+  xdg.configFile."containers/registries.conf".text = ''
+    unqualified-search-registries = ["docker.io", "quay.io", "ghcr.io"]
+    short-name-mode = "permissive"
+  '';
+
+  xdg.configFile."containers/storage.conf".text = ''
+    [storage]
+    # runroot/graphroot default to $XDG_RUNTIME_DIR/containers and
+    # $XDG_DATA_HOME/containers/storage respectively for rootless — leave unset.
+    driver = "overlay"
+
+    [storage.options.overlay]
+    # Kernel >=5.13 supports rootless overlay natively (VM is on 5.15),
+    # so mount_program is left unset → uses the kernel driver directly
+    # instead of fuse-overlayfs.
+  '';
+
+  xdg.configFile."containers/policy.json".text = builtins.toJSON {
+    default = [ { type = "insecureAcceptAnything"; } ];
+    transports.docker-daemon."" = [ { type = "insecureAcceptAnything"; } ];
   };
 
   # ~/.ssh/config from the dotfiles tree (read-only); keys + known_hosts
