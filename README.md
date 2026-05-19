@@ -134,7 +134,12 @@ Verify with `sudo nft list ruleset`.
 
 ## Git hooks
 
-The user-level hooks at `~/.config/git/hooks/` (set as `core.hooksPath` in `dot_config/git/config`) apply globally and auto-dispatch into any repo's `<repo>/.githooks/<hookname>` if present — so projects can drop their own hooks at `.githooks/<name>` without ever touching `core.hooksPath` or writing passthrough stubs. Per-event behavior:
+The user-level hooks at `~/.config/git/hooks/` (set as `core.hooksPath` in `dot_config/git/config`) apply globally and auto-dispatch into the repo's hooks if present. Lookup order, first wins:
+
+1. `<git-dir>/hooks-local/<name>` — untracked per-clone override. Use this to replace a tracked hook on a shared repo without affecting teammates.
+2. `<repo-top>/.githooks/<name>` — the project's tracked, shared hook.
+
+Projects opt in by just dropping a file at `.githooks/<name>` — no `core.hooksPath` override, no passthrough stubs. Per-event behavior:
 
 - `pre-commit` → repo's `.githooks/pre-commit` (if any). No global logic. In this repo: `just check`.
 - `commit-msg` → repo's `.githooks/commit-msg` (if any), then strips any `Co-authored-by:` whose identity matches an AI agent (Copilot/Claude/Codex/…) so they don't trip the push gate.
