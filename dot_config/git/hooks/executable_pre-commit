@@ -1,0 +1,15 @@
+#!/bin/sh
+# User-level pre-commit. No global checks — exists purely so that
+# `<repo>/.githooks/pre-commit` gets picked up automatically without
+# the project needing to override core.hooksPath. If there is no
+# per-repo hook this is a no-op.
+#
+# Bypass: git commit --no-verify
+
+set -eu
+
+# shellcheck source=./_dispatch.sh
+. "${0%/*}/_dispatch.sh"
+dispatch_repo_hook pre-commit "$@"
+
+exit 0

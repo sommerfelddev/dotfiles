@@ -1127,7 +1127,12 @@ _chezmoi-init:
     chezmoi init -S .
 
 _install-hooks:
-    git config core.hooksPath .githooks
+    # User-level dotfiles git hooks (~/.config/git/hooks) now auto-dispatch
+    # into `<repo>/.githooks/<name>`, so a per-repo core.hooksPath override
+    # is no longer needed (and would suppress the global agent-author /
+    # signed-commits checks). Strip any leftover override from previous
+    # bootstraps.
+    git config --local --unset core.hooksPath 2>/dev/null || true
 
 # Install all flatpaks declared in meta/flatpak.txt. Flathub IDs are batched
 # into a single install call; URL bundles are downloaded and installed only

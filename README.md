@@ -134,10 +134,14 @@ Verify with `sudo nft list ruleset`.
 
 ## Git hooks
 
-Activated by `just init` via `git config core.hooksPath .githooks`:
+The user-level hooks at `~/.config/git/hooks/` (set as `core.hooksPath` in `dot_config/git/config`) apply globally and auto-dispatch into any repo's `<repo>/.githooks/<hookname>` if present — so projects can drop their own hooks at `.githooks/<name>` without ever touching `core.hooksPath` or writing passthrough stubs. Per-event behavior:
 
-- `pre-commit` → `just check`. Blocks commits that fail formatting or linting. Bypass with `git commit --no-verify`.
-- `post-commit` → `chezmoi apply`. Keeps `$HOME` in sync whenever a tracked file changes in the repo.
+- `pre-commit` → repo's `.githooks/pre-commit` (if any). No global logic. In this repo: `just check`.
+- `commit-msg` → repo's `.githooks/commit-msg` (if any), then strips any `Co-authored-by:` whose identity matches an AI agent (Copilot/Claude/Codex/…) so they don't trip the push gate.
+- `pre-push` → repo's `.githooks/pre-push` (if any), then rejects pushes that contain unsigned commits, commits with a foreign committer, or commits authored/co-authored by an AI agent.
+- `post-commit` → repo's `.githooks/post-commit` (if any). No global logic. In this repo: `chezmoi apply`.
+
+Bypass any of these with `--no-verify` on `commit`/`push`.
 
 ## Disaster recovery
 

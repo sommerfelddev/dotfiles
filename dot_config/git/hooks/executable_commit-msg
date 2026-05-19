@@ -12,6 +12,10 @@
 
 set -eu
 
+# shellcheck source=./_dispatch.sh
+. "${0%/*}/_dispatch.sh"
+dispatch_repo_hook commit-msg "$@"
+
 msg_file=$1
 
 # Keep this list in sync with executable_pre-push.

@@ -15,6 +15,15 @@
 
 set -eu
 
+# shellcheck source=./_dispatch.sh
+. "${0%/*}/_dispatch.sh"
+# Buffer stdin so both the per-repo hook and our own loop below get the
+# full ref list (git only feeds it once).
+_stdin_buf=$(mktemp)
+trap 'rm -f "$_stdin_buf"' EXIT INT TERM
+cat >"$_stdin_buf"
+dispatch_repo_hook pre-push "$@" <"$_stdin_buf"
+
 zero=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
 
 expected_name=$(git config user.name || true)
@@ -108,7 +117,7 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
     printf '\non %s:\n%s\n' "$remote_ref" "$bad" >&2
     fail=1
   fi
-done
+done <"$_stdin_buf"
 
 if [ "$fail" -ne 0 ]; then
   printf '\nfix sig + committer:\n' >&2

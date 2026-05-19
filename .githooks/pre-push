@@ -1,5 +1,0 @@
-#!/bin/sh
-# Delegate to the global pre-push (signed-commits gate). This repo
-# overrides core.hooksPath to .githooks, so the global hook would not
-# otherwise run here.
-exec "$HOME/.config/git/hooks/pre-push" "$@"

@@ -1,0 +1,14 @@
+#!/bin/sh
+# User-level post-commit. No global checks — exists purely so that
+# `<repo>/.githooks/post-commit` gets picked up automatically without
+# the project needing to override core.hooksPath. If there is no
+# per-repo hook this is a no-op. post-commit's exit status is ignored
+# by git, but we still propagate it for clarity.
+
+set -eu
+
+# shellcheck source=./_dispatch.sh
+. "${0%/*}/_dispatch.sh"
+dispatch_repo_hook post-commit "$@"
+
+exit 0
