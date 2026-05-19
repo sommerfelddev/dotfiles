@@ -8,7 +8,9 @@ title_format = "Yazi: {cwd}"
 # (otherwise yazi treats the viewer as an unfinished task and prompts on quit).
 [opener]
 open = [{ run = 'xdg-open "$@"', desc = "Open", orphan = true }]
-view-md = [{ run = 'glow -p -- "$@"', desc = "Render markdown (glow)", block = true }]
+view-md = [
+  { run = 'glow -p -- "$@"', desc = "Render markdown (glow)", block = true },
+]
 
 # Render markdown with glow inside yazi instead of letting xdg-open hand it
 # to a text editor.

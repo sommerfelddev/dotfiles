@@ -158,13 +158,21 @@ if [[ "$TERM" == (xterm-ghostty|st*|screen*|xterm*|rxvt*|tmux*|putty*|konsole*|g
 	add-zsh-hook -Uz preexec xterm_title_preexec
 fi
 
-# ── Zellij tab naming ─────────────────────────────────────────────────────────
-# Intentionally NOT renaming tabs from the shell. Zellij's built-in "Tab #N"
-# is the only label that stays correct through session resurrection and
-# auto-renumbering after a tab is closed; once a tab gets a custom name, the
-# tab-bar plugin uses that name verbatim and there is no IPC event for shells
-# to react to layout changes. The zsh prompt already shows CWD inside the
-# pane, so a duplicated label in the tab bar was pure noise.
+# ── Zellij tab naming (dir:cmd, no position prefix) ──────────────────────────
+# Zellij's default "Tab #N" name is baked in at tab creation (the N is the
+# immutable creation index, not the live position) and never updates when
+# tabs are closed or moved — so the default is actively misleading. We rename
+# to `dir:cmd` from the shell hooks; position is implied by visual order in
+# the tab bar. Untouched tabs after a resurrect or after closing a middle tab
+# will still show their previous dir:cmd until the next prompt fires there,
+# but at least there's no wrong *number* attached.
+if [[ -n "$ZELLIJ" ]]; then
+	_zellij_dir() { [[ "$PWD" == "$HOME" ]] && echo '~' || echo "${PWD##*/}"; }
+	_zellij_tab_precmd()  { zellij action rename-tab "$(_zellij_dir)" 2>/dev/null; }
+	_zellij_tab_preexec() { zellij action rename-tab "$(_zellij_dir):${1%% *}" 2>/dev/null; }
+	add-zsh-hook precmd _zellij_tab_precmd
+	add-zsh-hook preexec _zellij_tab_preexec
+fi
 
 # ── Recent directories ────────────────────────────────────────────────────────
 autoload -Uz chpwd_recent_dirs cdr
