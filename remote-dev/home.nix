@@ -195,7 +195,13 @@ in
   '';
 
   # ZDOTDIR redirect so login shells find ~/.config/zsh/.zprofile etc.
+  # Also source HM's session-vars (PODMAN_IGNORE_CGROUPSV1_WARNING, etc.) —
+  # HM normally drops these into ~/.profile, but zsh login shells don't read
+  # .profile, and we don't use programs.zsh.enable.
   home.file.".zshenv".text = ''
+    if [ -r "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]; then
+      . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+    fi
     export ZDOTDIR="$HOME/.config/zsh"
     [[ -r "$ZDOTDIR/.zshenv" ]] && source "$ZDOTDIR/.zshenv"
   '';
