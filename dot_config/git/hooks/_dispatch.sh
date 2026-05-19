@@ -4,13 +4,12 @@
 # hook can do its own work after.
 #
 # Lookup order (first executable file wins):
-#   1. `<git-dir>/hooks-local/<hookname>` — untracked per-clone override,
-#      lives inside .git/ so it stays personal. Use this when you want
-#      to replace a tracked .githooks/<name> on a shared repo without
-#      affecting teammates. Create with e.g.:
-#        $ mkdir -p "$(git rev-parse --git-dir)/hooks-local"
-#        $ $EDITOR "$(git rev-parse --git-dir)/hooks-local/pre-commit"
-#        $ chmod +x "$(git rev-parse --git-dir)/hooks-local/pre-commit"
+#   1. `<git-dir>/hooks/<hookname>` — the classic, untracked per-clone
+#      hook location. Already where tools like husky / lefthook /
+#      pre-commit install. Drop a script here to override a tracked
+#      .githooks/<name> on a shared repo without affecting teammates.
+#      `git init`'s `*.sample` files don't match by name, so they're
+#      ignored — no collision.
 #   2. `<repo-top>/.githooks/<hookname>` — tracked, the project's
 #      shared hook. The intended default for opting a repo in.
 #
@@ -19,8 +18,8 @@
 # global logic afterwards.
 #
 # GIT_HOOK_DISPATCHED guards against re-entry: if some legacy repo has
-# its own `.githooks/<hook>` that ends with `exec "$HOME/.config/..."`
-# (the old stub pattern), we won't dispatch back into it a second time.
+# its own hook that ends with `exec "$HOME/.config/..."` (the old stub
+# pattern), we won't dispatch back into it a second time.
 
 # shellcheck shell=sh
 dispatch_repo_hook() {
@@ -32,7 +31,7 @@ dispatch_repo_hook() {
   gitdir=$(git rev-parse --git-dir 2>/dev/null) || return 0
   root=$(git rev-parse --show-toplevel 2>/dev/null) || return 0
 
-  for candidate in "$gitdir/hooks-local/$hookname" "$root/.githooks/$hookname"; do
+  for candidate in "$gitdir/hooks/$hookname" "$root/.githooks/$hookname"; do
     if [ -x "$candidate" ]; then
       GIT_HOOK_DISPATCHED=1 "$candidate" "$@"
       rc=$?

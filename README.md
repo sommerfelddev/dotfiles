@@ -136,7 +136,7 @@ Verify with `sudo nft list ruleset`.
 
 The user-level hooks at `~/.config/git/hooks/` (set as `core.hooksPath` in `dot_config/git/config`) apply globally and auto-dispatch into the repo's hooks if present. Lookup order, first wins:
 
-1. `<git-dir>/hooks-local/<name>` — untracked per-clone override. Use this to replace a tracked hook on a shared repo without affecting teammates.
+1. `<git-dir>/hooks/<name>` — the classic untracked per-clone location (where `husky` / `lefthook` / `pre-commit` install by default). Use this to replace a tracked hook on a shared repo without affecting teammates.
 2. `<repo-top>/.githooks/<name>` — the project's tracked, shared hook.
 
 Projects opt in by just dropping a file at `.githooks/<name>` — no `core.hooksPath` override, no passthrough stubs. Per-event behavior:
