@@ -13,7 +13,7 @@ view-md = [{ run = 'okular "$@"', desc = "View with Okular", orphan = true }]
 # Open markdown with okular directly (bypasses xdg-open / mimeapps).
 [open]
 prepend_rules = [
-  { name = "*.md", use = "view-md" },
-  { name = "*.markdown", use = "view-md" },
+  { url = "*.md", use = "view-md" },
+  { url = "*.markdown", use = "view-md" },
   { mime = "text/markdown", use = "view-md" },
 ]
