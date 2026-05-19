@@ -183,7 +183,9 @@ Verify:
 ```sh
 podman info | grep -E 'cgroupVersion|graphDriverName|networkBackend'
 # expected: graphDriverName: overlay, networkBackend: netavark
-# cgroupVersion: v1 is fine — only blocks --memory/--cpus flags.
+# cgroupVersion: v1 is fine — only blocks --memory/--cpus flags. The
+# podman v5 deprecation warning is silenced by PODMAN_IGNORE_CGROUPSV1_WARNING,
+# set in home.nix.
 podman run --rm docker.io/library/alpine echo hi
 ```
 

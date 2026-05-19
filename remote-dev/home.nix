@@ -14,6 +14,13 @@ in
   home.homeDirectory = builtins.getEnv "HOME";
   home.stateVersion = "25.05";
 
+  home.sessionVariables = {
+    # Ubuntu 20.04 still defaults to cgroups v1; podman 5 warns on every
+    # invocation. Flipping to v2 is a host-level reboot (see README) and
+    # only matters if we need --memory/--cpus, so silence the warning.
+    PODMAN_IGNORE_CGROUPSV1_WARNING = "1";
+  };
+
   # ── Packages ────────────────────────────────────────────────────────────────
   # Policy: this profile carries leaf CLI tools plus editor/AI-agent
   # runtimes (node, uv). It must NEVER carry anything the project build
