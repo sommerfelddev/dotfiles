@@ -156,6 +156,11 @@ in
     "git/config".source       = link "dot_config/git/config";
     "git/attributes".source   = link "dot_config/git/attributes";
     "git/ignore".source       = link "dot_config/git/ignore";
+    # Git hooks: source filenames carry the chezmoi `executable_` attribute
+    # prefix which only chezmoi strips. On remote-dev we use raw symlinks,
+    # so map each hook to its stripped name explicitly. The executable bit
+    # comes from the working-tree file mode (git resolves the symlink).
+    "git/hooks/pre-push".source = link "dot_config/git/hooks/executable_pre-push";
   };
 
   # ── Rootless podman config ──────────────────────────────────────────────────
