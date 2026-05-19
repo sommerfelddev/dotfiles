@@ -1027,12 +1027,6 @@ pkg-list group="":
 pkg-apply *groups:
     #!/bin/sh
     set -eu
-    # IgnorePkg in pacman.conf only applies to -Syu, not to explicit -S <pkg>,
-    # so filter ignored names out of the list we pipe to paru. Otherwise every
-    # pkg-apply / pkg-fix would reinstall AUR pins (e.g. llama-cpp-vulkan)
-    # whenever the AUR has a newer commit.
-    ignored=$(awk '/^IgnorePkg[[:space:]]*=/ { sub(/^[^=]*=[[:space:]]*/, ""); print }' /etc/pacman.conf | tr ' ' '\n' | sed '/^$/d')
-    filter() { awk -v ig="$ignored" 'BEGIN{n=split(ig,a,"\n");for(i=1;i<=n;i++)x[a[i]]=1} !($0 in x)'; }
     if [ -n "{{ groups }}" ]; then
         for group in {{ groups }}; do
             file="meta/${group}.txt"
@@ -1040,7 +1034,7 @@ pkg-apply *groups:
                 just _flatpak-install
                 continue
             fi
-            pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file" | filter)
+            pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
             [ -n "$pkgs" ] || continue
             printf '%s\n' "$pkgs" | paru -S --needed --noconfirm --ask=4 -
         done
@@ -1048,15 +1042,13 @@ pkg-apply *groups:
         find meta -maxdepth 1 -name '*.txt' ! -name 'flatpak.txt' -print0 \
             | xargs -0 cat \
             | sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' \
-            | sort -u | filter | paru -S --needed --noconfirm --ask=4 -
+            | sort -u | paru -S --needed --noconfirm --ask=4 -
         [ -f meta/flatpak.txt ] && just _flatpak-install
     fi
 
 # Top up missing packages in groups that are already ≥50% installed (never installs new groups)
 pkg-fix:
     #!/bin/sh
-    ignored=$(awk '/^IgnorePkg[[:space:]]*=/ { sub(/^[^=]*=[[:space:]]*/, ""); print }' /etc/pacman.conf | tr ' ' '\n' | sed '/^$/d')
-    filter() { awk -v ig="$ignored" 'BEGIN{n=split(ig,a,"\n");for(i=1;i<=n;i++)x[a[i]]=1} !($0 in x)'; }
     flatpaks=$(flatpak list --user --app --columns=application 2>/dev/null || true)
     for file in meta/*.txt; do
         group=$(basename "$file" .txt)
@@ -1079,10 +1071,7 @@ pkg-fix:
             if [ "$group" = "flatpak" ]; then
                 just _flatpak-install
             else
-                # Strip IgnorePkg entries; explicit -S would bypass IgnorePkg.
-                pkgs_filtered=$(echo "$pkgs" | filter)
-                [ -n "$pkgs_filtered" ] || continue
-                echo "$pkgs_filtered" | paru -S --needed --noconfirm --ask=4 -
+                echo "$pkgs" | paru -S --needed --noconfirm --ask=4 -
             fi
         fi
     done
