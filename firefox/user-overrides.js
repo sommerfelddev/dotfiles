@@ -29,17 +29,6 @@ user_pref("media.gmp-manager.url", "https://aus5.mozilla.org/update/3/GMP/%VERSI
 /** Network **/
 user_pref("network.dns.disableIPv6", false); // keep IPv6 enabled
 
-// NOTE on snx-rs SAML loopback callbacks (Check Point VPN):
-// LibreWolf force-upgrades http://127.0.0.1:<port>/<token> to HTTPS and
-// enables LNA blocking, which both break the snx-rs SAML handoff.
-// `dom.security.https_only_mode.upgrade_local = false` and
-// `network.lna.local-network-to-localhost.skip-checks = true` were tried
-// here and did NOT actually fix the SAML flow — left disabled. The
-// working fix is the wrapper script ~/.local/bin/snxctl-chromium, which
-// routes snx-rs's xdg-open through flatpak ungoogled-chromium via a
-// systemd --user drop-in. See dot_local/share/snx-rs/bin/xdg-open and
-// dot_config/systemd/user/snx-rs.service.d/10-chromium-saml.conf.
-
 /** Resist Fingerprinting **/
 user_pref("privacy.resistFingerprinting.testGranularityMask", 4);
 user_pref("privacy.resistFingerprinting.exemptedDomains", "meet.google.com,teams.microsoft.com");
