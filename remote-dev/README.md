@@ -168,21 +168,22 @@ grep "^$USER:" /etc/subuid /etc/subgid || \
   sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 "$USER"
 ```
 
-Then enable cgroups v2 (required for rootless CPU/memory limits on
-Ubuntu 20.04, which still defaults to v1):
+Then (optional, **only** if you need rootless CPU/memory limits) enable
+cgroups v2. Ubuntu 20.04 still defaults to v1; flipping this requires a
+reboot and affects every workload on the box, so skip unless you have a
+concrete need:
 
 ```sh
 sudo sed -i 's|^GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"|GRUB_CMDLINE_LINUX_DEFAULT="\1 systemd.unified_cgroup_hierarchy=1"|' /etc/default/grub
-sudo update-grub
-sudo reboot
+sudo update-grub && sudo reboot
 ```
 
-Verify after reboot:
+Verify:
 
 ```sh
-stat -fc %T /sys/fs/cgroup/    # → cgroup2fs
 podman info | grep -E 'cgroupVersion|graphDriverName|networkBackend'
-# expected: cgroupVersion: v2, graphDriverName: overlay, networkBackend: netavark
+# expected: graphDriverName: overlay, networkBackend: netavark
+# cgroupVersion: v1 is fine — only blocks --memory/--cpus flags.
 podman run --rm docker.io/library/alpine echo hi
 ```
 
