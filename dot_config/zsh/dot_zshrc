@@ -163,13 +163,25 @@ fi
 # immutable creation index, not the live position) and never updates when
 # tabs are closed or moved — so the default is actively misleading. We rename
 # to `dir:cmd` from the shell hooks; position is implied by visual order in
-# the tab bar. Untouched tabs after a resurrect or after closing a middle tab
-# will still show their previous dir:cmd until the next prompt fires there,
-# but at least there's no wrong *number* attached.
+# the tab bar.
+#
+# `zellij action rename-tab` always targets the *focused* tab (no way to
+# target by pane id from the CLI), and on session resurrect every shell
+# fires precmd nearly simultaneously while one tab is focused — without a
+# guard, every pane would rename that one tab and the last writer wins,
+# leaving every other tab stuck at "Tab #N". So we only rename when our
+# pane is currently focused. Background panes' labels update lazily the
+# next time the user focuses them and triggers a prompt.
 if [[ -n "$ZELLIJ" ]]; then
 	_zellij_dir() { [[ "$PWD" == "$HOME" ]] && echo '~' || echo "${PWD##*/}"; }
-	_zellij_tab_precmd()  { zellij action rename-tab "$(_zellij_dir)" 2>/dev/null; }
-	_zellij_tab_preexec() { zellij action rename-tab "$(_zellij_dir):${1%% *}" 2>/dev/null; }
+	_zellij_is_focused_pane() {
+		[[ -n $ZELLIJ_PANE_ID ]] || return 1
+		local focused
+		focused=$(zellij action list-clients 2>/dev/null | awk 'NR>1 {print $2}')
+		[[ -n $focused ]] && print -r -- "$focused" | grep -qx "terminal_${ZELLIJ_PANE_ID}"
+	}
+	_zellij_tab_precmd()  { _zellij_is_focused_pane && zellij action rename-tab "$(_zellij_dir)" 2>/dev/null; }
+	_zellij_tab_preexec() { _zellij_is_focused_pane && zellij action rename-tab "$(_zellij_dir):${1%% *}" 2>/dev/null; }
 	add-zsh-hook precmd _zellij_tab_precmd
 	add-zsh-hook preexec _zellij_tab_preexec
 fi
