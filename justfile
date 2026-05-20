@@ -47,7 +47,7 @@ nix-switch:
 # Updates
 # ═══════════════════════════════════════════════════════════════════
 
-# Update everything: system packages, Neovim plugins, Mason tools, flatpaks
+# Update everything: system packages, Neovim plugins, flatpaks
 update: pkg-update flatpak-update
 
 # Upgrade all system + AUR packages
@@ -75,7 +75,7 @@ flatpak-update:
             rm -f "$tmp"
         done
 
-# Update Neovim plugins (vim.pack) and Mason tools, interactively so the diff buffer is visible.
+# Update Neovim plugins (vim.pack) interactively so the diff buffer is visible.
 # `cd` to $HOME first so auto-session's suppressed_dirs rule kicks in and we don't
 
 # load/save a project session for what's really just an admin chore.
