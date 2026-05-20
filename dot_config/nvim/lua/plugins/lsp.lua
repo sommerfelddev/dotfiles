@@ -160,7 +160,7 @@ require("conform").setup({
     html = { "prettier" },
     javascript = { "prettier" },
     typescript = { "prettier" },
-    json = { "jq", "jsonlint" },
+    json = { "jq" },
     jsonc = { "prettier" },
     just = { "just" },
     markdown = { "mdformat" },
@@ -191,7 +191,6 @@ local lint = require("lint")
 lint.linters_by_ft = {
   css = { "stylelint" },
   dockerfile = { "hadolint" },
-  json = { "jsonlint" },
   markdown = { "markdownlint" },
   makefile = { "checkmake" },
   yaml = { "yamllint", "yq" },

@@ -128,7 +128,11 @@ in
 
     # AI coding agents
     claude-code
-    github-copilot-cli # NB: pkgs.copilot-cli is AWS Copilot, NOT this
+    # github-copilot-cli intentionally not here: nixpkgs derivation (as
+    # of 1.0.40) fails to build on Determinate nix with EACCES on
+    # /var/empty/.cache (HOME not redirected during npm postinstall).
+    # Install manually from https://github.com/github/copilot-cli into
+    # /usr/local/bin/ instead.
 
     # ── LSPs / formatters / linters / DAPs ─────────────────────────────────
     # Replaces Mason entirely (phase p6 of the nix migration rips out
@@ -158,14 +162,13 @@ in
 
     # Formatters
     mdformat
-    nodePackages.prettier
+    prettier
     shfmt
     stylua
 
     # Linters
     codespell
     hadolint
-    nodePackages.jsonlint
     markdownlint-cli
     selene
     shellcheck
