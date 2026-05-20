@@ -18,4 +18,4 @@ fi
 
 # Refresh waybar's custom/vpn module right away.
 pid=$(pidof waybar || true)
-[ -n "$pid" ] && kill -SIGRTMIN+8 "$pid" 2>/dev/null || true
+if [ -n "$pid" ]; then kill -SIGRTMIN+8 "$pid" 2>/dev/null || true; fi

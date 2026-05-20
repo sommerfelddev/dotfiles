@@ -16,4 +16,4 @@ case "$state" in
 esac
 
 pid=$(pidof waybar || true)
-[ -n "$pid" ] && kill -SIGRTMIN+9 "$pid" 2>/dev/null || true
+if [ -n "$pid" ]; then kill -SIGRTMIN+9 "$pid" 2>/dev/null || true; fi

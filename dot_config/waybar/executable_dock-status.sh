@@ -11,7 +11,8 @@ set -eu
 
 docked=0
 for dev in /sys/bus/usb/devices/*/; do
-  [ -f "$dev/idVendor" ] && [ -f "$dev/idProduct" ] || continue
+  [ -f "$dev/idVendor" ] || continue
+  [ -f "$dev/idProduct" ] || continue
   v=$(cat "$dev/idVendor")
   p=$(cat "$dev/idProduct")
   if [ "$v" = "17ef" ] && [ "$p" = "a387" ]; then
