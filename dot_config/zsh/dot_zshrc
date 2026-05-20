@@ -357,6 +357,8 @@ reload-env() {
 
 # Just
 alias j='just'
+alias dj='just --justfile ~/dotfiles/justfile --working-directory ~/dotfiles'
+alias rj='just --justfile ~/.local/share/dotfiles/remote-dev/justfile --working-directory ~/.local/share/dotfiles/remote-dev'
 
 # LLVM / Clang tooling
 alias ncmake='cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_FLAGS="$DEV_CFLAGS" -DCMAKE_CXX_FLAGS="$DEV_CFLAGS" -DCMAKE_INSTALL_PREFIX=build/install -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build'
