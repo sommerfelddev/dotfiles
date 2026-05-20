@@ -120,10 +120,6 @@ case $(uname -n) in
         ;;
 esac
 
-# ── Secrets (from pass) ──────────────────────────────────────────────────────
-# shellcheck disable=SC2154,SC2155  # zsh $+commands / $( ) export idiom
-(( $+commands[pass] )) && export FIRECRAWL_API_KEY="$(pass show copilot/firecrawl-api-key)"
-
 # ── Auto-start sway on VT1 ────────────────────────────────────────────────────
 if [[ -z $WAYLAND_DISPLAY && $XDG_VTNR == 1 ]]; then
     export XDG_SESSION_TYPE=wayland
