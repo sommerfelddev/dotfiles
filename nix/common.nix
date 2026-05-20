@@ -5,19 +5,26 @@
 # host and the Ubuntu remote-dev VM. Profile-specific extras live in
 # `host.nix` and `vm.nix`.
 #
-# Policy: this profile carries leaf CLI tools plus editor/AI-agent
-# runtimes (node, uv). It must NEVER carry anything the project build
-# might invoke. Forbidden on PATH (would shadow the system's and break
-# builds against the system sysroot/libc): cc, c++, gcc, g++, clang,
-# clang++, ld, ld.lld, ar, nm, objcopy, make, cmake, ninja, meson,
-# pkg-config, autoconf, automake, libtool, python, python3, pip,
-# cargo, rustc, go. If a project needs a newer toolchain, put it in a
-# project-local flake.nix + direnv `.envrc`, NOT here.
+# Policy: this profile carries leaf CLI tools, editor/AI-agent runtimes
+# (node, uv), and build *orchestrators* (cmake, ninja, ccache, sccache).
+# It must NEVER carry actual compilers or linkers — those would shadow
+# the system's and silently link projects against nixpkgs glibc/libstdc++
+# instead of the system sysroot.
 #
-# Allowed runtimes (used only by editor/AI agents): node, npm, npx
-# (via `nodejs`), uv, uvx (via `uv` — does NOT install a python3,
-# manages its own interpreters under XDG). `clang-tools` is allowed
-# because it ships only formatters/linters/clangd, no compiler driver.
+# Forbidden on PATH from this module: cc, c++, gcc, g++, clang, clang++,
+# ld, ld.lld, ar, nm, objcopy, make, meson, pkg-config, autoconf,
+# automake, libtool, python, python3, pip, cargo, rustc, go.
+#
+# Allowed: orchestrators that delegate to whatever compiler is in PATH
+# (cmake, ninja, ccache, sccache), instrumentation/analysis that hooks
+# at the syscall/library boundary (valgrind, gdb, lldb, strace), and
+# source-only tooling (doxygen, clang-tools — clangd/clang-format/
+# clang-tidy, no compiler driver). Project-specific compilers/linkers
+# go in project-local flake.nix + direnv `.envrc`, NOT here.
+#
+# Editor/AI runtimes: node, npm, npx (via `nodejs`), uv, uvx (via `uv`
+# — manages its own python interpreters under XDG, doesn't install a
+# system python3).
 
 let
   dotfiles = "${config.home.homeDirectory}/.local/share/dotfiles";
@@ -79,14 +86,24 @@ in
 
     # Debug / trace / profile — moved off pacman. User policy: only
     # used against own builds, so glibc/kernel version skew vs the
-    # system isn't an issue. `perf` and `valgrind` stay system: `perf`
-    # links against kernel ABI (pacman's matches the running kernel);
-    # `valgrind` has tighter glibc compat requirements.
+    # system isn't an issue. Only `perf` stays system (it links against
+    # the running kernel ABI; pacman's matches the kernel package).
     gdb
     lldb        # also brings lldb-dap (used by dap.lua via type="lldb")
     strace
     samply
     t-rec
+    valgrind
+
+    # Build orchestrators — these only delegate to whatever compiler is
+    # in PATH; they don't ship cc/c++/ld themselves, so no shadowing.
+    cmake
+    ninja
+    ccache
+    sccache
+
+    # Source-only docs/analysis (no compiler driver)
+    doxygen
 
     # Docs
     tldr

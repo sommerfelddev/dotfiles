@@ -58,24 +58,15 @@ ell
 # direnv's source_url with a content hash, so no extra package needed.) ---
 nix
 
-# --- dev (compiler / linker / build-system / language toolchains — these
-# MUST stay on pacman: nix/common.nix is forbidden from shipping them
-# because nix-store paths on PATH would shadow the system ones and
-# silently link projects against nixpkgs glibc instead of the system
-# sysroot. See policy comment at the top of nix/common.nix.) ---
-ccache
-clang
-cmake
-lld
-mold
-ninja
-npm
-perf
+# --- dev (system-coupled runtimes only — base-devel ships gcc/ld/as/make
+# for general-purpose builds; the orchestrators (cmake/ninja/ccache/
+# sccache), debuggers and toolchain-specific compilers/linkers live in
+# nix instead. clang/lld/mold/rustup/go are intentionally absent — when
+# a project needs them, the project's flake.nix + direnv `.envrc`
+# provide them.) ---
+perf             # links against running kernel ABI; must match kernel pkg
 podman-compose
 podman-docker
-rustup
-sccache
-valgrind
 
 # --- sound ---
 alsa-utils
