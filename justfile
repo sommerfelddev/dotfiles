@@ -30,6 +30,10 @@ nix-switch:
         echo "nix not installed; skipping home-manager switch" >&2
         exit 0
     fi
+    # home-manager's activation script references $USER unconditionally;
+    # just runs recipes with a sanitized env that may drop it.
+    export USER="${USER:-$(id -un)}"
+    export HOME="${HOME:-$(getent passwd "$USER" | cut -d: -f6)}"
     profile=host
     [ -f /etc/os-release ] && . /etc/os-release || true
     case "${ID:-}" in

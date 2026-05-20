@@ -21,7 +21,6 @@ vim.lsp.enable({
   "cssls",
   "dockerls",
   "eslint",
-  "gh_actions_ls",
   "html",
   "jsonls",
   "lua_ls",

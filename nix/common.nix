@@ -145,7 +145,6 @@ in
     basedpyright
     bash-language-server
     dockerfile-language-server-nodejs
-    gh-actions-language-server
     just-lsp
     lua-language-server
     neocmakelsp
