@@ -48,6 +48,9 @@ bluez
 bluez-utils
 ell
 
+# --- thunderbolt ---
+bolt
+
 # --- nix (multi-user daemon mode for hermetic per-project dev shells via
 # `nix develop` + direnv `use flake`. Not a replacement for paru/pacman,
 # not home-manager, not NixOS — just a sandboxed second package manager
