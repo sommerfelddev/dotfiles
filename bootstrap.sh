@@ -73,9 +73,41 @@ fi
 #    git hooks. The classic 'sudo' package stays installed because
 #    base-devel hard-depends on it; that's harmless — the binary is
 #    never invoked once /usr/local/bin/sudo is in place.
+#    `just init` also runs `just nix-switch` (step 5b below); the nix
+#    install needs to happen before that.
 cd "$DOTFILES_DIR"
+
+# 5a. install nix (Determinate Systems installer, multi-user) before
+#     `just init`, so `just nix-switch` finds it.
+if ! command -v nix >/dev/null 2>&1; then
+  log 'installing nix (Determinate Systems multi-user installer)'
+  curl --proto '=https' --tlsv1.2 -sSf -L \
+    https://install.determinate.systems/nix |
+    sh -s -- install linux --no-confirm
+  # Source nix env for the rest of this script (installer writes
+  # /etc/profile.d/nix.sh but the current shell hasn't sourced it).
+  if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+    # shellcheck disable=SC1091
+    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+  fi
+fi
+
 log 'running just init'
 just init
+
+# 5b. chsh to nix-store zsh (provisioned by home-manager via nix/common.nix)
+NIX_ZSH="$HOME/.nix-profile/bin/zsh"
+if [ -x "$NIX_ZSH" ]; then
+  if ! grep -qxF "$NIX_ZSH" /etc/shells 2>/dev/null; then
+    log "appending $NIX_ZSH to /etc/shells"
+    echo "$NIX_ZSH" | sudo tee -a /etc/shells >/dev/null
+  fi
+  current_shell="$(getent passwd "$USER" | cut -d: -f7)"
+  if [ "$current_shell" != "$NIX_ZSH" ]; then
+    log "changing login shell to $NIX_ZSH"
+    sudo chsh -s "$NIX_ZSH" "$USER"
+  fi
+fi
 
 # 6. refresh pacman mirrorlist once via reflector (config deployed by chezmoi)
 log 'refreshing pacman mirrorlist via reflector'

@@ -6,19 +6,38 @@ default:
 # Setup
 # ═══════════════════════════════════════════════════════════════════
 
-# First-time machine setup: regenerate chezmoi config, install git hooks, deploy dotfiles, install base packages, enable curated units
-init: _chezmoi-init _install-hooks apply (pkg-apply "base") unit-apply
+# First-time machine setup: regenerate chezmoi config, install git hooks, deploy dotfiles, install base packages, enable curated units, switch Home-Manager
+init: _chezmoi-init _install-hooks apply (pkg-apply "base") unit-apply nix-switch
 
 # ═══════════════════════════════════════════════════════════════════
 # Day-to-day
 # ═══════════════════════════════════════════════════════════════════
 
-# Reconcile everything: deploy dotfiles + /etc, top up packages, enable curated units
-sync: apply pkg-fix unit-apply
+# Reconcile everything: deploy dotfiles + /etc, top up packages, enable curated units, sync Home-Manager
+sync: apply pkg-fix unit-apply nix-switch
 
 # Deploy dotfiles AND /etc atomically (chezmoi apply; /etc handled by onchange template)
 apply:
     chezmoi apply -S . -v
+
+# Apply Home-Manager profile (host on Arch, vm on Ubuntu remote-dev). Falls
+
+# back to a no-op when nix isn't installed (pre-bootstrap state).
+nix-switch:
+    #!/bin/sh
+    set -eu
+    if ! command -v nix >/dev/null 2>&1; then
+        echo "nix not installed; skipping home-manager switch" >&2
+        exit 0
+    fi
+    profile=host
+    [ -f /etc/os-release ] && . /etc/os-release || true
+    case "${ID:-}" in
+        ubuntu|debian) profile=vm ;;
+    esac
+    nix --extra-experimental-features 'nix-command flakes' \
+        run home-manager/master -- \
+        switch --impure --flake "{{ justfile_directory() }}/nix#${profile}" -b backup
 
 # ═══════════════════════════════════════════════════════════════════
 # Updates
