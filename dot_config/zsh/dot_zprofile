@@ -8,7 +8,12 @@ __ZPROFILE_SOURCED=1
 # ── PATH ──────────────────────────────────────────────────────────────────────
 typeset -U path  # deduplicate PATH entries
 # shellcheck disable=SC2206  # zsh tied array; no word-splitting concerns
-path=("$HOME/.local/bin" "$HOME/.local/share/nvim/mason/bin" $path)
+# Order: nix-profile (Home-Manager-provisioned tools) wins over the system
+# package manager so the same HM flake delivers the same tool versions on
+# both host (Arch) and VM (Ubuntu). ~/.local/bin keeps room for ad-hoc
+# user scripts; mason bin stays during the Mason→nix transition (phase p6
+# of the nix migration removes it).
+path=("$HOME/.nix-profile/bin" "$HOME/.local/bin" "$HOME/.local/share/nvim/mason/bin" $path)
 
 # ── XDG Base Directories ─────────────────────────────────────────────────────
 export XDG_CONFIG_HOME="$HOME/.config"
