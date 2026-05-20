@@ -47,12 +47,25 @@ nix-switch:
 # Updates
 # ═══════════════════════════════════════════════════════════════════
 
-# Update everything: system packages, Neovim plugins, flatpaks
-update: pkg-update flatpak-update
+# Update everything: system packages, flatpaks, nix flake inputs
+update: pkg-update flatpak-update nix-update
 
 # Upgrade all system + AUR packages
 pkg-update:
     paru -Syu
+
+# Refresh nix flake inputs (nixpkgs, home-manager) then re-activate the profile.
+# Run after this to pick up newer versions of nix-managed tools.
+nix-update:
+    #!/bin/sh
+    set -eu
+    if ! command -v nix >/dev/null 2>&1; then
+        echo "nix not installed; skipping flake update" >&2
+        exit 0
+    fi
+    nix --extra-experimental-features 'nix-command flakes' \
+        flake update --flake "{{ justfile_directory() }}/nix"
+    just nix-switch
 
 # Update all user-scope flatpaks (Flathub apps + URL bundles when their version changes)
 flatpak-update:
