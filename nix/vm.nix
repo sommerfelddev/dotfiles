@@ -10,6 +10,9 @@
   home.username = builtins.getEnv "USER";
   home.homeDirectory = builtins.getEnv "HOME";
 
+  # Remote-dev VM clones the dotfiles tree under XDG_DATA_HOME.
+  my.dotfilesPath = "${builtins.getEnv "HOME"}/.local/share/dotfiles";
+
   home.sessionVariables = {
     # Ubuntu 20.04-derived hosts still default to cgroups v1; podman 5
     # warns on every invocation. Flipping to v2 is a host-level reboot

@@ -9,6 +9,11 @@
   home.username = builtins.getEnv "USER";
   home.homeDirectory = builtins.getEnv "HOME";
 
+  # The Arch host keeps its chezmoi source state at ~/dotfiles (the
+  # canonical clone location for the dotfiles repo). The VM convention
+  # of ~/.local/share/dotfiles doesn't apply here.
+  my.dotfilesPath = "${builtins.getEnv "HOME"}/dotfiles";
+
   # ── Smartcard (Yubikey) ────────────────────────────────────────────────────
   # Nix's gnupg ships its own scdaemon. Delegate to the system pcscd
   # service instead of letting nix's scdaemon open the USB device

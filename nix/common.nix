@@ -5,6 +5,10 @@
 # host and the Ubuntu remote-dev VM. Profile-specific extras live in
 # `host.nix` and `vm.nix`.
 #
+# The path to the runtime dotfiles checkout (where symlinks point) is
+# read from `config.my.dotfilesPath`; the per-profile module sets it
+# (host: ~/dotfiles, vm: ~/.local/share/dotfiles).
+#
 # Policy: this profile carries leaf CLI tools, editor/AI-agent runtimes
 # (node, uv), and build *orchestrators* (cmake, ninja, ccache, sccache).
 # It must NEVER carry actual compilers or linkers — those would shadow
@@ -27,10 +31,21 @@
 # system python3).
 
 let
-  dotfiles = "${config.home.homeDirectory}/.local/share/dotfiles";
+  dotfiles = config.my.dotfilesPath;
   link = path: config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${path}";
 in
 {
+  options.my.dotfilesPath = lib.mkOption {
+    type = lib.types.str;
+    description = ''
+      Absolute path to the runtime dotfiles checkout that the
+      mkOutOfStoreSymlink-based home.file entries point at. The host
+      profile sets this to "$HOME/dotfiles"; the vm profile sets it
+      to "$HOME/.local/share/dotfiles".
+    '';
+  };
+
+  config = {
   home.stateVersion = "25.05";
 
   # ── Packages ────────────────────────────────────────────────────────────────
@@ -148,7 +163,7 @@ in
     autotools-language-server
     basedpyright
     bash-language-server
-    dockerfile-language-server-nodejs
+    dockerfile-language-server
     just-lsp
     lua-language-server
     neocmakelsp
@@ -250,4 +265,5 @@ in
 
   # ── Enable HM-managed activation messages ──────────────────────────────────
   programs.home-manager.enable = true;
+  };
 }
