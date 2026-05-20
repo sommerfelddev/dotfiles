@@ -6,7 +6,7 @@ systemd-units/
 etc/
 firefox/
 thunderbird/
-remote-dev/
+nix/
 justfile
 just-lib.sh
 selene.toml

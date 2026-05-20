@@ -1,26 +1,31 @@
-# remote-dev
+# nix
 
-Headless dev environment for an Ubuntu 22.04 VM I SSH into. Deployed with
-Nix + Home-Manager. Shares the host's neovim, zellij, and zsh configs from
-the same repo — no duplication.
+Home-Manager profiles for the Arch host (`host.nix`) and the Ubuntu
+remote-dev VM (`vm.nix`), both layered on top of `common.nix`. Shares
+the same nvim, zellij, and zsh configs from the same repo — no
+duplication across machines.
 
 ## Bootstrap
 
-On a fresh VM, as the dev user (must have sudo):
+**Host (Arch)**: managed by the top-level `bootstrap.sh` in the repo
+root (installs nix + runs `home-manager switch --flake .../nix#host`
+as part of `just init`).
+
+**VM (Ubuntu)**: as the dev user (must have sudo):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/sommerfelddev/dotfiles/master/remote-dev/bootstrap.sh | sh
+curl -fsSL https://raw.githubusercontent.com/sommerfelddev/dotfiles/master/nix/bootstrap.sh | sh
 ```
 
 Then log out and back in. Run `nvim` once to let it fetch plugins from
 GitHub on first launch.
 
-## What it does
+## What the VM bootstrap does
 
 1. Installs Nix (Determinate Systems multi-user installer).
 2. Clones this repo to `~/.local/share/dotfiles`.
-3. Runs `home-manager switch --flake .../remote-dev#vm`, which:
-   - Installs the CLI tool subset (see `home.nix`).
+3. Runs `home-manager switch --flake .../nix#vm`, which:
+   - Installs the CLI tool subset (see `common.nix` + `vm.nix`).
    - Symlinks `~/.config/{nvim,zellij,zsh,direnv,ghostty,git}` and
      `~/.ssh/config` at the cloned working tree via
      `mkOutOfStoreSymlink`, so `git pull` is enough to pick up config
@@ -30,7 +35,7 @@ GitHub on first launch.
 
 ## Updating after a dotfiles change
 
-Run from `~/.local/share/dotfiles/remote-dev`:
+Run from `~/.local/share/dotfiles/nix` (host or VM):
 
 ```sh
 just update     # pull + home-manager switch (handles everything)
@@ -46,36 +51,41 @@ just switch     # rebuild home-manager from the current checkout
 > `just update` runs `pull` then `switch`. The home-manager invocation
 > uses `--impure --flake '.#vm' -b backup`; the single-quotes around the
 > flake ref matter because our zsh enables `extendedglob`, which would
-> otherwise interpret `.#vm` as a glob pattern.
+> otherwise interpret `.#vm` as a glob pattern. On the host, swap
+> `#vm` → `#host`.
 
 ## Adding a tool
 
-Edit `home.nix`, add to `home.packages`, then `just switch` (or `just update`).
+Edit `common.nix` (shared) or the profile-specific file (`host.nix` /
+`vm.nix`), add to `home.packages`, then `just switch` (or `just
+update`).
 
 ## Single-shell policy (leaf tools only)
 
-Nix on this VM carries **leaf CLI tools** plus **editor/AI-agent
+The nix profile carries **leaf CLI tools** plus **editor/AI-agent
 runtimes**, and nothing else. Specifically forbidden in `home.packages`
-because they would shadow Ubuntu's via `PATH` and silently break builds
-against the system sysroot/libc/CI: `cc`, `c++`, `gcc`, `g++`, `clang`,
-`clang++`, `ld`, `make`, `cmake`, `ninja`, `meson`, `pkg-config`,
-`autoconf`, `automake`, `python`, `python3`, `pip`, `cargo`, `rustc`,
-`go`. The system `python3` (`/usr/bin/python3`) stays the default
+because they would shadow the system toolchain via `PATH` and silently
+break builds against the system sysroot/libc/CI: `cc`, `c++`, `gcc`,
+`g++`, `clang`, `clang++`, `ld`, `make`, `cmake`, `ninja`, `meson`,
+`pkg-config`, `autoconf`, `automake`, `python`, `python3`, `pip`,
+`cargo`, `rustc`, `go`. The system `python3` stays the default
 interpreter for project builds.
 
-Explicit carve-outs (used only by Mason/editor/AI agents, never by the
+Explicit carve-outs (used only by editor/AI agents, never by the
 project build):
 
-- `nodejs` — `node`/`npm`/`npx` for npm-based LSPs.
-- `uv` — `uv`/`uvx` for Python LSPs in isolated venvs. `uv` does NOT
-  install a `python3` in PATH; it manages its own interpreters under
-  `~/.local/share/uv/`. System `python3` is untouched.
+- `nodejs` — `node`/`npm`/`npx` for npm-based LSPs and
+  copilot-language-server.
+- `uv` — `uv`/`uvx` for ad-hoc Python tooling in isolated venvs. `uv`
+  does NOT install a `python3` in PATH; it manages its own
+  interpreters under `~/.local/share/uv/`. System `python3` is
+  untouched.
 - `clang-tools` — `clang-format`, `clang-tidy`, `clangd` only (no
   compiler driver).
 
 If a project needs a newer build toolchain, drop a `flake.nix` +
 `.envrc` in that project tree (direnv + nix-direnv is already wired
-up). Don't add it to `home.nix`.
+up). Don't add it to `common.nix`/`host.nix`/`vm.nix`.
 
 ## Commit signing on the VM (SSH-format, no GPG secrets)
 
@@ -127,37 +137,18 @@ git log --show-signature -1
 ## Caveats
 
 - **GPG / pass**: HM installs `gnupg` and `pass` but does _not_ import
-  any private key. Don't try; use SSH-format signing via the forwarded
-  agent instead (see above).
-- **Disk usage**: Nix store + nvim plugins consumes ~3-5 GB. Check the
-  VM's root partition size first.
+  any private key. On the VM, use SSH-format signing via the forwarded
+  agent instead (see above). On the host, smartcard access via
+  `pcscd` is configured in `host.nix` (`~/.gnupg/scdaemon.conf`).
+- **Disk usage**: Nix store + nvim plugins consumes ~3-5 GB. Check
+  partition size first on the VM.
 - **Network for first nvim launch**: `vim.pack.add` fetches plugins
-  from GitHub on first start. Mason will also fetch LSP servers using
-  `nodejs`/`uv` from this profile.
-- **Mason pip installs need a managed `python3.11`**: a handful of Mason
-  packages (autotools-language-server, codespell, mdformat,
-  nginx-language-server, systemdlint, yamllint) install themselves into
-  per-pkg venvs via pip. Ubuntu 20.04's `/usr/bin/python3` is 3.8 — too
-  old. `bootstrap.sh` runs `uv python install 3.11` (uv is in the nix
-  profile) and symlinks the resulting binary to
-  `~/.local/bin/python3.11`. The versioned name leaves
-  `/usr/bin/python3` untouched. On an existing VM run
-  `uv python install 3.11 && ln -sf "$(uv python find 3.11)" ~/.local/bin/python3.11`
-  once, then `:MasonToolsInstall` (or `:MasonInstallAll`) in nvim.
-- **`basedpyright` is provided by nix, not Mason**: its pypi distro
-  pulls `nodejs-wheel-binaries`, which ships only `manylinux_2_28`
-  Linux wheels. Neither Nix's python nor uv's standalone
-  (`manylinux2014`-tagged) accepts those, so pip falls back to
-  compiling Node 24 from source — which fails on Ubuntu 20.04's
-  gcc 9.4 (needs gcc ≥10 for `-std=gnu++20`). `home.nix` adds
-  `pkgs.basedpyright`; the matching AUR package (`basedpyright-bin`)
-  is in `meta/base.txt` for Arch. `mason-tool-installer` no longer tries
-  to install it (see `dot_config/nvim/lua/plugins/lsp.lua`).
+  from GitHub on first start.
 - **Ubuntu apt collisions**: Nix-installed binaries appear first in
   PATH. The leaf-tools policy above exists precisely to keep this
   shadowing contained to harmless tools.
 
-## Podman (rootless)
+## Podman (rootless, VM only)
 
 Nix can't manage setuid helpers, `/etc/subuid`/`/etc/subgid`, or kernel
 cmdline. Do this once on the VM as root:
@@ -185,26 +176,26 @@ podman info | grep -E 'cgroupVersion|graphDriverName|networkBackend'
 # expected: graphDriverName: overlay, networkBackend: netavark
 # cgroupVersion: v1 is fine — only blocks --memory/--cpus flags. The
 # podman v5 deprecation warning is silenced by PODMAN_IGNORE_CGROUPSV1_WARNING,
-# set in home.nix.
+# set in vm.nix.
 podman run --rm docker.io/library/alpine echo hi
 ```
 
-The home-manager profile already installs `podman`, `crun`, `conmon`,
+The VM home-manager profile installs `podman`, `crun`, `conmon`,
 `netavark`, `aardvark-dns`, `slirp4netns`, and `passt`, and writes
 sensible `~/.config/containers/{registries,storage,policy}.conf` files.
 
 ## How it's wired
 
-`home.nix` uses `config.lib.file.mkOutOfStoreSymlink` so the symlinks
-point at the **live working tree** at `~/.local/share/dotfiles/...`, not
-at copies in `/nix/store`. This means:
+`common.nix` uses `config.lib.file.mkOutOfStoreSymlink` so the symlinks
+point at the **live working tree** at `~/.local/share/dotfiles/...`,
+not at copies in `/nix/store`. This means:
 
-- Editing `dot_config/nvim/init.lua` in the cloned repo takes effect on
-  the next `nvim` launch with no rebuild.
+- Editing `dot_config/nvim/init.lua` in the cloned repo takes effect
+  on the next `nvim` launch with no rebuild.
 - `home-manager switch` only needs to re-run when adding/removing a
   package or changing what's symlinked.
 
 The zsh plugins (`zsh-syntax-highlighting`, etc.) live in
-`$HOME/.nix-profile/share/`. The shared `dot_zshrc` probes Arch system
-paths first, then falls back to the nix-profile path, so the same file
-works on both host and VM unchanged.
+`$HOME/.nix-profile/share/`. The shared `dot_zshrc` prefers the
+nix-profile path on both host and VM, falling back to system paths for
+un-bootstrapped states.

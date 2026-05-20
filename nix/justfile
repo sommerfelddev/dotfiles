@@ -1,4 +1,4 @@
-# Recipes for the remote-dev VM. Run from ~/.local/share/dotfiles/remote-dev.
+# Recipes for the remote-dev VM. Run from ~/.local/share/dotfiles/nix.
 
 # Show available recipes (default)
 default:

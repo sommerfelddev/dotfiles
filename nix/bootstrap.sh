@@ -2,12 +2,12 @@
 # Bootstrap a headless dev environment on a fresh Ubuntu 22.04 VM.
 # Idempotent: safe to re-run.
 #
-#   curl -fsSL https://raw.githubusercontent.com/<user>/dotfiles/master/remote-dev/bootstrap.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/<user>/dotfiles/master/nix/bootstrap.sh | sh
 #
 # Steps:
 #   1. Install Nix (Determinate Systems installer, multi-user).
 #   2. Clone (or fast-forward) the dotfiles repo to ~/.local/share/dotfiles.
-#   3. Run `home-manager switch --flake .../remote-dev#vm`.
+#   3. Run `home-manager switch --flake .../nix#vm`.
 #   4. Install python3.11 via `uv` (needed by Mason pip installs).
 #   5. Add Nix-store zsh to /etc/shells and chsh the user.
 #
@@ -66,7 +66,7 @@ fi
 log "Running home-manager switch (this can take a while on first run)…"
 nix --extra-experimental-features 'nix-command flakes' \
   run home-manager/master -- \
-  switch --impure --flake "$DIR/remote-dev#vm" -b backup
+  switch --impure --flake "$DIR/nix#vm" -b backup
 
 # ── 4. Mason's python interpreter (via uv from the nix profile) ──────────────
 # Mason installs some LSPs/linters into per-package pip venvs. We need a
