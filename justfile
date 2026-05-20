@@ -55,6 +55,7 @@ pkg-update:
     paru -Syu
 
 # Refresh nix flake inputs (nixpkgs, home-manager) then re-activate the profile.
+
 # Run after this to pick up newer versions of nix-managed tools.
 nix-update:
     #!/bin/sh
