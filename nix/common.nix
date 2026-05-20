@@ -89,6 +89,56 @@ in
     claude-code
     github-copilot-cli # NB: pkgs.copilot-cli is AWS Copilot, NOT this
 
+    # ── LSPs / formatters / linters / DAPs ─────────────────────────────────
+    # Replaces Mason entirely (phase p6 of the nix migration rips out
+    # mason-tool-installer). The set tracks the previous
+    # `ensure_installed` list in dot_config/nvim/lua/plugins/lsp.lua, with
+    # five niche tools dropped: groovy-language-server (Mason-only build,
+    # upstream stale), npm-groovy-lint, nginx-language-server,
+    # nginx-config-formatter, systemdlint (all rarely-edited domains;
+    # losing them is acceptable).
+
+    # LSPs
+    actionlint
+    autotools-language-server
+    basedpyright
+    bash-language-server
+    dockerfile-language-server-nodejs
+    gh-actions-language-server
+    just-lsp
+    lua-language-server
+    neocmakelsp
+    ruff
+    rust-analyzer
+    systemd-language-server
+    taplo
+    typescript-language-server
+    vscode-langservers-extracted   # cssls + html + jsonls + eslint
+    yaml-language-server
+
+    # Formatters
+    mdformat
+    nodePackages.prettier
+    shfmt
+    stylua
+
+    # Linters
+    codespell
+    hadolint
+    nodePackages.jsonlint
+    markdownlint-cli
+    selene
+    shellcheck
+    shellharden
+    stylelint
+    typos
+    yamllint
+
+    # DAPs / debuggers — `lldb-dap` (from pkgs.lldb) is the upstream
+    # successor to vscode-lldb's `codelldb`. dap configs in
+    # plugins/debug.lua target it via `type = "lldb"`.
+    lldb
+
     # Zsh and plugins (loaded from $HOME/.nix-profile/share/... by the
     # shared zshrc; nix-profile path is preferred, system path is the
     # fallback for un-bootstrapped states).

@@ -18,18 +18,6 @@
   };
 
   home.packages = with pkgs; [
-    # ── Mason-driven LSP carve-outs (removed by phase p6 once Mason is
-    #    gone and LSPs come from common.nix directly). Kept here for
-    #    now so the VM keeps working between phases. ───────────────────────
-    jre                  # Mason's groovy-language-server (headless Java)
-    basedpyright         # Mason's pypi distro can't install on Ubuntu 20.04
-                         # (manylinux_2_28 wheels, uv's python rejects)
-    # Rust toolchain for Mason packages whose only install source is
-    # `cargo install` (shellharden). The Arch host has these via pacman;
-    # on the VM Mason needs cargo+rustc on PATH or it bails with ENOENT.
-    cargo
-    rustc
-
     # ── Rootless podman ─────────────────────────────────────────────────────
     # The nix `podman` is wrapped to find these helpers via /nix/store
     # paths, so we don't need to write a containers.conf for
