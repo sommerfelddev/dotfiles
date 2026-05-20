@@ -75,9 +75,10 @@ in
     man-db
     man-pages
 
-    # Secrets
+    # Secrets — `pass-otp` is wired as an extension so `pass otp ...`
+    # works against the same store. `pass` from pacman is removed.
     gnupg
-    pass
+    (pass.withExtensions (exts: [ exts.pass-otp ]))
 
     # C/C++ source tooling (no compiler driver in PATH)
     clang-tools
@@ -144,6 +145,7 @@ in
     # shared zshrc; nix-profile path is preferred, system path is the
     # fallback for un-bootstrapped states).
     zsh
+    zsh-completions
     zsh-syntax-highlighting
     zsh-autosuggestions
     zsh-history-substring-search

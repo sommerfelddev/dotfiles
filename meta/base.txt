@@ -1,11 +1,12 @@
 # --- core ---
 # Note: the leaf-CLI tooling (ripgrep, fd, bat, glow, fzf, lsd, jq, yq-go,
 # zoxide, just, sd, choose, dog, curlie, hyperfine, htop, fastfetch, tldr,
-# rsync, mergiraf, delta, tree-sitter, neovim, zellij, gh, pass, openssh,
-# git, zsh + plugins, basedpyright, rust-analyzer, etc.) is now provisioned
-# via Home-Manager from nix/common.nix and lives under ~/.nix-profile/bin.
-# Anything pacman drops that's still needed (git, openssh, curl, …) comes
-# back transitively through other base/base-devel/desktop deps.
+# rsync, mergiraf, delta, tree-sitter, neovim, zellij, gh, pass + pass-otp,
+# openssh, git, gnupg, wget, zsh + plugins + zsh-completions, basedpyright,
+# rust-analyzer, etc.) is provisioned via Home-Manager from nix/common.nix
+# and lives under ~/.nix-profile/bin (first in PATH). Anything pacman drops
+# that's still needed (curl, git, openssh, gnupg) comes back transitively
+# via base/base-devel/desktop deps.
 acpid
 arch-audit
 base
@@ -13,7 +14,6 @@ base-devel
 bash-completion
 chezmoi
 cpupower
-curl
 dashbinsh
 duf
 fwupd
@@ -33,7 +33,6 @@ overdue
 pacman-cleanup-hook
 pacman-contrib
 paru
-pass-otp
 pbzip2
 pigz
 pkgstats
@@ -48,10 +47,8 @@ systemd-resolvconf
 tlp
 torsocks
 unzip
-wget
 wireguard-tools
 yazi
-zsh-completions
 zram-generator
 
 # --- bluetooth ---
