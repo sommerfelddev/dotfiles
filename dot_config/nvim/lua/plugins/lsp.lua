@@ -8,66 +8,30 @@ vim.lsp.enable("just")
 pcall(vim.lsp.enable, "tblgen_lsp_server")
 
 require("fidget").setup({})
-require("mason").setup({})
-require("mason-lspconfig").setup({
-  ensure_installed = {},
-  automatic_installation = false,
-  handlers = {
-    function(server_name)
-      vim.lsp.enable(server_name)
-    end,
-  },
-})
-require("mason-tool-installer").setup({
-  ensure_installed = {
-    "actionlint",
-    "autotools-language-server",
-    -- basedpyright: provided by the system pkg manager (basedpyright-bin from
-    -- AUR on Arch, pkgs.basedpyright in remote-dev/home.nix on the VM). Mason's pypi
-    -- distro pulls `nodejs-wheel-binaries` whose Linux wheels are only
-    -- manylinux_2_28; uv's standalone python (manylinux2014) rejects them and
-    -- pip falls back to building Node from source, which fails on Ubuntu
-    -- 20.04's gcc 9.4 (<10, no -std=gnu++20). lspconfig finds it on PATH.
-    "bash-language-server",
-    "clangd",
-    "codelldb",
-    "codespell",
-    "css-lsp",
-    "dockerfile-language-server",
-    "gh",
-    "gh-actions-language-server",
-    "groovy-language-server",
-    "hadolint",
-    "html-lsp",
-    "jq",
-    "json-lsp",
-    "jsonlint",
-    "just-lsp",
-    "lua-language-server",
-    "markdownlint",
-    "mdformat",
-    "neocmakelsp",
-    "nginx-config-formatter",
-    "nginx-language-server",
-    "npm-groovy-lint",
-    "prettier",
-    "ruff",
-    "rust-analyzer",
-    "selene",
-    "shellcheck",
-    "shellharden",
-    "shfmt",
-    "stylelint",
-    "stylua",
-    "systemd-lsp",
-    "systemdlint",
-    "taplo",
-    "typescript-language-server",
-    "typos",
-    "yaml-language-server",
-    "yamllint",
-    "yq",
-  },
+
+-- LSPs come from Home-Manager (see nix/common.nix). lspconfig ships the
+-- default configs; we just opt-in per server. (Previously this was driven
+-- by mason-lspconfig handlers; phase p6 of the nix migration removed
+-- Mason entirely.)
+vim.lsp.enable({
+  "autotools_ls",
+  "basedpyright",
+  "bashls",
+  "clangd",
+  "cssls",
+  "dockerls",
+  "eslint",
+  "gh_actions_ls",
+  "html",
+  "jsonls",
+  "lua_ls",
+  "neocmake",
+  "ruff",
+  "rust_analyzer",
+  "systemd_ls",
+  "taplo",
+  "ts_ls",
+  "yamlls",
 })
 
 vim.api.nvim_create_autocmd("LspAttach", {
@@ -194,11 +158,9 @@ require("conform").setup({
     bash = { "shfmt" },
     cmake = { "cmake_format" },
     css = { "prettier", "stylelint" },
-    groovy = { "npm-groovy-lint" },
     html = { "prettier" },
     javascript = { "prettier" },
     typescript = { "prettier" },
-    jenkins = { "npm-groovy-lint" },
     json = { "jq", "jsonlint" },
     jsonc = { "prettier" },
     just = { "just" },
@@ -230,12 +192,9 @@ local lint = require("lint")
 lint.linters_by_ft = {
   css = { "stylelint" },
   dockerfile = { "hadolint" },
-  groovy = { "npm-groovy-lint" },
-  jenkins = { "npm-groovy-lint" },
   json = { "jsonlint" },
   markdown = { "markdownlint" },
   makefile = { "checkmake" },
-  systemd = { "systemdlint" },
   yaml = { "yamllint", "yq" },
   ghaction = { "actionlint" },
   zsh = { "zsh" },

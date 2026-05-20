@@ -22,11 +22,6 @@ dap.adapters.gdb = {
   args = { "--interpreter=dap" },
   env = get_env_vars,
 }
-dap.adapters.codelldb = {
-  type = "executable",
-  command = "codelldb",
-  env = get_env_vars,
-}
 
 local function get_program()
   local _program
@@ -53,8 +48,8 @@ end
 
 dap.configurations.cpp = {
   {
-    name = "codelldb Launch",
-    type = "codelldb",
+    name = "lldb-dap Launch",
+    type = "lldb",
     request = "launch",
     cwd = "${workspaceFolder}",
     program = get_program,
@@ -68,8 +63,3 @@ dap.configurations.c = dap.configurations.cpp
 dap.configurations.rust = dap.configurations.cpp
 
 require("nvim-dap-virtual-text").setup({})
-require("mason-nvim-dap").setup({
-  automatic_installation = false,
-  handlers = {},
-  ensure_installed = {},
-})

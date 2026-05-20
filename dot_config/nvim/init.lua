@@ -68,9 +68,6 @@ vim.pack.add({
   gh("folke/lazydev.nvim"),
   gh("neovim/nvim-lspconfig"),
   gh("j-hui/fidget.nvim"),
-  gh("williamboman/mason.nvim"),
-  gh("williamboman/mason-lspconfig.nvim"),
-  gh("WhoIsSethDaniel/mason-tool-installer.nvim"),
   gh("stevearc/conform.nvim"),
   gh("mrcjkb/rustaceanvim"),
   gh("mfussenegger/nvim-lint"),
@@ -80,7 +77,6 @@ vim.pack.add({
   { src = gh("miroshQa/debugmaster.nvim"), version = "dashboard" },
   gh("mfussenegger/nvim-dap"),
   gh("theHamsta/nvim-dap-virtual-text"),
-  gh("jay-babu/mason-nvim-dap.nvim"),
 
   -- Runner
   gh("stevearc/overseer.nvim"),

@@ -418,7 +418,8 @@ _fzf_compgen_path() { fd --hidden --follow --exclude ".git" . "$1" }
 _fzf_compgen_dir()  { fd --type d --hidden --follow --exclude ".git" . "$1" }
 
 # ── Plugins (must be sourced last) ────────────────────────────────────────────
-# Plugin locations: Arch system path first, ~/.nix-profile fallback for VM HM.
+# Plugin locations: ~/.nix-profile (Home-Manager) first, Arch system path as
+# fallback for un-bootstrapped states.
 _source_first() {
 	local f
 	for f in "$@"; do
@@ -432,17 +433,17 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 typeset -A ZSH_HIGHLIGHT_STYLES
 ZSH_HIGHLIGHT_STYLES[comment]='fg=yellow'
 _source_first \
-	/usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-	$HOME/.nix-profile/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+	$HOME/.nix-profile/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+	/usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 _source_first \
-	/usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh \
-	$HOME/.nix-profile/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+	$HOME/.nix-profile/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+	/usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 bindkey '^[[Z' autosuggest-accept  # Shift-Tab to accept suggestion
 
 _source_first \
-	/usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh \
-	$HOME/.nix-profile/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+	$HOME/.nix-profile/share/zsh-history-substring-search/zsh-history-substring-search.zsh \
+	/usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
 [[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   history-substring-search-up
 [[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" history-substring-search-down
 
