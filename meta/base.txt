@@ -1,45 +1,38 @@
 # --- core ---
+# Note: the leaf-CLI tooling (ripgrep, fd, bat, glow, fzf, lsd, jq, yq-go,
+# zoxide, just, sd, choose, dog, curlie, hyperfine, htop, fastfetch, tldr,
+# rsync, mergiraf, delta, tree-sitter, neovim, zellij, gh, pass, openssh,
+# git, zsh + plugins, basedpyright, rust-analyzer, etc.) is now provisioned
+# via Home-Manager from nix/common.nix and lives under ~/.nix-profile/bin.
+# Anything pacman drops that's still needed (git, openssh, curl, …) comes
+# back transitively through other base/base-devel/desktop deps.
 acpid
 arch-audit
 base
 base-devel
 bash-completion
-bat
 chezmoi
-choose
 cpupower
-curlie
+curl
 dashbinsh
-dog
 duf
-fastfetch
-fd
 fwupd
-fzf
 gdu
-git
-glow
-htop
 iwd
-jq
 kernel-modules-hook
 linux-firmware
 lostfiles
-lsd
 lshw
 man-db
 man-pages
-neovim
 nfs-utils
 nftables
 nmap
 ocl-icd
-openssh
 overdue
 pacman-cleanup-hook
 pacman-contrib
 paru
-pass
 pass-otp
 pbzip2
 pigz
@@ -48,28 +41,17 @@ procs
 qrencode
 rebuild-detector
 reflector
-ripgrep
-rsync
 sbctl
-sd
 smartmontools
 sudo-rs
 systemd-resolvconf
-tldr
 tlp
 torsocks
-tree-sitter-cli
 unzip
 wget
 wireguard-tools
 yazi
-zellij
-zoxide
-zsh
-zsh-autosuggestions
 zsh-completions
-zsh-history-substring-search
-zsh-syntax-highlighting
 zram-generator
 
 # --- bluetooth ---
@@ -89,33 +71,25 @@ nix
 
 # --- dev ---
 android-tools
-basedpyright-bin
 ccache
 clang
 cmake
-curl
 difftastic
 direnv
 doxygen
 gdb
 git-absorb
-git-delta
-github-cli
 go
-hyperfine
 jdk21-openjdk
-just
 lld
 lldb
 luarocks
-mergiraf
 mold
 ninja
 npm
 perf
 podman-compose
 podman-docker
-rust-analyzer
 rustup
 samply
 sccache
@@ -262,7 +236,9 @@ udisks2
 flatpak
 
 # Smartcard stack (cartão de cidadão reader + PKCS#11 bridge into flatpak
-# browsers). pcscd.socket is enabled by systemd-units/system.txt.
+# browsers). pcscd.socket is enabled by systemd-units/system.txt. pcsclite
+# itself is also needed by Home-Manager's gnupg/scdaemon (see nix/host.nix's
+# scdaemon.conf — points scdaemon at /usr/lib/libpcsclite.so.1).
 pcsclite
 ccid
 

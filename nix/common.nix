@@ -60,6 +60,7 @@ in
     # System
     htop
     fastfetch
+    hyperfine
 
     # Net
     curl
