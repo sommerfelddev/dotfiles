@@ -360,6 +360,18 @@ alias j='just'
 alias dj='just --justfile ~/dotfiles/justfile --working-directory ~/dotfiles'
 alias rj='just --justfile ~/.local/share/dotfiles/nix/justfile --working-directory ~/.local/share/dotfiles/nix'
 
+# Home-Manager (flake-based; standalone HM defaults to legacy ~/.config/home-manager)
+hm() {
+    local profile=host
+    [ -r /etc/os-release ] && . /etc/os-release
+    case "${ID:-}" in
+        ubuntu|debian) profile=vm ;;
+    esac
+    local flake="$HOME/dotfiles/nix#${profile}"
+    [ -d "$HOME/.local/share/dotfiles/nix" ] && flake="$HOME/.local/share/dotfiles/nix#${profile}"
+    nix run home-manager/master -- "$@" --flake "$flake"
+}
+
 # LLVM / Clang tooling
 alias ncmake='cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_FLAGS="$DEV_CFLAGS" -DCMAKE_CXX_FLAGS="$DEV_CFLAGS" -DCMAKE_INSTALL_PREFIX=build/install -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build'
 alias ircc='clang -S -emit-llvm -fno-discard-value-names -O0 -Xclang -disable-O0-optnone -o -'
