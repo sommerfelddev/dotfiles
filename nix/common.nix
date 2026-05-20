@@ -52,6 +52,8 @@ in
     gh
     delta
     mergiraf
+    git-absorb
+    difftastic
 
     # JSON / YAML
     jq
@@ -61,19 +63,36 @@ in
     htop
     fastfetch
     hyperfine
+    duf
+    gdu
+    procs
+    yazi
 
     # Net
     curl
     curlie
     wget
     dog
+    nmap
     rsync
     openssh
+
+    # Debug / trace / profile — moved off pacman. User policy: only
+    # used against own builds, so glibc/kernel version skew vs the
+    # system isn't an issue. `perf` and `valgrind` stay system: `perf`
+    # links against kernel ABI (pacman's matches the running kernel);
+    # `valgrind` has tighter glibc compat requirements.
+    gdb
+    lldb        # also brings lldb-dap (used by dap.lua via type="lldb")
+    strace
+    samply
+    t-rec
 
     # Docs
     tldr
     man-db
     man-pages
+    pandoc
 
     # Secrets — `pass-otp` is wired as an extension so `pass otp ...`
     # works against the same store. `pass` from pacman is removed.
@@ -82,6 +101,9 @@ in
 
     # C/C++ source tooling (no compiler driver in PATH)
     clang-tools
+
+    # CI runner (drives podman from pacman; act itself is just a Go binary)
+    act
 
     # Editor/AI agent runtimes — NOT for project builds (see policy above)
     nodejs_24 # copilot-language-server requires Node 24 (see ai.lua)
@@ -136,10 +158,9 @@ in
     typos
     yamllint
 
-    # DAPs / debuggers — `lldb-dap` (from pkgs.lldb) is the upstream
-    # successor to vscode-lldb's `codelldb`. dap configs in
-    # plugins/debug.lua target it via `type = "lldb"`.
-    lldb
+    # DAPs / debuggers — `lldb-dap` ships in pkgs.lldb (declared in the
+    # debug/trace block above). dap configs in plugins/debug.lua target
+    # it via `type = "lldb"`.
 
     # Zsh and plugins (loaded from $HOME/.nix-profile/share/... by the
     # shared zshrc; nix-profile path is preferred, system path is the

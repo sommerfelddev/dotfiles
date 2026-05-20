@@ -1,23 +1,19 @@
 # --- core ---
-# Note: the leaf-CLI tooling (ripgrep, fd, bat, glow, fzf, lsd, jq, yq-go,
-# zoxide, just, sd, choose, dog, curlie, hyperfine, htop, fastfetch, tldr,
-# rsync, mergiraf, delta, tree-sitter, neovim, zellij, gh, pass + pass-otp,
-# openssh, git, gnupg, wget, zsh + plugins + zsh-completions, basedpyright,
-# rust-analyzer, etc.) is provisioned via Home-Manager from nix/common.nix
-# and lives under ~/.nix-profile/bin (first in PATH). Anything pacman drops
-# that's still needed (curl, git, openssh, gnupg) comes back transitively
-# via base/base-devel/desktop deps.
+# Leaf CLI / editor / multiplexer / git stack / json+yaml / system viewers /
+# net / debug+trace / docs / secrets — all provisioned via Home-Manager
+# from nix/common.nix and live under ~/.nix-profile/bin (first in PATH).
+# What stays on pacman in this section is the pieces tightly coupled to
+# the distro (man-db/man-pages files), the system runtime (sudo-rs,
+# base/base-devel), and things needed pre-bootstrap or by other system
+# packages transitively.
 acpid
 arch-audit
 base
 base-devel
-bash-completion
 chezmoi
 cpupower
 dashbinsh
-duf
 fwupd
-gdu
 iwd
 kernel-modules-hook
 linux-firmware
@@ -27,7 +23,6 @@ man-db
 man-pages
 nfs-utils
 nftables
-nmap
 ocl-icd
 overdue
 pacman-cleanup-hook
@@ -36,7 +31,6 @@ paru
 pbzip2
 pigz
 pkgstats
-procs
 qrencode
 rebuild-detector
 reflector
@@ -46,9 +40,7 @@ sudo-rs
 systemd-resolvconf
 tlp
 torsocks
-unzip
 wireguard-tools
-yazi
 zram-generator
 
 # --- bluetooth ---
@@ -66,21 +58,15 @@ ell
 # direnv's source_url with a content hash, so no extra package needed.) ---
 nix
 
-# --- dev ---
-android-tools
+# --- dev (compiler / linker / build-system / language toolchains — these
+# MUST stay on pacman: nix/common.nix is forbidden from shipping them
+# because nix-store paths on PATH would shadow the system ones and
+# silently link projects against nixpkgs glibc instead of the system
+# sysroot. See policy comment at the top of nix/common.nix.) ---
 ccache
 clang
 cmake
-difftastic
-direnv
-doxygen
-gdb
-git-absorb
-go
-jdk21-openjdk
 lld
-lldb
-luarocks
 mold
 ninja
 npm
@@ -88,11 +74,7 @@ perf
 podman-compose
 podman-docker
 rustup
-samply
 sccache
-strace
-t-rec
-uv
 valgrind
 
 # --- sound ---
@@ -224,8 +206,6 @@ streamlink
 yt-dlp
 
 # --- desktop extras ---
-gpg-tui
-pandoc-bin
 syncthing
 udisks2
 
@@ -249,4 +229,3 @@ tesseract-data-por
 # WHISPER_MODEL in the script's environment to use a different ggml model.
 whisper.cpp-vulkan
 whisper.cpp-model-base
-act
