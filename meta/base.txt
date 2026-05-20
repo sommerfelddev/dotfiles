@@ -103,7 +103,7 @@ git-delta
 github-cli
 go
 hyperfine
-jdk-openjdk
+jdk21-openjdk
 just
 lld
 lldb
