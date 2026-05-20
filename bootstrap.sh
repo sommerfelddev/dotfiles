@@ -33,7 +33,7 @@ id -nG "$USER" | tr ' ' '\n' | grep -qx wheel ||
 # 2. install sudo + pacman prerequisites, enable wheel in sudoers.
 #    If sudo is absent we do this in a single su -c so the root password
 #    is entered only once. If sudo is already there, reuse it.
-PREREQS='sudo git base-devel chezmoi just efibootmgr'
+PREREQS='sudo git base-devel chezmoi just efibootmgr nix'
 SUDOERS_SED='s/^# *\(%wheel ALL=(ALL:ALL\(:ALL\)*) ALL\)/\1/'
 
 if ! command -v sudo >/dev/null 2>&1; then
@@ -72,25 +72,24 @@ fi
 #    at sudo-rs (PATH precedence shadows /usr/bin/sudo), and installs
 #    git hooks. The classic 'sudo' package stays installed because
 #    base-devel hard-depends on it; that's harmless — the binary is
-#    never invoked once /usr/local/bin/sudo is in place.
-#    `just init` also runs `just nix-switch` (step 5b below); the nix
-#    install needs to happen before that.
+#    never invoked once /usr/local/bin/sudo is in place. `just init`
+#    also runs `just nix-switch` to apply the Home-Manager profile;
+#    nix itself is part of PREREQS above (pacman package), and
+#    nix-daemon.socket is enabled by `unit-apply` via
+#    systemd-units/system.txt.
 cd "$DOTFILES_DIR"
 
-# 5a. install nix (Determinate Systems installer, multi-user) before
-#     `just init`, so `just nix-switch` finds it.
-if ! command -v nix >/dev/null 2>&1; then
-  log 'installing nix (Determinate Systems multi-user installer)'
-  curl --proto '=https' --tlsv1.2 -sSf -L \
-    https://install.determinate.systems/nix |
-    sh -s -- install linux --no-confirm
-  # Source nix env for the rest of this script (installer writes
-  # /etc/profile.d/nix.sh but the current shell hasn't sourced it).
-  if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
-    # shellcheck disable=SC1091
-    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+# Source the nix profile so `nix` is on PATH for the rest of this
+# script (pacman drops /etc/profile.d/nix.sh but the current shell
+# didn't read it). Multi-user (daemon mode) and per-user variants exist;
+# pacman ships the multi-user one.
+for f in /etc/profile.d/nix.sh /etc/profile.d/nix-daemon.sh; do
+  if [ -r "$f" ]; then
+    # shellcheck disable=SC1090
+    . "$f"
+    break
   fi
-fi
+done
 
 log 'running just init'
 just init
