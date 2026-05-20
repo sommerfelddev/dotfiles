@@ -57,7 +57,9 @@ vim.api.nvim_create_user_command("PackClean", clean, {
   desc = "Remove plugins not declared in vim.pack.add()",
 })
 
-vim.api.nvim_create_user_command("PackUpdate", vim.pack.update, {
+vim.api.nvim_create_user_command("PackUpdate", function()
+  vim.pack.update()
+end, {
   desc = "Update all plugins (shows confirm buffer — :w to apply, :q to cancel)",
 })
 
