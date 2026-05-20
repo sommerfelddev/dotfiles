@@ -369,7 +369,7 @@ hm() {
     esac
     local flake="$HOME/dotfiles/nix#${profile}"
     [ -d "$HOME/.local/share/dotfiles/nix" ] && flake="$HOME/.local/share/dotfiles/nix#${profile}"
-    nix run home-manager/master -- "$@" --flake "$flake"
+    nix run home-manager/master -- "$@" --flake "$flake" --impure
 }
 
 # LLVM / Clang tooling
