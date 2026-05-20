@@ -127,6 +127,7 @@
 
     # AI coding agents
     claude-code
+    codex # OpenAI Codex CLI (rust rewrite); replaces pacman openai-codex-bin
     # github-copilot-cli intentionally not here: nixpkgs derivation (as
     # of 1.0.40) fails to build on Determinate nix with EACCES on
     # /var/empty/.cache (HOME not redirected during npm postinstall).
