@@ -1,17 +1,19 @@
 { config, pkgs, lib, dotfilesRoot, ... }:
 
-# VM-only Home-Manager profile (Ubuntu 22.04 remote-dev box). Adds
-# Mason-related runtime carve-outs and the rootless podman stack on
-# top of `common.nix`.
+# VM-only Home-Manager profile (Ubuntu 22.04 remote-dev box). Adds the
+# rootless podman stack, the editor/zellij/zsh/git config symlinks
+# back into the cloned dotfiles tree, and a minimal ~/.zshenv shim —
+# all of which the Arch host gets from chezmoi instead.
 
+let
+  dotfiles = "${builtins.getEnv "HOME"}/.local/share/dotfiles";
+  link = path: config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${path}";
+in
 {
   imports = [ ./common.nix ];
 
   home.username = builtins.getEnv "USER";
   home.homeDirectory = builtins.getEnv "HOME";
-
-  # Remote-dev VM clones the dotfiles tree under XDG_DATA_HOME.
-  my.dotfilesPath = "${builtins.getEnv "HOME"}/.local/share/dotfiles";
 
   home.sessionVariables = {
     # Ubuntu 20.04-derived hosts still default to cgroups v1; podman 5
@@ -33,6 +35,55 @@
     slirp4netns  # rootless user-mode networking
     passt        # pasta backend (slirp4netns successor; podman picks it up)
   ];
+
+  # ── Shared config symlinks ──────────────────────────────────────────────────
+  # Live symlinks back into the cloned working tree so `git pull` is enough
+  # to update configs — no `home-manager switch` required after every edit.
+  # On the Arch host the same files are deployed by chezmoi; this block
+  # exists because the VM doesn't run chezmoi.
+  xdg.configFile = {
+    "nvim".source             = link "dot_config/nvim";
+    "zellij".source           = link "dot_config/zellij";
+    "zsh/.zshrc".source       = link "dot_config/zsh/dot_zshrc";
+    "zsh/.zprofile".source    = link "dot_config/zsh/dot_zprofile";
+    "ghostty".source          = link "dot_config/ghostty";   # for terminfo refs only
+    "direnv/direnvrc".source  = link "dot_config/direnv/direnvrc";
+    "git/config".source       = link "dot_config/git/config";
+    "git/attributes".source   = link "dot_config/git/attributes";
+    "git/ignore".source       = link "dot_config/git/ignore";
+    # Git hooks: source filenames carry the chezmoi `executable_` attribute
+    # prefix which only chezmoi strips. In nix-managed setups we use raw
+    # symlinks, so map each hook to its stripped name explicitly. The
+    # executable bit comes from the working-tree file mode (git resolves
+    # the symlink).
+    "git/hooks/pre-push".source = link "dot_config/git/hooks/executable_pre-push";
+    "git/hooks/pre-commit".source = link "dot_config/git/hooks/executable_pre-commit";
+    "git/hooks/commit-msg".source = link "dot_config/git/hooks/executable_commit-msg";
+    "git/hooks/post-commit".source = link "dot_config/git/hooks/executable_post-commit";
+    "git/hooks/_dispatch.sh".source = link "dot_config/git/hooks/_dispatch.sh";
+  };
+
+  # ~/.ssh/config from the dotfiles tree (read-only); keys + known_hosts
+  # stay machine-local. We can't symlink via home.file because
+  # mkOutOfStoreSymlink exposes the working-tree perms (0664 under a
+  # default umask 002) and OpenSSH refuses any group-writable ssh_config.
+  # Materialize a real 0600 file via activation instead.
+  home.activation.sshConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run install -D -m 600 \
+      "${dotfiles}/private_dot_ssh/config" "$HOME/.ssh/config"
+  '';
+
+  # ZDOTDIR redirect so login shells find ~/.config/zsh/.zprofile etc.
+  # Also source HM's session-vars — HM normally drops these into
+  # ~/.profile, but zsh login shells don't read .profile, and we don't
+  # use programs.zsh.enable.
+  home.file.".zshenv".text = ''
+    if [ -r "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]; then
+      . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+    fi
+    export ZDOTDIR="$HOME/.config/zsh"
+    [[ -r "$ZDOTDIR/.zshenv" ]] && source "$ZDOTDIR/.zshenv"
+  '';
 
   # ── Rootless podman config ──────────────────────────────────────────────────
   # Kept inline (not in the chezmoi tree) because Arch's system-wide

@@ -1,13 +1,12 @@
 { config, pkgs, lib, dotfilesRoot, ... }:
 
-# Shared Home-Manager module: the leaf-CLI subset, editor/AI-agent
-# runtimes, and the shared dotfiles symlinks used by **both** the Arch
-# host and the Ubuntu remote-dev VM. Profile-specific extras live in
-# `host.nix` and `vm.nix`.
-#
-# The path to the runtime dotfiles checkout (where symlinks point) is
-# read from `config.my.dotfilesPath`; the per-profile module sets it
-# (host: ~/dotfiles, vm: ~/.local/share/dotfiles).
+# Shared Home-Manager module: ONLY package installation. Config-file
+# deployment is *not* handled here — on the Arch host, chezmoi owns
+# every dotfile under $HOME; on the remote-dev VM, `vm.nix` carries
+# its own `xdg.configFile`/`home.activation` block since chezmoi isn't
+# installed there. Keeping this module deployment-agnostic prevents
+# home-manager from conflicting with chezmoi on the host (which would
+# otherwise materialize as `.backup` files on every `nix-switch`).
 #
 # Policy: this profile carries leaf CLI tools, editor/AI-agent runtimes
 # (node, uv), and build *orchestrators* (cmake, ninja, ccache, sccache).
@@ -30,22 +29,7 @@
 # — manages its own python interpreters under XDG, doesn't install a
 # system python3).
 
-let
-  dotfiles = config.my.dotfilesPath;
-  link = path: config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${path}";
-in
 {
-  options.my.dotfilesPath = lib.mkOption {
-    type = lib.types.str;
-    description = ''
-      Absolute path to the runtime dotfiles checkout that the
-      mkOutOfStoreSymlink-based home.file entries point at. The host
-      profile sets this to "$HOME/dotfiles"; the vm profile sets it
-      to "$HOME/.local/share/dotfiles".
-    '';
-  };
-
-  config = {
   home.stateVersion = "25.05";
 
   # ── Packages ────────────────────────────────────────────────────────────────
@@ -213,57 +197,9 @@ in
     enableZshIntegration = false; # zshrc already calls `eval "$(direnv hook zsh)"`
   };
 
-  # ── Shared config symlinks ──────────────────────────────────────────────────
-  # Live symlinks back into the cloned working tree so `git pull` is enough
-  # to update configs — no `home-manager switch` required after every edit.
-  xdg.configFile = {
-    "nvim".source             = link "dot_config/nvim";
-    "zellij".source           = link "dot_config/zellij";
-    "zsh/.zshrc".source       = link "dot_config/zsh/dot_zshrc";
-    "zsh/.zprofile".source    = link "dot_config/zsh/dot_zprofile";
-    "ghostty".source          = link "dot_config/ghostty";   # for terminfo refs only
-    "direnv/direnvrc".source  = link "dot_config/direnv/direnvrc";
-    "git/config".source       = link "dot_config/git/config";
-    "git/attributes".source   = link "dot_config/git/attributes";
-    "git/ignore".source       = link "dot_config/git/ignore";
-    # Git hooks: source filenames carry the chezmoi `executable_` attribute
-    # prefix which only chezmoi strips. In nix-managed setups we use raw
-    # symlinks, so map each hook to its stripped name explicitly. The
-    # executable bit comes from the working-tree file mode (git resolves
-    # the symlink).
-    "git/hooks/pre-push".source = link "dot_config/git/hooks/executable_pre-push";
-    "git/hooks/pre-commit".source = link "dot_config/git/hooks/executable_pre-commit";
-    "git/hooks/commit-msg".source = link "dot_config/git/hooks/executable_commit-msg";
-    "git/hooks/post-commit".source = link "dot_config/git/hooks/executable_post-commit";
-    "git/hooks/_dispatch.sh".source = link "dot_config/git/hooks/_dispatch.sh";
-  };
-
-  # ~/.ssh/config from the dotfiles tree (read-only); keys + known_hosts
-  # stay machine-local. We can't symlink via home.file because
-  # mkOutOfStoreSymlink exposes the working-tree perms (0664 under a
-  # default umask 002) and OpenSSH refuses any group-writable ssh_config.
-  # Materialize a real 0600 file via activation instead.
-  home.activation.sshConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    run install -D -m 600 \
-      "${dotfiles}/private_dot_ssh/config" "$HOME/.ssh/config"
-  '';
-
-  # ZDOTDIR redirect so login shells find ~/.config/zsh/.zprofile etc.
-  # Also source HM's session-vars — HM normally drops these into
-  # ~/.profile, but zsh login shells don't read .profile, and we don't
-  # use programs.zsh.enable.
-  home.file.".zshenv".text = ''
-    if [ -r "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]; then
-      . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
-    fi
-    export ZDOTDIR="$HOME/.config/zsh"
-    [[ -r "$ZDOTDIR/.zshenv" ]] && source "$ZDOTDIR/.zshenv"
-  '';
-
   # ── XDG base dirs ──────────────────────────────────────────────────────────
   xdg.enable = true;
 
   # ── Enable HM-managed activation messages ──────────────────────────────────
   programs.home-manager.enable = true;
-  };
 }

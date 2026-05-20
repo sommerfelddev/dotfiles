@@ -2,17 +2,16 @@
 
 # Arch host Home-Manager profile. Layered on top of `common.nix`; adds
 # only host-specific concerns that don't make sense on the VM.
+#
+# Dotfile deployment on the host is owned entirely by **chezmoi** (run
+# via `just apply` / `just sync`). Home-Manager here only installs
+# binaries and writes the host-only smartcard config below.
 
 {
   imports = [ ./common.nix ];
 
   home.username = builtins.getEnv "USER";
   home.homeDirectory = builtins.getEnv "HOME";
-
-  # The Arch host keeps its chezmoi source state at ~/dotfiles (the
-  # canonical clone location for the dotfiles repo). The VM convention
-  # of ~/.local/share/dotfiles doesn't apply here.
-  my.dotfilesPath = "${builtins.getEnv "HOME"}/dotfiles";
 
   # ── Smartcard (Yubikey) ────────────────────────────────────────────────────
   # Nix's gnupg ships its own scdaemon. Delegate to the system pcscd
