@@ -25,7 +25,9 @@
         overlays = [
           # Expose `pkgs.tuicr` so common.nix can list it next to other
           # packages without threading inputs into every module.
-          (final: prev: { tuicr = tuicr.packages.${system}.default; })
+          # tuicr's flake uses the legacy `defaultPackage.<system>`
+          # schema (not `packages.<system>.default`); see its flake.nix.
+          (final: prev: { tuicr = tuicr.defaultPackage.${system}; })
         ];
         # Whitelist specific unfree packages (claude-code,
         # github-copilot-cli) instead of globally setting allowUnfree,
