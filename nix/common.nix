@@ -130,6 +130,7 @@
     claude-code
     codex # OpenAI Codex CLI (rust rewrite); replaces pacman openai-codex-bin
     github-copilot-cli # `copilot`; prebuilt-binary derivation since 1.0.43
+    tuicr # interactive git-change reviewer; flake input, see nix/flake.nix. Skill: dot_claude/skills/tuicr/
 
     # ── LSPs / formatters / linters / DAPs ─────────────────────────────────
     # Replaces Mason entirely (phase p6 of the nix migration rips out
