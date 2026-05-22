@@ -124,6 +124,7 @@
     # Editor/AI agent runtimes — NOT for project builds (see policy above)
     nodejs_24 # copilot-language-server requires Node 24 (see ai.lua)
     uv        # for project tooling that asks for `uv`/`uvx`; brings no python
+    python3Packages.ipython # interactive REPL; pulls its own python, only `ipython` lands on PATH
 
     # AI coding agents
     claude-code
