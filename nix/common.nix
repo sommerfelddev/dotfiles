@@ -199,4 +199,7 @@
 
   # ── Enable HM-managed activation messages ──────────────────────────────────
   programs.home-manager.enable = true;
+
+  # Silence "X news items" banner on every `home-manager switch`.
+  news.display = "silent";
 }
