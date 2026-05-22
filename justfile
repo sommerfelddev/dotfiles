@@ -1073,7 +1073,15 @@ pkg-apply *groups:
     mark_explicit() {
         # Skip blank input; pacman -D errors on empty arg list.
         [ -n "$1" ] || return 0
-        printf '%s\n' "$1" | xargs sudo pacman -D --asexplicit >/dev/null
+        # Intersect with the local DB: a declared name may have been
+        # resolved by paru to a provider with a different package name
+        # (e.g. ttf-font-awesome -> otf-font-awesome), in which case
+        # `pacman -D --asexplicit <declared-name>` would error with
+        # "could not find or read package".
+        installed=$(printf '%s\n' "$1" | sort -u \
+            | comm -12 - <(pacman -Qq | sort -u))
+        [ -n "$installed" ] || return 0
+        printf '%s\n' "$installed" | xargs sudo pacman -D --asexplicit >/dev/null
     }
     if [ -n "{{ groups }}" ]; then
         for group in {{ groups }}; do
