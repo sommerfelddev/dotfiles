@@ -58,6 +58,7 @@ for_window [shell=".*"] inhibit_idle fullscreen
 for_window [app_id="virt-viewer"] shortcuts_inhibitor disable
 for_window [app_id="remote-viewer"] shortcuts_inhibitor disable
 for_window [app_id="virt-manager"] shortcuts_inhibitor disable
+for_window [app_id="^[Ww]aydroid.*"] shortcuts_inhibitor disable
 
 # ── Standard keybinds (sway defaults) ─────────────────────────────────────────
 bindsym $mod+Return exec $term
