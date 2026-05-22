@@ -90,7 +90,6 @@ otf-font-awesome
 otf-latinmodern-math
 ttf-dejavu
 ttf-fira-code
-ttf-font-awesome
 ttf-noto-nerd
 woff2-font-awesome
 
