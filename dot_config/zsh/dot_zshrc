@@ -389,6 +389,29 @@ reload-env() {
 	done < "/proc/$pid/environ"
 }
 
+# Refresh the ssh-agent socket inside a zellij pane that has outlived
+# its originating SSH connection. zprofile keeps ~/.ssh/agent.sock
+# aimed at the live forwarded socket on every reconnect, so the stable
+# path is current — this just re-exports it for shells whose own
+# SSH_AUTH_SOCK still holds the dead per-connection path captured
+# when zellij was first started. Already-running children
+# (claude-code, etc.) must still be restarted: env is inherited, not
+# observed.
+ssh-agent-refresh() {
+	local sock="$HOME/.ssh/agent.sock"
+	if [[ ! -e $sock ]]; then
+		echo "ssh-agent-refresh: $sock missing; reconnect over ssh first to seed it" >&2
+		return 1
+	fi
+	export SSH_AUTH_SOCK="$sock"
+	if ssh-add -l >/dev/null 2>&1; then
+		print -r -- "ssh-agent: live → $(readlink -f -- "$sock")"
+	else
+		echo "ssh-agent-refresh: stable socket exists but ssh-add -l failed; agent forwarding off?" >&2
+		return 1
+	fi
+}
+
 # Just
 alias j='just'
 alias dj='just --justfile ~/dotfiles/justfile --working-directory ~/dotfiles'
