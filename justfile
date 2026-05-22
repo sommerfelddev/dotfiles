@@ -1064,6 +1064,17 @@ pkg-list group="":
 pkg-apply *groups:
     #!/bin/sh
     set -eu
+    # `paru -S --needed` is a no-op for already-installed packages, which
+    # means a package pulled in transitively (and later declared in
+    # meta/*.txt) stays marked "installed as a dependency" forever and
+    # keeps showing up under `pacopt`. After each install pass, force the
+    # declared set to "explicitly installed" so the local pacman DB
+    # reflects the meta files as the source of truth.
+    mark_explicit() {
+        # Skip blank input; pacman -D errors on empty arg list.
+        [ -n "$1" ] || return 0
+        printf '%s\n' "$1" | xargs sudo pacman -D --asexplicit >/dev/null
+    }
     if [ -n "{{ groups }}" ]; then
         for group in {{ groups }}; do
             file="meta/${group}.txt"
@@ -1074,12 +1085,15 @@ pkg-apply *groups:
             pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
             [ -n "$pkgs" ] || continue
             printf '%s\n' "$pkgs" | paru -S --needed --noconfirm --ask=4 -
+            mark_explicit "$pkgs"
         done
     else
-        find meta -maxdepth 1 -name '*.txt' ! -name 'flatpak.txt' -print0 \
+        all_pkgs=$(find meta -maxdepth 1 -name '*.txt' ! -name 'flatpak.txt' -print0 \
             | xargs -0 cat \
             | sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' \
-            | sort -u | paru -S --needed --noconfirm --ask=4 -
+            | sort -u)
+        printf '%s\n' "$all_pkgs" | paru -S --needed --noconfirm --ask=4 -
+        mark_explicit "$all_pkgs"
         [ -f meta/flatpak.txt ] && just _flatpak-install
     fi
 
