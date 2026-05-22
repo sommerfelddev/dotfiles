@@ -64,11 +64,18 @@ unset SSH_AGENT_PID
 # git-fetch keep working without any per-pane re-export.
 if [[ -n "$SSH_CONNECTION" && -S "$SSH_AUTH_SOCK" ]]; then
 	stable_sock="$HOME/.ssh/agent.sock"
-	if [[ "$SSH_AUTH_SOCK" != "$stable_sock" ]]; then
+	# Only retarget if the current symlink target is dead. Sshd unlinks
+	# the per-connection socket file on disconnect, so [[ -S ]] on the
+	# resolved path is a reliable liveness probe. Avoiding gratuitous
+	# retargets keeps multi-connection setups stable: the first
+	# connection seeds the symlink, subsequent logins keep using it,
+	# and only if that connection drops does the next login retarget.
+	current_target="$(readlink "$stable_sock" 2>/dev/null)"
+	if [[ ! -S "$current_target" ]]; then
 		ln -sfn "$SSH_AUTH_SOCK" "$stable_sock"
 	fi
 	export SSH_AUTH_SOCK="$stable_sock"
-	unset stable_sock
+	unset stable_sock current_target
 else
 	# Local login: route ssh auth through gpg-agent.
 	SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
