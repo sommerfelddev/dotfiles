@@ -1,20 +1,15 @@
-# NOTE: Type=ether matches ALL ethernet interfaces. Any future USB/Thunderbolt
-# ethernet dongle would be auto-enslaved into bond0. If that becomes a problem,
-# narrow the [Match] section to MACAddress= or a persistent Name= (e.g. enp*s0).
+# Match only real, physical ethernet via Path= (PCI + USB) and udev's
+# predictable name pattern. This is more robust than Type=ether + Name= negation:
+# negations on Name= matched veth/virbr/waydroid interfaces in practice, which
+# enslaved them into bond0 and broke host networking (waydroid, libvirt, etc.).
 #
-# Name= negations below exclude virtual interfaces that should NEVER be enslaved:
-#   vnet*  — libvirt tap devices (VM NICs)
-#   virbr* — libvirt bridges
-#   tap*   — generic TAP interfaces
-#   veth*  — container/namespace veth pairs
-#   docker*, br-*, podman* — container engine bridges
-#   waydroid* — waydroid's Android container bridge (waydroid0)
-# Without these, e.g. libvirt VM taps get pulled into bond0 and lose their bridge,
-# breaking VM networking (DHCP, NAT). Waydroid is especially catastrophic:
-# enslaving waydroid0 into bond0 takes down the host's default route.
+# Path=pci-*  covers built-in PCIe NICs (enpXsY, ethN).
+# Path=platform-*  covers SoC-attached NICs (none on x86 laptops but harmless).
+# Name=enx*  covers USB ethernet dongles, which have no stable PCI path.
 [Match]
+Path=pci-* platform-*
+Name=en* enx*
 Type=ether
-Name=!vnet* !virbr* !tap* !veth* !docker* !br-* !podman* !waydroid*
 
 [Network]
 Bond=bond0
