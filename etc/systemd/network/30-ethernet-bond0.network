@@ -8,11 +8,13 @@
 #   tap*   — generic TAP interfaces
 #   veth*  — container/namespace veth pairs
 #   docker*, br-*, podman* — container engine bridges
+#   waydroid* — waydroid's Android container bridge (waydroid0)
 # Without these, e.g. libvirt VM taps get pulled into bond0 and lose their bridge,
-# breaking VM networking (DHCP, NAT).
+# breaking VM networking (DHCP, NAT). Waydroid is especially catastrophic:
+# enslaving waydroid0 into bond0 takes down the host's default route.
 [Match]
 Type=ether
-Name=!vnet* !virbr* !tap* !veth* !docker* !br-* !podman*
+Name=!vnet* !virbr* !tap* !veth* !docker* !br-* !podman* !waydroid*
 
 [Network]
 Bond=bond0
