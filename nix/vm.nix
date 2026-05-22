@@ -89,6 +89,9 @@ in
     "gdb/gdbearlyinit".source = link "dot_config/gdb/gdbearlyinit";
     "clangd/config.yaml".source = link "dot_config/clangd/config.yaml";
     "ccache/ccache.conf".source = link "dot_config/ccache/ccache.conf";
+
+    # Code review (binary from common.nix)
+    "tuicr/config.toml".source = link "dot_config/tuicr/config.toml";
   };
 
   # Claude-code looks under ~/.claude (NOT XDG). Skills live there.
