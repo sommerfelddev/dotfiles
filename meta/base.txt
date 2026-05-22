@@ -10,6 +10,7 @@ acpid
 arch-audit
 base
 base-devel
+btrfs-progs
 chezmoi
 cpupower
 dashbinsh
