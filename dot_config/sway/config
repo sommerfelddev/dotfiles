@@ -250,8 +250,17 @@ bindsym $mod+t exec ~/.config/sway/tb-toggle.sh
 # Managed by waybar.service (pulled in via sway-session.target).
 
 # ── Autostart ─────────────────────────────────────────────────────────────────
-exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP PASSWORD_STORE_DIR
-exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP PASSWORD_STORE_DIR
+# Propagate the login-shell env (zprofile already ran by the time sway
+# executes its config) into the systemd --user manager AND the DBus
+# activation environment. Without this, user services like waybar.service
+# inherit the bare pre-login PATH (no ~/.nix-profile/bin, no ~/.local/bin),
+# and modules invoking nix-provisioned binaries (pass / python3 / ncat
+# from common.nix) silently pick up the system copies instead — manifests
+# as waybar modules printing different output from the same script run
+# interactively. PATH is the critical one; GNUPGHOME / GPG_TTY keep
+# pass-otp + pinentry consistent with the interactive shell.
+exec systemctl --user import-environment PATH DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP PASSWORD_STORE_DIR GNUPGHOME GPG_TTY
+exec dbus-update-activation-environment --systemd PATH DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP PASSWORD_STORE_DIR GNUPGHOME GPG_TTY
 exec "sleep 2 && ~/.config/sway/display-toggle.sh apply"
 exec systemctl --user start sway-session.target
 exec ~/.config/sway/tb-autostart.sh
