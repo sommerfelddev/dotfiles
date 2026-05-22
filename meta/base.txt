@@ -13,9 +13,11 @@ base-devel
 chezmoi
 cpupower
 dashbinsh
+dosfstools
 fwupd
 iwd
 kernel-modules-hook
+linux
 linux-firmware
 lostfiles
 lshw
