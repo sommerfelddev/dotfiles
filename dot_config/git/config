@@ -82,7 +82,7 @@
     side-by-side = true
     line-numbers = true
     relative-paths = true
-    hyperlinks = true
+    hyperlinks = false
 [absorb]
     autoStageIfNothingStaged = true
 [alias]
