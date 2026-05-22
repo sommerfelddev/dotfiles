@@ -42,6 +42,20 @@ nix-switch:
     nix --extra-experimental-features 'nix-command flakes' \
         run home-manager/master -- \
         switch --impure --flake "{{ justfile_directory() }}/nix#${profile}" -b backup
+    # Ensure login shell points at the home-manager-managed zsh. Without
+    # this, removing zsh from meta/base.txt (now provisioned via nix)
+    # leaves /etc/passwd dangling at /usr/bin/zsh and new terminals die.
+    # Idempotent: only acts when current login shell differs.
+    NIX_ZSH="$HOME/.nix-profile/bin/zsh"
+    if [ -x "$NIX_ZSH" ]; then
+        if ! grep -qxF "$NIX_ZSH" /etc/shells 2>/dev/null; then
+            echo "$NIX_ZSH" | sudo tee -a /etc/shells >/dev/null
+        fi
+        current_shell="$(getent passwd "$USER" | cut -d: -f7)"
+        if [ "$current_shell" != "$NIX_ZSH" ]; then
+            sudo chsh -s "$NIX_ZSH" "$USER"
+        fi
+    fi
 
 # ═══════════════════════════════════════════════════════════════════
 # Updates
