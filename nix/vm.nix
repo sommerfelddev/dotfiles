@@ -41,13 +41,24 @@ in
   # to update configs — no `home-manager switch` required after every edit.
   # On the Arch host the same files are deployed by chezmoi; this block
   # exists because the VM doesn't run chezmoi.
+  #
+  # INVARIANT: every program that is both (a) installed by `nix/common.nix`
+  # and (b) has a config tree under `dot_config/<name>/` MUST appear here.
+  # Otherwise the VM silently uses the tool's defaults while the host runs
+  # the tracked config — drift that's hard to spot. See
+  # `.github/copilot-instructions.md` (§ Nix VM symlink invariant).
   xdg.configFile = {
+    # Editor + multiplexer + terminal
     "nvim".source             = link "dot_config/nvim";
     "zellij".source           = link "dot_config/zellij";
+    "ghostty".source          = link "dot_config/ghostty";   # for terminfo refs only
+
+    # Shells
     "zsh/.zshrc".source       = link "dot_config/zsh/dot_zshrc";
     "zsh/.zprofile".source    = link "dot_config/zsh/dot_zprofile";
-    "ghostty".source          = link "dot_config/ghostty";   # for terminfo refs only
     "direnv/direnvrc".source  = link "dot_config/direnv/direnvrc";
+
+    # Git
     "git/config".source       = link "dot_config/git/config";
     "git/attributes".source   = link "dot_config/git/attributes";
     "git/ignore".source       = link "dot_config/git/ignore";
@@ -61,7 +72,33 @@ in
     "git/hooks/commit-msg".source = link "dot_config/git/hooks/executable_commit-msg";
     "git/hooks/post-commit".source = link "dot_config/git/hooks/executable_post-commit";
     "git/hooks/_dispatch.sh".source = link "dot_config/git/hooks/_dispatch.sh";
+
+    # Leaf CLI tools whose binary lives in nix/common.nix
+    "bat/config".source       = link "dot_config/bat/config";
+    "lsd/config.yaml".source  = link "dot_config/lsd/config.yaml";
+    "yazi".source             = link "dot_config/yazi";
+    "ripgrep/ripgreprc".source = link "dot_config/ripgrep/ripgreprc";
+    "fd/ignore".source        = link "dot_config/fd/ignore";
+    "wget/wgetrc".source      = link "dot_config/wget/wgetrc";
+    "npm/npmrc".source        = link "dot_config/npm/npmrc";
+    "ipython/profile_default/ipython_config.py".source =
+      link "dot_config/ipython/profile_default/ipython_config.py";
+
+    # Debug / build tooling
+    "gdb/gdbinit".source      = link "dot_config/gdb/gdbinit";
+    "gdb/gdbearlyinit".source = link "dot_config/gdb/gdbearlyinit";
+    "clangd/config.yaml".source = link "dot_config/clangd/config.yaml";
+    "ccache/ccache.conf".source = link "dot_config/ccache/ccache.conf";
   };
+
+  # Claude-code looks under ~/.claude (NOT XDG). Skills live there.
+  # Symlink the whole tuicr skill directory so SKILL.md and the wrapper
+  # script (chezmoi `executable_` prefix preserved → see the dispatch
+  # comment in SKILL.md) are picked up together.
+  home.file.".claude/skills/tuicr/SKILL.md".source =
+    link "dot_claude/skills/tuicr/SKILL.md";
+  home.file.".claude/skills/tuicr/tuicr-wrapper.sh".source =
+    link "dot_claude/skills/tuicr/executable_tuicr-wrapper.sh";
 
   # ~/.ssh/config from the dotfiles tree (read-only); keys + known_hosts
   # stay machine-local. We can't symlink via home.file because
