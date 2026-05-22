@@ -42,11 +42,26 @@ PROMPT='%B%{$fg[green]%}%n%{$reset_color%}@%{$fg[cyan]%}%m%{$reset_color%}:%b%{$
 
 # ── Completion ────────────────────────────────────────────────────────────────
 fpath=($XDG_DATA_HOME/zsh/completion $fpath)
-# Pick up completions shipped by nix-installed packages on the remote-dev VM
-# (Ubuntu's system zsh doesn't add the nix-profile share dirs to fpath).
+# Pull in completions from both nix-installed packages AND the system
+# package manager (pacman on Arch host, apt on Ubuntu VM). nix zsh's
+# default fpath only includes its own nix-store dirs, so without these
+# entries we miss completions for pacman, paru, systemctl, flatpak,
+# docker, kubectl, etc. on the host, and apt/snap on the VM.
 for _d in "$HOME/.nix-profile/share/zsh/site-functions" \
-          "$HOME/.nix-profile/share/zsh/vendor-completions"; do
+	"$HOME/.nix-profile/share/zsh/vendor-completions" \
+	/usr/share/zsh/site-functions \
+	/usr/share/zsh/vendor-completions; do
 	[[ -d $_d ]] && fpath=($_d $fpath)
+done
+unset _d
+# HELPDIR: location of per-builtin help docs used by run-help/`help`.
+# Pick whichever exists, preferring nix-profile (newer zsh version
+# matches our running shell). The glob expands to the version-specific
+# dir, e.g. ~/.nix-profile/share/zsh/5.9/help.
+# shellcheck disable=SC1036,SC1058,SC1072,SC1073  # zsh glob qualifier (N)
+for _d in "$HOME"/.nix-profile/share/zsh/*/help(N) \
+	/usr/share/zsh/*/help(N); do
+	[[ -d $_d ]] && { export HELPDIR=$_d; break; }
 done
 unset _d
 autoload -Uz compinit && compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
