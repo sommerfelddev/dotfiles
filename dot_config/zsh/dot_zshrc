@@ -239,7 +239,41 @@ alias gimme='sudo chown $USER:$(id -gn $USER)'
 alias pacdiff='sudo pacdiff'
 
 # Pacman
-alias pacopt='comm -13 <(pacman -Qqdt | sort) <(pacman -Qqdtt | sort)'
+# List packages installed only because they are someone's *optional* dep
+# (no package strictly requires them), and for each one show the parent
+# package(s) that list it as an Optional Dep along with the upstream reason.
+pacopt() {
+	local -a leaves
+	leaves=( ${(f)"$(comm -13 <(pacman -Qqdt | sort) <(pacman -Qqdtt | sort))"} )
+	(( ${#leaves[@]} )) || return 0
+	# One pass over `pacman -Qi`: emit "dep<TAB>parent<TAB>reason" lines
+	# for every (parent, optional-dep) edge in the local DB.
+	local index
+	index=$(pacman -Qi 2>/dev/null | awk '
+		function emit(line, parent,    n, dep, reason) {
+			sub(/^ +/, "", line); sub(/ \[installed\]$/, "", line)
+			n = index(line, ":")
+			if (n) { dep = substr(line, 1, n-1); reason = substr(line, n+2); sub(/^ +/, "", reason) }
+			else   { dep = line; reason = "" }
+			print dep "\t" parent "\t" reason
+		}
+		/^Name +:/          { name=$3; in_od=0; next }
+		/^Optional Deps +:/ {
+			sub(/^[^:]*: */, "")
+			if ($0 == "None") { in_od=0; next }
+			in_od=1; emit($0, name); next
+		}
+		/^[A-Z][a-z]+[a-zA-Z ]*: / { in_od=0; next }
+		in_od && NF        { emit($0, name) }
+	')
+	local p
+	for p in "${leaves[@]}"; do
+		print -P -- "%B${p}%b"
+		print -r -- "$index" | awk -F'\t' -v p="$p" '
+			$1 == p { printf "  ← %s%s\n", $2, ($3 ? ": " $3 : "") }
+		'
+	done
+}
 
 # Git
 alias g='git'
