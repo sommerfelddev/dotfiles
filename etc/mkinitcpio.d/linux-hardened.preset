@@ -11,9 +11,6 @@
 #ALL_config="/etc/mkinitcpio.conf"
 ALL_kver="/boot/vmlinuz-linux-hardened"
 
-PRESETS=('default' 'fallback')
+PRESETS=('default')
 
 default_uki="/boot/EFI/Linux/arch-linux-hardened.efi"
-
-fallback_uki="/boot/EFI/Linux/arch-linux-hardened-fallback.efi"
-fallback_options="-S autodetect"
