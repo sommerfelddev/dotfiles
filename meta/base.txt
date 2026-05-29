@@ -20,6 +20,8 @@ iwd
 kernel-modules-hook
 linux
 linux-firmware
+linux-hardened
+linux-hardened-headers
 lostfiles
 lshw
 man-db
