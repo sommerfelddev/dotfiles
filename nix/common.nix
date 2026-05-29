@@ -115,8 +115,28 @@
     gnupg
     (pass.withExtensions (exts: [ exts.pass-otp ]))
 
-    # C/C++ source tooling (no compiler driver in PATH)
+    # C/C++ source tooling (no compiler driver in PATH).
+    # clang-tools ships clangd/clang-format/clang-tidy and most of the
+    # python helpers (git-clang-format, clang-format-diff, clang-tidy-diff)
+    # but skips run-clang-tidy because the symlink loop in nixpkgs'
+    # clang-tools derivation gates on the +x bit and run-clang-tidy
+    # loses it during the multi-output split. Re-expose it ourselves
+    # from clang-unwrapped's `python` output (tries both the modern
+    # bin/ layout and the legacy share/clang/ layout).
     clang-tools
+    (runCommand "run-clang-tidy" { } ''
+      mkdir -p $out/bin
+      for cand in ${llvmPackages.clang-unwrapped}/bin/run-clang-tidy \
+                  ${llvmPackages.clang-unwrapped.python}/bin/run-clang-tidy \
+                  ${llvmPackages.clang-unwrapped.python}/share/clang/run-clang-tidy.py; do
+        if [ -f "$cand" ]; then
+          install -m755 "$cand" $out/bin/run-clang-tidy
+          exit 0
+        fi
+      done
+      echo "run-clang-tidy not found in clang-unwrapped outputs" >&2
+      exit 1
+    '')
 
     # CI runner (drives podman from pacman; act itself is just a Go binary)
     act
