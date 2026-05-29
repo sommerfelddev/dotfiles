@@ -4,4 +4,3 @@
 node_modules/
 *.swp
 /migrate-podman-to-btrfs.sh
-/diagnose-suspend.sh

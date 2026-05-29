@@ -30,15 +30,15 @@ done
 # sudo-rs: /etc/pam.d/sudo-i is a symlink to /etc/pam.d/sudo
 sudo ln -sfT sudo /etc/pam.d/sudo-i
 
-# Mask sleep/suspend/hibernate at the unit level. See
-# etc/systemd/logind.conf.d/20-no-suspend.conf for context. This blocks
-# `systemctl suspend` from any source (manual, scripts, GUI menus) in
-# addition to the logind key/lid handler overrides. To re-enable:
-# remove these symlinks (and revert the logind drop-in) then
-# `sudo systemctl daemon-reload`.
+# Clean up sleep-target masks from the earlier hardened-suspend
+# workaround. Now that mem_sleep_default=s2idle resolves the wake hang,
+# suspend is enabled again. Remove any leftover /dev/null symlinks.
 for target in sleep.target suspend.target hibernate.target \
   hybrid-sleep.target suspend-then-hibernate.target; do
-  sudo ln -sfT /dev/null "/etc/systemd/system/$target"
+  link="/etc/systemd/system/$target"
+  if [ -L "$link" ] && [ "$(readlink "$link")" = "/dev/null" ]; then
+    sudo rm -f "$link"
+  fi
 done
 sudo systemctl daemon-reload
 

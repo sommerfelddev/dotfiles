@@ -1,9 +1,11 @@
 # mkinitcpio preset for the 'linux-hardened' kernel. Produces a UKI at
 # /boot/EFI/Linux/arch-linux-hardened.efi alongside the stock linux UKI.
-# Uses its own cmdline file (etc/kernel/cmdline-linux-hardened.tmpl)
-# carrying hang-detection knobs while we validate the suspend/resume
-# fix on this hardware. The stock linux UKI keeps the minimal
-# etc/kernel/cmdline.tmpl. Register the EFI entry once with efibootmgr:
+# Uses its own cmdline file (etc/kernel/cmdline-linux-hardened.tmpl) to
+# force `mem_sleep_default=s2idle`: this hardware's S3 firmware path
+# wakes reliably on stock linux but hard-hangs the hardened kernel
+# (INIT_ON_FREE + slab hardening turn a latent driver race fatal).
+# Stock linux keeps the minimal etc/kernel/cmdline.tmpl. Register the
+# EFI entry once with efibootmgr:
 #
 #   sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \
 #     --label 'Arch Hardened' --loader '\EFI\Linux\arch-linux-hardened.efi'
