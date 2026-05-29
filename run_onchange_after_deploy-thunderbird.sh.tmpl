@@ -4,7 +4,7 @@
 # thunderbird/ content hash: {{ output "sh" "-c" (printf "cd %q && find thunderbird -type f -exec sha256sum {} + | LC_ALL=C sort" .chezmoi.sourceDir) | sha256sum }}
 set -eu
 
-PROFILES_DIR="$HOME/.var/app/org.mozilla.Thunderbird/.thunderbird"
+PROFILES_DIR="$HOME/.var/app/org.mozilla.thunderbird/.thunderbird"
 [ -d "$PROFILES_DIR" ] || exit 0
 
 PROFILE=$(find "$PROFILES_DIR" -maxdepth 1 -mindepth 1 -type d -name '*.default-default' | head -1)

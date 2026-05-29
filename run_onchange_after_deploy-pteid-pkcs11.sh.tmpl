@@ -62,7 +62,7 @@ register_in_profile() {
 # Each line: <flatpak_app_id> <profile_subdir> <process_name>
 MOZILLA_APPS="\
 io.gitlab.librewolf-community .librewolf librewolf
-org.mozilla.Thunderbird .thunderbird thunderbird"
+org.mozilla.thunderbird .thunderbird thunderbird"
 
 echo "$MOZILLA_APPS" | while IFS=' ' read -r app profile_subdir proc_name; do
 	[ -n "$app" ] || continue

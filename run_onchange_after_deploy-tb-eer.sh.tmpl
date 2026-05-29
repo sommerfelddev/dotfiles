@@ -1,6 +1,6 @@
 #!/bin/sh
 # Bridge the External Editor Revived native messaging host into the
-# org.mozilla.Thunderbird flatpak. The host binary stays installed via
+# org.mozilla.thunderbird flatpak. The host binary stays installed via
 # pacman (`external-editor-revived`); we relocate the manifest into the
 # sandbox and replace its binary path with a wrapper that re-enters the
 # host via flatpak-spawn.
@@ -11,7 +11,7 @@
 # host manifest hash: {{ output "sh" "-c" "for p in /usr/lib/mozilla/native-messaging-hosts/external_editor_revived.json /usr/lib/thunderbird/native-messaging-hosts/external_editor_revived.json; do [ -f \"$p\" ] && sha256sum \"$p\" && break; done; true" | sha256sum }}
 set -eu
 
-TB_APP=org.mozilla.Thunderbird
+TB_APP=org.mozilla.thunderbird
 MANIFEST_NAME=external_editor_revived.json
 WRAPPER_NAME=external_editor_revived.sh
 HOST_BINARY=/usr/lib/external-editor-revived/external-editor-revived

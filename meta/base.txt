@@ -189,7 +189,7 @@ wl-mirror
 # hardening overlay deployed by run_onchange_after_deploy-firefox.sh.tmpl) ---
 arkenfox-user.js
 
-# --- mail (host-side bits the org.mozilla.Thunderbird flatpak depends on) ---
+# --- mail (host-side bits the org.mozilla.thunderbird flatpak depends on) ---
 protonmail-bridge-core
 # git send-email Perl prereqs (SMTP via local Bridge on 127.0.0.1:1025)
 perl-authen-sasl

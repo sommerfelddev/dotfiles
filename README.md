@@ -30,7 +30,7 @@ My Arch Linux configuration, managed with [chezmoi](https://www.chezmoi.io/).
 | Notifications      | [mako](https://github.com/emersion/mako)                                                                                                                                                                                                                                                      |
 | Lock screen        | [swaylock](https://github.com/swaywm/swaylock)                                                                                                                                                                                                                                                |
 | Browser            | [LibreWolf](https://librewolf.net/) (Flathub `io.gitlab.librewolf-community` for bubblewrap host-isolation), hardened via `user-overrides.js` + `userChrome.css` (kept under `firefox/` by name for recognizability)                                                                          |
-| Mail               | [Thunderbird](https://www.thunderbird.net/) (Flathub `org.mozilla.Thunderbird`) against [ProtonMail Bridge](https://proton.me/mail/bridge) + Radicale (CalDAV/CardDAV); non-private prefs tracked under `thunderbird/`                                                                        |
+| Mail               | [Thunderbird](https://www.thunderbird.net/) (Flathub `org.mozilla.thunderbird`) against [ProtonMail Bridge](https://proton.me/mail/bridge) + Radicale (CalDAV/CardDAV); non-private prefs tracked under `thunderbird/`                                                                        |
 | Secrets & identity | [GPG](https://gnupg.org/) (commit signing + SSH auth via gpg-agent), [pass](https://www.passwordstore.org/)                                                                                                                                                                                   |
 | Media & viewers    | [mpv](https://mpv.io/) (native for streamlink/IPC + Flathub `io.mpv.Mpv` as the sandboxed default for browser/mail handoffs), [zathura](https://pwmt.org/projects/zathura/) (Flathub `org.pwmt.zathura`), [yazi](https://yazi-rs.github.io/)                                                  |
 | Code quality       | stylua + [selene](https://github.com/Kampfkarren/selene), [shfmt](https://github.com/mvdan/sh) + [shellcheck](https://www.shellcheck.net/), [ruff](https://github.com/astral-sh/ruff), [taplo](https://taplo.tamasfe.dev/), [prettier](https://prettier.io/) — all wired through `just check` |
@@ -156,10 +156,10 @@ The repo is enough to rebuild a machine's tooling and configuration, but not its
 - `~/.password-store/` — the `pass` store that feeds API keys/tokens into the shell at login.
 - SSH private keys under `~/.ssh/id_*` (only `.pub` / config is in the repo).
 - LibreWolf profile data (bookmarks, history, extension state) at `~/.var/app/io.gitlab.librewolf-community/.librewolf/` — only the hardening policy lives in `firefox/`.
-- Thunderbird profile data (accounts, calendars, OpenPGP keys) at `~/.var/app/org.mozilla.Thunderbird/.thunderbird/` — only non-private prefs live in `thunderbird/`.
+- Thunderbird profile data (accounts, calendars, OpenPGP keys) at `~/.var/app/org.mozilla.thunderbird/.thunderbird/` — only non-private prefs live in `thunderbird/`.
 
 Recovery on a fresh install: run `bootstrap.sh`, then `gpg --import` + `pass init <KEYID>`, restore `~/.password-store/`, drop SSH private keys into `~/.ssh/`, restore the LibreWolf and Thunderbird profiles, and run once:
 
 ```sh
-xdg-mime default org.mozilla.Thunderbird.desktop x-scheme-handler/mailto
+xdg-mime default org.mozilla.thunderbird.desktop x-scheme-handler/mailto
 ```
