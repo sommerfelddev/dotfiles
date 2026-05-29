@@ -18,9 +18,3 @@ wob.service
 
 # --- mail (overridden via drop-ins in dot_config/systemd/user/) ---
 protonmail-bridge.service
-
-# --- suspend inhibitor: keep host awake while any zellij session exists ---
-# Enable the .path unit; it activates the service on-demand when zellij's
-# socket dir becomes non-empty. The service wraps a poller in
-# systemd-inhibit and exits when no sessions remain, releasing the lock.
-zellij-inhibit-suspend.path

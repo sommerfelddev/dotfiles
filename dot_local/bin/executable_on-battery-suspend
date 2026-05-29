@@ -1,0 +1,18 @@
+#!/bin/sh
+# Suspend the system, but only if running on battery. Used as the
+# swayidle `timeout` action so idle suspends save battery without ever
+# firing while the laptop is plugged in.
+#
+# Manual suspends (sway keybinds, `systemctl suspend` over SSH) bypass
+# this script and always work -- explicit user intent wins.
+set -eu
+
+for ac in /sys/class/power_supply/AC*/online \
+  /sys/class/power_supply/ADP*/online; do
+  [ -r "$ac" ] || continue
+  if [ "$(cat "$ac")" = "1" ]; then
+    exit 0
+  fi
+done
+
+exec systemctl suspend

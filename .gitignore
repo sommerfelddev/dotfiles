@@ -3,4 +3,3 @@
 .ruff_cache/
 node_modules/
 *.swp
-/migrate-podman-to-btrfs.sh
