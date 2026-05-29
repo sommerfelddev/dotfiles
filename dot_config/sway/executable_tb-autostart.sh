@@ -25,7 +25,7 @@ done
 # Small grace period so the SMTP listener (1025) catches up too.
 sleep 10
 
-thunderbird &
+flatpak run org.mozilla.thunderbird &
 
 for _ in $(seq 1 200); do
   if swaymsg -t get_tree | jq -e --arg m "$MARK" '

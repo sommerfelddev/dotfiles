@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Sandbox wrapper for tools that parse data from untrusted network
-# sources (mpv, yt-dlp, streamlink). The threat model is RCE in a
+# sources (yt-dlp, streamlink). The threat model is RCE in a
 # subtitle / muxer / extractor that walks the user's home directory
 # looking for SSH/GPG keys, password store, cloud tokens, etc.
 #
@@ -9,10 +9,13 @@
 # work transparently; the sandbox only tmpfs-shadows known-sensitive
 # directories so a compromised parser cannot read them.
 #
-# Set SANDBOX=0 to bypass entirely for a single invocation:
-#   SANDBOX=0 mpv weird-codec-file.mkv
+# (mpv itself is run as the io.mpv.Mpv flatpak, which is its own
+# sandbox — no extra bwrap wrapper needed.)
 #
-# Usage (called by the per-tool wrappers): _sandbox-net-parser /usr/bin/mpv "$@"
+# Set SANDBOX=0 to bypass entirely for a single invocation:
+#   SANDBOX=0 streamlink weird-stream-url
+#
+# Usage (called by the per-tool wrappers): _sandbox-net-parser /usr/bin/yt-dlp "$@"
 
 set -eu
 
@@ -33,10 +36,9 @@ bin=$1
 shift
 
 # Prevent re-entry: any tool spawned inside the sandbox that resolves
-# `mpv`/`yt-dlp`/`streamlink` via PATH (e.g. streamlink launching mpv)
-# must find the real binary, not another wrapper that would try to
-# nest a second bwrap and fail. Strip ~/.local/bin and nix-profile/bin
-# from PATH inside the namespace.
+# `yt-dlp`/`streamlink` via PATH must find the real binary, not another
+# wrapper that would try to nest a second bwrap and fail. Strip
+# ~/.local/bin and nix-profile/bin from PATH inside the namespace.
 inner_path='/usr/local/sbin:/usr/local/bin:/usr/bin'
 
 exec bwrap \

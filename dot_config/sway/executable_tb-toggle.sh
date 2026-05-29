@@ -18,7 +18,7 @@ tb_ws=$(swaymsg -t get_tree | jq -r --arg m "$MARK" '
     ) // empty')
 
 if [ -z "$tb_ws" ]; then
-  exec thunderbird
+  exec flatpak run org.mozilla.thunderbird
 fi
 
 if [ "$tb_ws" = "__i3_scratch" ]; then

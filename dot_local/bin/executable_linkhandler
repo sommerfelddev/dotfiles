@@ -18,7 +18,7 @@ fi
 
 case "$url" in
   *.mkv* | *.webm* | *.mp4* | *.mp3* | *.ogg* | *.mov* | *.ts* | *.m3u8* | *.gif* | *.m4a* | *youtube.com/watch* | *youtube.com/playlist* | *youtu.be* | *twitch.tv* | *invidio.us* | *lbry* | *streamye.com* | *streamvi.com* | *streamwo.com* | *videos.lukesmith.xyz*)
-    setsid mpv -quiet "$url" >/dev/null 2>&1 &
+    setsid flatpak run io.mpv.Mpv --quiet "$url" >/dev/null 2>&1 &
     ;;
   acestream://*)
     setsid acestream-launcher "$url" >/dev/null 2>&1 &
