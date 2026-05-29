@@ -171,6 +171,10 @@ xorg-xwayland # needed for zbarcam's X11 preview
 
 # Misc
 brightnessctl
+# Userspace sandbox helper (firejail-less). Used by ~/.local/bin wrappers
+# for mpv/yt-dlp/streamlink to hide secrets from network parsers; also
+# pulled transitively by flatpak.
+bubblewrap
 # Volume/brightness OSD overlay (driven by ~/.config/sway/{vol,brightness}-osd.sh
 # writing percentages to $XDG_RUNTIME_DIR/wob.sock).
 wob

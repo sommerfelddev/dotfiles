@@ -1,0 +1,58 @@
+#!/usr/bin/env sh
+# Sandbox wrapper for tools that parse data from untrusted network
+# sources (mpv, yt-dlp, streamlink). The threat model is RCE in a
+# subtitle / muxer / extractor that walks the user's home directory
+# looking for SSH/GPG keys, password store, cloud tokens, etc.
+#
+# Compromise: most of the system is still reachable (--bind / /), so
+# Wayland, PipeWire, DBus, GPU, hardware accel and config files all
+# work transparently; the sandbox only tmpfs-shadows known-sensitive
+# directories so a compromised parser cannot read them.
+#
+# Set SANDBOX=0 to bypass entirely for a single invocation:
+#   SANDBOX=0 mpv weird-codec-file.mkv
+#
+# Usage (called by the per-tool wrappers): _sandbox-net-parser /usr/bin/mpv "$@"
+
+set -eu
+
+if [ "${SANDBOX:-1}" = "0" ]; then
+  bin=$1
+  shift
+  exec "$bin" "$@"
+fi
+
+if ! command -v bwrap >/dev/null 2>&1; then
+  printf '%s: bwrap not installed; falling back to direct exec\n' "$0" >&2
+  bin=$1
+  shift
+  exec "$bin" "$@"
+fi
+
+bin=$1
+shift
+
+# Prevent re-entry: any tool spawned inside the sandbox that resolves
+# `mpv`/`yt-dlp`/`streamlink` via PATH (e.g. streamlink launching mpv)
+# must find the real binary, not another wrapper that would try to
+# nest a second bwrap and fail. Strip ~/.local/bin and nix-profile/bin
+# from PATH inside the namespace.
+inner_path='/usr/local/sbin:/usr/local/bin:/usr/bin'
+
+exec bwrap \
+  --bind / / \
+  --dev-bind /dev /dev \
+  --proc /proc \
+  --tmpfs /root \
+  --tmpfs "$HOME/.ssh" \
+  --tmpfs "$HOME/.gnupg" \
+  --tmpfs "$HOME/.password-store" \
+  --tmpfs "$HOME/.config/gh" \
+  --tmpfs "$HOME/.config/op" \
+  --tmpfs "$HOME/.aws" \
+  --tmpfs "$HOME/.local/share/keyrings" \
+  --tmpfs "$HOME/.local/share/pass" \
+  --setenv PATH "$inner_path" \
+  --die-with-parent \
+  --new-session \
+  -- "$bin" "$@"
