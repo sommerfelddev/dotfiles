@@ -1,19 +1,21 @@
 [Unit]
-Description=Hold a systemd-inhibit lock while SSH-spawned zellij sessions exist
+Description=Stay alive while any zellij session exists; inhibit suspend if SSH-spawned
 Documentation=man:systemd-inhibit(1) man:zellij(1)
 # Independent of any graphical session: this is meant to run on
 # headless SSH-attached hosts too. The watcher itself decides whether
 # the current zellij activity warrants inhibiting (SSH-spawned only),
-# so a local zellij session won't keep the laptop awake.
+# and acquires/releases its own systemd-inhibit lock dynamically. It
+# stays alive for the whole zellij dir lifetime so the .path unit does
+# not retrigger us in a busy loop when only local zellij sessions are
+# active.
+# Disable systemd's default start-rate limiter: even though the
+# refactored watcher should not cycle anymore, a zero rate-limit makes
+# this unit resilient if the user kills it manually.
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-ExecStart=systemd-inhibit \
-  --what=sleep:idle:handle-lid-switch \
-  --who=zellij \
-  --why=Active\x20zellij\x20sessions \
-  --mode=block \
-  %h/.local/bin/zellij-inhibit-watcher
+ExecStart=%h/.local/bin/zellij-inhibit-watcher
 # Don't auto-restart: the .path unit reactivates us on the next session.
 Restart=no
 

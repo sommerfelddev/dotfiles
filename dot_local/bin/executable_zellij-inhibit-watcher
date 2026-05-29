@@ -1,6 +1,7 @@
 #!/bin/sh
-# Block while at least one zellij server process was spawned from an
-# SSH context, exit cleanly once none remain.
+# Stay alive while any zellij session exists; hold a systemd-inhibit
+# lock only while at least one of those zellij sessions was spawned from
+# an SSH context.
 #
 # Rationale: a zellij session started locally (e.g. from a sway terminal)
 # is the user actively sitting in front of the laptop — that should NOT
@@ -14,13 +15,17 @@
 # after the original SSH session is gone. So an "ssh-spawned" zellij is
 # one whose environ contains SSH_CONNECTION=.
 #
-# This script is the ExecStart payload of zellij-inhibit-suspend.service,
-# which wraps it in systemd-inhibit. When this script exits, the lock is
-# released. The .path unit re-fires the service on the next zellij socket
-# transition.
+# Lifecycle: the .path unit starts this script when the zellij socket
+# directory becomes non-empty. The script then polls and stays alive as
+# long as any zellij socket exists, so the .path unit never re-triggers
+# the service while zellij is up (which previously caused a start-rate
+# limit storm when only local zellij was around). When the last zellij
+# exits, this script exits, the service stops, and the .path resumes
+# watching for the next session.
 set -eu
 
 poll=${ZELLIJ_INHIBIT_POLL:-15}
+sock_dir="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/zellij"
 
 has_ssh_zellij() {
   pids=$(pgrep -x zellij 2>/dev/null) || return 1
@@ -34,6 +39,43 @@ has_ssh_zellij() {
   return 1
 }
 
-while has_ssh_zellij; do
+any_zellij_socket() {
+  [ -d "$sock_dir" ] || return 1
+  found=$(ls -A "$sock_dir" 2>/dev/null || true)
+  [ -n "$found" ]
+}
+
+inhibit_pid=
+release_inhibit() {
+  pid=$inhibit_pid
+  inhibit_pid=
+  [ -n "$pid" ] || return 0
+  kill "$pid" 2>/dev/null || true
+  wait "$pid" 2>/dev/null || true
+}
+trap release_inhibit EXIT INT TERM
+
+inhibit_alive() {
+  [ -n "$inhibit_pid" ] || return 1
+  kill -0 "$inhibit_pid" 2>/dev/null
+}
+
+acquire_inhibit() {
+  if inhibit_alive; then return 0; fi
+  systemd-inhibit \
+    --what=sleep:idle:handle-lid-switch \
+    --who=zellij \
+    --why='Active SSH-spawned zellij sessions' \
+    --mode=block \
+    sleep infinity &
+  inhibit_pid=$!
+}
+
+while any_zellij_socket; do
+  if has_ssh_zellij; then
+    acquire_inhibit
+  else
+    release_inhibit
+  fi
   sleep "$poll"
 done
