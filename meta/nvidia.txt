@@ -1,5 +1,4 @@
 libva-vdpau-driver
-linux-headers
 nvidia-dkms
 nvidia-settings
 nvidia-utils
