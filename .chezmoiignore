@@ -2,6 +2,7 @@ KEYBINDS.md
 README.md
 bootstrap.sh
 migrate-podman-to-btrfs.sh
+diagnose-suspend.sh
 meta/
 systemd-units/
 etc/
