@@ -125,20 +125,20 @@ if [ -d /sys/firmware/efi ]; then
   if ! sudo efibootmgr 2>/dev/null | grep -iq arch; then
     warn 'no Arch Linux EFI boot entry found'
     warn 'after first kernel install, run: sudo mkinitcpio -P'
-    warn 'then register the UKI with efibootmgr, for example:'
+    warn 'then register the UKIs with efibootmgr (hardened first so it'\''s the default):'
     # shellcheck disable=SC1003 # backslash is literal text shown to the user
-    warn '  sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \'
-    warn "      --label 'Arch UKI' --loader '\\EFI\\Linux\\arch-linux.efi'"
-    # shellcheck disable=SC1003
-    warn '  sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \'
-    warn "      --label 'Arch UKI Fallback' --loader '\\EFI\\Linux\\arch-linux-fallback.efi'"
-    warn 'optionally, also register the linux-hardened UKIs (opt-in boot):'
-    # shellcheck disable=SC1003
     warn '  sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \'
     warn "      --label 'Arch Hardened' --loader '\\EFI\\Linux\\arch-linux-hardened.efi'"
     # shellcheck disable=SC1003
     warn '  sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \'
     warn "      --label 'Arch Hardened Fallback' --loader '\\EFI\\Linux\\arch-linux-hardened-fallback.efi'"
+    warn 'and the linux-lts fallback kernel UKIs:'
+    # shellcheck disable=SC1003
+    warn '  sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \'
+    warn "      --label 'Arch LTS' --loader '\\EFI\\Linux\\arch-linux-lts.efi'"
+    # shellcheck disable=SC1003
+    warn '  sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \'
+    warn "      --label 'Arch LTS Fallback' --loader '\\EFI\\Linux\\arch-linux-lts-fallback.efi'"
   fi
 fi
 

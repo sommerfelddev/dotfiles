@@ -1,16 +1,22 @@
-# mkinitcpio preset for the 'linux-hardened' kernel. Produces a UKI at
-# /boot/EFI/Linux/arch-linux-hardened.efi alongside the stock linux UKI.
-# Uses its own cmdline file (etc/kernel/cmdline-linux-hardened.tmpl) to
-# force `mem_sleep_default=s2idle`: this hardware's S3 firmware path
-# wakes reliably on stock linux but hard-hangs the hardened kernel
-# (INIT_ON_FREE + slab hardening turn a latent driver race fatal).
-# Stock linux keeps the minimal etc/kernel/cmdline.tmpl. Register the
-# EFI entry once with efibootmgr:
+# mkinitcpio preset for the 'linux-hardened' kernel — the PRIMARY boot
+# kernel on this host. Produces a UKI at
+# /boot/EFI/Linux/arch-linux-hardened.efi alongside the linux-lts UKI
+# (linux-lts is the fallback kernel for the rare case where a hardened
+# upgrade breaks; see linux-lts.preset). Uses its own cmdline file
+# (etc/kernel/cmdline-linux-hardened.tmpl) to force
+# `mem_sleep_default=s2idle`: this hardware's S3 firmware path wakes
+# reliably on the mainline/lts kernel but hard-hangs the hardened
+# kernel (INIT_ON_FREE + slab hardening turn a latent driver race
+# fatal). linux-lts keeps the minimal etc/kernel/cmdline.tmpl.
+#
+# Register the EFI entries (hardened first so it's the default boot):
 #
 #   sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \
 #     --label 'Arch Hardened' --loader '\EFI\Linux\arch-linux-hardened.efi'
+#   sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \
+#     --label 'Arch LTS' --loader '\EFI\Linux\arch-linux-lts.efi'
 #
-# Boot it on demand via:  sudo efibootmgr --bootnext XXXX && systemctl reboot
+# Boot LTS on demand via:  sudo efibootmgr --bootnext XXXX && systemctl reboot
 
 #ALL_config="/etc/mkinitcpio.conf"
 ALL_kver="/boot/vmlinuz-linux-hardened"

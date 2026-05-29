@@ -18,10 +18,12 @@ dosfstools
 fwupd
 iwd
 kernel-modules-hook
-linux
 linux-firmware
+mkinitcpio-firmware
 linux-hardened
 linux-hardened-headers
+linux-lts
+linux-lts-headers
 lostfiles
 lshw
 man-db
