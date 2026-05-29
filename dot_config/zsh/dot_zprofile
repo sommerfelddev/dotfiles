@@ -150,6 +150,23 @@ case $(uname -n) in
         ;;
 esac
 
+# ── SSH: inhibit suspend/idle while connected ────────────────────────────────
+# A remote session is useless if the laptop suspends mid-command. Wrap the
+# login shell in `systemd-inhibit` so a lock is held for the entire SSH
+# session lifetime (lid close, idle timeout, swayidle, lid-switch handlers
+# all honour it). The lock is released the instant the shell exits, so a
+# clean disconnect restores normal power behaviour.
+if [[ -n $SSH_CONNECTION && -z $__SSH_SUSPEND_INHIBITED ]] \
+  && command -v systemd-inhibit >/dev/null 2>&1; then
+  export __SSH_SUSPEND_INHIBITED=1
+  exec systemd-inhibit \
+    --what=sleep:idle:handle-lid-switch \
+    --who="ssh:${USER}@${HOST}" \
+    --why="active SSH session from ${SSH_CONNECTION%% *}" \
+    --mode=block \
+    "$SHELL" -l
+fi
+
 # ── Auto-start sway on VT1 ────────────────────────────────────────────────────
 if [[ -z $WAYLAND_DISPLAY && $XDG_VTNR == 1 ]]; then
     export XDG_SESSION_TYPE=wayland
