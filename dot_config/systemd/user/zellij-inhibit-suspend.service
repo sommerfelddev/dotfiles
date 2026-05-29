@@ -1,8 +1,10 @@
 [Unit]
-Description=Hold a systemd-inhibit lock while zellij sessions exist
+Description=Hold a systemd-inhibit lock while SSH-spawned zellij sessions exist
 Documentation=man:systemd-inhibit(1) man:zellij(1)
 # Independent of any graphical session: this is meant to run on
-# headless SSH-attached hosts too.
+# headless SSH-attached hosts too. The watcher itself decides whether
+# the current zellij activity warrants inhibiting (SSH-spawned only),
+# so a local zellij session won't keep the laptop awake.
 
 [Service]
 Type=simple

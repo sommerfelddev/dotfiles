@@ -1,20 +1,39 @@
 #!/bin/sh
-# Block until no zellij sessions remain.
+# Block while at least one zellij server process was spawned from an
+# SSH context, exit cleanly once none remain.
 #
-# Used as the ExecStart payload of zellij-inhibit-suspend.service: the
-# service wraps this script with `systemd-inhibit`, so the inhibit lock
-# is held for exactly the lifetime of this process. When the last zellij
-# session ends, this script exits 0, the service stops, and the lock is
-# released.
+# Rationale: a zellij session started locally (e.g. from a sway terminal)
+# is the user actively sitting in front of the laptop — that should NOT
+# inhibit suspend. Only zellij sessions started while SSH'd in deserve
+# the lock, so the host stays awake across detach + disconnect but
+# normal local-attended suspend still works.
 #
-# A user-level `.path` unit re-activates the service whenever the zellij
-# socket directory becomes non-empty again, so the lock is automatically
-# reacquired on the next `zellij` invocation.
+# Detection: zellij's daemonised server is exec'd by the client and
+# inherits the client's environment. Linux preserves that exec-time
+# environment in /proc/<pid>/environ for the life of the process, even
+# after the original SSH session is gone. So an "ssh-spawned" zellij is
+# one whose environ contains SSH_CONNECTION=.
+#
+# This script is the ExecStart payload of zellij-inhibit-suspend.service,
+# which wraps it in systemd-inhibit. When this script exits, the lock is
+# released. The .path unit re-fires the service on the next zellij socket
+# transition.
 set -eu
 
 poll=${ZELLIJ_INHIBIT_POLL:-15}
 
-while sessions=$(zellij list-sessions --short 2>/dev/null) &&
-  [ -n "$sessions" ]; do
+has_ssh_zellij() {
+  pids=$(pgrep -x zellij 2>/dev/null) || return 1
+  for pid in $pids; do
+    [ -r "/proc/$pid/environ" ] || continue
+    if tr '\0' '\n' <"/proc/$pid/environ" 2>/dev/null |
+      grep -q '^SSH_CONNECTION='; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+while has_ssh_zellij; do
   sleep "$poll"
 done
