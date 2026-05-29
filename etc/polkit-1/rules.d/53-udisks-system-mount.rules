@@ -1,0 +1,14 @@
+// Require an active session to mount system filesystems or modify
+// system devices via udisks2. Normal USB-stick auto-mount uses the
+// `filesystem-mount` action (not `*-system`) and is not affected; the
+// gate is on /etc/fstab system mounts and disk-level operations.
+polkit.addRule(function (action, subject) {
+  if (
+    action.id === "org.freedesktop.udisks2.filesystem-mount-system" ||
+    action.id === "org.freedesktop.udisks2.modify-system"
+  ) {
+    if (!subject.active) {
+      return polkit.Result.NO;
+    }
+  }
+});

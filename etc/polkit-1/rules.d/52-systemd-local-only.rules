@@ -1,0 +1,12 @@
+// Restrict systemd unit management via polkit to active local sessions.
+// Wheel-via-sudo-rs is unaffected (sudoers is a separate authorisation
+// path). Stops a remote SSH session (no `subject.local`) or a background
+// non-active session from start/stop/restart/reload of system units via
+// the polkit gate.
+polkit.addRule(function (action, subject) {
+  if (action.id.indexOf("org.freedesktop.systemd1.") === 0) {
+    if (!subject.local || !subject.active) {
+      return polkit.Result.NO;
+    }
+  }
+});
