@@ -1,1 +1,1 @@
-rd.luks.name={{ output "lsblk" "-dno" "UUID" (printf "/dev/%s" .luksRootPartition) | trim }}=root root=/dev/mapper/root rw quiet init_on_free=0 nmi_watchdog=panic softlockup_panic=1 panic=10
+rd.luks.name={{ output "lsblk" "-dno" "UUID" (printf "/dev/%s" .luksRootPartition) | trim }}=root root=/dev/mapper/root rw quiet nmi_watchdog=panic softlockup_panic=1 panic=10

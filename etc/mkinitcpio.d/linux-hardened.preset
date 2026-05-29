@@ -1,10 +1,9 @@
 # mkinitcpio preset for the 'linux-hardened' kernel. Produces a UKI at
 # /boot/EFI/Linux/arch-linux-hardened.efi alongside the stock linux UKI.
 # Uses its own cmdline file (etc/kernel/cmdline-linux-hardened.tmpl)
-# to carry workarounds for hardened-specific suspend/resume hangs on
-# this hardware (init_on_free=0 + hang-detection knobs). The stock
-# linux UKI keeps the minimal etc/kernel/cmdline.tmpl. Register the
-# EFI entry once with efibootmgr:
+# carrying hang-detection knobs while we validate the suspend/resume
+# fix on this hardware. The stock linux UKI keeps the minimal
+# etc/kernel/cmdline.tmpl. Register the EFI entry once with efibootmgr:
 #
 #   sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \
 #     --label 'Arch Hardened' --loader '\EFI\Linux\arch-linux-hardened.efi'
