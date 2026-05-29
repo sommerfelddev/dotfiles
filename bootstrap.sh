@@ -129,10 +129,16 @@ if [ -d /sys/firmware/efi ]; then
     # shellcheck disable=SC1003 # backslash is literal text shown to the user
     warn '  sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \'
     warn "      --label 'Arch UKI' --loader '\\EFI\\Linux\\arch-linux.efi'"
-    warn 'optionally, also register the linux-hardened UKI (opt-in boot):'
+    # shellcheck disable=SC1003
+    warn '  sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \'
+    warn "      --label 'Arch UKI Fallback' --loader '\\EFI\\Linux\\arch-linux-fallback.efi'"
+    warn 'optionally, also register the linux-hardened UKIs (opt-in boot):'
     # shellcheck disable=SC1003
     warn '  sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \'
     warn "      --label 'Arch Hardened' --loader '\\EFI\\Linux\\arch-linux-hardened.efi'"
+    # shellcheck disable=SC1003
+    warn '  sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \'
+    warn "      --label 'Arch Hardened Fallback' --loader '\\EFI\\Linux\\arch-linux-hardened-fallback.efi'"
   fi
 fi
 
