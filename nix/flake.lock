@@ -131,11 +131,11 @@
         "utils": "utils"
       },
       "locked": {
-        "lastModified": 1779753530,
-        "narHash": "sha256-dyOWzdYQm2gmAJnWyTPQiO7ww7E48iPmHgEzGYdULrE=",
+        "lastModified": 1779853094,
+        "narHash": "sha256-mVzU8epu8z5fiugADt0yU62XUpeyKt588MG0FX99DpU=",
         "owner": "agavra",
         "repo": "tuicr",
-        "rev": "5b19712414535e92c7b718ce33a1c78adb6103d7",
+        "rev": "01a5f15300f3e391b75b308c506a22d550334d4d",
         "type": "github"
       },
       "original": {
