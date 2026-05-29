@@ -150,26 +150,6 @@ case $(uname -n) in
         ;;
 esac
 
-# ── SSH: inhibit suspend/idle while connected ────────────────────────────────
-# Backstop for SSH sessions that don't use zellij. (The dedicated
-# zellij-inhibit-suspend.path user unit already covers any host that has
-# at least one live zellij session — that one survives detach/disconnect,
-# which this in-shell inhibitor does not.)
-#
-# Wrap the login shell in `systemd-inhibit` so a lock is held for the
-# entire SSH session lifetime; the lock is released the instant the
-# shell exits.
-if [[ -n $SSH_CONNECTION && -z $__SSH_SUSPEND_INHIBITED ]] \
-  && command -v systemd-inhibit >/dev/null 2>&1; then
-  export __SSH_SUSPEND_INHIBITED=1
-  exec systemd-inhibit \
-    --what=sleep:idle:handle-lid-switch \
-    --who="ssh:${USER}@${HOST}" \
-    --why="active SSH session from ${SSH_CONNECTION%% *}" \
-    --mode=block \
-    "$SHELL" -l
-fi
-
 # ── Auto-start sway on VT1 ────────────────────────────────────────────────────
 if [[ -z $WAYLAND_DISPLAY && $XDG_VTNR == 1 ]]; then
     export XDG_SESSION_TYPE=wayland
