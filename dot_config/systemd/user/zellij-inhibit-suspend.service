@@ -1,0 +1,19 @@
+[Unit]
+Description=Hold a systemd-inhibit lock while zellij sessions exist
+Documentation=man:systemd-inhibit(1) man:zellij(1)
+# Independent of any graphical session: this is meant to run on
+# headless SSH-attached hosts too.
+
+[Service]
+Type=simple
+ExecStart=systemd-inhibit \
+  --what=sleep:idle:handle-lid-switch \
+  --who=zellij \
+  --why=Active\x20zellij\x20sessions \
+  --mode=block \
+  %h/.local/bin/zellij-inhibit-watcher
+# Don't auto-restart: the .path unit reactivates us on the next session.
+Restart=no
+
+[Install]
+WantedBy=default.target
