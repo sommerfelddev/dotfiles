@@ -13,6 +13,19 @@
   home.username = builtins.getEnv "USER";
   home.homeDirectory = builtins.getEnv "HOME";
 
+  # ── Thunderbird helpers (host only) ────────────────────────────────────────
+  # external-editor-revived is the native-messaging host that lets the
+  # Thunderbird addon hand a composing draft to $EDITOR. We run TB as the
+  # org.mozilla.thunderbird flatpak; the AUR package would drag in system
+  # `thunderbird` as a hard dep, so we take it from nixpkgs here instead
+  # (the nix derivation has no mailer dep). The bridge wiring lives in
+  # run_onchange_after_deploy-tb-eer.sh.tmpl; it auto-detects the binary
+  # under ~/.nix-profile and the manifest gets relocated into the TB
+  # flatpak sandbox.
+  home.packages = with pkgs; [
+    external-editor-revived
+  ];
+
   # ── Smartcard (Yubikey) ────────────────────────────────────────────────────
   # Nix's gnupg ships its own scdaemon. Delegate to the system pcscd
   # service instead of letting nix's scdaemon open the USB device

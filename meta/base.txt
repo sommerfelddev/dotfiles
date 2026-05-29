@@ -195,12 +195,10 @@ protonmail-bridge-core
 perl-authen-sasl
 perl-mime-tools
 perl-net-smtp-ssl
-# Native messaging host binary for External Editor Revived; bridged into
-# the TB flatpak by run_onchange_after_deploy-tb-eer.sh.tmpl.
-# Pulls `thunderbird` as a hard dep, which we don't want (we use the
-# org.mozilla.thunderbird flatpak); pacman.conf's AssumeInstalled rule
-# pretends thunderbird is installed so this resolves without the package.
-external-editor-revived
+# (External Editor Revived's native-messaging host is installed via nix
+# on the host — see nix/host.nix — so we don't pay the AUR variant's
+# hard `thunderbird` dependency. The bridge into the TB flatpak is
+# wired up by run_onchange_after_deploy-tb-eer.sh.tmpl.)
 
 # --- media (mpv is the io.mpv.Mpv flatpak in meta/flatpak.txt; streamlink
 # and yt-dlp run on the host and pipe/launch into the flatpak mpv via

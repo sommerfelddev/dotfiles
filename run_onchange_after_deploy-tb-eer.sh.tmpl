@@ -8,20 +8,34 @@
 # Idempotent. Re-runs on script changes or whenever the host-side manifest
 # content changes.
 #
-# host manifest hash: {{ output "sh" "-c" "for p in /usr/lib/mozilla/native-messaging-hosts/external_editor_revived.json /usr/lib/thunderbird/native-messaging-hosts/external_editor_revived.json; do [ -f \"$p\" ] && sha256sum \"$p\" && break; done; true" | sha256sum }}
+# host manifest hash: {{ output "sh" "-c" "for p in $HOME/.nix-profile/lib/mozilla/native-messaging-hosts/external_editor_revived.json /usr/lib/mozilla/native-messaging-hosts/external_editor_revived.json /usr/lib/thunderbird/native-messaging-hosts/external_editor_revived.json; do [ -f \"$p\" ] && sha256sum \"$p\" && break; done; true" | sha256sum }}
 set -eu
 
 TB_APP=org.mozilla.thunderbird
 MANIFEST_NAME=external_editor_revived.json
 WRAPPER_NAME=external_editor_revived.sh
-HOST_BINARY=/usr/lib/external-editor-revived/external-editor-revived
+
+# Locate the EER binary. nixpkgs is the preferred source (see nix/host.nix)
+# because it has no thunderbird dep; the AUR package is the fallback for
+# hosts where nix isn't set up yet.
+HOST_BINARY=
+for candidate in \
+  "$HOME/.nix-profile/bin/external-editor-revived" \
+  /usr/lib/external-editor-revived/external-editor-revived \
+  /usr/bin/external-editor-revived; do
+  if [ -x "$candidate" ]; then
+    HOST_BINARY=$candidate
+    break
+  fi
+done
 
 flatpak info --user "$TB_APP" >/dev/null 2>&1 || exit 0
 
-# Locate the host-side manifest. Different PKGBUILDs have used different
-# install dirs; prefer the canonical mozilla path, fall back to TB-specific.
+# Locate the host-side manifest. Different packagings (nix, AUR variants)
+# use different install dirs; check the common ones.
 HOST_MANIFEST=
 for candidate in \
+  "$HOME/.nix-profile/lib/mozilla/native-messaging-hosts/$MANIFEST_NAME" \
   /usr/lib/mozilla/native-messaging-hosts/$MANIFEST_NAME \
   /usr/lib/thunderbird/native-messaging-hosts/$MANIFEST_NAME \
   /usr/lib64/mozilla/native-messaging-hosts/$MANIFEST_NAME; do
@@ -31,12 +45,12 @@ for candidate in \
   fi
 done
 [ -n "$HOST_MANIFEST" ] || {
-  echo "tb-eer: external-editor-revived manifest not found on host; install the package or skip TB native editor." >&2
+  echo "tb-eer: external-editor-revived manifest not found on host; install via nix (host.nix) or skip TB native editor." >&2
   exit 0
 }
 
-[ -x "$HOST_BINARY" ] || {
-  echo "tb-eer: $HOST_BINARY not executable on host; skipping." >&2
+[ -n "$HOST_BINARY" ] || {
+  echo "tb-eer: external-editor-revived binary not found on host; install via nix (host.nix) or skip TB native editor." >&2
   exit 0
 }
 
