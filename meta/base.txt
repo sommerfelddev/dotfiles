@@ -75,6 +75,10 @@ nix
 perf             # links against running kernel ABI; must match kernel pkg
 podman-compose
 podman-docker
+fuse-overlayfs   # podman rootless storage driver on btrfs (kernel overlayfs
+                 # doesn't support btrfs as a lower dir; podman falls back to
+                 # vfs which is unusable). ~10-30% slower than native overlay
+                 # but unavoidable as long as ~/.local/share/containers is on btrfs.
 
 # --- sound ---
 alsa-utils
