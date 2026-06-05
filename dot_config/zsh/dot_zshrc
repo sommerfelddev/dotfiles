@@ -82,6 +82,7 @@ zstyle ':completion:*:functions' ignored-patterns '_*'         # hide internal c
 zstyle ':completion:*:*:kill:*' menu yes select                # interactive menu for kill completion
 zstyle ':completion:*:kill:*' force-list always                # always show process list for kill
 zstyle ':completion:*:cd:*' ignore-parents parent pwd          # cd never completes . or ..
+zstyle ':completion:*:*:git-switch:*' tag-order 'branches'     # git switch: complete local branches only
 zstyle ':completion::complete:*' gain-privileges 1             # use sudo for privileged completions
 zstyle -e ':completion:*:approximate:*' \
 	max-errors 'reply=($((($#PREFIX+$#SUFFIX)/3))numeric)'    # allow 1 typo per 3 chars typed
