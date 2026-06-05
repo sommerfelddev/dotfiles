@@ -31,9 +31,14 @@ id -nG "$USER" | tr ' ' '\n' | grep -qx wheel ||
   die "user '$USER' must be in the 'wheel' group"
 
 # 2. install sudo + pacman prerequisites, enable wheel in sudoers.
-#    If sudo is absent we do this in a single su -c so the root password
-#    is entered only once. If sudo is already there, reuse it.
-PREREQS='sudo git base-devel chezmoi just efibootmgr nix'
+#    `chezmoi` and `paru` are intentionally NOT in this list — chezmoi
+#    is run ephemerally via `nix-shell` below for the one-shot deploy,
+#    and paru lands in ~/.nix-profile/bin after the first nix-switch
+#    (we install `just init`'s AUR deps using *that* nix-store paru,
+#    not a manually built paru-bin). `just` and `git` stay on pacman
+#    so the script + early `just nix-switch` work before the nix
+#    profile is activated.
+PREREQS='sudo git base-devel just efibootmgr nix'
 SUDOERS_SED='s/^# *\(%wheel ALL=(ALL:ALL\(:ALL\)*) ALL\)/\1/'
 
 if ! command -v sudo >/dev/null 2>&1; then
@@ -47,42 +52,13 @@ else
   sudo sed -i "${SUDOERS_SED}" /etc/sudoers
 fi
 
-# 3. bootstrap paru-bin from AUR if missing
-if ! command -v paru >/dev/null 2>&1; then
-  log 'building paru-bin from AUR'
-  tmp=$(mktemp -d)
-  trap 'rm -rf "$tmp"' EXIT
-  git clone --depth=1 https://aur.archlinux.org/paru-bin.git "$tmp/paru-bin"
-  (cd "$tmp/paru-bin" && makepkg -si --noconfirm)
-fi
-
-# 4. clone dotfiles
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-REPO_URL="${DOTFILES_REPO:-https://github.com/sommerfelddev/dotfiles.git}"
-if [ ! -d "$DOTFILES_DIR/.git" ]; then
-  log "cloning $REPO_URL -> $DOTFILES_DIR"
-  git clone "$REPO_URL" "$DOTFILES_DIR"
-else
-  log "using existing clone at $DOTFILES_DIR"
-fi
-
-# 5. run just init — this deploys chezmoi, installs the 'base' meta list
-#    (which pulls in sudo-rs), deploys /etc/sudoers-rs, /etc/pam.d/sudo,
-#    creates /usr/local/bin/{sudo,su,visudo,sudoedit} symlinks pointing
-#    at sudo-rs (PATH precedence shadows /usr/bin/sudo), and installs
-#    git hooks. The classic 'sudo' package stays installed because
-#    base-devel hard-depends on it; that's harmless — the binary is
-#    never invoked once /usr/local/bin/sudo is in place. `just init`
-#    also runs `just nix-switch` to apply the Home-Manager profile;
-#    nix itself is part of PREREQS above (pacman package), and
-#    nix-daemon.socket is enabled by `unit-apply` via
-#    systemd-units/system.txt.
-cd "$DOTFILES_DIR"
+# 3. enable the nix daemon (multi-user mode; pacman ships the unit)
+log 'enabling nix-daemon'
+sudo systemctl enable --now nix-daemon.socket
 
 # Source the nix profile so `nix` is on PATH for the rest of this
 # script (pacman drops /etc/profile.d/nix.sh but the current shell
-# didn't read it). Multi-user (daemon mode) and per-user variants exist;
-# pacman ships the multi-user one.
+# didn't read it).
 for f in /etc/profile.d/nix.sh /etc/profile.d/nix-daemon.sh; do
   if [ -r "$f" ]; then
     # shellcheck disable=SC1090
@@ -91,36 +67,64 @@ for f in /etc/profile.d/nix.sh /etc/profile.d/nix-daemon.sh; do
   fi
 done
 
+# 4. provision subuid/subgid for rootless podman (nix-installed podman
+#    relies on the system shadow-utils ranges; idempotent — only acts
+#    when no range exists for the current user).
+if ! grep -q "^$USER:" /etc/subuid; then
+  log "provisioning /etc/subuid + /etc/subgid for rootless containers"
+  sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 "$USER"
+fi
+
+# 5. clone dotfiles
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+REPO_URL="${DOTFILES_REPO:-https://github.com/sommerfelddev/dotfiles.git}"
+if [ ! -d "$DOTFILES_DIR/.git" ]; then
+  log "cloning $REPO_URL -> $DOTFILES_DIR"
+  git clone "$REPO_URL" "$DOTFILES_DIR"
+else
+  log "using existing clone at $DOTFILES_DIR"
+fi
+cd "$DOTFILES_DIR"
+
+# 6. nix-switch FIRST. This installs paru + chezmoi (plus the wayland
+#    session tools, qrencode, torsocks, lshw, yt-dlp, streamlink,
+#    tesseract, whisper-cpp, …) into ~/.nix-profile/bin so the
+#    subsequent `just init` finds them on PATH. The repo is already a
+#    valid Nix flake — we don't need chezmoi to have run yet.
+log 'running nix-switch (installs paru + user-leaf tools from nix)'
+just nix-switch
+
+# Add nix-profile to PATH for the remaining steps so freshly installed
+# tools (paru, chezmoi) are picked up immediately. Login shells will
+# resolve it via /etc/profile.d/hm-session-vars.sh after re-login.
+export PATH="$HOME/.nix-profile/bin:$PATH"
+
+# 7. run just init — this deploys chezmoi, installs the 'base' meta list
+#    (which pulls in sudo-rs via the nix-profile paru), deploys
+#    /etc/sudoers-rs, /etc/pam.d/sudo, creates
+#    /usr/local/bin/{sudo,su,visudo,sudoedit} symlinks pointing at
+#    sudo-rs (PATH precedence shadows /usr/bin/sudo), and installs git
+#    hooks. The classic 'sudo' package stays installed because
+#    base-devel hard-depends on it; that's harmless — the binary is
+#    never invoked once /usr/local/bin/sudo is in place. `just init`
+#    also re-runs nix-switch as its last step (a no-op since step 6
+#    already activated the profile).
 log 'running just init'
 just init
 
-# 5b. chsh to nix-store zsh (provisioned by home-manager via nix/common.nix)
-NIX_ZSH="$HOME/.nix-profile/bin/zsh"
-if [ -x "$NIX_ZSH" ]; then
-  if ! grep -qxF "$NIX_ZSH" /etc/shells 2>/dev/null; then
-    log "appending $NIX_ZSH to /etc/shells"
-    echo "$NIX_ZSH" | sudo tee -a /etc/shells >/dev/null
-  fi
-  current_shell="$(getent passwd "$USER" | cut -d: -f7)"
-  if [ "$current_shell" != "$NIX_ZSH" ]; then
-    log "changing login shell to $NIX_ZSH"
-    sudo chsh -s "$NIX_ZSH" "$USER"
-  fi
-fi
-
-# 6. refresh pacman mirrorlist once via reflector (config deployed by chezmoi)
+# 8. refresh pacman mirrorlist once via reflector (config deployed by chezmoi)
 log 'refreshing pacman mirrorlist via reflector'
 sudo reflector @/etc/xdg/reflector/reflector.conf \
   --save /etc/pacman.d/mirrorlist ||
   warn 'reflector failed; keeping existing mirrorlist'
 
-# 7. create XDG user directories (~/Documents, ~/Downloads, etc.)
+# 9. create XDG user directories (~/Documents, ~/Downloads, etc.)
 if command -v xdg-user-dirs-update >/dev/null 2>&1; then
   log 'creating XDG user directories'
   xdg-user-dirs-update || warn 'xdg-user-dirs-update failed'
 fi
 
-# 8. optional: create an Arch EFI boot entry if none exists
+# 10. optional: create an Arch EFI boot entry if none exists
 if [ -d /sys/firmware/efi ]; then
   if ! sudo efibootmgr 2>/dev/null | grep -iq arch; then
     warn 'no Arch Linux EFI boot entry found'
