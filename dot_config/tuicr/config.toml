@@ -1,4 +1,4 @@
 theme = "gruvbox-dark"
-diff_view = "side-by-side"
+diff_view = "unified"
 mouse = true
 leader = " "
