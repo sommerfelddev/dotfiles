@@ -156,7 +156,11 @@
     slirp4netns  # rootless user-mode networking
     passt        # pasta backend (slirp4netns successor; podman picks it up)
     podman-compose
-    podman-docker # `docker` shell shim → podman
+    # `docker` shell shim → podman. nixpkgs has no top-level
+    # `podman-docker` attr (Arch ships one as a convenience pkg); the
+    # NixOS option `virtualisation.podman.dockerCompat` exists but isn't
+    # reachable from home-manager, so we ship a one-line writer instead.
+    (writeShellScriptBin "docker" ''exec ${podman}/bin/podman "$@"'')
 
     # Editor/AI agent runtimes — NOT for project builds (see policy above)
     nodejs_24 # copilot-language-server requires Node 24 (see ai.lua)
