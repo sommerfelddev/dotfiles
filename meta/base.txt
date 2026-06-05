@@ -5,13 +5,13 @@
 # What stays on pacman in this section is the pieces tightly coupled to
 # the distro (man-db/man-pages files), the system runtime (sudo-rs,
 # base/base-devel), and things needed pre-bootstrap or by other system
-# packages transitively.
+# packages transitively. User-leaf CLIs (chezmoi, paru, qrencode,
+# torsocks, lshw) now come from nix/host.nix.
 acpid
 arch-audit
 base
 base-devel
 btrfs-progs
-chezmoi
 cpupower
 dashbinsh
 dosfstools
@@ -25,7 +25,6 @@ linux-hardened-headers
 linux-lts
 linux-lts-headers
 lostfiles
-lshw
 man-db
 man-pages
 nfs-utils
@@ -34,11 +33,9 @@ ocl-icd
 overdue
 pacman-cleanup-hook
 pacman-contrib
-paru
 pbzip2
 pigz
 pkgstats
-qrencode
 rebuild-detector
 reflector
 sbctl
@@ -46,7 +43,6 @@ smartmontools
 sudo-rs
 systemd-resolvconf
 tlp
-torsocks
 wireguard-tools
 zram-generator
 
@@ -73,10 +69,10 @@ nix
 # sccache), debuggers and toolchain-specific compilers/linkers live in
 # nix instead. clang/lld/mold/rustup/go are intentionally absent — when
 # a project needs them, the project's flake.nix + direnv `.envrc`
-# provide them.) ---
+# provide them. The podman stack (podman, crun, conmon, netavark,
+# aardvark-dns, slirp4netns, passt, podman-compose, podman-docker) now
+# comes from nix/common.nix — unified across host and VM.) ---
 perf             # links against running kernel ABI; must match kernel pkg
-podman-compose
-podman-docker
 
 # --- sound ---
 alsa-utils
@@ -84,8 +80,6 @@ pipewire
 pipewire-alsa
 pipewire-jack
 pipewire-pulse
-playerctl
-pulsemixer
 # noisetorch  # optional
 
 # --- fonts ---
@@ -98,40 +92,23 @@ ttf-noto-nerd
 woff2-font-awesome
 
 # --- wayland session ---
-# Compositor
+# Compositor (ships /usr/share/wayland-sessions/sway.desktop — login-manager
+# coupled, must stay on pacman). The user-leaf session tools — waybar,
+# fuzzel, wofi, mako, swayidle, swayr, inhibridge, bemoji, ghostty, grim,
+# slurp, wf-recorder, wtype, wl-clipboard, cliphist, imv, wl-mirror, wob,
+# poweralertd, playerctl, pulsemixer — now come from nix/host.nix.
 sway
-# Auto-tile daemon: splits new containers along the focused window's
-# longest side via sway IPC. Configured in ~/.config/swayr/config.toml
-# ([layout].auto_tile = true). Daemon runs as swayrd.service under
-# sway-session.target.
-swayr
 xdg-desktop-portal-wlr
 xdg-desktop-portal-gtk
 qt5-wayland
 qt6-wayland
 
-# Bar & launcher
-waybar
-fuzzel
-# wofi: secondary picker used only by mako-history.sh — needs --hide-search
-# and per-key custom bindings, neither of which fuzzel supports.
-wofi
-
-# Terminal
-ghostty
-
-# Notifications
-mako
+# Notifications: libnotify provides the system shared lib that other
+# pacman packages link against; the user-facing mako daemon is nix.
 libnotify
-poweralertd
 
-# Lock screen
+# Lock screen (setuid; PAM-coupled)
 swaylock
-swayidle
-# Bridge browsers' org.freedesktop.ScreenSaver inhibits to systemd-inhibit
-# so swayidle honors them (e.g. video calls, fullscreen video). Without
-# this swayidle would still time out and lock during a Meet call.
-inhibridge
 
 # org.freedesktop.secrets D-Bus implementation backed by pass. Required
 # by Signal Desktop (flatpak) and other libsecret consumers. Ships both
@@ -146,25 +123,7 @@ pass-secret-service-bin
 # ErgoDox EZ / Moonlander / Voyager.
 zsa-udev
 
-# Clipboard
-wl-clipboard
-cliphist
-
-# Screenshots & recording
-grim
-slurp
-wf-recorder
-
-# Wayland typing (used by dictate, etc)
-wtype
-
-# Emoji picker (AUR; tiny shell script, multi-backend — we drive it through wofi)
-bemoji
-
-# Image viewer
-imv
-
-# QR
+# QR (system lib used by zbarcam; the qrencode CLI is in nix/host.nix)
 zbar
 xorg-xwayland # needed for zbarcam's X11 preview
 
@@ -177,15 +136,11 @@ brightnessctl
 # for mpv/yt-dlp/streamlink to hide secrets from network parsers; also
 # pulled transitively by flatpak.
 bubblewrap
-# Volume/brightness OSD overlay (driven by ~/.config/sway/{vol,brightness}-osd.sh
-# writing percentages to $XDG_RUNTIME_DIR/wob.sock).
-wob
 libfido2
 perl-file-mimeinfo
 qt5ct
 qt6ct
 xdg-user-dirs
-wl-mirror
 
 # --- browser (LibreWolf flatpak; arkenfox-user.js is the host-side
 # hardening overlay deployed by run_onchange_after_deploy-firefox.sh.tmpl) ---
@@ -203,10 +158,9 @@ perl-net-smtp-ssl
 # wired up by run_onchange_after_deploy-tb-eer.sh.tmpl.)
 
 # --- media (mpv is the io.mpv.Mpv flatpak in meta/flatpak.txt; streamlink
-# and yt-dlp run on the host and pipe/launch into the flatpak mpv via
-# `flatpak run io.mpv.Mpv`, see dot_config/streamlink/config) ---
-streamlink
-yt-dlp
+# and yt-dlp now come from nix/host.nix and pipe/launch into the flatpak
+# mpv via `flatpak run io.mpv.Mpv`, see dot_config/streamlink/config.
+# Bitcoin wallet — sparrow — also lives in nix/host.nix.) ---
 
 # --- desktop extras ---
 syncthing
@@ -222,13 +176,9 @@ flatpak
 pcsclite
 ccid
 
-# OCR (used by ~/.local/bin/ocr)
-tesseract
-tesseract-data-eng
-tesseract-data-por
-
-# Speech-to-text (used by ~/.local/bin/dictate)
-# `base` multilingual: ~142 MB, ~7-10x realtime on a 4c CPU. Override
-# WHISPER_MODEL in the script's environment to use a different ggml model.
-whisper.cpp-vulkan
-whisper.cpp-model-base
+# --- OCR + STT moved to nix/host.nix ---
+# tesseract (+ eng/por language data merged via override) and whisper-cpp
+# (+ vulkan support, + inline ggml-base.bin model derivation) now come
+# from nix/host.nix. The ~/.local/bin/dictate script defaults to
+# ~/.nix-profile/share/whisper-cpp-models/ggml-base.bin (overridable via
+# WHISPER_MODEL).
