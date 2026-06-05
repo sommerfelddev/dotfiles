@@ -7,7 +7,7 @@ ConditionEnvironment=DBUS_SESSION_BUS_ADDRESS
 
 [Service]
 Type=simple
-ExecStart=inhibridge
+ExecStart=%h/.nix-profile/bin/inhibridge
 Restart=on-failure
 RestartSec=2s
 

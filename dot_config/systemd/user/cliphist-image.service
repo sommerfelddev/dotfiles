@@ -6,7 +6,7 @@ ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 Type=simple
-ExecStart=wl-paste --type image --watch cliphist store
+ExecStart=%h/.nix-profile/bin/wl-paste --type image --watch cliphist store
 Restart=on-failure
 RestartSec=2s
 

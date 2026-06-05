@@ -66,8 +66,12 @@ in
     # Pure user-session GUIs/daemons — no system unit, no D-Bus activation
     # file under /usr/share/dbus-1, no login-manager session entry. The
     # corresponding user-scope systemd units live under
-    # dot_config/systemd/user/ and reference these binaries by bare name
-    # so $PATH resolves them out of ~/.nix-profile/bin.
+    # dot_config/systemd/user/ and reference these binaries by an absolute
+    # %h/.nix-profile/bin/<name> path. (Bare names do NOT work: systemd's
+    # ExecStart binary resolution does not use the imported/environment.d
+    # PATH of the --user manager, so a bare name fails with 203/EXEC even
+    # though `systemctl --user show-environment` shows the nix profile on
+    # PATH. The %h specifier expands to $HOME at unit-load time.)
     waybar
     mako
     fuzzel
