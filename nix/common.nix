@@ -93,6 +93,7 @@
     nmap
     rsync
     openssh
+    mosh
 
     # Debug / trace / profile — moved off pacman. User policy: only
     # used against own builds, so glibc/kernel version skew vs the

@@ -1,4 +1,3 @@
-bitbox-wallet-app-appimage
 bitbox-udev
 sparrow-wallet
 tor

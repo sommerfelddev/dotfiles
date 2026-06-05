@@ -18,7 +18,6 @@ pcscd.socket
 smartd.service
 btrfs-scrub@-.timer
 btrfs-balance@-.timer
-fwupd-refresh.timer
 arch-audit.timer
 lostfiles.timer
 
