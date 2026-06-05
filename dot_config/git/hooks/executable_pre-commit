@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # User-level pre-commit. No global checks — exists purely so that
 # `<repo>/.githooks/pre-commit` gets picked up automatically without
 # the project needing to override core.hooksPath. If there is no

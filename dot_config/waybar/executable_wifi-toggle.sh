@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Toggle wifi (wlan0) Powered state via iwd's D-Bus API. Driven by waybar
 # on-click on the custom/wifi module.
 set -eu

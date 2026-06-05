@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Install a Node.js 24 (LTS) runtime under ~/.local/share/copilot-node/ for the
 # exclusive use of copilot.lua / copilot-lsp inside neovim. System-wide nodejs
 # (currently 26.x in Arch) is unaffected.

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Emit waybar JSON when any /dev/video* device is held open by a process.
 # V4L2 capture (firefox, zoom, OBS, etc.) doesn't go through PipeWire's
 # privacy portal, so the built-in waybar privacy module never sees it.

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Deploy Thunderbird non-private configuration (user.js, optional chrome/).
 # chezmoi re-runs this script whenever any file under thunderbird/ changes.
 # thunderbird/ content hash: {{ output "sh" "-c" (printf "cd %q && find thunderbird -type f -exec sha256sum {} + | LC_ALL=C sort" .chezmoi.sourceDir) | sha256sum }}

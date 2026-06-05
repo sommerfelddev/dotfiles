@@ -35,3 +35,6 @@ nix-daemon.socket
 # --- libvirt (socket-activated; daemons spawn on first virsh/virt-manager
 # connect, the .socket is what gets enabled) ---
 libvirtd.socket
+
+# --- file sync (system template; binary comes from the user's nix profile) ---
+syncthing@sommerfeld.service

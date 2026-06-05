@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 # Push-to-talk dictation. Toggle: 1st invocation starts recording;
 # 2nd stops, transcribes via whisper.cpp, types the result into the focused
 # window with wtype, and copies it to the clipboard.

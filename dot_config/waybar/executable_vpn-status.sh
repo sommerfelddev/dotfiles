@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Waybar custom/vpn module: report whether the wireguard interface
 # (managed by systemd-networkd) is admin-up. Pango markup makes the
 # state visually unambiguous (green shield up, red strikethrough down)

@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 # Thin wrapper: run streamlink inside _sandbox-net-parser. The
 # sandbox keeps `/` bind-mounted, so streamlink's configured player
 # (`flatpak run io.mpv.Mpv` — see ~/.config/streamlink/config) is reachable

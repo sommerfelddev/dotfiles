@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Print brightness percent to wob's fifo to flash a brightness bar.
 # Usage: brightness-osd.sh up|down
 set -eu

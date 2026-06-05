@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Suspend the system, but only if running on battery. Used as the
 # swayidle `timeout` action so idle suspends save battery without ever
 # firing while the laptop is plugged in.

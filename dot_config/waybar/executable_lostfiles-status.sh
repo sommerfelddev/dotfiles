@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Waybar custom/lostfiles: shows count of filesystem entries not owned
 # by any pacman package (and not on lostfiles' built-in safe-list).
 # Source of truth is /run/lostfiles.txt, refreshed weekly by

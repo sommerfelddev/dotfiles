@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Launch Thunderbird and stash the main window into the scratchpad once sway
 # marks it. Used at sway startup so TB is running but hidden from the outset.
 # Invoking Super+t (tb-toggle.sh) while TB isn't running takes a different

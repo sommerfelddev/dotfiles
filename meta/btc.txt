@@ -1,5 +1,4 @@
 bitbox-wallet-app-appimage
-python-bitbox02
-python-qdarkstyle
+bitbox-udev
 sparrow-wallet
 tor

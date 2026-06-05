@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Toggle the wireguard interface managed by systemd-networkd. Polkit
 # rule (etc/polkit-1/rules.d/50-networkd-wheel.rules) lets wheel-group
 # members invoke networkctl up/down without a password prompt.

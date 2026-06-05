@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Toggle Bluetooth power via bluetoothctl. Uses notify-send's synchronous
 # hint so repeated toggles replace the previous notification instead of
 # stacking.

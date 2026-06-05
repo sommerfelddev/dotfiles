@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Waybar custom/update: gentle reminder that the system hasn't been
 # upgraded recently. Source of truth is /var/log/pacman.log — the last
 # "[PACMAN] starting full system upgrade" entry. No daemon, no -Sy

@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 pid_file="/tmp/recordpid"
 log_file="/tmp/record.log"
@@ -9,7 +9,7 @@ pid_exists() {
 
 is_running() {
   if pid_exists; then
-    ps "$(cat "$pid_file")" >/dev/null 2>&1 || return 1
+    kill -0 "$(cat "$pid_file")" >/dev/null 2>&1 || return 1
   else
     return 1
   fi

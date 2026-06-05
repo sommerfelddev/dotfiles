@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Deploy Firefox/LibreWolf hardening overrides and custom CSS.
 # chezmoi re-runs this script whenever any file under firefox/ changes.
 # firefox/ content hash: {{ output "sh" "-c" (printf "cd %q && find firefox -type f -exec sha256sum {} + | LC_ALL=C sort" .chezmoi.sourceDir) | sha256sum }}

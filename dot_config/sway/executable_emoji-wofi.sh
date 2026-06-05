@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Bemoji picker backend: filter out skin-tone variants
 # (U+1F3FB..U+1F3FF) before handing the emoji list to wofi.
 set -eu

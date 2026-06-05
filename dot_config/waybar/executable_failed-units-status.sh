@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Waybar custom/failed-units: shows count of failed systemd units across
 # the system bus and the current user's session bus. Hidden when zero.
 # Mako fires only on transition upward (count went up since last check),

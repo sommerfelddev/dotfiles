@@ -54,7 +54,9 @@
     glow
 
     # Git stack
-    git
+    # Includes git-send-email: nixpkgs wraps it with the SMTP/SASL Perl deps
+    # it needs, so we don't carry distro Perl modules just for email support.
+    (git.override { sendEmailSupport = true; })
     gh
     delta
     mergiraf
@@ -66,6 +68,15 @@
     yq-go
 
     # System
+    dash
+    # Prefer Rust uutils for the unprefixed replacements that pass repo-local
+    # usage checks. Keep GNU tar on the system PATH for now; uutils-tar still
+    # rejects common GNU tar invocations like `tar -czf`.
+    uutils-coreutils-noprefix
+    uutils-diffutils
+    uutils-findutils
+    uutils-procps
+    uutils-sed
     htop
     fastfetch
     hyperfine

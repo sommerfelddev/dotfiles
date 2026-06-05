@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Clipboard picker on top of cliphist + wofi (vim-nav, hide-search,
 # Alt-d to delete the highlighted entry).
 #

@@ -1,0 +1,53 @@
+[Unit]
+Description=Syncthing - Open Source Continuous File Synchronization for %I
+Documentation=man:syncthing(1)
+After=network.target
+StartLimitIntervalSec=60
+StartLimitBurst=4
+
+[Service]
+User=%i
+Environment="STLOGFORMATTIMESTAMP="
+Environment="STLOGFORMATLEVELSTRING=false"
+Environment="STLOGFORMATLEVELSYSLOG=true"
+ExecStart=/home/%i/.nix-profile/bin/syncthing serve --no-browser --no-restart --allow-newer-config
+Restart=on-failure
+RestartSec=1
+SuccessExitStatus=3 4
+RestartForceExitStatus=3 4
+
+# Best-effort sandboxing, based on the nixpkgs Syncthing system unit.
+ProtectSystem=full
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectHostname=true
+ProtectClock=true
+NoNewPrivileges=true
+RestrictSUIDSGID=true
+MemoryDenyWriteExecute=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK AF_UNIX
+CapabilityBoundingSet=
+AmbientCapabilities=
+LockPersonality=true
+SystemCallArchitectures=native
+RemoveIPC=true
+PrivateIPC=true
+PrivateTmp=disconnected
+PrivateDevices=true
+DevicePolicy=closed
+PrivatePIDs=true
+ProtectProc=invisible
+ProcSubset=pid
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged
+SystemCallFilter=~io_uring_setup io_uring_enter io_uring_register
+SystemCallErrorNumber=EPERM
+UMask=7027
+InaccessiblePaths=-/nonexistent
+
+[Install]
+WantedBy=multi-user.target

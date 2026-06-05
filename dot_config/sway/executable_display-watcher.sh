@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Watch sway output events. When the set of connected external displays
 # changes (plug/unplug), re-apply the preferred layout via display-toggle.sh.
 # Manual F7 toggles don't trip this because they don't change external count.

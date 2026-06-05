@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Waybar custom/arch-audit: shows count of installed packages with known
 # CVEs that already have a fix available in the repos. Source of truth
 # is /run/arch-audit.txt, refreshed daily by arch-audit.timer (system

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Emit waybar JSON with memory usage. Used% uses a heat scale (green → red),
 # available% uses the inverse (red → green). Values embedded via Pango span.
 set -eu

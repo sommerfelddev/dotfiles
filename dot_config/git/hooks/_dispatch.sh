@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Sourced by every hook in this directory. Runs the per-repo hook of
 # the same name and then returns control so the calling user-level
 # hook can do its own work after.

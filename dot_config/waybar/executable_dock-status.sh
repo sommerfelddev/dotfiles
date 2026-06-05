@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Detect a Lenovo ThinkPad USB-C Dock Gen2 by its distinctive built-in
 # ethernet adapter (17ef:a387). The dock's USB hubs share product IDs
 # with internal ThinkPad hubs on some models, but the ethernet is only

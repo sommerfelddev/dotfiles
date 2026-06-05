@@ -6,14 +6,13 @@
 # the distro (man-db/man-pages files), the system runtime (sudo-rs,
 # base/base-devel), and things needed pre-bootstrap or by other system
 # packages transitively. User-leaf CLIs (chezmoi, paru, qrencode,
-# torsocks, lshw) now come from nix/host.nix.
+# torsocks, lshw, xdg-utils, syncthing) now come from nix/host.nix.
 acpid
 arch-audit
 base
 base-devel
 btrfs-progs
 cpupower
-dashbinsh
 dosfstools
 fwupd
 iwd
@@ -143,7 +142,6 @@ brightnessctl
 # pulled transitively by flatpak.
 bubblewrap
 libfido2
-perl-file-mimeinfo
 qt5ct
 qt6ct
 xdg-user-dirs
@@ -155,10 +153,8 @@ arkenfox-user.js
 # --- mail (host-side bits the org.mozilla.thunderbird flatpak depends on) ---
 # protonmail-bridge now comes from nix/host.nix (the bridge binary + its
 # repo-owned user unit dot_config/systemd/user/protonmail-bridge.service).
-# git send-email Perl prereqs (SMTP via local Bridge on 127.0.0.1:1025)
-perl-authen-sasl
-perl-mime-tools
-perl-net-smtp-ssl
+# git-send-email support is provided by nix/common.nix's git package, which
+# wraps git-send-email with the needed SMTP/SASL Perl libraries.
 # (External Editor Revived's native-messaging host is installed via nix
 # on the host — see nix/host.nix — so we don't pay the AUR variant's
 # hard `thunderbird` dependency. The bridge into the TB flatpak is
@@ -170,7 +166,6 @@ perl-net-smtp-ssl
 # Bitcoin wallet — sparrow-wallet — lives in meta/btc.txt.) ---
 
 # --- desktop extras ---
-syncthing
 udisks2
 
 # Flatpak runtime (apps tracked in meta/flatpak.txt)

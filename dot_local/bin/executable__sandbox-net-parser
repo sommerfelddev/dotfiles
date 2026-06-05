@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 # Sandbox wrapper for tools that parse data from untrusted network
 # sources (yt-dlp, streamlink). The threat model is RCE in a
 # subtitle / muxer / extractor that walks the user's home directory

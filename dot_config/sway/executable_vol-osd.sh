@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Print 0–100 to wob's fifo to flash a volume bar overlay.
 # Usage: vol-osd.sh up|down|mute (mute toggles)
 set -eu

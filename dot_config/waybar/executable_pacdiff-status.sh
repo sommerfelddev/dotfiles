@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Waybar custom/pacdiff: shows count of unresolved .pacnew/.pacsave files.
 # Source of truth is `pacdiff -o` (output mode — lists differing files,
 # does nothing). Hidden when zero. Mako fires once when the count goes

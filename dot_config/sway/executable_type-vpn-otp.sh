@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Fetch the current VPN TOTP from pass-otp and type it into the focused
 # surface via wtype. If wtype isn't available or fails (focused surface
 # lacks virtual-keyboard support, e.g. an Xwayland app), copy the code

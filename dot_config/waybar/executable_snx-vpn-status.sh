@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Waybar custom/snx-vpn module: report the snx-rs (Check Point) tunnel
 # state. `snxctl status` is fast (talks over a local UDS to the daemon)
 # but might briefly stall during connect; cap it with `timeout`.

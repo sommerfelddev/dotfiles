@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 # OCR a screen region (default) or an image file → clipboard.
 #
 # Usage:

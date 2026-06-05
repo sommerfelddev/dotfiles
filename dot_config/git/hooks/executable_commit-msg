@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Strip Co-authored-by trailers whose identity looks like a coding agent
 # (Copilot, Claude, Codex, ChatGPT, Cursor, Aider, Devin, ...). Various
 # tools — GitHub Copilot CLI, VS Code chat, etc. — append these
@@ -58,7 +58,11 @@ esac
 
 # Collapse any trailing blank lines produced by the removal so we don't
 # leave a dangling blank trailer block.
-sed -e :a -e '/^$/{$d;N;ba' -e '}' "$tmp" >"$msg_file"
+awk '
+  NF { last = NR }
+  { lines[NR] = $0 }
+  END { for (i = 1; i <= last; i++) print lines[i] }
+' "$tmp" >"$msg_file"
 
 printf 'commit-msg: stripped AI Co-authored-by trailer(s).\n' >&2
 exit 0

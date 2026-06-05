@@ -117,6 +117,13 @@ in
     lshw
     yt-dlp
     streamlink
+    xdg-utils     # xdg-open, used by yazi/linkhandler/OPENER
+
+    # ── File sync ───────────────────────────────────────────────────────────────
+    # Package-only migration from pacman. The boot-time system service is the
+    # repo-owned syncthing@sommerfeld.service tracked in systemd-units/system.txt
+    # and backed by etc/systemd/system/syncthing@.service.
+    syncthing
 
     # chezmoi & paru — both are pure user CLIs. `paru` wraps pacman+makepkg
     # but doesn't link them; it just shells out. bootstrap.sh installs a

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Toggle the snx-rs (Check Point) tunnel.
 #
 # Refresh the waybar custom/snx-vpn module immediately with SIGRTMIN+9.

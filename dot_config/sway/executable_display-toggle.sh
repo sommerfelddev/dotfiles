@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Display mode manager: laptop-off ↔ side-by-side.
 #   (no arg)  toggle between modes (F7 / Super+x d).
 #   apply     re-apply the saved mode (used by display-watcher after

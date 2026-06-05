@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # User-level post-commit. No global checks — exists purely so that
 # `<repo>/.githooks/post-commit` gets picked up automatically without
 # the project needing to override core.hooksPath. If there is no

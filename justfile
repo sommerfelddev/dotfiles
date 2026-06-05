@@ -6,15 +6,15 @@ default:
 # Setup
 # ═══════════════════════════════════════════════════════════════════
 
-# First-time machine setup: regenerate chezmoi config, install git hooks, deploy dotfiles, install base packages, enable curated units, switch Home-Manager
-init: _chezmoi-init _install-hooks apply (pkg-apply "base") unit-apply nix-switch
+# First-time machine setup: regenerate chezmoi config, install git hooks, deploy dotfiles, install base packages, switch Home-Manager, enable curated units
+init: _chezmoi-init _install-hooks apply (pkg-apply "base") nix-switch unit-apply
 
 # ═══════════════════════════════════════════════════════════════════
 # Day-to-day
 # ═══════════════════════════════════════════════════════════════════
 
-# Reconcile everything: deploy dotfiles + /etc, top up packages, enable curated units, sync Home-Manager
-sync: apply pkg-fix unit-apply nix-switch
+# Reconcile everything: deploy dotfiles + /etc, top up packages, sync Home-Manager, enable curated units
+sync: apply pkg-fix nix-switch unit-apply
 
 # Deploy dotfiles AND /etc atomically (chezmoi apply; /etc handled by onchange template)
 apply:
@@ -72,7 +72,7 @@ pkg-update:
 
 # Run after this to pick up newer versions of nix-managed tools.
 nix-update:
-    #!/bin/sh
+    #!/usr/bin/env dash
     set -eu
     if ! command -v nix >/dev/null 2>&1; then
         echo "nix not installed; skipping flake update" >&2
@@ -84,7 +84,7 @@ nix-update:
 
 # Update all user-scope flatpaks (Flathub apps + URL bundles when their version changes)
 flatpak-update:
-    #!/bin/sh
+    #!/usr/bin/env dash
     set -eu
     flatpak update --user -y --noninteractive
     [ -f meta/flatpak.txt ] || exit 0
@@ -459,7 +459,7 @@ dotfiles-diff *paths:
 
 # 3-way merge dotfile conflicts; pass a path for one file, or omit to merge all
 dotfiles-merge *paths:
-    #!/bin/sh
+    #!/usr/bin/env dash
     if [ -n '{{ paths }}' ]; then
         chezmoi merge -S . {{ paths }}
     else
@@ -468,7 +468,7 @@ dotfiles-merge *paths:
 
 # Show dotfile drift (wraps 'chezmoi status')
 dotfiles-status:
-    #!/bin/sh
+    #!/usr/bin/env dash
     echo "=== Dotfile drift ==="
     chezmoi status -S . || true
 
@@ -485,7 +485,7 @@ dotfiles-status:
 
 # List curated systemd units with their enabled/active state
 unit-list:
-    #!/bin/sh
+    #!/usr/bin/env dash
     _render() {
         scope=$1 file=$2
         sctl="systemctl"; [ "$scope" = user ] && sctl="systemctl --user"
@@ -514,7 +514,7 @@ unit-list:
 
 # Enable all curated systemd units (idempotent, soft-fail per unit); walks system + user lists
 unit-apply:
-    #!/bin/sh
+    #!/usr/bin/env dash
     if [ -f systemd-units/system.txt ]; then
         sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' systemd-units/system.txt | while read -r u; do
             sudo systemctl enable --now "$u" \
@@ -530,7 +530,7 @@ unit-apply:
 
 # Show drift between curated units and actually-enabled systemd units (system + user)
 unit-status:
-    #!/bin/sh
+    #!/usr/bin/env dash
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
     _drift() {
         scope=$1 label=$2
@@ -568,7 +568,7 @@ unit-status:
 
 # inferred by probing `systemctl [--user] cat <unit>` (system wins on tie).
 unit-add +units:
-    #!/bin/sh
+    #!/usr/bin/env dash
     set -eu
     _scope() {
         u=$1
@@ -606,7 +606,7 @@ unit-add +units:
 
 # inferred from which list currently contains the unit.
 unit-forget +units:
-    #!/bin/sh
+    #!/usr/bin/env dash
     set -eu
     for u in {{ units }}; do
         scope=
@@ -620,7 +620,8 @@ unit-forget +units:
             continue
         fi
         file="systemd-units/${scope}.txt"
-        sed -i "/^$(printf '%s' "$u" | sed 's/[]\/$*.^[]/\\&/g')\$/d" "$file"
+        awk -v target="$u" '$0 != target { print }' "$file" > "$file.tmp"
+        mv "$file.tmp" "$file"
         echo "removed $u from ${scope}"
         if [ "$scope" = user ]; then
             systemctl --user disable --now "$u" \
@@ -985,7 +986,7 @@ etc-restore +paths:
 
 # Show package drift: missing packages in adopted groups + undeclared installed packages
 pkg-status:
-    #!/bin/sh
+    #!/usr/bin/env dash
     flatpaks=$(flatpak list --user --app --columns=application 2>/dev/null || true)
     echo "=== Package drift ==="
     just _active-packages | while read -r pkg; do
@@ -1002,7 +1003,7 @@ pkg-status:
 
 # Print undeclared packages one per line, unindented (pipe to 'paru -Rs -' to remove pacman entries)
 undeclared:
-    #!/bin/sh
+    #!/usr/bin/env dash
     active=$(just _active-packages)
     pacman -Qqe | while read -r pkg; do
         echo "$active" | grep -qxF "$pkg" || echo "$pkg"
@@ -1017,7 +1018,7 @@ undeclared:
 
 # Show per-group install coverage; pass a group name for a per-package breakdown
 pkg-list group="":
-    #!/bin/sh
+    #!/usr/bin/env dash
     is_installed() {
         # $1: group name, $2: package/app id
         if [ "$1" = "flatpak" ]; then
@@ -1076,7 +1077,7 @@ pkg-list group="":
 
 # Install one or more package groups, or all groups if none given (e.g. just pkg-apply base intel)
 pkg-apply *groups:
-    #!/bin/sh
+    #!/usr/bin/env dash
     set -eu
     # `paru -S --needed` is a no-op for already-installed packages, which
     # means a package pulled in transitively (and later declared in
@@ -1116,7 +1117,7 @@ pkg-apply *groups:
 
 # Top up missing packages in groups that are already ≥50% installed (never installs new groups)
 pkg-fix:
-    #!/bin/sh
+    #!/usr/bin/env dash
     flatpaks=$(flatpak list --user --app --columns=application 2>/dev/null || true)
     for file in meta/*.txt; do
         group=$(basename "$file" .txt)
@@ -1146,7 +1147,7 @@ pkg-fix:
 
 # Append one or more packages to a group list and install them (e.g. just pkg-add base ripgrep fd)
 pkg-add group +pkgs:
-    #!/bin/sh
+    #!/usr/bin/env dash
     set -eu
     file="meta/{{ group }}.txt"
     if [ ! -f "$file" ]; then
@@ -1171,7 +1172,7 @@ pkg-add group +pkgs:
 
 # Remove one or more packages from a group list (does NOT uninstall; the package may belong to other groups)
 pkg-forget group +pkgs:
-    #!/bin/sh
+    #!/usr/bin/env dash
     set -eu
     file="meta/{{ group }}.txt"
     if [ ! -f "$file" ]; then
@@ -1180,7 +1181,8 @@ pkg-forget group +pkgs:
     fi
     for pkg in {{ pkgs }}; do
         if grep -qxF "$pkg" "$file"; then
-            sed -i "/^$(printf '%s' "$pkg" | sed 's/[]\/$*.^[]/\\&/g')\$/d" "$file"
+            awk -v target="$pkg" '$0 != target { print }' "$file" > "$file.tmp"
+            mv "$file.tmp" "$file"
             echo "removed $pkg from {{ group }}.txt"
         else
             echo "$pkg not in {{ group }}.txt"
@@ -1208,7 +1210,7 @@ _install-hooks:
 
 # new versions of bundle entries).
 _flatpak-install:
-    #!/bin/sh
+    #!/usr/bin/env dash
     set -eu
     [ -f meta/flatpak.txt ] || exit 0
     flatpak remote-add --if-not-exists --user flathub \
@@ -1233,7 +1235,7 @@ _flatpak-install:
 
 # Print packages from pacman groups that are ≥50% installed (adopted), one per line
 _active-packages:
-    #!/bin/sh
+    #!/usr/bin/env dash
     for file in meta/*.txt; do
         [ "$(basename "$file")" = "flatpak.txt" ] && continue
         pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")

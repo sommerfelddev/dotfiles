@@ -4,12 +4,11 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     home-manager = {
-      # Pin to the release branch matching nixpkgs lib.version (the
-      # `nixos-unstable` snapshot we follow here reports 26.05). Without
-      # this, HM master races ahead one cycle and emits the
-      # "mismatched versions" warning at every activation. Bump the
-      # branch name in lockstep when nixpkgs lib.version rolls over.
-      url = "github:nix-community/home-manager/release-26.05";
+      # Track the Home Manager branch whose release.json matches nixpkgs'
+      # lib.version. nixos-unstable currently reports 26.11pre-git, while
+      # home-manager's latest release branch is still 26.05, so master is the
+      # matching input until release-26.11 exists.
+      url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # tuicr: TUI git-change reviewer. Upstream flake exposes

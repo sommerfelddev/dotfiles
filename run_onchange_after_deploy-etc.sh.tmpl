@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Deploy system-level configs from etc/ to /etc/.
 # chezmoi re-runs this script whenever any file under etc/ changes.
 # etc/ content hash: {{ output "sh" "-c" (printf "cd %q && find etc -type f ! -name .ignore -exec sha256sum {} + | LC_ALL=C sort" .chezmoi.sourceDir) | sha256sum }}

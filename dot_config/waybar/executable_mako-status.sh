@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Waybar status: count of currently-visible mako notifications. With
 # default-timeout=0 in mako/config, "visible" == "pending"; once a
 # notification is dismissed it's gone and never comes back.

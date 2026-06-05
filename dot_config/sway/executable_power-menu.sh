@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Keyboard-driven power menu via wofi --dmenu (j/k navigation).
 set -eu
 

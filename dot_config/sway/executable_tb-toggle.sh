@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Toggle the Thunderbird main window between the sway scratchpad and the
 # current workspace (tiled). If Thunderbird isn't running yet, launch it —
 # the for_window rule in sway config will mark it and stash it.

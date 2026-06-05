@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Emit waybar JSON describing wifi link state.
 #
 # Uses iwd's D-Bus API for state + SSID (net.connman.iwd is a documented,

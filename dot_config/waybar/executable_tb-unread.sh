@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env dash
 # Emit waybar JSON with the count of unread messages in the protonmail-bridge
 # IMAP Inbox. Requires bridge credentials in `pass` at the paths below; the
 # bridge prints them via `protonmail-bridge --cli` → `info`.
