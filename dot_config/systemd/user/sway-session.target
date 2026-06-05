@@ -4,4 +4,3 @@ Documentation=man:systemd.special(7)
 BindsTo=graphical-session.target
 Wants=graphical-session-pre.target mako.service poweralertd.service display-watcher.service swayidle.service cliphist-text.service cliphist-image.service waybar.service signal.service
 After=graphical-session-pre.target
-StopWhenUnneeded=yes
