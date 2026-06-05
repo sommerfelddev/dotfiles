@@ -153,7 +153,8 @@ xdg-user-dirs
 arkenfox-user.js
 
 # --- mail (host-side bits the org.mozilla.thunderbird flatpak depends on) ---
-protonmail-bridge-core
+# protonmail-bridge now comes from nix/host.nix (the bridge binary + its
+# repo-owned user unit dot_config/systemd/user/protonmail-bridge.service).
 # git send-email Perl prereqs (SMTP via local Bridge on 127.0.0.1:1025)
 perl-authen-sasl
 perl-mime-tools

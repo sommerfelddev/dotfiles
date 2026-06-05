@@ -18,5 +18,5 @@ teams-xsight.service
 waybar.service
 wob.service
 
-# --- mail (overridden via drop-ins in dot_config/systemd/user/) ---
+# --- mail (repo-owned unit in dot_config/systemd/user/) ---
 protonmail-bridge.service

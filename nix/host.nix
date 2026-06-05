@@ -62,6 +62,15 @@ in
     # flatpak sandbox.
     external-editor-revived
 
+    # ── Mail: ProtonMail Bridge ───────────────────────────────────────────────
+    # Headless IMAP/SMTP gateway (127.0.0.1:1143/1025) consumed by the
+    # Thunderbird flatpak and `git send-email`. No system coupling: it's a
+    # pure user daemon with a repo-owned user unit at
+    # dot_config/systemd/user/protonmail-bridge.service (run --noninteractive,
+    # pass-backed vault via PASSWORD_STORE_DIR). Replaces the AUR
+    # `protonmail-bridge-core`.
+    protonmail-bridge
+
     # ── Wayland session: bars, launchers, notifiers, daemons ──────────────────
     # Pure user-session GUIs/daemons — no system unit, no D-Bus activation
     # file under /usr/share/dbus-1, no login-manager session entry. The

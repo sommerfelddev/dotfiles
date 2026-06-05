@@ -1,0 +1,14 @@
+[Unit]
+Description=ProtonMail Bridge (local IMAP/SMTP gateway)
+Documentation=https://proton.me/mail/bridge
+
+[Service]
+Type=simple
+# pass-backed credential vault (gpg-agent decrypts on first start).
+Environment=PASSWORD_STORE_DIR=%h/.local/share/password-store
+ExecStart=%h/.nix-profile/bin/protonmail-bridge --noninteractive
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=default.target
