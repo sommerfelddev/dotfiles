@@ -1,0 +1,14 @@
+[Unit]
+Description=Power state change notification daemon
+Documentation=man:poweralertd(1)
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.nix-profile/bin/poweralertd
+Restart=on-failure
+RestartSec=2s
+
+[Install]
+WantedBy=sway-session.target

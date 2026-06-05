@@ -9,6 +9,7 @@ display-watcher.service
 inhibridge.service
 mako.service
 pass-secret-service.service
+poweralertd.service
 signal.service
 swayidle.service
 swayrd.service
