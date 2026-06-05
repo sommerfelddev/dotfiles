@@ -95,13 +95,15 @@ woff2-font-awesome
 # Compositor (ships /usr/share/wayland-sessions/sway.desktop — login-manager
 # coupled, must stay on pacman). The user-leaf session tools — waybar,
 # fuzzel, wofi, mako, swayidle, swayr, inhibridge, bemoji, grim,
-# slurp, wf-recorder, wtype, wl-clipboard, cliphist, imv, wl-mirror, wob,
+# slurp, wf-recorder, wtype, wl-clipboard, cliphist, wob,
 # poweralertd, playerctl, pulsemixer — now come from nix/host.nix.
 sway
-# ghostty: GPU/OpenGL terminal. Kept on pacman (not nix/host.nix) because
-# nix-built GL apps on a non-NixOS host can't find the system Mesa/DRI
-# driver and die with "missing OpenGL context".
-ghostty
+# GPU/OpenGL & EGL apps kept on pacman (not nix/host.nix): nix-built GL apps
+# on a non-NixOS host can't find the system Mesa/DRI driver and die with
+# "missing OpenGL context". On pacman they link against system Mesa.
+ghostty       # GPU/OpenGL terminal
+imv           # OpenGL image viewer
+wl-mirror     # EGL output mirror
 xdg-desktop-portal-wlr
 xdg-desktop-portal-gtk
 qt5-wayland
@@ -164,7 +166,7 @@ perl-net-smtp-ssl
 # --- media (mpv is the io.mpv.Mpv flatpak in meta/flatpak.txt; streamlink
 # and yt-dlp now come from nix/host.nix and pipe/launch into the flatpak
 # mpv via `flatpak run io.mpv.Mpv`, see dot_config/streamlink/config.
-# Bitcoin wallet — sparrow — also lives in nix/host.nix.) ---
+# Bitcoin wallet — sparrow-wallet — lives in meta/btc.txt.) ---
 
 # --- desktop extras ---
 syncthing

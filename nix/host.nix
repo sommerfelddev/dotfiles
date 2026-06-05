@@ -86,19 +86,17 @@ in
     wtype
     wl-clipboard  # wl-copy + wl-paste
     cliphist      # clipboard history (used by cliphist-{text,image} units)
-    imv
-    wl-mirror
 
     # ── Media control ────────────────────────────────────────────────────────
     playerctl     # MPRIS over session bus
     pulsemixer    # TUI for PipeWire/PulseAudio
 
-    # NOTE: ghostty is intentionally NOT here — it is a GPU/OpenGL terminal.
-    # Nix-built GL apps on a non-NixOS host can't locate the system Mesa/DRI
-    # driver (the FHS /usr/lib drivers don't match nix's search paths) and
-    # fail at startup with "missing OpenGL context". It stays on pacman
-    # (meta/base.txt) so it links against the system Mesa. The same caveat
-    # applies to other GL/EGL apps (imv, wl-mirror, sparrow) — see base.txt.
+    # NOTE: GPU/OpenGL & EGL apps (ghostty, imv, wl-mirror, sparrow) are
+    # intentionally NOT here — they stay on pacman/AUR. Nix-built GL apps on
+    # a non-NixOS host can't locate the system Mesa/DRI driver (the FHS
+    # /usr/lib drivers don't match nix's search paths) and fail at startup
+    # with "missing OpenGL context". On pacman they link against system Mesa.
+    # ghostty/imv/wl-mirror live in meta/base.txt; sparrow in meta/btc.txt.
 
     # ── General CLIs migrated off pacman ──────────────────────────────────────
     qrencode
@@ -114,11 +112,6 @@ in
     # pacman copies (the nix-profile copies on PATH take over).
     chezmoi
     paru
-
-    # ── GUIs ─────────────────────────────────────────────────────────────────
-    # Bitcoin wallet. Pulls zulu25 + JavaFX (~300 MB closure) but the AUR
-    # build pulled the same JRE anyway.
-    sparrow
 
     # ── OCR ──────────────────────────────────────────────────────────────────
     # Override merges eng + por language data into a single derivation,
