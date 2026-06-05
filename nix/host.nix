@@ -93,8 +93,12 @@ in
     playerctl     # MPRIS over session bus
     pulsemixer    # TUI for PipeWire/PulseAudio
 
-    # ── Terminal ─────────────────────────────────────────────────────────────
-    ghostty
+    # NOTE: ghostty is intentionally NOT here — it is a GPU/OpenGL terminal.
+    # Nix-built GL apps on a non-NixOS host can't locate the system Mesa/DRI
+    # driver (the FHS /usr/lib drivers don't match nix's search paths) and
+    # fail at startup with "missing OpenGL context". It stays on pacman
+    # (meta/base.txt) so it links against the system Mesa. The same caveat
+    # applies to other GL/EGL apps (imv, wl-mirror, sparrow) — see base.txt.
 
     # ── General CLIs migrated off pacman ──────────────────────────────────────
     qrencode
