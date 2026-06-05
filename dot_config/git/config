@@ -86,7 +86,7 @@
 [absorb]
     autoStageIfNothingStaged = true
 [alias]
-    resign = "!git -c core.hooksPath=/dev/null rebase @{u} --exec 'git log -1 --format=%B | sed \"/^Co-authored-by:/Id\" | git -c core.hooksPath=/dev/null commit --amend --reset-author --no-verify --cleanup=strip -F -'"
+    resign = "!git show -s --format=%B HEAD | sed \"/^Co-authored-by:/Id\" | git -c core.hooksPath=/dev/null commit --amend --reset-author --no-verify --cleanup=strip -S -F -"
     ghost-rebase = "!sh -c 'b=$0; u=${1:-origin/master}; wt=$(mktemp -d -t rebwt.XXXXXX); git worktree add -f "$wt" "$b"; git -C "$wt" rebase "$u" || echo "Rebase incomplete"; git worktree remove --force "$wt"'"
     a = add
     ab=absorb --and-rebase
