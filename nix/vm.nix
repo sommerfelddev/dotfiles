@@ -19,22 +19,13 @@ in
     # Ubuntu 20.04-derived hosts still default to cgroups v1; podman 5
     # warns on every invocation. Flipping to v2 is a host-level reboot
     # and only matters for --memory/--cpus, so silence the warning.
+    # (Arch host is on cgroups v2, so this isn't set in common.nix.)
     PODMAN_IGNORE_CGROUPSV1_WARNING = "1";
   };
 
-  home.packages = with pkgs; [
-    # ── Rootless podman ─────────────────────────────────────────────────────
-    # The nix `podman` is wrapped to find these helpers via /nix/store
-    # paths, so we don't need to write a containers.conf for
-    # `helper_binaries_dir`.
-    podman
-    crun         # OCI runtime (lighter than runc; default for rootless)
-    conmon       # container monitor process
-    netavark     # default network stack on podman 4+
-    aardvark-dns # DNS for netavark networks
-    slirp4netns  # rootless user-mode networking
-    passt        # pasta backend (slirp4netns successor; podman picks it up)
-  ];
+  # No extra packages — the rootless podman stack now lives in
+  # `common.nix` so the host and VM share the same nix-pinned versions.
+  home.packages = [ ];
 
   # ── Shared config symlinks ──────────────────────────────────────────────────
   # Live symlinks back into the cloned working tree so `git pull` is enough
@@ -92,7 +83,28 @@ in
 
     # Code review (binary from common.nix)
     "tuicr/config.toml".source = link "dot_config/tuicr/config.toml";
+
+    # Rootless podman config — registries.conf + policy.json are
+    # chezmoi-owned (shared with the host); storage.conf stays inline
+    # below because the VM needs the overlay driver (ext4 host) while
+    # the Arch host uses btrfs.
+    "containers/registries.conf".source = link "dot_config/containers/registries.conf";
+    "containers/policy.json".source     = link "dot_config/containers/policy.json";
   };
+
+  # VM-only: overlay driver. (Host's btrfs storage.conf is chezmoi-owned
+  # at dot_config/containers/storage.conf.)
+  xdg.configFile."containers/storage.conf".text = ''
+    [storage]
+    # runroot/graphroot default to $XDG_RUNTIME_DIR/containers and
+    # $XDG_DATA_HOME/containers/storage respectively for rootless — leave unset.
+    driver = "overlay"
+
+    [storage.options.overlay]
+    # Kernel >=5.13 supports rootless overlay natively (VM is on 5.15),
+    # so mount_program is left unset → uses the kernel driver directly
+    # instead of fuse-overlayfs.
+  '';
 
   # Claude-code looks under ~/.claude (NOT XDG). Skills live there.
   # Symlink the whole tuicr skill directory so SKILL.md and the wrapper
@@ -124,30 +136,4 @@ in
     export ZDOTDIR="$HOME/.config/zsh"
     [[ -r "$ZDOTDIR/.zshenv" ]] && source "$ZDOTDIR/.zshenv"
   '';
-
-  # ── Rootless podman config ──────────────────────────────────────────────────
-  # Kept inline (not in the chezmoi tree) because Arch's system-wide
-  # /etc/containers defaults already work there; these files exist only
-  # to give nix's user-installed podman sane rootless defaults.
-  xdg.configFile."containers/registries.conf".text = ''
-    unqualified-search-registries = ["docker.io", "quay.io", "ghcr.io"]
-    short-name-mode = "permissive"
-  '';
-
-  xdg.configFile."containers/storage.conf".text = ''
-    [storage]
-    # runroot/graphroot default to $XDG_RUNTIME_DIR/containers and
-    # $XDG_DATA_HOME/containers/storage respectively for rootless — leave unset.
-    driver = "overlay"
-
-    [storage.options.overlay]
-    # Kernel >=5.13 supports rootless overlay natively (VM is on 5.15),
-    # so mount_program is left unset → uses the kernel driver directly
-    # instead of fuse-overlayfs.
-  '';
-
-  xdg.configFile."containers/policy.json".text = builtins.toJSON {
-    default = [ { type = "insecureAcceptAnything"; } ];
-    transports.docker-daemon."" = [ { type = "insecureAcceptAnything"; } ];
-  };
 }

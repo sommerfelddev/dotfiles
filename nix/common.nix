@@ -138,8 +138,25 @@
       exit 1
     '')
 
-    # CI runner (drives podman from pacman; act itself is just a Go binary)
+    # CI runner (drives podman; act itself is just a Go binary)
     act
+
+    # ── Rootless podman ─────────────────────────────────────────────────────
+    # Moved off pacman so the host and VM run the same nix-pinned stack.
+    # The nix `podman` is wrapped to find these helpers via /nix/store
+    # paths, so we don't need a containers.conf for `helper_binaries_dir`.
+    # Per-user containers config (registries/storage/policy) lives under
+    # chezmoi at `private_dot_config/containers/` and is symlinked on the
+    # VM by `vm.nix`'s xdg.configFile block.
+    podman
+    crun         # OCI runtime (lighter than runc; default for rootless)
+    conmon       # container monitor process
+    netavark     # default network stack on podman 4+
+    aardvark-dns # DNS for netavark networks
+    slirp4netns  # rootless user-mode networking
+    passt        # pasta backend (slirp4netns successor; podman picks it up)
+    podman-compose
+    podman-docker # `docker` shell shim → podman
 
     # Editor/AI agent runtimes — NOT for project builds (see policy above)
     nodejs_24 # copilot-language-server requires Node 24 (see ai.lua)
