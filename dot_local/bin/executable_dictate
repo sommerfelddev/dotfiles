@@ -3,8 +3,9 @@
 # 2nd stops, transcribes via whisper.cpp, types the result into the focused
 # window with wtype, and copies it to the clipboard.
 #
-# Pacman:  pipewire-pulse (parecord), wtype, wl-clipboard, libnotify
-# AUR:     whisper.cpp, whisper.cpp-model-large-v3-turbo-q5_0
+# Pacman:  pipewire-pulse (parecord), libnotify
+# Nix:     whisper-cpp (+ vulkan), whisper-cpp-model-base, wtype, wl-clipboard
+#          (see nix/host.nix)
 #
 # Override via env:
 #   WHISPER_MODEL  path to a ggml-*.bin model
@@ -16,7 +17,7 @@ state_dir="${XDG_RUNTIME_DIR:-/tmp}/dictate"
 pid_file="$state_dir/pid"
 wav_file="$state_dir/audio.wav"
 log_file="$state_dir/whisper.log"
-default_model='/usr/share/whisper.cpp-model-base/ggml-base.bin'
+default_model="$HOME/.nix-profile/share/whisper-cpp-models/ggml-base.bin"
 model="${WHISPER_MODEL:-$default_model}"
 lang="${WHISPER_LANG:-auto}"
 
@@ -29,12 +30,12 @@ is_recording() {
 start_recording() {
   if ! command -v whisper-cli >/dev/null; then
     notify-send -u critical "🎙️ dictate" \
-      "whisper-cli not found. Install whisper.cpp (AUR)."
+      "whisper-cli not found. Run 'just nix-switch' (host profile)."
     exit 1
   fi
   if [ ! -r "$model" ]; then
     notify-send -u critical "🎙️ dictate" \
-      "Model missing: $model. Install whisper.cpp-model-base (AUR)."
+      "Model missing: $model. Run 'just nix-switch' (host profile)."
     exit 1
   fi
   rm -f "$wav_file"

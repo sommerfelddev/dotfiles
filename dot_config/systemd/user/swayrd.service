@@ -7,7 +7,7 @@ ConditionEnvironment=SWAYSOCK
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/swayrd
+ExecStart=swayrd
 Restart=on-failure
 RestartSec=2s
 

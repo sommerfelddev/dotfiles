@@ -6,7 +6,7 @@ ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/wl-paste --type text --watch cliphist store
+ExecStart=wl-paste --type text --watch cliphist store
 Restart=on-failure
 RestartSec=2s
 

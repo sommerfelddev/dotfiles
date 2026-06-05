@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
-# Thin wrapper: run /usr/bin/yt-dlp inside _sandbox-net-parser. See that
+# Thin wrapper: run yt-dlp inside _sandbox-net-parser. See that
 # script for the threat model and the SANDBOX=0 escape hatch.
-exec _sandbox-net-parser /usr/bin/yt-dlp "$@"
+exec _sandbox-net-parser "$HOME/.nix-profile/bin/yt-dlp" "$@"

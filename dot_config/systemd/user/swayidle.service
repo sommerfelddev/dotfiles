@@ -6,7 +6,7 @@ ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/swayidle -w \
+ExecStart=swayidle -w \
     timeout 300 'swaymsg "output * power off"' \
         resume  'swaymsg "output * power on"' \
     timeout 330 'swaylock -f -e -c 000000' \

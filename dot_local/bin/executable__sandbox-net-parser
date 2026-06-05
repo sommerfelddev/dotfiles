@@ -15,7 +15,7 @@
 # Set SANDBOX=0 to bypass entirely for a single invocation:
 #   SANDBOX=0 streamlink weird-stream-url
 #
-# Usage (called by the per-tool wrappers): _sandbox-net-parser /usr/bin/yt-dlp "$@"
+# Usage (called by the per-tool wrappers): _sandbox-net-parser $HOME/.nix-profile/bin/yt-dlp "$@"
 
 set -eu
 
