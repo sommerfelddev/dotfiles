@@ -114,6 +114,7 @@
     mt = mergetool
     p = push
     r = rebase
+    rnh = "!f() { git -c core.hooksPath=/dev/null rebase \"$@\"; }; f"
     re = remote -v
     ri = rebase -i
     rt = restore
