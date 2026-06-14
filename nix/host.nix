@@ -71,6 +71,12 @@ in
     # `protonmail-bridge-core`.
     protonmail-bridge
 
+    # ── Secrets portal ────────────────────────────────────────────────────────
+    # D-Bus org.freedesktop.secrets implementation backed by pass. The explicit
+    # user unit lives in dot_config/systemd/user/pass-secret-service.service so
+    # it can keep the stable unit name and PASSWORD_STORE_DIR drop-in.
+    pass-secret-service
+
     # ── Wayland session: bars, launchers, notifiers, daemons ──────────────────
     # Pure user-session GUIs/daemons — no system unit, no D-Bus activation
     # file under /usr/share/dbus-1, no login-manager session entry. The
@@ -104,12 +110,13 @@ in
     playerctl     # MPRIS over session bus
     pulsemixer    # TUI for PipeWire/PulseAudio
 
-    # NOTE: GPU/OpenGL & EGL apps (ghostty, imv, wl-mirror, sparrow) are
+    # NOTE: GPU/OpenGL & EGL apps (ghostty, imv, wl-mirror) are
     # intentionally NOT here — they stay on pacman/AUR. Nix-built GL apps on
     # a non-NixOS host can't locate the system Mesa/DRI driver (the FHS
     # /usr/lib drivers don't match nix's search paths) and fail at startup
     # with "missing OpenGL context". On pacman they link against system Mesa.
-    # ghostty/imv/wl-mirror live in meta/base.txt; sparrow in meta/btc.txt.
+    # ghostty/imv/wl-mirror live in meta/base.txt. Sparrow is JavaFX-based and
+    # runs correctly from nix on the host.
 
     # ── General CLIs migrated off pacman ──────────────────────────────────────
     qrencode
@@ -124,6 +131,16 @@ in
     # repo-owned syncthing@sommerfeld.service tracked in systemd-units/system.txt
     # and backed by etc/systemd/system/syncthing@.service.
     syncthing
+
+    # ── Work VPN ──────────────────────────────────────────────────────────────
+    # Check Point VPN client. The command-mode system service is repo-owned at
+    # etc/systemd/system/snx-rs.service and exposes the daemon that snxctl uses.
+    snx-rs
+
+    # ── Bitcoin wallet ───────────────────────────────────────────────────────
+    # Replaces the former AUR wallet package after host GUI + BitBox smoke
+    # testing.
+    sparrow
 
     # chezmoi & paru — both are pure user CLIs. `paru` wraps pacman+makepkg
     # but doesn't link them; it just shells out. bootstrap.sh installs a

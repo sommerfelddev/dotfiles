@@ -5,8 +5,9 @@
 # What stays on pacman in this section is the pieces tightly coupled to
 # the distro (man-db/man-pages files), the system runtime (sudo-rs,
 # base/base-devel), and things needed pre-bootstrap or by other system
-# packages transitively. User-leaf CLIs (chezmoi, paru, qrencode,
-# torsocks, lshw, xdg-utils, syncthing) now come from nix/host.nix.
+# packages transitively. User-leaf CLIs/daemons (chezmoi, paru, qrencode,
+# torsocks, lshw, xdg-utils, syncthing, pass-secret-service) now come
+# from nix/host.nix.
 acpid
 arch-audit
 base
@@ -18,7 +19,6 @@ fwupd
 iwd
 kernel-modules-hook
 linux-firmware
-mkinitcpio-firmware
 linux-hardened
 linux-hardened-headers
 linux-lts
@@ -29,8 +29,8 @@ man-pages
 nfs-utils
 nftables
 ocl-icd
-overdue
-pacman-cleanup-hook
+# Provides paccache for the repo-owned cache cleanup hook under
+# etc/pacman.d/hooks/.
 pacman-contrib
 pbzip2
 pigz
@@ -115,18 +115,18 @@ libnotify
 # Lock screen (setuid; PAM-coupled)
 swaylock
 
-# org.freedesktop.secrets D-Bus implementation backed by pass. Required
-# by Signal Desktop (flatpak) and other libsecret consumers. Ships both
-# a D-Bus activation file and a systemd user unit; we enable the unit
-# explicitly so it's visible in `systemctl --user status`. Stores
-# secrets under ~/.password-store/secret-service/.
-pass-secret-service-bin
+# org.freedesktop.secrets D-Bus implementation backed by pass now comes
+# from nix/host.nix. The repo-owned user unit remains tracked under
+# dot_config/systemd/user/pass-secret-service.service.
 
 # Ships ZSA's upstream udev rules (50-oryx.rules, 50-wally.rules) to
 # /usr/lib/udev/rules.d/ so VID 3297 hidraw nodes get TAG+=uaccess.
 # Required for VIA / usevia.app (WebHID) and Wally flashing of the
 # ErgoDox EZ / Moonlander / Voyager.
 zsa-udev
+
+# Udev rules for BitBox hardware wallet access from Sparrow.
+bitbox-udev
 
 # QR (system lib used by zbarcam; the qrencode CLI is in nix/host.nix)
 zbar
@@ -163,10 +163,11 @@ arkenfox-user.js
 # --- media (mpv is the io.mpv.Mpv flatpak in meta/flatpak.txt; streamlink
 # and yt-dlp now come from nix/host.nix and pipe/launch into the flatpak
 # mpv via `flatpak run io.mpv.Mpv`, see dot_config/streamlink/config.
-# Bitcoin wallet — sparrow-wallet — lives in meta/btc.txt.) ---
+# Bitcoin wallet comes from nix/host.nix.) ---
 
 # --- desktop extras ---
 udisks2
+tor
 
 # Flatpak runtime (apps tracked in meta/flatpak.txt)
 flatpak

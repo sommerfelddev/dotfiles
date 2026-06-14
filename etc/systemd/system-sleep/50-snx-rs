@@ -1,5 +1,5 @@
 #!/bin/sh
-# Bounce the user-scope snx-rs (Check Point) tunnel around suspend/hibernate.
+# Bounce the system-scope snx-rs (Check Point) tunnel around suspend/hibernate.
 #
 # Problem: during suspend the IKE SA keepalive is interrupted and the SAML
 # session cookie may expire. snx-rs doesn't detect this — the daemon
@@ -25,21 +25,8 @@ case "$1" in
   *) exit 0 ;;
 esac
 
-# Iterate over every logged-in user that has the snx-rs.service enabled.
-# loginctl list-users gives us "UID USER" pairs.
-loginctl list-users --no-legend 2>/dev/null |
-  awk '{print $1, $2}' |
-  while read -r uid user; do
-    [ -n "$uid" ] && [ -n "$user" ] || continue
-    runtime="/run/user/$uid"
-    [ -d "$runtime" ] || continue
-    # Skip users without snx-rs enabled to avoid spurious "Unit not found".
-    runuser -u "$user" -- env \
-      "XDG_RUNTIME_DIR=$runtime" \
-      "DBUS_SESSION_BUS_ADDRESS=unix:path=$runtime/bus" \
-      systemctl --user is-enabled snx-rs.service >/dev/null 2>&1 || continue
-    runuser -u "$user" -- env \
-      "XDG_RUNTIME_DIR=$runtime" \
-      "DBUS_SESSION_BUS_ADDRESS=unix:path=$runtime/bus" \
-      systemctl --user "$action" snx-rs.service || true
-  done
+# The command-mode daemon runs as a system service because it configures
+# routes, DNS, and tunnel interfaces. Ignore missing/disabled states so this
+# hook remains harmless on non-work profiles.
+systemctl is-enabled snx-rs.service >/dev/null 2>&1 || exit 0
+systemctl "$action" snx-rs.service || true
