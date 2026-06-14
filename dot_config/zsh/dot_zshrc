@@ -248,6 +248,7 @@ alias ip="ip -color=auto"
 alias lsip="ip -human -color=auto --brief address show"
 alias ipa="ip -stats -details -human -color=auto address show"
 alias ipecho='curl ipecho.net/plain'
+alias mw="mosh --server=/home/swuser/.nix-profile/bin/mosh-server work.wg -- /home/swuser/.nix-profile/bin/zsh -lic 'za'"
 alias ss='sudo ss -tupnl'
 
 # Privilege escalation
