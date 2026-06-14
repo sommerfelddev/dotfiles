@@ -5,9 +5,9 @@
 # from "no problems" to "non-zero" (i.e. on the post-`pacman -Syu`
 # settle), so you're nudged exactly once per upgrade wave.
 #
-# Click handler runs `DIFFPROG='nvim -d' sudo pacdiff` in a floating
-# ghostty. DIFFPROG is propagated through sudo-rs by the env_keep policy
-# in etc/sudoers-rs (no -E needed — env_keep is unconditional pass-through).
+# Click handler resolves nvim to an absolute path, then runs sudo pacdiff with
+# DIFFPROG set to that absolute editor. sudo-rs keeps DIFFPROG, but root's
+# secure_path deliberately does not include the user's nix profile.
 
 set -eu
 

@@ -42,10 +42,25 @@ export BROWSER='linkhandler'
 export OPENER='xdg-open'
 
 # ── Editors ───────────────────────────────────────────────────────────────────
-export EDITOR='nvim'
-export VISUAL='nvim'
-export DIFFPROG='nvim -d'
-export MANPAGER='nvim +Man!'
+# Keep editor-style variables absolute. sudo-rs preserves them for interactive
+# tools, but root's secure_path intentionally does not include the user's nix
+# profile, so bare `nvim` would fail under sudo.
+if _nvim="$(whence -p nvim 2>/dev/null)"; then
+	export EDITOR="$_nvim"
+	export VISUAL="$_nvim"
+	export SUDO_EDITOR="$_nvim"
+	export GIT_EDITOR="$_nvim"
+	export DIFFPROG="$_nvim -d"
+	export MANPAGER="$_nvim +Man!"
+else
+	export EDITOR='vi'
+	export VISUAL='vi'
+	export SUDO_EDITOR='vi'
+	export GIT_EDITOR='vi'
+	export DIFFPROG='diff -u'
+	export MANPAGER='less'
+fi
+unset _nvim
 export MANWIDTH=999
 
 # ── less ──────────────────────────────────────────────────────────────────────
