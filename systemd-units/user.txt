@@ -18,5 +18,6 @@ teams-xsight.service
 waybar.service
 wob.service
 
-# --- mail (repo-owned unit in dot_config/systemd/user/) ---
-protonmail-bridge.service
+# --- mail ---
+# Disabled while Proton Mail Bridge auth refresh is broken.
+# protonmail-bridge.service

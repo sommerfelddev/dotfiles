@@ -26,7 +26,8 @@
     "custom/arch-audit",
     "custom/failed-units",
     "custom/lostfiles",
-    "custom/thunderbird",
+    // Disabled while Proton Mail Bridge auth refresh is broken.
+    // "custom/thunderbird",
     "clock",
     "tray",
   ],
