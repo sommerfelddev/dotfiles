@@ -143,7 +143,7 @@ Projects opt in by just dropping a file at `.githooks/<name>` — no `core.hooks
 
 - `pre-commit` → repo's `.githooks/pre-commit` (if any). No global logic. In this repo: `just check`.
 - `commit-msg` → repo's `.githooks/commit-msg` (if any), then strips any `Co-authored-by:` whose identity matches an AI agent (Copilot/Claude/Codex/…) so they don't trip the push gate.
-- `pre-push` → repo's `.githooks/pre-push` (if any), then rejects pushes that contain unsigned commits, commits with a foreign committer, or commits authored/co-authored by an AI agent.
+- `pre-push` → repo's `.githooks/pre-push` (if any), then rejects pushes that contain unsigned commits or commits whose author/committer/coauthor looks like an AI agent.
 - `post-commit` → repo's `.githooks/post-commit` (if any). No global logic. In this repo: `chezmoi apply`.
 
 Bypass any of these with `--no-verify` on `commit`/`push`.
