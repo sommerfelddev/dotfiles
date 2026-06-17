@@ -6,8 +6,7 @@
 # the distro (man-db/man-pages files), the system runtime (sudo-rs,
 # base/base-devel), and things needed pre-bootstrap or by other system
 # packages transitively. User-leaf CLIs/daemons (chezmoi, paru, qrencode,
-# torsocks, lshw, xdg-utils, syncthing, pass-secret-service) now come
-# from nix/host.nix.
+# torsocks, lshw, xdg-utils, syncthing) now come from nix/host.nix.
 acpid
 arch-audit
 base
@@ -115,9 +114,12 @@ libnotify
 # Lock screen (setuid; PAM-coupled)
 swaylock
 
-# org.freedesktop.secrets D-Bus implementation backed by pass now comes
-# from nix/host.nix. The repo-owned user unit remains tracked under
-# dot_config/systemd/user/pass-secret-service.service.
+# org.freedesktop.secrets D-Bus implementation backed by pass. Required
+# by Signal Desktop (flatpak) and other libsecret consumers. Ships both
+# a D-Bus activation file and a systemd user unit; we enable the unit
+# explicitly so it's visible in `systemctl --user status`. Stores
+# secrets under ~/.password-store/secret-service/.
+pass-secret-service-bin
 
 # Ships ZSA's upstream udev rules (50-oryx.rules, 50-wally.rules) to
 # /usr/lib/udev/rules.d/ so VID 3297 hidraw nodes get TAG+=uaccess.

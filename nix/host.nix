@@ -71,12 +71,6 @@ in
     # `protonmail-bridge-core`.
     protonmail-bridge
 
-    # ── Secrets portal ────────────────────────────────────────────────────────
-    # D-Bus org.freedesktop.secrets implementation backed by pass. The explicit
-    # user unit lives in dot_config/systemd/user/pass-secret-service.service so
-    # it can keep the stable unit name and PASSWORD_STORE_DIR drop-in.
-    pass-secret-service
-
     # ── Wayland session: bars, launchers, notifiers, daemons ──────────────────
     # Pure user-session GUIs/daemons — no system unit, no D-Bus activation
     # file under /usr/share/dbus-1, no login-manager session entry. The
