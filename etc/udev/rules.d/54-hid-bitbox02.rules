@@ -1,0 +1,3 @@
+# BitBox02 hidraw. Sourced from Shift Crypto's Linux post-install rules:
+# digitalbitbox/bitbox-wallet-app d045d25ac1a3839bcb7993d95bf2501bc1e86780.
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2403", TAG+="uaccess", TAG+="udev-acl", SYMLINK+="bitbox02-%n"

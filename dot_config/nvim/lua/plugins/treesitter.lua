@@ -1,5 +1,15 @@
 require("treewalker").setup({})
 
+-- nvim-treesitter's main branch shells out to tree-sitter, whose Rust cc crate
+-- respects CC. On the Arch host, Home Manager sets this to a Nix compiler
+-- wrapper so parser builds keep working without global base-devel.
+if
+  (vim.env.CC == nil or vim.env.CC == "")
+  and vim.env.NVIM_TREESITTER_CC ~= nil
+then
+  vim.env.CC = vim.env.NVIM_TREESITTER_CC
+end
+
 vim.keymap.set(
   { "n", "v" },
   "<a-k>",

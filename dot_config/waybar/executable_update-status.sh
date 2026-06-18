@@ -3,7 +3,7 @@
 # upgraded recently. Source of truth is /var/log/pacman.log — the last
 # "[PACMAN] starting full system upgrade" entry. No daemon, no -Sy
 # polling, no opinion about *which* updates are pending; this only
-# tracks whether you've run `paru -Syu` (or equivalent) lately.
+# tracks whether you've run `pacman -Syu` lately.
 #
 # States, by hours since last full upgrade:
 #   < 24h         empty (hidden via :empty rule in style.css)

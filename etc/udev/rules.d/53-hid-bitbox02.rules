@@ -1,0 +1,3 @@
+# BitBox02. Sourced from Shift Crypto's Linux post-install rules:
+# digitalbitbox/bitbox-wallet-app d045d25ac1a3839bcb7993d95bf2501bc1e86780.
+SUBSYSTEM=="usb", TAG+="uaccess", TAG+="udev-acl", SYMLINK+="bitbox02_%n", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2403"

@@ -29,6 +29,12 @@ export XDG_CACHE_HOME="$HOME/.cache"
 # even if /etc/profile.d snippets try to prepend duplicates.
 [[ -r /etc/profile ]] && emulate sh -c 'source /etc/profile'
 
+# Home Manager writes host-specific session variables here. Keep this after
+# /etc/profile so Nix/HM values can provide user-level tool wiring without
+# being clobbered by distro profile snippets.
+[[ -r "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]] &&
+	emulate sh -c ". \"$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh\""
+
 # ── Locale ────────────────────────────────────────────────────────────────────
 export LANG=en_US.UTF-8
 

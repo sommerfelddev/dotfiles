@@ -27,6 +27,12 @@ find etc -type f ! -name .ignore | while IFS= read -r src; do
   esac
 done
 
+if [ -d etc/udev/rules.d ]; then
+  sudo udevadm control --reload
+  sudo udevadm trigger --subsystem-match=usb
+  sudo udevadm trigger --subsystem-match=hidraw
+fi
+
 # sudo-rs: /etc/pam.d/sudo-i is a symlink to /etc/pam.d/sudo
 sudo ln -sfT sudo /etc/pam.d/sudo-i
 
@@ -46,10 +52,15 @@ sudo systemctl daemon-reload
 # (e.g. HandlePowerKey overrides) take effect without dropping sessions.
 sudo systemctl kill -s HUP systemd-logind
 
-# Make sudo-rs the system-wide sudo via /usr/local/bin precedence.
-# Targets may not exist yet on first bootstrap (sudo-rs is installed by
-# the subsequent pkg-apply step); the symlinks resolve once it lands.
-sudo ln -sfT /usr/bin/sudo-rs /usr/local/bin/sudo
-sudo ln -sfT /usr/bin/sudo-rs /usr/local/bin/sudoedit
-sudo ln -sfT /usr/bin/su-rs /usr/local/bin/su
-sudo ln -sfT /usr/bin/visudo-rs /usr/local/bin/visudo
+# Old sudo-rs migration used /usr/local/bin to shadow classic sudo globally.
+# Current policy keeps those shims user-scoped via ~/.local/bin/symlink_*.
+for link in /usr/local/bin/sudoedit /usr/local/bin/su /usr/local/bin/visudo; do
+  target=$(readlink "$link" 2>/dev/null || true)
+  case "$target" in
+    /usr/bin/sudo-rs|/usr/bin/su-rs|/usr/bin/visudo-rs) sudo rm -f "$link" ;;
+  esac
+done
+target=$(readlink /usr/local/bin/sudo 2>/dev/null || true)
+if [ "$target" = /usr/bin/sudo-rs ]; then
+  sudo rm -f /usr/local/bin/sudo
+fi

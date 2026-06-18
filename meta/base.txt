@@ -3,14 +3,13 @@
 # net / debug+trace / docs / secrets — all provisioned via Home-Manager
 # from nix/common.nix and live under ~/.nix-profile/bin (first in PATH).
 # What stays on pacman in this section is the pieces tightly coupled to
-# the distro (man-db/man-pages files), the system runtime (sudo-rs,
-# base/base-devel), and things needed pre-bootstrap or by other system
-# packages transitively. User-leaf CLIs/daemons (chezmoi, paru, qrencode,
-# torsocks, lshw, xdg-utils, syncthing) now come from nix/host.nix.
+# the distro, the system runtime (sudo-rs, base), and things needed
+# pre-bootstrap or by other system packages transitively. User-leaf
+# CLIs/daemons/docs (chezmoi, man-db/man-pages, qrencode, torsocks,
+# lshw, xdg-utils, syncthing) now come from nix.
 acpid
 arch-audit
 base
-base-devel
 btrfs-progs
 cpupower
 dosfstools
@@ -23,16 +22,12 @@ linux-hardened-headers
 linux-lts
 linux-lts-headers
 lostfiles
-man-db
-man-pages
 nfs-utils
 nftables
 ocl-icd
 # Provides paccache for the repo-owned cache cleanup hook under
 # etc/pacman.d/hooks/.
 pacman-contrib
-pbzip2
-pigz
 pkgstats
 rebuild-detector
 reflector
@@ -53,7 +48,7 @@ ell
 bolt
 
 # --- nix (multi-user daemon mode for hermetic per-project dev shells via
-# `nix develop` + direnv `use flake`. Not a replacement for paru/pacman,
+# `nix develop` + direnv `use flake`. Not a replacement for pacman,
 # not home-manager, not NixOS — just a sandboxed second package manager
 # that gives every project a reproducible toolchain pinned in its own
 # flake.lock. Pairs with: systemd-units/system.txt (enables
@@ -62,14 +57,10 @@ bolt
 # direnv's source_url with a content hash, so no extra package needed.) ---
 nix
 
-# --- dev (system-coupled runtimes only — base-devel ships gcc/ld/as/make
-# for general-purpose builds; the orchestrators (cmake/ninja/ccache/
-# sccache), debuggers and toolchain-specific compilers/linkers live in
-# nix instead. clang/lld/mold/rustup/go are intentionally absent — when
-# a project needs them, the project's flake.nix + direnv `.envrc`
-# provide them. The podman stack (podman, crun, conmon, netavark,
-# aardvark-dns, slirp4netns, passt, podman-compose, podman-docker) now
-# comes from nix/common.nix — unified across host and VM.) ---
+# --- dev (system-coupled runtime only). No base-devel: AUR/makepkg is not
+# part of the normal system, and project toolchains come from direnv + nix
+# devShells. Build orchestrators, debuggers, and user CLIs live in
+# nix/common.nix. ---
 perf             # links against running kernel ABI; must match kernel pkg
 
 # --- sound ---
@@ -114,21 +105,11 @@ libnotify
 # Lock screen (setuid; PAM-coupled)
 swaylock
 
-# org.freedesktop.secrets D-Bus implementation backed by pass. Required
-# by Signal Desktop (flatpak) and other libsecret consumers. Ships both
-# a D-Bus activation file and a systemd user unit; we enable the unit
-# explicitly so it's visible in `systemctl --user status`. Stores
-# secrets under ~/.password-store/secret-service/.
-pass-secret-service-bin
-
 # Ships ZSA's upstream udev rules (50-oryx.rules, 50-wally.rules) to
 # /usr/lib/udev/rules.d/ so VID 3297 hidraw nodes get TAG+=uaccess.
 # Required for VIA / usevia.app (WebHID) and Wally flashing of the
 # ErgoDox EZ / Moonlander / Voyager.
 zsa-udev
-
-# Udev rules for BitBox hardware wallet access from Sparrow.
-bitbox-udev
 
 # QR (system lib used by zbarcam; the qrencode CLI is in nix/host.nix)
 zbar
@@ -147,10 +128,6 @@ libfido2
 qt5ct
 qt6ct
 xdg-user-dirs
-
-# --- browser (LibreWolf flatpak; arkenfox-user.js is the host-side
-# hardening overlay deployed by run_onchange_after_deploy-firefox.sh.tmpl) ---
-arkenfox-user.js
 
 # --- mail (host-side bits the org.mozilla.thunderbird flatpak depends on) ---
 # protonmail-bridge now comes from nix/host.nix (the bridge binary + its

@@ -64,9 +64,18 @@ nix-switch:
 # Update everything: system packages, flatpaks, nix flake inputs
 update: pkg-update flatpak-update nix-update
 
-# Upgrade all system + AUR packages
+# Upgrade official Arch packages, after showing newly published Arch news.
 pkg-update:
-    paru -Syu
+    @just arch-news-check
+    @sudo pacman -Syu
+
+# Show new Arch Linux news and ask whether to proceed, like paru's NewsOnUpgrade.
+arch-news-check:
+    @sh "{{ justfile_directory() }}/dot_local/bin/executable_arch-news-check"
+
+# Mark the current Arch Linux news feed as seen without running an upgrade.
+arch-news-read:
+    @sh "{{ justfile_directory() }}/dot_local/bin/executable_arch-news-check" --mark-read
 
 # Refresh nix flake inputs (nixpkgs, home-manager) then re-activate the profile.
 
@@ -1001,7 +1010,7 @@ pkg-status:
     fi
     just undeclared | sed 's/^/  undeclared: /'
 
-# Print undeclared packages one per line, unindented (pipe to 'paru -Rs -' to remove pacman entries)
+# Print undeclared packages one per line, unindented.
 undeclared:
     #!/usr/bin/env dash
     active=$(just _active-packages)
@@ -1079,7 +1088,7 @@ pkg-list group="":
 pkg-apply *groups:
     #!/usr/bin/env dash
     set -eu
-    # `paru -S --needed` is a no-op for already-installed packages, which
+    # `pacman -S --needed` is a no-op for already-installed packages, which
     # means a package pulled in transitively (and later declared in
     # meta/*.txt) stays marked "installed as a dependency" forever and
     # keeps showing up under `pacopt`. After each install pass, force the
@@ -1102,7 +1111,7 @@ pkg-apply *groups:
             fi
             pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
             [ -n "$pkgs" ] || continue
-            printf '%s\n' "$pkgs" | paru -S --needed --noconfirm --ask=4 -
+            printf '%s\n' "$pkgs" | sudo pacman -S --needed --noconfirm -
             mark_explicit "$pkgs"
         done
     else
@@ -1110,7 +1119,7 @@ pkg-apply *groups:
             | xargs -0 cat \
             | sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' \
             | sort -u)
-        printf '%s\n' "$all_pkgs" | paru -S --needed --noconfirm --ask=4 -
+        printf '%s\n' "$all_pkgs" | sudo pacman -S --needed --noconfirm -
         mark_explicit "$all_pkgs"
         [ -f meta/flatpak.txt ] && just _flatpak-install
     fi
@@ -1140,7 +1149,7 @@ pkg-fix:
             if [ "$group" = "flatpak" ]; then
                 just _flatpak-install
             else
-                echo "$pkgs" | paru -S --needed --noconfirm --ask=4 -
+                echo "$pkgs" | sudo pacman -S --needed --noconfirm -
             fi
         fi
     done
@@ -1167,7 +1176,7 @@ pkg-add group +pkgs:
             https://dl.flathub.org/repo/flathub.flatpakrepo >/dev/null
         flatpak install --user -y --noninteractive flathub {{ pkgs }}
     else
-        paru -S --needed {{ pkgs }}
+        sudo pacman -S --needed {{ pkgs }}
     fi
 
 # Remove one or more packages from a group list (does NOT uninstall; the package may belong to other groups)

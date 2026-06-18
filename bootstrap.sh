@@ -5,7 +5,7 @@
 #
 # Prerequisites (from the Arch installation guide):
 #   - A regular user already exists and is a member of the 'wheel' group.
-#   - You are logged in as that user (paru/makepkg refuse to run as root).
+#   - You are logged in as that user.
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/sommerfelddev/dotfiles/master/bootstrap.sh | sh
@@ -23,7 +23,7 @@ die() {
   exit 1
 }
 
-# 0. refuse root — paru/makepkg won't run as root
+# 0. refuse root — Home Manager and the user-owned dotfiles expect a real user.
 [ "$(id -u)" -ne 0 ] || die "run this as your regular user, not root"
 
 # 1. user must be in wheel (required so the sudoers rule we enable takes effect)
@@ -31,14 +31,11 @@ id -nG "$USER" | tr ' ' '\n' | grep -qx wheel ||
   die "user '$USER' must be in the 'wheel' group"
 
 # 2. install sudo + pacman prerequisites, enable wheel in sudoers.
-#    `chezmoi` and `paru` are intentionally NOT in this list — chezmoi
-#    is run ephemerally via `nix-shell` below for the one-shot deploy,
-#    and paru lands in ~/.nix-profile/bin after the first nix-switch
-#    (we install `just init`'s AUR deps using *that* nix-store paru,
-#    not a manually built paru-bin). `just` and `git` stay on pacman
-#    so the script + early `just nix-switch` work before the nix
+#    `chezmoi` is intentionally NOT in this list — it lands in
+#    ~/.nix-profile/bin after the first nix-switch. `just` and `git` stay
+#    on pacman so the script + early `just nix-switch` work before the nix
 #    profile is activated.
-PREREQS='sudo git base-devel just efibootmgr nix'
+PREREQS='sudo git just efibootmgr nix'
 SUDOERS_SED='s/^# *\(%wheel ALL=(ALL:ALL\(:ALL\)*) ALL\)/\1/'
 
 if ! command -v sudo >/dev/null 2>&1; then
@@ -86,29 +83,27 @@ else
 fi
 cd "$DOTFILES_DIR"
 
-# 6. nix-switch FIRST. This installs paru + chezmoi (plus the wayland
-#    session tools, qrencode, torsocks, lshw, yt-dlp, streamlink,
-#    tesseract, whisper-cpp, …) into ~/.nix-profile/bin so the
-#    subsequent `just init` finds them on PATH. The repo is already a
-#    valid Nix flake — we don't need chezmoi to have run yet.
-log 'running nix-switch (installs paru + user-leaf tools from nix)'
+# 6. nix-switch FIRST. This installs chezmoi (plus the wayland session
+#    tools, qrencode, torsocks, lshw, yt-dlp, streamlink, tesseract,
+#    whisper-cpp, …) into ~/.nix-profile/bin so the subsequent `just init`
+#    finds them on PATH. The repo is already a valid Nix flake — we don't
+#    need chezmoi to have run yet.
+log 'running nix-switch (installs chezmoi + user-leaf tools from nix)'
 just nix-switch
 
 # Add nix-profile to PATH for the remaining steps so freshly installed
-# tools (paru, chezmoi) are picked up immediately. Login shells will
+# tools (chezmoi, etc.) are picked up immediately. Login shells will
 # resolve it via /etc/profile.d/hm-session-vars.sh after re-login.
 export PATH="$HOME/.nix-profile/bin:$PATH"
 
 # 7. run just init — this deploys chezmoi, installs the 'base' meta list
-#    (which pulls in sudo-rs via the nix-profile paru), deploys
-#    /etc/sudoers-rs, /etc/pam.d/sudo, creates
-#    /usr/local/bin/{sudo,su,visudo,sudoedit} symlinks pointing at
-#    sudo-rs (PATH precedence shadows /usr/bin/sudo), and installs git
-#    hooks. The classic 'sudo' package stays installed because
-#    base-devel hard-depends on it; that's harmless — the binary is
-#    never invoked once /usr/local/bin/sudo is in place. `just init`
-#    also re-runs nix-switch as its last step (a no-op since step 6
-#    already activated the profile).
+#    (which pulls in sudo-rs via pacman), deploys
+#    /etc/sudoers-rs, /etc/pam.d/sudo, creates user-scoped
+#    ~/.local/bin/{sudo,su,visudo,sudoedit} symlinks pointing at sudo-rs,
+#    and installs git hooks. The classic 'sudo' package is only a bootstrap
+#    helper and may be removed if it shows up as undeclared. `just init`
+#    also re-runs nix-switch as its last step (a no-op since step 6 already
+#    activated the profile).
 log 'running just init'
 just init
 

@@ -1,0 +1,216 @@
+#!/usr/bin/env dash
+set -eu
+
+mark_read=false
+for arg in "$@"; do
+  case "$arg" in
+    --mark-read)
+      mark_read=true
+      ;;
+    -h | --help)
+      cat <<'EOF'
+usage: arch-news-check [--mark-read]
+
+Check Arch Linux news before a system upgrade. New feed entries are printed
+and followed by a "Proceed with upgrade? [Y/n]" prompt. Choosing yes records
+the currently visible feed items as seen.
+EOF
+      exit 0
+      ;;
+    *)
+      printf 'arch-news-check: unknown option: %s\n' "$arg" >&2
+      exit 2
+      ;;
+  esac
+done
+
+prompt_proceed() {
+  if [ ! -t 0 ]; then
+    printf 'arch-news-check: non-interactive shell; proceeding by default\n' >&2
+    return 0
+  fi
+
+  while :; do
+    printf ':: Proceed with upgrade? [Y/n] ' >/dev/tty
+    IFS= read -r answer </dev/tty || answer=
+    case "$answer" in
+      '' | [Yy] | [Yy][Ee][Ss]) return 0 ;;
+      [Nn] | [Nn][Oo]) return 1 ;;
+      *) printf 'Please answer yes or no.\n' >/dev/tty ;;
+    esac
+  done
+}
+
+if ! command -v python3 >/dev/null 2>&1; then
+  if [ "$mark_read" = true ]; then
+    printf 'arch-news-check: python3 not found; cannot mark Arch news as read\n' >&2
+    exit 1
+  fi
+  printf 'arch-news-check: python3 not found; skipping Arch news check\n' >&2
+  prompt_proceed
+  exit $?
+fi
+
+exec python3 - "$@" <<'PY'
+from __future__ import annotations
+
+import email.utils
+import html
+import json
+import os
+import re
+import sys
+import textwrap
+import urllib.error
+import urllib.request
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+FEED_URL = os.environ.get("ARCH_NEWS_FEED_URL", "https://archlinux.org/feeds/news/")
+STATE_FILE = Path(
+    os.environ.get(
+        "ARCH_NEWS_STATE_FILE",
+        Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state"))
+        / "arch-news-check"
+        / "seen.json",
+    )
+)
+
+
+def usage_error(message: str) -> int:
+    print(f"arch-news-check: {message}", file=sys.stderr)
+    return 2
+
+
+def prompt_proceed() -> bool:
+    if not sys.stdin.isatty():
+        print("arch-news-check: non-interactive shell; proceeding by default", file=sys.stderr)
+        return True
+
+    while True:
+        answer = input(":: Proceed with upgrade? [Y/n] ").strip().lower()
+        if answer in {"", "y", "yes"}:
+            return True
+        if answer in {"n", "no"}:
+            return False
+        print("Please answer yes or no.")
+
+
+def fetch_feed() -> bytes:
+    request = urllib.request.Request(
+        FEED_URL,
+        headers={"User-Agent": "arch-news-check/1.0 (+https://archlinux.org/)"},
+    )
+    with urllib.request.urlopen(request, timeout=10) as response:
+        return response.read()
+
+
+def clean_text(value: str) -> str:
+    value = html.unescape(value)
+    value = re.sub(r"<[^>]+>", " ", value)
+    value = re.sub(r"\s+", " ", value)
+    return value.strip()
+
+
+def parse_date(value: str) -> str:
+    if not value:
+        return ""
+    try:
+        return email.utils.parsedate_to_datetime(value).date().isoformat()
+    except (TypeError, ValueError):
+        return value
+
+
+def parse_feed(raw_xml: bytes) -> list[dict[str, str]]:
+    root = ET.fromstring(raw_xml)
+    entries: list[dict[str, str]] = []
+    for item in root.findall("./channel/item"):
+        title = clean_text(item.findtext("title", ""))
+        link = clean_text(item.findtext("link", ""))
+        guid = clean_text(item.findtext("guid", "")) or link or title
+        published = parse_date(clean_text(item.findtext("pubDate", "")))
+        summary = clean_text(item.findtext("description", ""))
+        if guid:
+            entries.append(
+                {
+                    "id": guid,
+                    "title": title or "(untitled)",
+                    "link": link,
+                    "published": published,
+                    "summary": summary,
+                }
+            )
+    return entries
+
+
+def load_seen() -> set[str]:
+    try:
+        data = json.loads(STATE_FILE.read_text())
+    except FileNotFoundError:
+        return set()
+    except (OSError, json.JSONDecodeError):
+        return set()
+    seen = data.get("seen", [])
+    if not isinstance(seen, list):
+        return set()
+    return {item for item in seen if isinstance(item, str)}
+
+
+def save_seen(ids: set[str]) -> None:
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    tmp = STATE_FILE.with_suffix(".tmp")
+    tmp.write_text(json.dumps({"seen": sorted(ids)}, indent=2) + "\n")
+    tmp.replace(STATE_FILE)
+
+
+def print_news(entries: list[dict[str, str]]) -> None:
+    print(":: New Arch Linux news")
+    for entry in entries:
+        date = f" ({entry['published']})" if entry["published"] else ""
+        print(f" -> {entry['title']}{date}")
+        if entry["link"]:
+            print(f"    {entry['link']}")
+        if entry["summary"]:
+            summary = textwrap.shorten(entry["summary"], width=500, placeholder=" ...")
+            print(textwrap.indent(textwrap.fill(summary, width=88), "    "))
+        print()
+
+
+def main(argv: list[str]) -> int:
+    mark_read = False
+    for arg in argv:
+        if arg == "--mark-read":
+            mark_read = True
+        elif arg in {"-h", "--help"}:
+            return usage_error("help is handled by the shell wrapper")
+        else:
+            return usage_error(f"unknown option: {arg}")
+
+    try:
+        entries = parse_feed(fetch_feed())
+    except (ET.ParseError, OSError, urllib.error.URLError) as exc:
+        print(f"arch-news-check: failed to read Arch news: {exc}", file=sys.stderr)
+        return 0 if prompt_proceed() else 1
+
+    current_ids = {entry["id"] for entry in entries}
+    if mark_read:
+        save_seen(current_ids)
+        print("Marked current Arch Linux news as read.")
+        return 0
+
+    seen = load_seen()
+    unread = [entry for entry in entries if entry["id"] not in seen]
+    if not unread:
+        return 0
+
+    print_news(unread)
+    if not prompt_proceed():
+        return 1
+
+    save_seen(current_ids)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
+PY

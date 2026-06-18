@@ -117,6 +117,7 @@
     doxygen
 
     # Docs
+    less
     tldr
     man-db
     man-pages

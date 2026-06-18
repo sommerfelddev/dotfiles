@@ -1,10 +1,13 @@
 #!/usr/bin/env dash
-# Deploy Firefox/LibreWolf hardening overrides and custom CSS.
-# chezmoi re-runs this script whenever any file under firefox/ changes.
+# Deploy Firefox/LibreWolf hardening and custom CSS.
+# chezmoi re-runs this script whenever any file under firefox/ or the nix
+# inputs that provide arkenfox-userjs change.
 # firefox/ content hash: {{ output "sh" "-c" (printf "cd %q && find firefox -type f -exec sha256sum {} + | LC_ALL=C sort" .chezmoi.sourceDir) | sha256sum }}
+# arkenfox nix hash: {{ output "sh" "-c" (printf "cd %q && sha256sum nix/flake.lock nix/host.nix 2>/dev/null || true" .chezmoi.sourceDir) | sha256sum }}
 set -eu
 
 PROFILES_DIR="$HOME/.var/app/io.gitlab.librewolf-community/.librewolf"
+ARKENFOX_USER_JS="$HOME/.nix-profile/share/arkenfox-userjs/user.js"
 [ -d "$PROFILES_DIR" ] || exit 0
 
 PROFILE=$(find "$PROFILES_DIR" -maxdepth 1 -mindepth 1 -type d -name '*.default-default' | head -1)
@@ -14,7 +17,21 @@ fi
 [ -n "$PROFILE" ] || exit 0
 
 cd "$CHEZMOI_SOURCE_DIR"
+
+if [ -r "$ARKENFOX_USER_JS" ]; then
+    tmp=$(mktemp)
+    cat "$ARKENFOX_USER_JS" >"$tmp"
+    printf '\n/*** user-overrides.js ***/\n\n' >>"$tmp"
+    cat firefox/user-overrides.js >>"$tmp"
+    cp --remove-destination "$tmp" "$PROFILE/user.js"
+    rm -f "$tmp"
+    rm -f "$PROFILE/user-overrides.js"
+else
+    echo "deploy-firefox: missing $ARKENFOX_USER_JS; run 'just nix-switch' before regenerating user.js." >&2
+fi
+
 find firefox -type f | while IFS= read -r src; do
+    [ "$src" = "firefox/user-overrides.js" ] && continue
     dest="$PROFILE/${src#firefox/}"
     mkdir -p "$(dirname "$dest")"
     cp --remove-destination "$src" "$dest"

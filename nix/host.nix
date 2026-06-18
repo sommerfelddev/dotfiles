@@ -43,12 +43,48 @@ let
       platforms = platforms.all;
     };
   };
+  pass-secret-service-rust = pkgs.rustPlatform.buildRustPackage rec {
+    pname = "pass-secret-service";
+    version = "0.7.0";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "grimsteel";
+      repo = "pass-secret-service";
+      rev = "v${version}";
+      hash = "sha256-cBDGxF1ETyszwHZJwN8n+lwKcpOU8Xt1XTOGbUHj9UI=";
+    };
+
+    cargoHash = "sha256-Ko8LlgPG6kl+pZ47jrFnKdc+9i7/eh9DMRtG2SWQGjQ=";
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+
+    postInstall = ''
+      wrapProgram "$out/bin/pass-secret-service" \
+        --prefix PATH : "${lib.makeBinPath [ pkgs.gnupg ]}"
+    '';
+
+    meta = {
+      description = "Implementation of org.freedesktop.secrets using pass";
+      homepage = "https://github.com/grimsteel/pass-secret-service";
+      license = lib.licenses.gpl3Only;
+      platforms = lib.platforms.linux;
+      mainProgram = "pass-secret-service";
+    };
+  };
+  arkenfox-userjs-profile = pkgs.runCommand "arkenfox-userjs-profile-${pkgs.arkenfox-userjs.version}" { } ''
+    install -Dm644 ${pkgs.arkenfox-userjs}/user.js $out/share/arkenfox-userjs/user.js
+    install -Dm644 ${pkgs.arkenfox-userjs}/user.cfg $out/share/arkenfox-userjs/user.cfg
+  '';
 in
 {
   imports = [ ./common.nix ];
 
   home.username = builtins.getEnv "USER";
   home.homeDirectory = builtins.getEnv "HOME";
+
+  # Keep Nix's compiler out of PATH, but make it available to host Neovim for
+  # nvim-treesitter parser builds. The Nix-provided Neovim loads these parser
+  # .so files, so using the Nix compiler wrapper is the coherent ABI choice.
+  home.sessionVariables.NVIM_TREESITTER_CC = "${pkgs.stdenv.cc}/bin/cc";
 
   home.packages = with pkgs; [
     # ── Thunderbird helpers ───────────────────────────────────────────────────
@@ -70,6 +106,13 @@ in
     # pass-backed vault via PASSWORD_STORE_DIR). Replaces the AUR
     # `protonmail-bridge-core`.
     protonmail-bridge
+
+    # ── Secrets portal ────────────────────────────────────────────────────────
+    # Grimsteel's Rust org.freedesktop.secrets provider backed by pass. This is
+    # not nixpkgs' Python `pass-secret-service`; the repo-owned user unit at
+    # dot_config/systemd/user/pass-secret-service.service uses the Rust binary
+    # name and the PASSWORD_STORE_DIR drop-in.
+    pass-secret-service-rust
 
     # ── Wayland session: bars, launchers, notifiers, daemons ──────────────────
     # Pure user-session GUIs/daemons — no system unit, no D-Bus activation
@@ -136,13 +179,15 @@ in
     # testing.
     sparrow
 
-    # chezmoi & paru — both are pure user CLIs. `paru` wraps pacman+makepkg
-    # but doesn't link them; it just shells out. bootstrap.sh installs a
-    # one-shot pacman `chezmoi` for the very first `chezmoi init --apply`,
-    # then `paru -Rns chezmoi paru` after the first nix-switch drops the
-    # pacman copies (the nix-profile copies on PATH take over).
+    # ── Browser hardening ────────────────────────────────────────────────────
+    # Upstream Arkenfox user.js from nixpkgs, re-exposed under share/ so the
+    # chezmoi Firefox/LibreWolf deploy hook can render it with
+    # firefox/user-overrides.js into the Flatpak profile.
+    arkenfox-userjs-profile
+
+    # Dotfile manager. bootstrap.sh uses the pacman `just` only long enough
+    # to run nix-switch; after that, this nix-profile copy is on PATH.
     chezmoi
-    paru
 
     # ── OCR ──────────────────────────────────────────────────────────────────
     # Override merges eng + por language data into a single derivation,
