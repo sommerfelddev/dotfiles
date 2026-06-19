@@ -87,49 +87,31 @@ If a project needs a newer build toolchain, drop a `flake.nix` +
 `.envrc` in that project tree (direnv + nix-direnv is already wired
 up). Don't add it to `common.nix`/`host.nix`/`vm.nix`.
 
-## Commit signing on the VM (SSH-format, no GPG secrets)
+## Commit signing and SSH auth on the VM (GPG)
 
-GPG private keys never leave the host. Commits on the VM are signed
-with the **forwarded SSH agent** in SSH-signature format, using the
-authentication subkey gpg-agent already exposes via `ssh-add -L`.
+The VM uses its own local `gpg-agent`, like the host. Import the work
+GPG private key manually on the VM; do not use SSH agent forwarding for
+commit signing or SSH auth.
 
 One-time setup on the VM:
 
 ```sh
-mkdir -p ~/.config/git
-
-# allowed_signers: maps your committer email to the SSH pubkey of the
-# auth subkey. Adjust the grep if you have multiple keys.
-printf '%s %s\n' \
-  "$(git config user.email)" \
-  "$(ssh-add -L | head -n1)" \
-  > ~/.config/git/allowed_signers
-
-# Machine-local git override (NOT tracked in dotfiles).
-cat > ~/.config/git/config.local <<EOF
-[gpg]
-    format = ssh
-[gpg "ssh"]
-    allowedSignersFile = ~/.config/git/allowed_signers
-[user]
-    signingkey = $(ssh-add -L | head -n1 | awk '{print $1" "$2}')
-EOF
+rm -f ~/.ssh/agent.sock ~/.config/git/allowed_signers
+gpg --import /path/to/work-private-key.asc
+gpg --edit-key 3298945F717C85F8 trust quit
+gpg --list-secret-keys --with-keygrip 3298945F717C85F8
 ```
 
-The tracked `dot_config/git/config` ends with `[include] path =
-~/.config/git/config.local`, so the override is picked up
-automatically (and silently ignored on machines that don't have it).
+Add the authentication subkey keygrip to `~/.gnupg/sshcontrol`. The
+tracked git config already uses normal OpenPGP signing, so no
+`~/.config/git/config.local` override is needed for SSH-format signing.
+If `~/.config/git/config.local` only contains the old SSH-format
+signing override, remove it too.
 
-Required on the **host's** `~/.ssh/config` for the VM `Host` block:
-
-```
-ForwardAgent yes
-```
-
-Verify on the VM after SSH-ing in:
+Verify on the VM:
 
 ```sh
-ssh-add -L                 # should list your auth pubkey(s)
+ssh-add -L
 git commit --allow-empty -m test
 git log --show-signature -1
 ```
@@ -137,9 +119,10 @@ git log --show-signature -1
 ## Caveats
 
 - **GPG / pass**: HM installs `gnupg` and `pass` but does _not_ import
-  any private key. On the VM, use SSH-format signing via the forwarded
-  agent instead (see above). On the host, smartcard access via
-  `pcscd` is configured in `host.nix` (`~/.gnupg/scdaemon.conf`).
+  any private key. On the VM, import the work key manually and add the
+  authentication subkey keygrip to `~/.gnupg/sshcontrol`. On the host,
+  smartcard access via `pcscd` is configured in `host.nix`
+  (`~/.gnupg/scdaemon.conf`).
 - **Disk usage**: Nix store + nvim plugins consumes ~3-5 GB. Check
   partition size first on the VM.
 - **Network for first nvim launch**: `vim.pack.add` fetches plugins

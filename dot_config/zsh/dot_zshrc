@@ -407,41 +407,6 @@ reload-env() {
 	done < "/proc/$pid/environ"
 }
 
-# Refresh the ssh-agent socket inside a zellij pane that has outlived
-# its originating SSH connection. zprofile keeps ~/.ssh/agent.sock
-# aimed at the live forwarded socket on every reconnect, so the stable
-# path is current — this just re-exports it for shells whose own
-# SSH_AUTH_SOCK still holds the dead per-connection path captured
-# when zellij was first started. Already-running children
-# (claude-code, etc.) must still be restarted: env is inherited, not
-# observed.
-ssh-agent-refresh() {
-	local stable="$HOME/.ssh/agent.sock"
-	local current sock
-	current="$(readlink "$stable" 2>/dev/null)"
-	# Healthy path: existing target still responsive.
-	if [[ -S "$current" ]] && SSH_AUTH_SOCK="$current" ssh-add -l >/dev/null 2>&1; then
-		export SSH_AUTH_SOCK="$stable"
-		print -r -- "ssh-agent: live → $current"
-		return 0
-	fi
-	# Symlink dead — scan all forwarded sockets from any concurrent ssh
-	# session and retarget to the first one that responds to ssh-add.
-	# Handles the case where the connection that originally seeded the
-	# symlink has dropped but another session is still alive.
-	for sock in /tmp/ssh-*/agent.*(N); do
-		[[ -S $sock ]] || continue
-		if SSH_AUTH_SOCK="$sock" ssh-add -l >/dev/null 2>&1; then
-			ln -sfn "$sock" "$stable"
-			export SSH_AUTH_SOCK="$stable"
-			print -r -- "ssh-agent: re-pointed → $sock"
-			return 0
-		fi
-	done
-	print -r -- "ssh-agent-refresh: no live forwarded agent found; reconnect over ssh with -A first" >&2
-	return 1
-}
-
 # Just
 alias j='just'
 alias dj='just --justfile ~/dotfiles/justfile --working-directory ~/dotfiles'
@@ -489,6 +454,14 @@ _dot_compdef lsd       l=lsd la=lsd lt=lsd
 unfunction _dot_compdef
 
 # ── GPG agent ─────────────────────────────────────────────────────────────────
+# Interactive shells can outlive the login environment that spawned them
+# (notably inside zellij). If they inherited an old forwarded-agent socket,
+# switch back to the machine-local gpg-agent SSH socket.
+if [[ -z "$SSH_AUTH_SOCK" || "$SSH_AUTH_SOCK" == /tmp/ssh-* || "$SSH_AUTH_SOCK" == "$HOME/.ssh/agent.sock" ]]; then
+	SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+	export SSH_AUTH_SOCK
+fi
+
 # Set GPG_TTY to this shell's actual TTY (not the login console) and tell
 # the agent so pinentry prompts appear in the right terminal
 export GPG_TTY=$TTY

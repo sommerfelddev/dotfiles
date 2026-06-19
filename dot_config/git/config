@@ -153,6 +153,5 @@
 [credential "smtp://127.0.0.1:1025"]
     helper = "!f() { test \"$1\" = get && printf 'password=%s\\n' \"$(pass show proton/bridge-smtp)\"; }; f"
 [include]
-    ; Machine-local overrides (e.g. SSH-format signing on the remote-dev VM).
-    ; Git silently skips this if the file is absent.
+    ; Machine-local overrides. Git silently skips this if the file is absent.
     path = ~/.config/git/config.local

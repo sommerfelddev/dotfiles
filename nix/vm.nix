@@ -8,6 +8,11 @@
 let
   dotfiles = "${builtins.getEnv "HOME"}/.local/share/dotfiles";
   link = path: config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${path}";
+  vmGpgAgentConf = pkgs.writeText "gpg-agent.conf" ''
+    enable-ssh-support
+    pinentry-program ${pkgs.pinentry-curses}/bin/pinentry-curses
+    allow-loopback-pinentry
+  '';
 in
 {
   imports = [ ./common.nix ];
@@ -123,6 +128,15 @@ in
   home.activation.sshConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     run install -D -m 600 \
       "${dotfiles}/private_dot_ssh/config" "$HOME/.ssh/config"
+  '';
+
+  # GnuPG needs strict file modes and a VM-local pinentry path. Private
+  # keys and sshcontrol stay machine-local; import/add the work key manually.
+  home.activation.gnupgConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run install -d -m 700 "$HOME/.gnupg"
+    run install -m 600 \
+      "${dotfiles}/private_dot_gnupg/gpg.conf" "$HOME/.gnupg/gpg.conf"
+    run install -m 600 "${vmGpgAgentConf}" "$HOME/.gnupg/gpg-agent.conf"
   '';
 
   # ZDOTDIR redirect so login shells find ~/.config/zsh/.zprofile etc.

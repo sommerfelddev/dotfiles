@@ -75,33 +75,10 @@ export LESS="-F --RAW-CONTROL-CHARS"
 
 # ── GPG / SSH ─────────────────────────────────────────────────────────────────
 unset SSH_AGENT_PID
-# Forwarded ssh-agent sockets live at /tmp/ssh-XXX/agent.NNN — a path
-# that disappears the moment the originating ssh connection drops,
-# leaving any long-running zellij pane (and its children: claude,
-# nvim, etc.) pointing at a dead socket. Keep a stable
-# ~/.ssh/agent.sock symlink that we re-aim on every login, and export
-# the stable path so processes inherit a value that survives
-# reconnects. Reattaching a zellij session after `ssh` → signing /
-# git-fetch keep working without any per-pane re-export.
-if [[ -n "$SSH_CONNECTION" && -S "$SSH_AUTH_SOCK" ]]; then
-	stable_sock="$HOME/.ssh/agent.sock"
-	# Only retarget if the current symlink target is dead. Sshd unlinks
-	# the per-connection socket file on disconnect, so [[ -S ]] on the
-	# resolved path is a reliable liveness probe. Avoiding gratuitous
-	# retargets keeps multi-connection setups stable: the first
-	# connection seeds the symlink, subsequent logins keep using it,
-	# and only if that connection drops does the next login retarget.
-	current_target="$(readlink "$stable_sock" 2>/dev/null)"
-	if [[ ! -S "$current_target" ]]; then
-		ln -sfn "$SSH_AUTH_SOCK" "$stable_sock"
-	fi
-	export SSH_AUTH_SOCK="$stable_sock"
-	unset stable_sock current_target
-else
-	# Local login: route ssh auth through gpg-agent.
-	SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
-	export SSH_AUTH_SOCK
-fi
+# Always route SSH auth through the machine-local gpg-agent. The VM imports its
+# own work GPG key; we deliberately do not use forwarded ssh-agent sockets.
+SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+export SSH_AUTH_SOCK
 
 # ── FZF ───────────────────────────────────────────────────────────────────────
 export FZF_DEFAULT_COMMAND="fd --type file --follow --hidden --exclude .git --color=always"
