@@ -1,3 +1,5 @@
+{{- $machineRole := default "host" (index . "machineRole") -}}
+{{- if eq $machineRole "host" -}}
 #!/usr/bin/env dash
 # Deploy Firefox/LibreWolf hardening and custom CSS.
 # chezmoi re-runs this script whenever any file under firefox/ or the nix
@@ -36,3 +38,9 @@ find firefox -type f | while IFS= read -r src; do
     mkdir -p "$(dirname "$dest")"
     cp --remove-destination "$src" "$dest"
 done
+{{- else -}}
+#!/usr/bin/env dash
+# Firefox/LibreWolf hardening is host-only.
+set -eu
+exit 0
+{{- end }}

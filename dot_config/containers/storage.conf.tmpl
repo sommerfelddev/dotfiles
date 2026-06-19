@@ -1,3 +1,17 @@
+{{- $machineRole := default "host" (index . "machineRole") -}}
+{{- if eq $machineRole "vm" -}}
+# Rootless podman storage configuration.
+#
+# The VM uses ext4, so use the kernel overlay driver. runroot/graphroot default
+# to $XDG_RUNTIME_DIR/containers and $XDG_DATA_HOME/containers/storage.
+
+[storage]
+driver = "overlay"
+
+[storage.options.overlay]
+# Kernel >=5.13 supports rootless overlay natively on the VM, so leave
+# mount_program unset and avoid fuse-overlayfs.
+{{- else -}}
 # Rootless podman storage configuration.
 #
 # Uses the native kernel btrfs graph driver — much faster than fuse-overlayfs
@@ -15,3 +29,4 @@
 
 [storage]
 driver = "btrfs"
+{{- end }}

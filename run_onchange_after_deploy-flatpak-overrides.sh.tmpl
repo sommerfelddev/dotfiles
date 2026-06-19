@@ -5,12 +5,13 @@
 #
 # script hash: {{ output "sh" "-c" (printf "sha256sum %q/run_onchange_after_deploy-flatpak-overrides.sh.tmpl 2>/dev/null || true" .chezmoi.sourceDir) }}
 set -eu
+command -v flatpak >/dev/null 2>&1 || exit 0
 
 apply() {
-	app=$1
-	shift
-	flatpak info --user "$app" >/dev/null 2>&1 || return 0
-	flatpak override --user "$@" "$app"
+  app=$1
+  shift
+  flatpak info --user "$app" >/dev/null 2>&1 || return 0
+  flatpak override --user "$@" "$app"
 }
 
 apply org.pwmt.zathura --filesystem=xdg-config/zathura:ro

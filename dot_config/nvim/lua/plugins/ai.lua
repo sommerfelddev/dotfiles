@@ -1,8 +1,8 @@
 -- Prefer the chezmoi-pinned Node 24 (host has Arch's system node 26, which
 -- breaks copilot-language-server — see
--- ~/.local/share/chezmoi/run_onchange_after_install-copilot-node.sh). Fall
--- back to `node` on PATH for hosts that don't run chezmoi (remote-dev VM
--- via Nix Home-Manager, where home.nix pins nodejs_24 in the profile).
+-- ~/.local/share/chezmoi/run_onchange_after_install-copilot-node.sh.tmpl).
+-- Fall back to `node` on PATH on the VM, where Nix pins nodejs_24 in the
+-- profile.
 local pinned_node = vim.fs.joinpath(
   vim.env.XDG_DATA_HOME or (vim.env.HOME .. "/.local/share"),
   "copilot-node/bin/node"

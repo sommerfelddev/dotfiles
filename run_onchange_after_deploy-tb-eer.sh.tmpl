@@ -10,6 +10,7 @@
 #
 # host manifest hash: {{ output "sh" "-c" "for p in $HOME/.nix-profile/lib/mozilla/native-messaging-hosts/external_editor_revived.json /usr/lib/mozilla/native-messaging-hosts/external_editor_revived.json /usr/lib/thunderbird/native-messaging-hosts/external_editor_revived.json; do [ -f \"$p\" ] && sha256sum \"$p\" && break; done; true" | sha256sum }}
 set -eu
+command -v flatpak >/dev/null 2>&1 || exit 0
 
 TB_APP=org.mozilla.thunderbird
 MANIFEST_NAME=external_editor_revived.json

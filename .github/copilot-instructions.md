@@ -60,13 +60,11 @@ When editing shell config, all zsh configuration goes in `dot_config/zsh/` — d
 
 `KEYBINDS.md` at the repository root documents every non-default keybind across neovim, zellij, zsh, ghostty, and sway. Whenever you add, remove, or change a keybind in any of these tools, you must update `KEYBINDS.md` to reflect the change in the same commit.
 
-## Nix VM symlink invariant
+## VM chezmoi role
 
-The remote-dev Ubuntu VM does NOT run chezmoi. It re-uses configs via Home-Manager symlinks declared in `nix/vm.nix` (the `xdg.configFile` and `home.file` blocks point at `~/.local/share/dotfiles/<source-path>`). Whenever you **add, remove, or rename** any file or directory under `dot_config/` (or any other chezmoi source path like `dot_claude/`, `private_dot_ssh/`), audit `nix/vm.nix` in the same commit and:
+The remote-dev Ubuntu VM also runs chezmoi. Home-Manager installs packages and VM session variables only; it must not deploy normal dotfiles. Machine-specific dotfile behavior belongs in chezmoi templates keyed by `machineRole`:
 
-- If the corresponding binary is provisioned by `nix/common.nix` and is relevant on the headless VM (i.e. not a GUI/wayland tool like sway/mako/waybar/fuzzel/mpv/zathura), **add a matching `xdg.configFile."<dest>".source = link "<source-path>";` entry**.
-- If a config is renamed or removed, update / drop the corresponding `link` entry — otherwise `home-manager switch` will fail or leave a dangling symlink.
-- Chezmoi attribute prefixes (`executable_`, `private_`, `dot_`) are stripped by chezmoi but NOT by `mkOutOfStoreSymlink`. Map each prefixed source filename to its stripped destination explicitly (see the git-hooks block in `nix/vm.nix` for the reference pattern).
-- Paths outside `~/.config/` (e.g. `~/.claude/skills/…`) use `home.file."<dest>".source = link "<source-path>";` instead of `xdg.configFile`.
+- `host`: user dotfiles plus host-only `/etc`, Firefox/LibreWolf, and Flatpak integration hooks.
+- `vm`: user dotfiles, skipping host-only `/etc` and Firefox/LibreWolf hooks.
 
-Treat the symlink block as part of the chezmoi source tree: a config that lands on the host via chezmoi but not on the VM via nix is the bug class this rule prevents.
+When adding, removing, or renaming user config under `dot_config/`, `dot_claude/`, `private_dot_ssh/`, `private_dot_gnupg/`, etc., use chezmoi naming conventions only. Do not add corresponding `xdg.configFile` or `home.file` mappings to `nix/vm.nix`.

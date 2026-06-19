@@ -1,12 +1,10 @@
 { config, pkgs, lib, dotfilesRoot, ... }:
 
-# Shared Home-Manager module: ONLY package installation. Config-file
-# deployment is *not* handled here — on the Arch host, chezmoi owns
-# every dotfile under $HOME; on the remote-dev VM, `vm.nix` carries
-# its own `xdg.configFile`/`home.activation` block since chezmoi isn't
-# installed there. Keeping this module deployment-agnostic prevents
-# home-manager from conflicting with chezmoi on the host (which would
-# otherwise materialize as `.backup` files on every `nix-switch`).
+# Shared Home-Manager module: ONLY package installation. Dotfile deployment is
+# owned by chezmoi on both the Arch host and the remote-dev VM. Keeping this
+# module deployment-agnostic prevents home-manager from conflicting with
+# chezmoi-owned files (which would otherwise materialize as `.backup` files on
+# every `nix-switch`).
 #
 # Policy: this profile carries leaf CLI tools, editor/AI-agent runtimes
 # (node, uv), and build *orchestrators* (cmake, ninja, ccache, sccache).
@@ -47,6 +45,7 @@
     choose
     zoxide
     just
+    chezmoi
 
     # Viewers
     bat
@@ -160,8 +159,7 @@
     # The nix `podman` is wrapped to find these helpers via /nix/store
     # paths, so we don't need a containers.conf for `helper_binaries_dir`.
     # Per-user containers config (registries/storage/policy) lives under
-    # chezmoi at `private_dot_config/containers/` and is symlinked on the
-    # VM by `vm.nix`'s xdg.configFile block.
+    # chezmoi at `dot_config/containers/`.
     podman
     crun         # OCI runtime (lighter than runc; default for rootless)
     conmon       # container monitor process

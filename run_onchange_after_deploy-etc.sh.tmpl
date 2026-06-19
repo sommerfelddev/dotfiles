@@ -1,3 +1,5 @@
+{{- $machineRole := default "host" (index . "machineRole") -}}
+{{- if eq $machineRole "host" -}}
 #!/usr/bin/env dash
 # Deploy system-level configs from etc/ to /etc/.
 # chezmoi re-runs this script whenever any file under etc/ changes.
@@ -64,3 +66,9 @@ target=$(readlink /usr/local/bin/sudo 2>/dev/null || true)
 if [ "$target" = /usr/bin/sudo-rs ]; then
   sudo rm -f /usr/local/bin/sudo
 fi
+{{- else -}}
+#!/usr/bin/env dash
+# /etc deployment is host-only.
+set -eu
+exit 0
+{{- end }}

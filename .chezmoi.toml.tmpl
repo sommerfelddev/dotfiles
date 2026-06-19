@@ -1,3 +1,5 @@
+{{- $defaultMachineRole := default "host" (env "CHEZMOI_MACHINE_ROLE") -}}
+{{- $machineRole := promptStringOnce . "machineRole" "Machine role (host or vm)" $defaultMachineRole -}}
 sourceDir = {{ .chezmoi.sourceDir | quote }}
 
 [status]
@@ -7,7 +9,11 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
   exclude = ["scripts"]
 
 [data]
+  # Machine role used by templates and run hooks. Valid values: "host", "vm".
+  machineRole = {{ $machineRole | quote }}
+{{- if eq $machineRole "host" }}
   # Block device holding the LUKS-encrypted root, without the /dev/ prefix
   # (e.g. "nvme0n1p2", "sda2"). Resolved to a UUID at apply time via lsblk,
   # used by etc/kernel/cmdline.tmpl.
   luksRootPartition = {{ promptStringOnce . "luksRootPartition" "LUKS root partition (e.g. nvme0n1p2)" | quote }}
+{{- end }}

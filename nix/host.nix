@@ -185,10 +185,6 @@ in
     # firefox/user-overrides.js into the Flatpak profile.
     arkenfox-userjs-profile
 
-    # Dotfile manager. bootstrap.sh uses the pacman `just` only long enough
-    # to run nix-switch; after that, this nix-profile copy is on PATH.
-    chezmoi
-
     # ── OCR ──────────────────────────────────────────────────────────────────
     # Override merges eng + por language data into a single derivation,
     # replacing three pacman packages (tesseract, tesseract-data-eng,

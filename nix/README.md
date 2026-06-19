@@ -24,14 +24,12 @@ GitHub on first launch.
 
 1. Installs Nix (Determinate Systems multi-user installer).
 2. Clones this repo to `~/.local/share/dotfiles`.
-3. Runs `home-manager switch --flake .../nix#vm`, which:
-   - Installs the CLI tool subset (see `common.nix` + `vm.nix`).
-   - Symlinks `~/.config/{nvim,zellij,zsh,direnv,ghostty,git}` and
-     `~/.ssh/config` at the cloned working tree via
-     `mkOutOfStoreSymlink`, so `git pull` is enough to pick up config
-     edits — no rebuild needed for config-only changes.
-   - Sets `ZDOTDIR=$HOME/.config/zsh` so the shared zshrc/zprofile load.
-4. Appends the nix-store zsh to `/etc/shells` and `chsh`'s to it.
+3. Runs `home-manager switch --flake .../nix#vm`, which installs the
+   shared CLI tool subset (see `common.nix` + `vm.nix`).
+4. Writes a VM-role chezmoi config and runs `chezmoi apply`, deploying
+   the same user dotfiles model as the host while skipping host-only
+   `/etc` and Firefox hooks.
+5. Appends the nix-store zsh to `/etc/shells` and `chsh`'s to it.
 
 ## Updating after a dotfiles change
 
@@ -44,15 +42,25 @@ just update     # pull + home-manager switch (handles everything)
 Or piece-by-piece if you know which one you need:
 
 ```sh
-just pull       # config-only changes (nvim/zellij/zsh/git/ssh): no rebuild needed
+just pull       # fetch the latest checkout only
 just switch     # rebuild home-manager from the current checkout
+just apply      # apply VM-role chezmoi dotfiles from the current checkout
 ```
 
-> `just update` runs `pull` then `switch`. The home-manager invocation
-> uses `--impure --flake '.#vm' -b backup`; the single-quotes around the
-> flake ref matter because our zsh enables `extendedglob`, which would
-> otherwise interpret `.#vm` as a glob pattern. On the host, swap
-> `#vm` → `#host`.
+> `just update` runs `pull`, `switch`, and `apply`. The home-manager
+> invocation uses `--impure --flake '.#vm' -b backup`; the single-quotes
+> around the flake ref matter because our zsh enables `extendedglob`,
+> which would otherwise interpret `.#vm` as a glob pattern. On the host,
+> swap `#vm` → `#host`.
+
+Existing VMs that predate the chezmoi migration should run once:
+
+```sh
+just migrate-chezmoi
+```
+
+This removes only safe old Home-Manager-managed symlinks before applying
+chezmoi.
 
 ## Adding a tool
 
@@ -97,14 +105,16 @@ One-time setup on the VM:
 
 ```sh
 rm -f ~/.ssh/agent.sock ~/.config/git/allowed_signers
+just fix-gpg-agent
+gpg-connect-agent 'getinfo version' /bye
 gpg --import /path/to/work-private-key.asc
 gpg --edit-key 3298945F717C85F8 trust quit
 gpg --list-secret-keys --with-keygrip 3298945F717C85F8
 ```
 
-The VM profile symlinks the repo-owned `gpg.conf`, `gpg-agent.conf`,
-and `sshcontrol` into `~/.gnupg`. The tracked git config already uses
-normal OpenPGP signing, so no
+Chezmoi deploys the repo-owned `gpg.conf`, `gpg-agent.conf`, and
+`sshcontrol` into `~/.gnupg`. The tracked git config already uses normal
+OpenPGP signing, so no
 `~/.config/git/config.local` override is needed for SSH-format signing.
 If `~/.config/git/config.local` only contains the old SSH-format
 signing override, remove it too.
@@ -112,6 +122,8 @@ signing override, remove it too.
 Verify on the VM:
 
 ```sh
+gpg-connect-agent 'getinfo version' /bye
+echo 'Hello world!' | gpg -s --armor -
 ssh-add -L
 git commit --allow-empty -m test
 git log --show-signature -1
@@ -121,9 +133,9 @@ git log --show-signature -1
 
 - **GPG / pass**: HM installs `gnupg` and `pass` but does _not_ import
   any private key. On the VM, import the work key manually; repo-owned
-  `gpg.conf`, `gpg-agent.conf`, and `sshcontrol` are symlinked by
-  `vm.nix`. On the host, smartcard access via `pcscd` is configured in `host.nix`
-  (`~/.gnupg/scdaemon.conf`).
+  `gpg.conf`, `gpg-agent.conf`, and `sshcontrol` are deployed by
+  chezmoi. On the host, smartcard access via `pcscd` is configured in
+  `host.nix` (`~/.gnupg/scdaemon.conf`).
 - **Disk usage**: Nix store + nvim plugins consumes ~3-5 GB. Check
   partition size first on the VM.
 - **Network for first nvim launch**: `vim.pack.add` fetches plugins
@@ -165,19 +177,22 @@ podman run --rm docker.io/library/alpine echo hi
 ```
 
 The VM home-manager profile installs `podman`, `crun`, `conmon`,
-`netavark`, `aardvark-dns`, `slirp4netns`, and `passt`, and writes
-sensible `~/.config/containers/{registries,storage,policy}.conf` files.
+`netavark`, `aardvark-dns`, `slirp4netns`, and `passt`. Chezmoi deploys
+role-aware `~/.config/containers/{registries,storage,policy}.conf`
+files.
 
 ## How it's wired
 
-`common.nix` uses `config.lib.file.mkOutOfStoreSymlink` so the symlinks
-point at the **live working tree** at `~/.local/share/dotfiles/...`,
-not at copies in `/nix/store`. This means:
+Home-Manager installs packages only. Chezmoi owns dotfiles on both the
+host and VM, keyed by `machineRole` in the chezmoi config:
 
-- Editing `dot_config/nvim/init.lua` in the cloned repo takes effect
-  on the next `nvim` launch with no rebuild.
-- `home-manager switch` only needs to re-run when adding/removing a
-  package or changing what's symlinked.
+- `host`: normal user dotfiles plus host-only `/etc`, Firefox, and
+  Flatpak integration hooks.
+- `vm`: normal user dotfiles, skipping host-only `/etc` and Firefox
+  hooks.
+
+`home-manager switch` only needs to re-run when the Nix profile changes.
+Config-only edits are picked up by `chezmoi apply`.
 
 The zsh plugins (`zsh-syntax-highlighting`, etc.) live in
 `$HOME/.nix-profile/share/`. The shared `dot_zshrc` prefers the

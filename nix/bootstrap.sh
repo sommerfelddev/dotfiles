@@ -8,7 +8,8 @@
 #   1. Install Nix (Determinate Systems installer, multi-user).
 #   2. Clone (or fast-forward) the dotfiles repo to ~/.local/share/dotfiles.
 #   3. Run `home-manager switch --flake .../nix#vm`.
-#   4. Add Nix-store zsh to /etc/shells and chsh the user.
+#   4. Initialize VM-role chezmoi config and apply dotfiles.
+#   5. Add Nix-store zsh to /etc/shells and chsh the user.
 #
 # Environment overrides:
 #   DOTFILES_REPO   Git URL (default: https://github.com/ruifm/dotfiles)
@@ -64,7 +65,41 @@ nix --extra-experimental-features 'nix-command flakes' \
   run home-manager/master -- \
   switch --impure --flake "$DIR/nix#vm" -b backup
 
-# ── 4. chsh to nix-store zsh ─────────────────────────────────────────────────
+# ── 4. Chezmoi dotfiles ──────────────────────────────────────────────────────
+log "Writing VM chezmoi config and applying dotfiles…"
+CHEZMOI="$HOME/.nix-profile/bin/chezmoi"
+if [ ! -x "$CHEZMOI" ]; then
+  CHEZMOI=$(command -v chezmoi)
+fi
+CHEZMOI_MACHINE_ROLE=vm "$CHEZMOI" init -S "$DIR" --promptDefaults
+CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi/chezmoi.toml"
+if ! grep -Eq '^[[:space:]]*machineRole[[:space:]]*=[[:space:]]*"vm"[[:space:]]*$' "$CONFIG"; then
+  err "$CONFIG does not set machineRole = \"vm\""
+  exit 1
+fi
+"$CHEZMOI" apply -S "$DIR" -v
+
+log "Restarting GnuPG through the Nix profile…"
+GPGCONF="$HOME/.nix-profile/bin/gpgconf"
+GPG_CONNECT_AGENT="$HOME/.nix-profile/bin/gpg-connect-agent"
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl --user stop \
+    gpg-agent.service \
+    gpg-agent.socket \
+    gpg-agent-ssh.socket \
+    gpg-agent-extra.socket \
+    gpg-agent-browser.socket >/dev/null 2>&1 || true
+  systemctl --user mask \
+    gpg-agent.socket \
+    gpg-agent-ssh.socket \
+    gpg-agent-extra.socket \
+    gpg-agent-browser.socket >/dev/null 2>&1 || true
+fi
+"$GPGCONF" --kill all >/dev/null 2>&1 || true
+"$GPGCONF" --launch gpg-agent
+"$GPG_CONNECT_AGENT" 'getinfo version' /bye
+
+# ── 5. chsh to nix-store zsh ─────────────────────────────────────────────────
 NIX_ZSH="$HOME/.nix-profile/bin/zsh"
 if [ -x "$NIX_ZSH" ]; then
   if ! grep -qxF "$NIX_ZSH" /etc/shells 2>/dev/null; then

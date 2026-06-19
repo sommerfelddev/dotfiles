@@ -1,3 +1,5 @@
+{{- $machineRole := default "host" (index . "machineRole") -}}
+{{- if eq $machineRole "host" -}}
 #!/usr/bin/env dash
 # Install a Node.js 24 (LTS) runtime under ~/.local/share/copilot-node/ for the
 # exclusive use of copilot.lua / copilot-lsp inside neovim. System-wide nodejs
@@ -42,3 +44,9 @@ rm -rf "$DEST"
 mkdir -p "$(dirname "$DEST")"
 mv "$tmp/node-v${NODE_VERSION}-linux-x64" "$DEST"
 touch "$STAMP"
+{{- else -}}
+#!/usr/bin/env dash
+# VM gets Node 24 from the Nix Home-Manager profile.
+set -eu
+exit 0
+{{- end }}

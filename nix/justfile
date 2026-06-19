@@ -4,16 +4,99 @@
 default:
     @just --list
 
-# Pull latest dotfiles and rebuild Home-Manager profile
-update: pull switch
+# Pull latest dotfiles, rebuild Home-Manager profile, and apply dotfiles
+update: pull switch apply
 
-# Pull latest dotfiles only (config-only changes, no nix rebuild)
+# Pull latest dotfiles only
 pull:
     git -C {{ justfile_directory() }}/.. pull --ff-only
 
 # Rebuild Home-Manager profile from the current checkout (no pull)
 switch:
     home-manager switch --impure --flake '{{ justfile_directory() }}#vm' -b backup
+
+# Apply VM dotfiles with chezmoi
+apply: _ensure-vm-chezmoi-config
+    #!/usr/bin/env sh
+    set -eu
+    src=$(cd "{{ justfile_directory() }}/.." && pwd -P)
+    chezmoi apply -S "$src" -v
+
+_ensure-vm-chezmoi-config:
+    #!/usr/bin/env sh
+    set -eu
+    src=$(cd "{{ justfile_directory() }}/.." && pwd -P)
+    CHEZMOI_MACHINE_ROLE=vm chezmoi init -S "$src" --promptDefaults
+    config="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi/chezmoi.toml"
+    if ! grep -Eq '^[[:space:]]*machineRole[[:space:]]*=[[:space:]]*"vm"[[:space:]]*$' "$config"; then
+      echo "error: $config does not set machineRole = \"vm\"" >&2
+      exit 1
+    fi
+
+# Restart GnuPG through the Nix profile, avoiding Ubuntu's older user agent
+fix-gpg-agent:
+    #!/usr/bin/env sh
+    set -eu
+    gpgconf_bin="$HOME/.nix-profile/bin/gpgconf"
+    gpg_connect_agent_bin="$HOME/.nix-profile/bin/gpg-connect-agent"
+    [ -x "$gpgconf_bin" ] || gpgconf_bin=$(command -v gpgconf)
+    [ -x "$gpg_connect_agent_bin" ] || gpg_connect_agent_bin=$(command -v gpg-connect-agent)
+    if command -v systemctl >/dev/null 2>&1; then
+      systemctl --user stop \
+        gpg-agent.service \
+        gpg-agent.socket \
+        gpg-agent-ssh.socket \
+        gpg-agent-extra.socket \
+        gpg-agent-browser.socket >/dev/null 2>&1 || true
+      systemctl --user mask \
+        gpg-agent.socket \
+        gpg-agent-ssh.socket \
+        gpg-agent-extra.socket \
+        gpg-agent-browser.socket >/dev/null 2>&1 || true
+    fi
+    "$gpgconf_bin" --kill all >/dev/null 2>&1 || true
+    "$gpgconf_bin" --launch gpg-agent
+    "$gpg_connect_agent_bin" 'getinfo version' /bye
+
+# One-time migration from the old VM Home-Manager symlink deployment to chezmoi
+migrate-chezmoi: pull switch fix-gpg-agent _cleanup-home-manager-dotfiles apply
+
+_cleanup-home-manager-dotfiles: _ensure-vm-chezmoi-config
+    #!/usr/bin/env bash
+    set -euo pipefail
+    src=$(cd "{{ justfile_directory() }}/.." && pwd -P)
+
+    remove_old_symlink() {
+      path=$1
+      [ -L "$path" ] || return 0
+      raw=$(readlink "$path")
+      resolved=$(readlink -f "$path" 2>/dev/null || true)
+      case "$raw" in
+        "$src"/*|/nix/store/*) rm -f "$path"; return 0 ;;
+      esac
+      case "$resolved" in
+        "$src"/*|/nix/store/*) rm -f "$path"; return 0 ;;
+      esac
+      printf 'refusing to remove unexpected symlink: %s -> %s\n' "$path" "$raw" >&2
+      exit 1
+    }
+
+    while IFS= read -r path; do
+      remove_old_symlink "$path"
+    done < <(chezmoi managed -S "$src" --include=files,symlinks --path-style=absolute)
+
+    # The old VM profile materialized ~/.ssh/config as a real 0600 file because
+    # OpenSSH rejects group-writable symlink targets. Chezmoi now owns it; only
+    # remove the old file when it still exactly matches the repo source.
+    ssh_config="$HOME/.ssh/config"
+    if [ -f "$ssh_config" ] && [ ! -L "$ssh_config" ]; then
+      if cmp -s "$ssh_config" "$src/private_dot_ssh/config"; then
+        rm -f "$ssh_config"
+      else
+        printf 'refusing to overwrite modified %s; merge it before migrating\n' "$ssh_config" >&2
+        exit 1
+      fi
+    fi
 
 # Garbage-collect old home-manager generations and nix store
 gc:
