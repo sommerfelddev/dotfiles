@@ -18,6 +18,11 @@ vim.api.nvim_create_autocmd("User", {
     end
     if ev.data.spec.name == "markdown-preview.nvim" then
       vim.system({ "yarn", "install" }, { cwd = ev.data.path .. "/app" })
+    elseif ev.data.spec.name == "blink.pairs" then
+      local ok, blink_pairs = pcall(require, "blink.pairs")
+      if ok and blink_pairs.download ~= nil then
+        blink_pairs.download():pwait(60000)
+      end
     end
   end,
 })
@@ -48,8 +53,8 @@ vim.pack.add({
   gh("fang2hou/blink-copilot"),
   gh("rcarriga/cmp-dap"),
   gh("xzbdmw/colorful-menu.nvim"),
-  gh("saghen/blink.download"),
-  { src = gh("saghen/blink.pairs"), version = "v0.5.0" },
+  gh("saghen/blink.lib"),
+  { src = gh("saghen/blink.pairs"), version = vim.version.range("*") },
 
   -- Editing
   gh("nmac427/guess-indent.nvim"),

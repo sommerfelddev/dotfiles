@@ -68,7 +68,16 @@ require("blink.cmp").setup({
   },
 })
 
-require("blink.pairs").setup({
+local blink_pairs = require("blink.pairs")
+if
+  blink_pairs.library_available ~= nil
+  and blink_pairs.download ~= nil
+  and not blink_pairs.library_available()
+then
+  blink_pairs.download():pwait(60000)
+end
+
+blink_pairs.setup({
   mappings = {
     disabled_filetypes = {},
   },
