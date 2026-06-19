@@ -102,8 +102,9 @@ gpg --edit-key 3298945F717C85F8 trust quit
 gpg --list-secret-keys --with-keygrip 3298945F717C85F8
 ```
 
-Add the authentication subkey keygrip to `~/.gnupg/sshcontrol`. The
-tracked git config already uses normal OpenPGP signing, so no
+The VM profile symlinks the repo-owned `gpg.conf`, `gpg-agent.conf`,
+and `sshcontrol` into `~/.gnupg`. The tracked git config already uses
+normal OpenPGP signing, so no
 `~/.config/git/config.local` override is needed for SSH-format signing.
 If `~/.config/git/config.local` only contains the old SSH-format
 signing override, remove it too.
@@ -119,9 +120,9 @@ git log --show-signature -1
 ## Caveats
 
 - **GPG / pass**: HM installs `gnupg` and `pass` but does _not_ import
-  any private key. On the VM, import the work key manually and add the
-  authentication subkey keygrip to `~/.gnupg/sshcontrol`. On the host,
-  smartcard access via `pcscd` is configured in `host.nix`
+  any private key. On the VM, import the work key manually; repo-owned
+  `gpg.conf`, `gpg-agent.conf`, and `sshcontrol` are symlinked by
+  `vm.nix`. On the host, smartcard access via `pcscd` is configured in `host.nix`
   (`~/.gnupg/scdaemon.conf`).
 - **Disk usage**: Nix store + nvim plugins consumes ~3-5 GB. Check
   partition size first on the VM.

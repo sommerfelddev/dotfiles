@@ -8,11 +8,6 @@
 let
   dotfiles = "${builtins.getEnv "HOME"}/.local/share/dotfiles";
   link = path: config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${path}";
-  vmGpgAgentConf = pkgs.writeText "gpg-agent.conf" ''
-    enable-ssh-support
-    pinentry-program ${pkgs.pinentry-curses}/bin/pinentry-curses
-    allow-loopback-pinentry
-  '';
 in
 {
   imports = [ ./common.nix ];
@@ -120,6 +115,14 @@ in
   home.file.".claude/skills/tuicr/tuicr-wrapper.sh".source =
     link "dot_claude/skills/tuicr/executable_tuicr-wrapper.sh";
 
+  # GnuPG config is repo-owned like on the host. Private key material stays in
+  # ~/.gnupg/private-keys-v1.d and is never tracked.
+  home.file.".gnupg/gpg.conf".source = link "private_dot_gnupg/gpg.conf";
+  home.file.".gnupg/gpg-agent.conf".source =
+    link "private_dot_gnupg/gpg-agent.conf";
+  home.file.".gnupg/sshcontrol".source =
+    link "private_dot_gnupg/sshcontrol";
+
   # ~/.ssh/config from the dotfiles tree (read-only); keys + known_hosts
   # stay machine-local. We can't symlink via home.file because
   # mkOutOfStoreSymlink exposes the working-tree perms (0664 under a
@@ -130,13 +133,11 @@ in
       "${dotfiles}/private_dot_ssh/config" "$HOME/.ssh/config"
   '';
 
-  # GnuPG needs strict file modes and a VM-local pinentry path. Private
-  # keys and sshcontrol stay machine-local; import/add the work key manually.
-  home.activation.gnupgConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  # GnuPG cares about the homedir mode; the linked config files themselves
+  # contain no secrets and are repo-owned.
+  home.activation.gnupgDirectory = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     run install -d -m 700 "$HOME/.gnupg"
-    run install -m 600 \
-      "${dotfiles}/private_dot_gnupg/gpg.conf" "$HOME/.gnupg/gpg.conf"
-    run install -m 600 "${vmGpgAgentConf}" "$HOME/.gnupg/gpg-agent.conf"
+    run chmod 700 "$HOME/.gnupg"
   '';
 
   # ZDOTDIR redirect so login shells find ~/.config/zsh/.zprofile etc.

@@ -126,6 +126,7 @@
     # Secrets — `pass-otp` is wired as an extension so `pass otp ...`
     # works against the same store. `pass` from pacman is removed.
     gnupg
+    pinentry-curses
     (pass.withExtensions (exts: [ exts.pass-otp ]))
 
     # C/C++ source tooling (no compiler driver in PATH).
