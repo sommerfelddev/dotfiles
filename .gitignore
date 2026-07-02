@@ -1,3 +1,4 @@
+.direnv/
 !home/.lldbinit
 .worktrees/
 .ruff_cache/

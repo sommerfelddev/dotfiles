@@ -1,10 +1,8 @@
 # Global direnv runtime config.
 #
-# Loads nix-direnv on demand. nix-direnv is NOT packaged for Arch and we
-# refuse to depend on -git AUR packages, so we fetch the loader from
-# upstream pinned by version + content hash. direnv caches it under
-# $XDG_CACHE_HOME/direnv/, so the network fetch happens exactly once
-# per pin bump.
+# Load nix-direnv on demand from an upstream URL pinned by content hash.
+# direnv caches it under $XDG_CACHE_HOME/direnv/, so the network fetch
+# happens exactly once per pin bump.
 #
 # To upgrade: bump the version in the URL and replace the sha256 with
 # the new one. direnv prints the expected hash on mismatch.

@@ -21,7 +21,14 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, tuicr, ... }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      tuicr,
+      ...
+    }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
@@ -35,26 +42,44 @@
         # github-copilot-cli) instead of globally setting allowUnfree,
         # so a typo elsewhere can't silently pull in additional unfree
         # deps.
-        config.allowUnfreePredicate = pkg:
+        config.allowUnfreePredicate =
+          pkg:
           builtins.elem (nixpkgs.lib.getName pkg) [
             "claude-code"
             "github-copilot-cli"
           ];
       };
 
-      mkProfile = module: home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        modules = [ module ];
-        # Path to the cloned dotfiles checkout — passed in so the
-        # modules can symlink shared configs from the same repo.
-        extraSpecialArgs = {
-          dotfilesRoot = ../.;
+      mkProfile =
+        module:
+        home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+          modules = [ module ];
+          # Path to the cloned dotfiles checkout — passed in so the
+          # modules can symlink shared configs from the same repo.
+          extraSpecialArgs = {
+            dotfilesRoot = ../.;
+          };
         };
-      };
     in
     {
+      devShells.${system}.default = pkgs.mkShellNoCC {
+        packages = with pkgs; [
+          basedpyright
+          just
+          nixfmt
+          prettier
+          ruff
+          selene
+          shellcheck
+          shfmt
+          stylua
+          taplo
+        ];
+      };
+
       homeConfigurations = {
-        vm   = mkProfile ./vm.nix;
+        vm = mkProfile ./vm.nix;
         host = mkProfile ./host.nix;
       };
     };

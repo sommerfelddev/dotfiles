@@ -1,6 +1,6 @@
 # Show available recipes (default)
 default:
-    @just --list
+    @printf 'Run `just --list` to show available recipes.\n'
 
 # ═══════════════════════════════════════════════════════════════════
 # Setup
@@ -42,10 +42,7 @@ nix-switch:
     nix --extra-experimental-features 'nix-command flakes' \
         run home-manager/master -- \
         switch --impure --flake "{{ justfile_directory() }}/nix#${profile}" -b backup
-    # Ensure login shell points at the home-manager-managed zsh. Without
-    # this, removing zsh from meta/base.txt (now provisioned via nix)
-    # leaves /etc/passwd dangling at /usr/bin/zsh and new terminals die.
-    # Idempotent: only acts when current login shell differs.
+    # Keep the login shell pointed at the Home-Manager-managed zsh.
     NIX_ZSH="$HOME/.nix-profile/bin/zsh"
     if [ -x "$NIX_ZSH" ]; then
         if ! grep -qxF "$NIX_ZSH" /etc/shells 2>/dev/null; then
@@ -65,8 +62,9 @@ nix-switch:
 update: pkg-update flatpak-update nix-update
 
 # Upgrade official Arch packages, after showing newly published Arch news.
-pkg-update:
-    @just arch-news-check
+pkg-update: arch-news-check _pacman-upgrade
+
+_pacman-upgrade:
     @sudo pacman -Syu
 
 # Show new Arch Linux news and ask whether to proceed, like paru's NewsOnUpgrade.
@@ -78,9 +76,9 @@ arch-news-read:
     @sh "{{ justfile_directory() }}/dot_local/bin/executable_arch-news-check" --mark-read
 
 # Refresh nix flake inputs (nixpkgs, home-manager) then re-activate the profile.
+nix-update: _nix-flake-update nix-switch
 
-# Run after this to pick up newer versions of nix-managed tools.
-nix-update:
+_nix-flake-update:
     #!/usr/bin/env dash
     set -eu
     if ! command -v nix >/dev/null 2>&1; then
@@ -89,7 +87,6 @@ nix-update:
     fi
     nix --extra-experimental-features 'nix-command flakes' \
         flake update --flake "{{ justfile_directory() }}/nix"
-    just nix-switch
 
 # Update all user-scope flatpaks (Flathub apps + URL bundles when their version changes)
 flatpak-update:
@@ -112,12 +109,82 @@ flatpak-update:
             rm -f "$tmp"
         done
 
-# Update Neovim plugins (vim.pack) interactively so the diff buffer is visible.
-# `cd` to $HOME first so auto-session's suppressed_dirs rule kicks in and we don't
+# Update Neovim plugins and re-add the vim.pack lockfile.
+nvim-update: _nvim-pack-update nvim-lock-re-add
 
-# load/save a project session for what's really just an admin chore.
-nvim-update:
+_nvim-pack-update:
+    # `cd` to $HOME first so auto-session's suppressed_dirs rule kicks in and we
+    # don't load/save a project session for what's really just an admin chore.
     cd && nvim '+lua require("config.update").run()'
+
+# Copy the live vim.pack lockfile back into the chezmoi source state.
+nvim-lock-re-add: _nvim-lock-re-add-required
+
+_nvim-lock-re-add-required:
+    #!/usr/bin/env sh
+    set -eu
+    live="${XDG_CONFIG_HOME:-$HOME/.config}/nvim/nvim-pack-lock.json"
+    repo="{{ justfile_directory() }}/dot_config/nvim/nvim-pack-lock.json"
+    [ -f "$live" ] || { echo "error: missing live lockfile: $live" >&2; exit 1; }
+    cp "$live" "$repo"
+    echo "re-added: $live -> dot_config/nvim/nvim-pack-lock.json"
+
+_nvim-lock-re-add-if-present:
+    #!/usr/bin/env sh
+    set -eu
+    live="${XDG_CONFIG_HOME:-$HOME/.config}/nvim/nvim-pack-lock.json"
+    repo="{{ justfile_directory() }}/dot_config/nvim/nvim-pack-lock.json"
+    if [ ! -f "$live" ]; then
+        echo "skip: missing live nvim lockfile: $live" >&2
+        exit 0
+    fi
+    cp "$live" "$repo"
+    echo "re-added: $live -> dot_config/nvim/nvim-pack-lock.json"
+
+# Commit changed Nix and Neovim lockfiles with a scoped message.
+lockfiles-commit: _nvim-lock-re-add-if-present _lockfiles-commit
+
+_lockfiles-commit:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "{{ justfile_directory() }}"
+
+    lockfiles=(nix/flake.lock dot_config/nvim/nvim-pack-lock.json)
+    changed=()
+    for f in "${lockfiles[@]}"; do
+        if ! git diff --quiet -- "$f" || ! git diff --cached --quiet -- "$f"; then
+            changed+=("$f")
+        fi
+    done
+    if [ ${#changed[@]} -eq 0 ]; then
+        echo "no lockfile changes"
+        exit 0
+    fi
+
+    git add -- "${changed[@]}"
+    mapfile -t staged < <(git diff --cached --name-only -- "${lockfiles[@]}")
+    if [ ${#staged[@]} -eq 0 ]; then
+        echo "no lockfile changes"
+        exit 0
+    fi
+
+    has_nix=0
+    has_nvim=0
+    for f in "${staged[@]}"; do
+        case "$f" in
+            nix/flake.lock) has_nix=1 ;;
+            dot_config/nvim/nvim-pack-lock.json) has_nvim=1 ;;
+        esac
+    done
+    if [ "$has_nix" = 1 ] && [ "$has_nvim" = 1 ]; then
+        msg="Update nix and Neovim lockfiles"
+    elif [ "$has_nix" = 1 ]; then
+        msg="Update nix lockfile"
+    else
+        msg="Update Neovim package lockfile"
+    fi
+
+    git commit -m "$msg" -- "${lockfiles[@]}"
 
 # Re-add changes from live files back into the repo; pass a path to target one, or omit for all
 re-add *paths:
@@ -147,6 +214,7 @@ fmt *target:
     source "{{ justfile_directory() }}/just-lib.sh"
 
     _fmt_lua()      { _need stylua stylua;        stylua "$@"; }
+    _fmt_nix()      { _need nixfmt nixfmt;        nixfmt "$@"; }
     _fmt_sh()       { _need shfmt shfmt;          shfmt -w -i 2 -ci -s "$@"; }
     _fmt_py()       { _need ruff ruff;            ruff format "$@"; }
     _fmt_toml()     { _need taplo taplo-cli;      taplo format "$@"; }
@@ -167,6 +235,9 @@ fmt *target:
 
       mapfile -t files < <(_find_by_ext toml)
       [ ${#files[@]} -gt 0 ] && _fmt_toml "${files[@]}"
+
+      mapfile -t files < <(_find_by_ext nix)
+      [ ${#files[@]} -gt 0 ] && _fmt_nix "${files[@]}"
 
       _fmt_just
 
@@ -189,6 +260,7 @@ fmt *target:
       *.sh)                                    _fmt_sh   "$target" ;;
       *.py)                                    _fmt_py   "$target" ;;
       *.toml)                                  _fmt_toml "$target" ;;
+      *.nix)                                   _fmt_nix  "$target" ;;
       *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  _fmt_prettier "$target" ;;
       *)
         if _is_shellscript "$target"; then
@@ -206,6 +278,7 @@ check-fmt *target:
     source "{{ justfile_directory() }}/just-lib.sh"
 
     _chk_lua()      { _need stylua stylua;        stylua --check "$@"; }
+    _chk_nix()      { _need nixfmt nixfmt;        nixfmt --check "$@"; }
     _chk_sh()       { _need shfmt shfmt;          shfmt -d -i 2 -ci -s "$@"; }
     _chk_py()       { _need ruff ruff;            ruff format --check "$@"; }
     _chk_toml()     { _need taplo taplo-cli;      taplo format --check "$@"; }
@@ -228,6 +301,9 @@ check-fmt *target:
       mapfile -t files < <(_find_by_ext toml)
       [ ${#files[@]} -gt 0 ] && { _chk_toml "${files[@]}" || rc=$?; }
 
+      mapfile -t files < <(_find_by_ext nix)
+      [ ${#files[@]} -gt 0 ] && { _chk_nix "${files[@]}" || rc=$?; }
+
       _chk_just || rc=$?
 
       _chk_prettier --ignore-unknown --log-level=warn \
@@ -249,6 +325,7 @@ check-fmt *target:
       *.sh)                                    _chk_sh   "$target" ;;
       *.py)                                    _chk_py   "$target" ;;
       *.toml)                                  _chk_toml "$target" ;;
+      *.nix)                                   _chk_nix  "$target" ;;
       *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  _chk_prettier "$target" ;;
       *)
         if _is_shellscript "$target"; then
@@ -260,9 +337,7 @@ check-fmt *target:
     esac
 
 # Code quality gate: check formatting + lint; pass a path to check a single file, or omit for whole repo
-check *target:
-    @just check-fmt {{ target }}
-    @just lint {{ target }}
+check *target: (check-fmt target) (lint target)
 
 # Lint code; pass a path to lint a single file, or omit to lint everything
 lint *target:
@@ -329,7 +404,7 @@ lint *target:
 doctor:
     #!/usr/bin/env bash
     rc=0
-    for tool in stylua selene shfmt shellcheck ruff basedpyright taplo prettier just; do
+    for tool in stylua selene shfmt shellcheck ruff basedpyright taplo prettier nixfmt just; do
         if command -v "$tool" >/dev/null 2>&1; then
             printf '  ✓ %s (%s)\n' "$tool" "$(command -v "$tool")"
         else
@@ -672,6 +747,18 @@ etc-status:
 etc-diff *paths:
     #!/usr/bin/env bash
     set -eo pipefail
+    diff_labels=0
+    if diff -u --label old --label new /dev/null /dev/null >/dev/null 2>&1; then
+        diff_labels=1
+    fi
+    diff_u() {
+        local left_label=$1 right_label=$2 left=$3 right=$4
+        if [ "$diff_labels" = 1 ]; then
+            diff -u --label "$left_label" --label "$right_label" "$left" "$right"
+        else
+            diff -u "$left" "$right"
+        fi
+    }
     args=({{ paths }})
     if [ ${#args[@]} -eq 0 ]; then
         mapfile -t args < <(find etc -type f ! -name .ignore | sort)
@@ -702,13 +789,15 @@ etc-diff *paths:
         fi
         # Fast path for world-readable files; sudo fallback only when needed (e.g. /etc/sudo.conf 0600).
         if [ -r "$live" ]; then
-            diff -u --label "$live" --label "$repo" "$live" "$repo_for_diff" || true
+            diff_u "$live" "$repo" "$live" "$repo_for_diff" || true
         elif sudo test -f "$live"; then
-            diff -u --label "$live" --label "$repo" <(sudo cat "$live") "$repo_for_diff" || true
+            diff_u "$live" "$repo" <(sudo cat "$live") "$repo_for_diff" || true
         else
             echo "skip: $live (missing or not a regular file on host)" >&2
         fi
-        [ -n "$rendered" ] && rm -f "$rendered"
+        if [ -n "$rendered" ]; then
+            rm -f "$rendered"
+        fi
     done
 
 # Diff live /etc/<path> against pristine pacman version (defaults to all repo-managed files)
@@ -716,6 +805,18 @@ etc-upstream-diff *paths:
     #!/usr/bin/env bash
     set -eo pipefail
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+    diff_labels=0
+    if diff -u --label old --label new /dev/null /dev/null >/dev/null 2>&1; then
+        diff_labels=1
+    fi
+    diff_u() {
+        local left_label=$1 right_label=$2 left=$3 right=$4
+        if [ "$diff_labels" = 1 ]; then
+            diff -u --label "$left_label" --label "$right_label" "$left" "$right"
+        else
+            diff -u "$left" "$right"
+        fi
+    }
 
     # Fetch the cache archive for a /etc/<path>'s owning package at its installed version.
     # Prints cache path on stdout. Exit 2 = unowned, 1 = cache unavailable for installed version.
@@ -743,7 +844,7 @@ etc-upstream-diff *paths:
     explicit=1
     if [ ${#args[@]} -eq 0 ]; then
         explicit=0
-        mapfile -t args < <(find etc -type f ! -name .ignore | sed 's|^etc/|/etc/|' | sort)
+        mapfile -t args < <(find etc -type f ! -name .ignore | sort)
     fi
 
     for raw in "${args[@]}"; do
@@ -752,7 +853,7 @@ etc-upstream-diff *paths:
         esac
         # Accept both /etc/foo and etc/foo; normalize to /etc/foo
         p=${raw#/}; p=${p#etc/}
-        path=/etc/$p
+        path=/etc/${p%.tmpl}
         if [ -r "$path" ]; then
             live_reader=(cat "$path")
         elif sudo test -f "$path"; then
@@ -770,7 +871,7 @@ etc-upstream-diff *paths:
             echo "skip: $path (not present in package archive)" >&2
             continue
         fi
-        diff -u --label "$path (pristine)" --label "$path (live)" "$out" <("${live_reader[@]}") || true
+        diff_u "$path (pristine)" "$path (live)" "$out" <("${live_reader[@]}") || true
     done
 
 # 3-way merge tracked /etc files against their live /etc counterparts (edit repo side)
@@ -837,7 +938,9 @@ etc-add +paths:
     echo "Run 'chezmoi apply' to sync (no-op content-wise, refreshes deploy hash)."
 
 # Re-add changes from live /etc back into the repo (no args = all tracked files)
-etc-re-add *paths:
+etc-re-add *paths: (_etc-re-add paths) _apply-etc-re-add
+
+_etc-re-add *paths:
     #!/usr/bin/env bash
     set -eo pipefail
     # Build target list: explicit paths, or every tracked repo file.
@@ -884,12 +987,12 @@ etc-re-add *paths:
     done
     if [ $changed -eq 0 ]; then
         echo "no changes"
-    else
-        just apply
     fi
 
 # Remove one or more files from the repo's etc/ tree (leaves live /etc untouched)
-etc-forget +paths:
+etc-forget +paths: (_etc-forget paths) _apply-etc-forget
+
+_etc-forget +paths:
     #!/usr/bin/env bash
     set -eo pipefail
     for raw in {{ paths }}; do
@@ -908,10 +1011,11 @@ etc-forget +paths:
         done
         echo "removed: $repo  (/etc/$p left untouched)"
     done
-    just apply
 
 # Reset repo-managed etc/<path> to pristine pacman contents and deploy
-etc-reset +paths:
+etc-reset +paths: (_etc-reset paths) _apply-etc-reset
+
+_etc-reset +paths:
     #!/usr/bin/env bash
     set -eo pipefail
     for raw in {{ paths }}; do
@@ -945,12 +1049,18 @@ etc-reset +paths:
         bsdtar -xOf "$cache" "${live#/}" > "$repo"
         echo "reset (from $pkg): $repo"
     done
-    just apply
 
 # Stop tracking one or more /etc files: reset to pristine, deploy, then drop from repo
-etc-untrack +paths:
-    just etc-reset {{ paths }}
-    just etc-forget {{ paths }}
+etc-untrack +paths: (_etc-reset paths) _apply-etc-reset (_etc-forget paths) _apply-etc-forget
+
+_apply-etc-re-add:
+    chezmoi apply -S . -v
+
+_apply-etc-reset:
+    chezmoi apply -S . -v
+
+_apply-etc-forget:
+    chezmoi apply -S . -v
 
 # Restore live /etc/<path> to pristine pacman contents (bypasses the repo)
 etc-restore +paths:
@@ -996,9 +1106,10 @@ etc-restore +paths:
 # Show package drift: missing packages in adopted groups + undeclared installed packages
 pkg-status:
     #!/usr/bin/env dash
+    . "{{ justfile_directory() }}/just-lib.sh"
     flatpaks=$(flatpak list --user --app --columns=application 2>/dev/null || true)
     echo "=== Package drift ==="
-    just _active-packages | while read -r pkg; do
+    _active_pacman_packages | while read -r pkg; do
         [ -z "$pkg" ] && continue
         pacman -Qi "$pkg" >/dev/null 2>&1 || echo "  missing:    $pkg"
     done
@@ -1008,22 +1119,13 @@ pkg-status:
             printf '%s\n' "$flatpaks" | grep -qxF "$id" || echo "  missing:    flatpak: $id"
         done
     fi
-    just undeclared | sed 's/^/  undeclared: /'
+    _undeclared_packages | sed 's/^/  undeclared: /'
 
 # Print undeclared packages one per line, unindented.
 undeclared:
     #!/usr/bin/env dash
-    active=$(just _active-packages)
-    pacman -Qqe | while read -r pkg; do
-        echo "$active" | grep -qxF "$pkg" || echo "$pkg"
-    done
-    if [ -f meta/flatpak.txt ]; then
-        declared=$(awk '!/^[[:space:]]*(#|$)/ {print $1}' meta/flatpak.txt)
-        flatpak list --user --app --columns=application 2>/dev/null | while read -r id; do
-            [ -z "$id" ] && continue
-            echo "$declared" | grep -qxF "$id" || echo "flatpak: $id"
-        done
-    fi
+    . "{{ justfile_directory() }}/just-lib.sh"
+    _undeclared_packages
 
 # Show per-group install coverage; pass a group name for a per-package breakdown
 pkg-list group="":
@@ -1088,25 +1190,18 @@ pkg-list group="":
 pkg-apply *groups:
     #!/usr/bin/env dash
     set -eu
-    # `pacman -S --needed` is a no-op for already-installed packages, which
-    # means a package pulled in transitively (and later declared in
-    # meta/*.txt) stays marked "installed as a dependency" forever and
-    # keeps showing up under `pacopt`. After each install pass, force the
-    # declared set to "explicitly installed" so the local pacman DB
-    # reflects the meta files as the source of truth.
+    . "{{ justfile_directory() }}/just-lib.sh"
+    # Keep declared packages marked explicit in the local pacman DB.
     mark_explicit() {
         # Skip blank input; pacman -D errors on empty arg list.
         [ -n "$1" ] || return 0
-        # Names in meta/*.txt must match the installed package name (not a
-        # virtual provider): if pacman -D fails with "could not find or
-        # read package", dedupe the offending entry against `pacman -Qq`.
         printf '%s\n' "$1" | xargs sudo pacman -D --asexplicit >/dev/null
     }
     if [ -n "{{ groups }}" ]; then
         for group in {{ groups }}; do
             file="meta/${group}.txt"
             if [ "$group" = "flatpak" ]; then
-                just _flatpak-install
+                _flatpak_install_declared
                 continue
             fi
             pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
@@ -1121,12 +1216,13 @@ pkg-apply *groups:
             | sort -u)
         printf '%s\n' "$all_pkgs" | sudo pacman -S --needed --noconfirm -
         mark_explicit "$all_pkgs"
-        [ -f meta/flatpak.txt ] && just _flatpak-install
+        _flatpak_install_declared
     fi
 
 # Top up missing packages in groups that are already ≥50% installed (never installs new groups)
 pkg-fix:
     #!/usr/bin/env dash
+    . "{{ justfile_directory() }}/just-lib.sh"
     flatpaks=$(flatpak list --user --app --columns=application 2>/dev/null || true)
     for file in meta/*.txt; do
         group=$(basename "$file" .txt)
@@ -1147,7 +1243,7 @@ pkg-fix:
         if [ $((installed * 2)) -ge "$total" ] && [ "$installed" -lt "$total" ]; then
             echo ">>> topping up $group ($installed/$total installed)"
             if [ "$group" = "flatpak" ]; then
-                just _flatpak-install
+                _flatpak_install_declared
             else
                 echo "$pkgs" | sudo pacman -S --needed --noconfirm -
             fi
@@ -1206,11 +1302,7 @@ _chezmoi-init:
     chezmoi init -S .
 
 _install-hooks:
-    # User-level dotfiles git hooks (~/.config/git/hooks) now auto-dispatch
-    # into `<repo>/.githooks/<name>`, so a per-repo core.hooksPath override
-    # is no longer needed (and would suppress the global agent-author /
-    # signed-commits checks). Strip any leftover override from previous
-    # bootstraps.
+    # Let the user-level git hooks dispatch project hooks.
     git config --local --unset core.hooksPath 2>/dev/null || true
 
 # Install all flatpaks declared in meta/flatpak.txt. Flathub IDs are batched
@@ -1221,39 +1313,11 @@ _install-hooks:
 _flatpak-install:
     #!/usr/bin/env dash
     set -eu
-    [ -f meta/flatpak.txt ] || exit 0
-    flatpak remote-add --if-not-exists --user flathub \
-        https://dl.flathub.org/repo/flathub.flatpakrepo >/dev/null
-    flathub_ids=$(awk '!/^[[:space:]]*(#|$)/ && NF==1 {print $1}' meta/flatpak.txt)
-    if [ -n "$flathub_ids" ]; then
-        # shellcheck disable=SC2086
-        flatpak install --user -y --noninteractive flathub $flathub_ids
-    fi
-    installed=$(flatpak list --user --app --columns=application 2>/dev/null || true)
-    awk '!/^[[:space:]]*(#|$)/ && NF>=2 {print $1, $2}' meta/flatpak.txt \
-        | while read -r id url; do
-            if printf '%s\n' "$installed" | grep -qxF "$id"; then
-                continue
-            fi
-            echo ">>> downloading $id from $url"
-            tmp=$(mktemp --suffix=.flatpak)
-            curl -fsSL -o "$tmp" "$url"
-            flatpak install --user -y --noninteractive "$tmp"
-            rm -f "$tmp"
-        done
+    . "{{ justfile_directory() }}/just-lib.sh"
+    _flatpak_install_declared
 
 # Print packages from pacman groups that are ≥50% installed (adopted), one per line
 _active-packages:
     #!/usr/bin/env dash
-    for file in meta/*.txt; do
-        [ "$(basename "$file")" = "flatpak.txt" ] && continue
-        pkgs=$(sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' "$file")
-        total=$(echo "$pkgs" | wc -l)
-        installed=0
-        for pkg in $pkgs; do
-            pacman -Qi "$pkg" >/dev/null 2>&1 && installed=$((installed + 1))
-        done
-        if [ $((installed * 2)) -ge "$total" ]; then
-            echo "$pkgs"
-        fi
-    done | sort -u
+    . "{{ justfile_directory() }}/just-lib.sh"
+    _active_pacman_packages

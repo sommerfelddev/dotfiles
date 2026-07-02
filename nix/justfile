@@ -2,7 +2,7 @@
 
 # Show available recipes (default)
 default:
-    @just --list
+    @printf 'Run `just --list` to show available recipes.\n'
 
 # Pull latest dotfiles, rebuild Home-Manager profile, and apply dotfiles
 update: pull switch apply
