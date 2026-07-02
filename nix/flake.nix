@@ -19,6 +19,10 @@
       url = "github:agavra/tuicr";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    aibox = {
+      url = "github:ruifm/aibox";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -27,6 +31,7 @@
       nixpkgs,
       home-manager,
       tuicr,
+      aibox,
       ...
     }:
     let
@@ -34,9 +39,12 @@
       pkgs = import nixpkgs {
         inherit system;
         overlays = [
-          # Expose `pkgs.tuicr` so common.nix can list it next to other
-          # packages without threading inputs into every module.
-          (final: prev: { tuicr = tuicr.packages.${system}.default; })
+          # Expose external flake packages so common.nix can list them next to
+          # nixpkgs packages without threading inputs into every module.
+          (final: prev: {
+            tuicr = tuicr.packages.${system}.default;
+            aibox = aibox.packages.${system}.default;
+          })
         ];
         # Whitelist specific unfree packages (claude-code,
         # github-copilot-cli) instead of globally setting allowUnfree,

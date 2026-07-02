@@ -1,5 +1,25 @@
 {
   "nodes": {
+    "aibox": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783000830,
+        "narHash": "sha256-kirV4VfygesheYriVVGmuAA/1hpDP8nW5n97H5hLofg=",
+        "owner": "ruifm",
+        "repo": "aibox",
+        "rev": "e072ae5e8342db6a896ee913304b59332ee1bfdf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ruifm",
+        "repo": "aibox",
+        "type": "github"
+      }
+    },
     "fenix": {
       "inputs": {
         "nixpkgs": [
@@ -85,6 +105,7 @@
     },
     "root": {
       "inputs": {
+        "aibox": "aibox",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "tuicr": "tuicr"

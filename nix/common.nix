@@ -144,6 +144,7 @@
     codex # OpenAI Codex CLI
     github-copilot-cli # `copilot`; prebuilt-binary derivation since 1.0.43
     tuicr # interactive git-change reviewer; flake input, see nix/flake.nix. Skill: dot_claude/skills/tuicr/
+    aibox # Bubblewrap sandbox for AI coding agent sessions; flake input, see nix/flake.nix
 
     # ── LSPs / formatters / linters / DAPs ─────────────────────────────────
     # LSPs
