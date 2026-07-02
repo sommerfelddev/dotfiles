@@ -38,6 +38,8 @@ fi
 # sudo-rs: /etc/pam.d/sudo-i is a symlink to /etc/pam.d/sudo
 sudo ln -sfT sudo /etc/pam.d/sudo-i
 
+sudo rm -f /etc/systemd/system-sleep/50-snx-rs
+
 # Clean up sleep-target masks from the earlier hardened-suspend
 # workaround. Now that mem_sleep_default=s2idle resolves the wake hang,
 # suspend is enabled again. Remove any leftover /dev/null symlinks.
