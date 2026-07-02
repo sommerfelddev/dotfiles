@@ -28,8 +28,6 @@ ocl-icd
 # Provides paccache for the repo-owned cache cleanup hook under
 # etc/pacman.d/hooks/.
 pacman-contrib
-pkgstats
-rebuild-detector
 reflector
 sbctl
 smartmontools
