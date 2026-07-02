@@ -11,7 +11,7 @@ set -eu
 PASS_USER=email/protonmail-bridge/user
 PASS_PW=email/protonmail-bridge/pass
 HOST=127.0.0.1
-PORT=1143
+PORT=1144
 
 emit() {
   printf '%s\n' "$1"

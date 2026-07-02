@@ -140,7 +140,7 @@
     path = config-personal
 [sendemail]
     smtpServer = 127.0.0.1
-    smtpServerPort = 1025
+    smtpServerPort = 1016
     smtpEncryption = tls
     smtpDomain = localhost
     smtpSslCertPath =
@@ -150,7 +150,7 @@
     thread = true
     annotate = true
     assume8bitEncoding = UTF-8
-[credential "smtp://127.0.0.1:1025"]
+[credential "smtp://127.0.0.1:1016"]
     helper = "!f() { test \"$1\" = get && printf 'password=%s\\n' \"$(pass show proton/bridge-smtp)\"; }; f"
 [include]
     ; Machine-local overrides. Git silently skips this if the file is absent.

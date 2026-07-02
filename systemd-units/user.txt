@@ -19,5 +19,4 @@ waybar.service
 wob.service
 
 # --- mail ---
-# Disabled while Proton Mail Bridge auth refresh is broken.
-# protonmail-bridge.service
+protonmail-bridge.service
