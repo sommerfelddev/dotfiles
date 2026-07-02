@@ -1,9 +1,8 @@
 #!/usr/bin/env dash
 # Bridge the External Editor Revived native messaging host into the
-# org.mozilla.thunderbird flatpak. The host binary stays installed via
-# pacman (`external-editor-revived`); we relocate the manifest into the
-# sandbox and replace its binary path with a wrapper that re-enters the
-# host via flatpak-spawn.
+# org.mozilla.thunderbird flatpak. The host binary comes from the Nix
+# profile; this script relocates the manifest into the sandbox and points it
+# at a flatpak-spawn wrapper.
 #
 # Idempotent. Re-runs on script changes or whenever the host-side manifest
 # content changes.
@@ -16,9 +15,7 @@ TB_APP=org.mozilla.thunderbird
 MANIFEST_NAME=external_editor_revived.json
 WRAPPER_NAME=external_editor_revived.sh
 
-# Locate the EER binary. nixpkgs is the preferred source (see nix/host.nix)
-# because it has no thunderbird dep; the AUR package is the fallback for
-# hosts where nix isn't set up yet.
+# Locate the EER binary. Prefer the Nix profile, but tolerate system installs.
 HOST_BINARY=
 for candidate in \
   "$HOME/.nix-profile/bin/external-editor-revived" \
@@ -32,8 +29,8 @@ done
 
 flatpak info --user "$TB_APP" >/dev/null 2>&1 || exit 0
 
-# Locate the host-side manifest. Different packagings (nix, AUR variants)
-# use different install dirs; check the common ones.
+# Locate the host-side manifest. Different packagings use different install
+# dirs; check the common ones.
 HOST_MANIFEST=
 for candidate in \
   "$HOME/.nix-profile/lib/mozilla/native-messaging-hosts/$MANIFEST_NAME" \

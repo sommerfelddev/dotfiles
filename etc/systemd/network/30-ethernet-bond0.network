@@ -1,7 +1,7 @@
 # Match only real, physical ethernet via Path= (PCI + USB) and udev's
 # predictable name pattern. This is more robust than Type=ether + Name= negation:
-# negations on Name= matched veth/virbr/waydroid interfaces in practice, which
-# enslaved them into bond0 and broke host networking (waydroid, libvirt, etc.).
+# negations on Name= matched virtual interfaces in practice, which enslaved
+# them into bond0 and broke container/VM networking.
 #
 # Path=pci-*  covers built-in PCIe NICs (enpXsY, ethN).
 # Path=platform-*  covers SoC-attached NICs (none on x86 laptops but harmless).

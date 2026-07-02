@@ -38,36 +38,12 @@ fi
 # sudo-rs: /etc/pam.d/sudo-i is a symlink to /etc/pam.d/sudo
 sudo ln -sfT sudo /etc/pam.d/sudo-i
 
-sudo rm -f /etc/systemd/system-sleep/50-snx-rs
-
-# Clean up sleep-target masks from the earlier hardened-suspend
-# workaround. Now that mem_sleep_default=s2idle resolves the wake hang,
-# suspend is enabled again. Remove any leftover /dev/null symlinks.
-for target in sleep.target suspend.target hibernate.target \
-  hybrid-sleep.target suspend-then-hibernate.target; do
-  link="/etc/systemd/system/$target"
-  if [ -L "$link" ] && [ "$(readlink "$link")" = "/dev/null" ]; then
-    sudo rm -f "$link"
-  fi
-done
+# Pick up changes to repo-managed systemd units and drop-ins under /etc.
 sudo systemctl daemon-reload
 
 # Reload systemd-logind so changes under /etc/systemd/logind.conf.d/
 # (e.g. HandlePowerKey overrides) take effect without dropping sessions.
 sudo systemctl kill -s HUP systemd-logind
-
-# Old sudo-rs migration used /usr/local/bin to shadow classic sudo globally.
-# Current policy keeps those shims user-scoped via ~/.local/bin/symlink_*.
-for link in /usr/local/bin/sudoedit /usr/local/bin/su /usr/local/bin/visudo; do
-  target=$(readlink "$link" 2>/dev/null || true)
-  case "$target" in
-    /usr/bin/sudo-rs|/usr/bin/su-rs|/usr/bin/visudo-rs) sudo rm -f "$link" ;;
-  esac
-done
-target=$(readlink /usr/local/bin/sudo 2>/dev/null || true)
-if [ "$target" = /usr/bin/sudo-rs ]; then
-  sudo rm -f /usr/local/bin/sudo
-fi
 {{- else -}}
 #!/usr/bin/env dash
 # /etc deployment is host-only.

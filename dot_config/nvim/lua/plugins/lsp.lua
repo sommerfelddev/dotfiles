@@ -10,9 +10,7 @@ pcall(vim.lsp.enable, "tblgen_lsp_server")
 require("fidget").setup({})
 
 -- LSPs come from Home-Manager (see nix/common.nix). lspconfig ships the
--- default configs; we just opt-in per server. (Previously this was driven
--- by mason-lspconfig handlers; phase p6 of the nix migration removed
--- Mason entirely.)
+-- default configs; we just opt in per server.
 vim.lsp.enable({
   "autotools_ls",
   "basedpyright",

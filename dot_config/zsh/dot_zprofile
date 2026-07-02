@@ -20,13 +20,8 @@ export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
 export XDG_CACHE_HOME="$HOME/.cache"
 
-# Pull in /etc/profile + /etc/profile.d/*.sh. The Arch zsh package used
-# to ship /etc/zsh/zprofile doing exactly this, but we removed system
-# zsh in favour of nix's zsh, so we replicate it here. This is how
-# flatpak (XDG_DATA_DIRS for app launchers), nix-daemon, locale, etc.
-# inject themselves into login shells. Sourced AFTER our PATH setup so
-# `typeset -U path` keeps nix-profile/bin + ~/.local/bin at the front
-# even if /etc/profile.d snippets try to prepend duplicates.
+# Pull in distro profile snippets for XDG_DATA_DIRS, nix-daemon, locale, etc.
+# Sourced after PATH setup so user-managed bins stay first.
 [[ -r /etc/profile ]] && emulate sh -c 'source /etc/profile'
 
 # Home Manager writes host-specific session variables here. Keep this after

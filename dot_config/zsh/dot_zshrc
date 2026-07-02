@@ -43,11 +43,7 @@ PROMPT='%B%{$fg[green]%}%n%{$reset_color%}@%{$fg[cyan]%}%m%{$reset_color%}:%b%{$
 
 # ── Completion ────────────────────────────────────────────────────────────────
 fpath=($XDG_DATA_HOME/zsh/completion $fpath)
-# Pull in completions from both nix-installed packages AND the system
-# package manager (pacman on Arch host, apt on Ubuntu VM). nix zsh's
-# default fpath only includes its own nix-store dirs, so without these
-# entries we miss completions for pacman, systemctl, flatpak,
-# docker, kubectl, etc. on the host, and apt/snap on the VM.
+# Pull in completions from the Nix profile and distro packages.
 for _d in "$HOME/.nix-profile/share/zsh/site-functions" \
 	"$HOME/.nix-profile/share/zsh/vendor-completions" \
 	/usr/share/zsh/site-functions \
@@ -437,13 +433,7 @@ alias gdbr='gdb -ex start --args'
 alias copilot='gh copilot --autopilot --enable-all-github-mcp-tools --yolo --resume'
 
 # ── Alias completions ─────────────────────────────────────────────────────────
-# Guard each compdef on the target's completion function actually being
-# loaded; otherwise zsh prints `compdef: unknown command or service: foo`
-# on every login (the binary being present isn't enough — the zsh
-# completion file `_foo` must be in fpath and registered by compinit).
-# Notably triggers on the remote-dev VM where nix-installed packages
-# ship completions into /home/.../share/zsh/site-functions but Ubuntu's
-# system zsh doesn't add that path to fpath by default.
+# Guard compdef calls on registered completion functions.
 # Usage: _dot_compdef <target-cmd> <alias>=<target> [<alias>=<target>...]
 _dot_compdef() { (( $+_comps[$1] )) && compdef "${@:2}" }
 _dot_compdef git       g=git
@@ -454,9 +444,7 @@ _dot_compdef lsd       l=lsd la=lsd lt=lsd
 unfunction _dot_compdef
 
 # ── GPG agent ─────────────────────────────────────────────────────────────────
-# Interactive shells can outlive the login environment that spawned them
-# (notably inside zellij). If they inherited an old forwarded-agent socket,
-# switch back to the machine-local gpg-agent SSH socket.
+# Prefer the machine-local gpg-agent SSH socket.
 if [[ -z "$SSH_AUTH_SOCK" || "$SSH_AUTH_SOCK" == /tmp/ssh-* || "$SSH_AUTH_SOCK" == "$HOME/.ssh/agent.sock" ]]; then
 	SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
 	export SSH_AUTH_SOCK
@@ -490,8 +478,7 @@ _fzf_compgen_path() { fd --hidden --follow --exclude ".git" . "$1" }
 _fzf_compgen_dir()  { fd --type d --hidden --follow --exclude ".git" . "$1" }
 
 # ── Plugins (must be sourced last) ────────────────────────────────────────────
-# Plugin locations: ~/.nix-profile (Home-Manager) first, Arch system path as
-# fallback for un-bootstrapped states.
+# Plugin locations: Nix profile first, system path second.
 _source_first() {
 	local f
 	for f in "$@"; do

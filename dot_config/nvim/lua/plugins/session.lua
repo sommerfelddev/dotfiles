@@ -1,6 +1,4 @@
--- overseer.nvim removed task bundles (commit "refactor!: task bundles get
--- the axe"), so auto-session no longer persists tasks. Only DAP breakpoints
--- are preserved across sessions below.
+-- Persist DAP breakpoints across auto-session saves.
 
 require("auto-session").setup({
   use_git_branch = true,
