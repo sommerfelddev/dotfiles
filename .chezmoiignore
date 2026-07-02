@@ -1,6 +1,8 @@
 .direnv/
 .envrc
+.github/
 AGENTS.md
+CLAUDE.md
 KEYBINDS.md
 README.md
 bootstrap.sh
