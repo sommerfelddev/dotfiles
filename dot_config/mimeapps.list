@@ -95,6 +95,8 @@ application/x-extension-ics=org.mozilla.thunderbird.desktop
 x-scheme-handler/webcals=org.mozilla.thunderbird.desktop
 
 [Added Associations]
+application/pdf=org.pwmt.zathura.desktop;
+application/postscript=org.pwmt.zathura.desktop;
 x-scheme-handler/http=io.gitlab.librewolf-community.desktop;
 x-scheme-handler/https=io.gitlab.librewolf-community.desktop;
 x-scheme-handler/chrome=io.gitlab.librewolf-community.desktop;
@@ -109,3 +111,7 @@ x-scheme-handler/mailto=org.mozilla.thunderbird.desktop;
 x-scheme-handler/mid=org.mozilla.thunderbird.desktop;
 x-scheme-handler/webcal=org.mozilla.thunderbird.desktop;
 x-scheme-handler/webcals=org.mozilla.thunderbird.desktop;
+
+[Removed Associations]
+application/pdf=org.pwmt.zathura-pdf-poppler.desktop;
+application/postscript=org.pwmt.zathura-ps.desktop;

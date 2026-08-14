@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Zathura
+Comment=Document Viewer
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=zathura --file-forwarding org.pwmt.zathura @@u %U @@
+Icon=org.pwmt.zathura
+Terminal=false
+Categories=Office;Viewer;
+MimeType=application/pdf;application/postscript;
+X-Flatpak=org.pwmt.zathura
