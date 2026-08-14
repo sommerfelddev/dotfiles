@@ -1,3 +1,5 @@
+Always write responses using only ASD-STE100 Simplified Technical English.
+
 # Global Agent Instructions
 
 These rules apply across repositories. Merge them with any repo-specific
