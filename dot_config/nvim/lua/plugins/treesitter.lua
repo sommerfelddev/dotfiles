@@ -68,7 +68,6 @@ require("nvim-treesitter").install({
   "gitignore",
   "groovy",
   "gpg",
-  "hlsplaylist",
   "html",
   "http",
   "ini",
