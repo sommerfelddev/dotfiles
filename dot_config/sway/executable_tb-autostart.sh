@@ -7,6 +7,8 @@
 set -eu
 
 MARK=tb-main
+APP_ID=org.mozilla.thunderbird
+TITLE_SUFFIX="Mozilla Thunderbird"
 BRIDGE_HOST=127.0.0.1
 BRIDGE_IMAP_PORT=1144
 BRIDGE_SMTP_PORT=1016
@@ -32,10 +34,17 @@ done
 flatpak run org.mozilla.thunderbird &
 
 for _ in $(seq 1 200); do
-  if swaymsg -t get_tree | jq -e --arg m "$MARK" '
-        [.. | objects | select(.marks? // [] | index($m))] | length > 0
-    ' >/dev/null 2>&1; then
-    swaymsg "[con_mark=\"$MARK\"] move container to scratchpad" >/dev/null
+  tb_id=$(swaymsg -t get_tree | jq -r \
+    --arg app "$APP_ID" --arg suffix "$TITLE_SUFFIX" '
+      first(
+        .. | objects
+        | select(.app_id? == $app)
+        | select((.name? // "") | endswith($suffix))
+        | .id
+      ) // empty')
+  if [ -n "$tb_id" ]; then
+    swaymsg "[con_id=\"$tb_id\"] mark --add $MARK" >/dev/null
+    swaymsg "[con_id=\"$tb_id\"] move container to scratchpad" >/dev/null
     exit 0
   fi
   sleep 0.1
