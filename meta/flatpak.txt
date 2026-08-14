@@ -11,6 +11,7 @@
 io.gitlab.librewolf-community
 io.github.ungoogled_software.ungoogled_chromium
 io.mpv.Mpv
+org.gnome.SimpleScan
 org.kde.okular
 org.libreoffice.LibreOffice
 org.mozilla.thunderbird
