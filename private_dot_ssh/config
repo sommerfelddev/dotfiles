@@ -12,7 +12,5 @@ Match host * exec "gpg-connect-agent UPDATESTARTUPTTY /bye"
 IdentityFile ~/.ssh/nym.pub
 IdentitiesOnly yes
 
-Include work.config
-
 Host git.sommerfeld.dev
   Hostname mandibles.wg

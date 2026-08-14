@@ -93,7 +93,6 @@ x-scheme-handler/webcal=org.mozilla.thunderbird.desktop
 text/calendar=org.mozilla.thunderbird.desktop
 application/x-extension-ics=org.mozilla.thunderbird.desktop
 x-scheme-handler/webcals=org.mozilla.thunderbird.desktop
-x-scheme-handler/msteams=teams-xsight.desktop
 
 [Added Associations]
 x-scheme-handler/http=io.gitlab.librewolf-community.desktop;
@@ -110,4 +109,3 @@ x-scheme-handler/mailto=org.mozilla.thunderbird.desktop;
 x-scheme-handler/mid=org.mozilla.thunderbird.desktop;
 x-scheme-handler/webcal=org.mozilla.thunderbird.desktop;
 x-scheme-handler/webcals=org.mozilla.thunderbird.desktop;
-x-scheme-handler/msteams=teams-xsight.desktop;

@@ -97,7 +97,7 @@ up). Don't add it to `common.nix`/`host.nix`/`vm.nix`.
 
 ## Commit signing and SSH auth on the VM (GPG)
 
-The VM uses its own local `gpg-agent`, like the host. Import the work
+The VM uses its own local `gpg-agent`, like the host. Import the required
 GPG private key manually on the VM; do not use SSH agent forwarding for
 commit signing or SSH auth.
 
@@ -107,9 +107,11 @@ One-time setup on the VM:
 rm -f ~/.ssh/agent.sock ~/.config/git/allowed_signers
 just fix-gpg-agent
 gpg-connect-agent 'getinfo version' /bye
-gpg --import /path/to/work-private-key.asc
-gpg --edit-key 3298945F717C85F8 trust quit
-gpg --list-secret-keys --with-keygrip 3298945F717C85F8
+gpg --import /path/to/private-key.asc
+printf 'Imported key fingerprint: '
+read -r KEY_FINGERPRINT
+gpg --edit-key "$KEY_FINGERPRINT" trust quit
+gpg --list-secret-keys --with-keygrip "$KEY_FINGERPRINT"
 ```
 
 Chezmoi deploys the repo-owned `gpg.conf`, `gpg-agent.conf`, and
@@ -132,7 +134,7 @@ git log --show-signature -1
 ## Caveats
 
 - **GPG / pass**: HM installs `gnupg` and `pass` but does _not_ import
-  any private key. On the VM, import the work key manually; repo-owned
+  any private key. On the VM, import the required key manually; repo-owned
   `gpg.conf`, `gpg-agent.conf`, and `sshcontrol` are deployed by
   chezmoi. On the host, smartcard access via `pcscd` is configured in
   `host.nix` (`~/.gnupg/scdaemon.conf`).

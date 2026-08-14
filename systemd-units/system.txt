@@ -36,8 +36,5 @@ nix-daemon.socket
 # connect, the .socket is what gets enabled) ---
 libvirtd.socket
 
-# --- work VPN (command-mode daemon; binary comes from the user's nix profile) ---
-snx-rs.service
-
 # --- file sync (system template; binary comes from the user's nix profile) ---
 syncthing@sommerfeld.service

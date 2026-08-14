@@ -70,8 +70,8 @@ export LESS="-F --RAW-CONTROL-CHARS"
 
 # ── GPG / SSH ─────────────────────────────────────────────────────────────────
 unset SSH_AGENT_PID
-# Always route SSH auth through the machine-local gpg-agent. The VM imports its
-# own work GPG key; we deliberately do not use forwarded ssh-agent sockets.
+# Always route SSH auth through the machine-local gpg-agent. We deliberately do
+# not use forwarded ssh-agent sockets.
 SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
 export SSH_AUTH_SOCK
 
@@ -138,8 +138,6 @@ case $(uname -n) in
         ;;
     hercules)
         export OCL_ICD_VENDORS=nvidia
-    # shellcheck disable=SC1091  # optional, loaded only on hosts that have it
-        [[ -r "$XDG_CONFIG_HOME/sh/work-envrc" ]] && source "$XDG_CONFIG_HOME/sh/work-envrc"
         ;;
 esac
 
