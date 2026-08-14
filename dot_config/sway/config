@@ -204,6 +204,7 @@ bindsym $mod+period exec ~/.config/sway/emoji-picker.sh
 
 # Display mode switching
 bindsym --no-repeat XF86Display exec ~/.config/sway/display-toggle.sh
+bindsym --locked --no-repeat XF86Display exec ~/.config/sway/display-recover.sh
 
 # Multimedia hardware keys (uncommon)
 bindsym XF86Tools exec $term --class=floating -e pulsemixer
