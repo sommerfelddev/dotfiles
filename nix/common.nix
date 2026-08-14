@@ -67,7 +67,7 @@
     curl
     curlie
     wget
-    dog
+    bind.dnsutils
     nmap
     rsync
     openssh
