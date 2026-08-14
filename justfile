@@ -59,7 +59,7 @@ nix-switch:
 # ═══════════════════════════════════════════════════════════════════
 
 # Update everything: system packages, flatpaks, nix flake inputs
-update: pkg-update flatpak-update nix-update
+update: pkg-update flatpak-update nix-update nvim-update
 
 # Upgrade official Arch packages, after showing newly published Arch news.
 pkg-update: arch-news-check _pacman-upgrade

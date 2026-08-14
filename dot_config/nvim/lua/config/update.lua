@@ -33,7 +33,7 @@ function M.run()
   end
 
   print("[pack] updating plugins…")
-  vim.pack.update(nil, { force = true })
+  vim.pack.update()
 end
 
 return M
