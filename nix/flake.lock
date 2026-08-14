@@ -152,15 +152,15 @@
         "utils": "utils"
       },
       "locked": {
-        "lastModified": 1782775638,
-        "narHash": "sha256-HFIVoDFiATXBvkSPiuJ2sKZkGL7etVKAVQkYeLXUbh8=",
-        "owner": "agavra",
+        "lastModified": 1783086695,
+        "narHash": "sha256-+OtrSJd3DIcL6aPdEUN8CVFrQ797vh+Nj1RDVzFnEV4=",
+        "owner": "ruifm",
         "repo": "tuicr",
-        "rev": "625fe58423aed5aad88547ccead880a0d3348654",
+        "rev": "e565185d9eeb783fe4bbeafbc0c46738e05320f1",
         "type": "github"
       },
       "original": {
-        "owner": "agavra",
+        "owner": "ruifm",
         "repo": "tuicr",
         "type": "github"
       }

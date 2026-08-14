@@ -16,7 +16,7 @@
     # it's not packaged there. The skill files under
     # `dot_claude/skills/tuicr/` rely on the `tuicr` binary being on PATH.
     tuicr = {
-      url = "github:agavra/tuicr";
+      url = "github:ruifm/tuicr";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     aibox = {
