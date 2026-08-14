@@ -351,6 +351,7 @@ Mod key: `Super` (Mod4). Only personal additions beyond sway defaults listed.
 | `Super+]`               | Focus next window in container (monocle cycling)              |
 | `Super+[`               | Focus prev window in container (monocle cycling)              |
 | `XF86Display`           | Toggle display mode; recover displays while locked            |
+| `Super+Ctrl+Shift+r`    | Recover displays, including while locked                      |
 | `XF86Tools`             | Floating pulsemixer (audio mixer TUI)                         |
 | `XF86Keyboard`          | Floating glow pager for `~/dotfiles/KEYBINDS.md`              |
 | `Super+z` then `w`      | Display QR for clipboard (wqr)                                |
