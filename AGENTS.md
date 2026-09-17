@@ -1,7 +1,8 @@
 # Dotfiles Repository Notes
 
 This is a personal dotfiles repository for an Arch Linux host and an Ubuntu
-remote-dev VM. The repo root is a chezmoi source directory.
+remote-dev VM, plus a Canonical Ubuntu GNOME laptop. The repo root is a chezmoi
+source directory.
 
 ## Layout
 
@@ -33,6 +34,10 @@ remote-dev VM. The repo root is a chezmoi source directory.
 - `host`: user dotfiles plus host-only `/etc`, Firefox/LibreWolf, and Flatpak
   integration hooks.
 - `vm`: user dotfiles, skipping host-only `/etc` and Firefox/LibreWolf hooks.
+- `canonical`: an explicit home-file allowlist, shared Nix CLI tools, and GNOME.
+  Package lists are in `meta/canonical/`. Do not deploy the Arch `etc/` tree,
+  personal keys, Sway units, or pass-secret-service. Keep authd/GDM, GNOME
+  Keyring, and company policies intact. See `docs/canonical-laptop.md`.
 - Machine-specific dotfile behavior belongs in chezmoi templates keyed by
   `machineRole`.
 - The VM Home-Manager profile installs packages and session variables only. Do

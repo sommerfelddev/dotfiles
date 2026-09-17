@@ -139,7 +139,7 @@ Verify with `sudo nft list ruleset`.
 
 ## Git hooks
 
-The user-level hooks at `~/.config/git/hooks/` (set as `core.hooksPath` in `dot_config/git/config`) apply globally and auto-dispatch into the repo's hooks if present. Lookup order, first wins:
+On the personal host, the user-level hooks at `~/.config/git/hooks/` (set in `dot_config/git/config.tmpl`) apply globally and dispatch into project hooks. The corporate role uses project hooks only. Lookup order for the global dispatcher, first wins:
 
 1. `<git-dir>/hooks/<name>` — the classic untracked per-clone location (where `husky` / `lefthook` / `pre-commit` install by default). Use this to replace a tracked hook on a shared repo without affecting teammates.
 2. `<repo-top>/.githooks/<name>` — the project's tracked, shared hook.
@@ -149,7 +149,7 @@ Projects opt in by just dropping a file at `.githooks/<name>` — no `core.hooks
 - `pre-commit` → repo's `.githooks/pre-commit` (if any). No global logic. In this repo: `just check`.
 - `commit-msg` → repo's `.githooks/commit-msg` (if any), then strips any `Co-authored-by:` whose identity matches an AI agent (Copilot/Claude/Codex/…) so they don't trip the push gate.
 - `pre-push` → repo's `.githooks/pre-push` (if any), then rejects pushes that contain unsigned commits or commits whose author/committer/coauthor looks like an AI agent.
-- `post-commit` → repo's `.githooks/post-commit` (if any). No global logic. In this repo: `chezmoi apply`.
+- `post-commit` → repo's `.githooks/post-commit` (if any). In this repo it prints a deployment reminder. Commits do not deploy files.
 
 Bypass any of these with `--no-verify` on `commit`/`push`.
 
@@ -168,3 +168,9 @@ Recovery on a fresh install: run `bootstrap.sh`, then `gpg --import` + `pass ini
 ```sh
 xdg-mime default org.mozilla.thunderbird.desktop x-scheme-handler/mailto
 ```
+
+# Canonical Laptop
+
+Use the [corporate laptop guide](docs/canonical-laptop.md) for the `canonical`
+role. It uses Ubuntu GNOME, Snap GUI apps, selected Flatpaks, and shared Nix
+tools. Do not use the Arch or remote-VM bootstrap on that machine.
