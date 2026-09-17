@@ -1,6 +1,24 @@
 #!/usr/bin/env dash
 
-text="$(zbarcam -q -1 --raw)"
+set -eu
+
+camera=""
+for candidate in \
+  /dev/v4l/by-id/*HP_430_435_FHD_Webcam*-video-index0 \
+  /dev/v4l/by-id/*-video-index0 \
+  /dev/video*; do
+  if [ -e "$candidate" ]; then
+    camera="$candidate"
+    break
+  fi
+done
+
+if [ -z "$camera" ]; then
+  echo "rqr: no camera found" >&2
+  exit 1
+fi
+
+text="$(zbarcam -q -1 --raw "$camera")"
 printf '%s' "$text" | wl-copy
 
 echo "$text"

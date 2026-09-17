@@ -1,0 +1,2 @@
+# Disable the integrated camera while the HP external camera is connected.
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03f0", ATTR{idProduct}=="794a", TAG+="systemd", ENV{SYSTEMD_WANTS}+="integrated-camera-off@.service"

@@ -1,0 +1,12 @@
+[Unit]
+Description=Disable the integrated camera while the HP camera is connected
+BindsTo=%i.device
+After=%i.device
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecCondition=/usr/bin/grep -qx 13d3 /sys/bus/usb/devices/1-8/idVendor
+ExecCondition=/usr/bin/grep -qx 56a6 /sys/bus/usb/devices/1-8/idProduct
+ExecStart=/usr/bin/sh -c 'printf 0 > /sys/bus/usb/devices/1-8/authorized'
+ExecStop=-/usr/bin/sh -c 'printf 1 > /sys/bus/usb/devices/1-8/authorized'

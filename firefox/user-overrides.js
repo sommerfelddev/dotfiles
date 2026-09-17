@@ -26,6 +26,9 @@ user_pref("media.gmp-provider.enabled", true);
 user_pref("media.gmp-gmpopenh264.enabled", true);
 user_pref("media.gmp-manager.url", "https://aus5.mozilla.org/update/3/GMP/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml");
 
+/** Camera **/
+user_pref("media.webrtc.camera.allow-pipewire", true); // use the camera portal instead of direct V4L2
+
 /** Network **/
 user_pref("network.dns.disableIPv6", false); // keep IPv6 enabled
 
