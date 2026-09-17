@@ -1,0 +1,28 @@
+config: {}
+networks:
+  - name: lxdbr0
+    type: bridge
+    project: default
+    config:
+      ipv4.address: auto
+      ipv4.nat: "true"
+      ipv6.address: auto
+      ipv6.nat: "true"
+storage_pools:
+  - name: default
+    driver: btrfs
+    config:
+      source: /var/lib/lxd/storage-pools/default
+profiles:
+  - name: default
+    devices:
+      eth0:
+        name: eth0
+        network: lxdbr0
+        type: nic
+      root:
+        path: /
+        pool: default
+        type: disk
+projects: []
+cluster: null

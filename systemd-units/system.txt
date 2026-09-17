@@ -2,6 +2,7 @@
 # Enabled by `just unit-apply` via `sudo systemctl enable`.
 
 # --- core ---
+apparmor.service
 systemd-timesyncd.service
 systemd-resolved.service
 systemd-oomd.service
@@ -34,6 +35,9 @@ tor.service
 # --- nix (socket-activated builder daemon; the .service spawns on first
 # client connect, the .socket is what gets enabled) ---
 nix-daemon.socket
+
+# --- system containers and VMs ---
+lxd.socket
 
 # --- file sync (system template; binary comes from the user's nix profile) ---
 syncthing@sommerfeld.service

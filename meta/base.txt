@@ -1,5 +1,6 @@
 # --- core system ---
 acpid
+apparmor
 arch-audit
 base
 btrfs-progs
@@ -41,6 +42,10 @@ nix
 
 # --- kernel-coupled dev/debug ---
 perf # running-kernel ABI
+
+# --- system containers and VMs ---
+lxd
+cdrtools
 
 # --- sound ---
 alsa-utils
