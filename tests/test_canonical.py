@@ -17,10 +17,50 @@ SPEC.loader.exec_module(canonical)
 
 
 class PackageTests(unittest.TestCase):
+    def test_install_does_not_enable_experimental_snap_features(self):
+        with patch.object(canonical.subprocess, "run") as command:
+            canonical.install()
+        self.assertFalse(any("set" in call.args[0] for call in command.call_args_list))
+
     def test_keybase_is_not_installed_or_autostarted(self):
         self.assertNotIn("keybase", canonical.packages("snap"))
         self.assertFalse(
             (ROOT / "dot_config/autostart/dotfiles-keybase.desktop").exists()
+        )
+
+    def test_extensions_install_without_shell_confirmation(self):
+        with (
+            patch("sys.argv", ["canonical.py", "extensions"]),
+            patch.object(canonical, "require_canonical"),
+            patch.object(canonical.subprocess, "run") as command,
+        ):
+            canonical.main()
+        self.assertEqual(
+            command.call_args.args[0][:3], ["gext", "--filesystem", "install"]
+        )
+
+    def test_lab_check_rejects_missing_marker(self):
+        with (
+            patch.object(canonical.Path, "is_file", return_value=False),
+            self.assertRaises(SystemExit),
+        ):
+            canonical.require_lab()
+
+    def test_normal_check_keeps_company_registration(self):
+        with patch.object(canonical.subprocess, "run") as command:
+            command.return_value.returncode = 0
+            canonical.check()
+        self.assertTrue(
+            any(
+                call.args[0] == ["landscape-config", "--actively-registered"]
+                for call in command.call_args_list
+            )
+        )
+        self.assertTrue(
+            any(
+                call.args[0] == ["nix", "store", "ping", "--store", "daemon"]
+                for call in command.call_args_list
+            )
         )
 
     def test_non_corporate_role_is_rejected_before_system_access(self):

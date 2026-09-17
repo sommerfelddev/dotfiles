@@ -285,6 +285,7 @@
           python3
           just
           nixfmt
+          nodejs
           prettier
           ruff
           selene
@@ -292,6 +293,14 @@
           shfmt
           stylua
           taplo
+          xorriso
+          spice-gtk
+          aria2
+          curl
+          gnupg
+          openssh
+          openssl
+          imagemagick
         ];
       };
 

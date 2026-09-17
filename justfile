@@ -28,6 +28,65 @@ nix-switch:
 canonical-check:
     @python3 scripts/canonical.py check
 
+# Disposable Ubuntu desktop VM. Never deploys onto the host.
+canonical-vm-create mirror="https://releases.ubuntu.com/26.04/":
+    @python3 scripts/canonical_vm.py create --mirror {{ quote(mirror) }}
+
+canonical-vm-status:
+    @python3 scripts/canonical_vm.py status
+
+canonical-vm-console:
+    @python3 scripts/canonical_vm.py console
+
+canonical-vm-start:
+    @python3 scripts/canonical_vm.py start
+
+canonical-vm-stop:
+    @python3 scripts/canonical_vm.py stop
+
+canonical-vm-finish-install:
+    @python3 scripts/canonical_vm.py finish-install
+
+canonical-vm-snapshot name:
+    @python3 scripts/canonical_vm.py snapshot {{ quote(name) }}
+
+canonical-vm-restore name:
+    @python3 scripts/canonical_vm.py restore {{ quote(name) }}
+
+canonical-vm-delete:
+    @python3 scripts/canonical_vm.py delete
+
+canonical-lab-check:
+    @python3 scripts/canonical.py lab-check
+
+canonical-vm-bootstrap:
+    @python3 scripts/canonical_vm.py bootstrap
+
+canonical-vm-test:
+    @python3 scripts/canonical_vm.py test
+
+canonical-vm-logs:
+    @python3 scripts/canonical_vm.py logs
+
+canonical-vm-screenshot:
+    @python3 scripts/canonical_vm.py screenshot
+
+canonical-vm-deploy:
+    @python3 scripts/canonical_vm.py deploy
+
+# Replace the marked guest's source checkout with the current host source.
+canonical-vm-sync-source:
+    @python3 scripts/canonical_vm.py sync-source
+
+# Create a new lab, test deployment, and leave it stopped with a working snapshot.
+canonical-vm-run: canonical-vm-create _canonical-vm-wait canonical-vm-finish-install canonical-vm-start canonical-vm-bootstrap _canonical-vm-reboot canonical-vm-test canonical-vm-stop (canonical-vm-snapshot "working")
+
+_canonical-vm-wait:
+    @python3 scripts/canonical_vm.py wait-install
+
+_canonical-vm-reboot:
+    @python3 scripts/canonical_vm.py reboot
+
 # Install corporate packages, profile, dotfiles, and desktop settings.
 canonical-setup: _require-canonical _install-hooks (pkg-apply "base") nix-switch apply canonical-system canonical-extensions canonical-desktop
 
@@ -1390,7 +1449,7 @@ _desktop-update:
     set -eu
     source just-lib.sh
     [ "$(_machine_role)" = canonical ] || exit 0
-    gext update --install $(sed '/^#/d; /^$/d' meta/canonical/extensions.txt)
+    gext --filesystem update --install $(sed '/^#/d; /^$/d' meta/canonical/extensions.txt)
 
 _canonical-finish:
     #!/usr/bin/env bash

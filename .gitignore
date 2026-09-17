@@ -1,6 +1,7 @@
 .direnv/
 !home/.lldbinit
 .worktrees/
+tmp/
 .ruff_cache/
 node_modules/
 *.swp

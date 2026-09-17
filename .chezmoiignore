@@ -18,6 +18,7 @@ just-lib.sh
 selene.toml
 selene-globals.yml
 scripts/
+tmp/
 tests/
 docs/
 canonical/

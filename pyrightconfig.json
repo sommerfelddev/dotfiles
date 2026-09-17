@@ -2,6 +2,7 @@
   "typeCheckingMode": "standard",
   "include": ["**/*.py"],
   "exclude": [
+    "tmp/**",
     "**/.git/**",
     "**/.venv/**",
     "**/node_modules/**",

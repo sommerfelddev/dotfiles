@@ -81,14 +81,28 @@ def install() -> None:
         subprocess.run(command, check=True)
 
 
-def check() -> None:
+def require_lab() -> None:
+    marker = Path("/etc/canonical-lab")
+    if not marker.is_file() or marker.stat().st_uid != 0:
+        raise SystemExit("This command requires a root-owned lab marker.")
+    if subprocess.run(
+        ["systemd-detect-virt", "--vm", "--quiet"], check=False
+    ).returncode:
+        raise SystemExit("This command requires a virtual machine.")
+
+
+def check(lab: bool = False) -> None:
+    if lab:
+        require_lab()
+        print("UNTESTED: company provisioning, authd, and Landscape registration.")
     commands = [
         ["lsb_release", "-ds"],
         *[
             ["systemctl", "is-active", unit]
-            for unit in ["display-manager", "snapd", "apparmor", "nix-daemon"]
+            for unit in ["display-manager", "snapd", "apparmor"]
         ],
-        ["landscape-config", "--actively-registered"],
+        ["nix", "store", "ping", "--store", "daemon"],
+        *([] if lab else [["landscape-config", "--actively-registered"]]),
         ["snap", "connections", "thunderbird"],
         ["snap", "list", *packages("snap")],
         ["gnome-extensions", "list", "--enabled"],
@@ -113,14 +127,22 @@ def check() -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "action", choices=["install", "update", "flatpak-update", "extensions", "check"]
+        "action",
+        choices=[
+            "install",
+            "update",
+            "flatpak-update",
+            "extensions",
+            "check",
+            "lab-check",
+        ],
     )
     args = parser.parse_args()
     require_canonical()
     if args.action == "install":
         install()
-    elif args.action == "check":
-        check()
+    elif args.action in {"check", "lab-check"}:
+        check(lab=args.action == "lab-check")
     else:
         commands = update_commands()
         if args.action == "flatpak-update":
@@ -128,7 +150,7 @@ def main() -> None:
                 ["flatpak", "update", "--user", "--assumeyes", *packages("flatpak")]
             ]
         elif args.action == "extensions":
-            commands = [["gext", "install", *packages("extensions")]]
+            commands = [["gext", "--filesystem", "install", *packages("extensions")]]
         for command in commands:
             subprocess.run(command, check=True)
 

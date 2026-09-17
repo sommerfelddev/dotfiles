@@ -15,18 +15,18 @@ _find_shells() {
     \( -name '*.sh' \
     -o -path './dot_local/bin/executable_*' \
     -o -path './dot_config/sway/executable_*' \) \
-    -not -path './.git/*' -not -path './.worktrees/*'
+    -not -path './.git/*' -not -path './.worktrees/*' -not -path './tmp/*'
 }
 
 _find_by_ext() {
   find . -type f -name "*.$1" \
-    -not -path './.git/*' -not -path './.worktrees/*'
+    -not -path './.git/*' -not -path './.worktrees/*' -not -path './tmp/*'
 }
 
 _find_zsh() {
   find . -type f \
     \( -name 'dot_zshrc' -o -name 'dot_zshenv' -o -name 'dot_zprofile' \) \
-    -not -path './.git/*' -not -path './.worktrees/*'
+    -not -path './.git/*' -not -path './.worktrees/*' -not -path './tmp/*'
 }
 
 _is_zsh() {
