@@ -10,6 +10,8 @@ Use the `canonical` role. Do not use the Arch bootstrap or the old VM bootstrap.
    and [make the USB installer](https://documentation.ubuntu.com/desktop/en/latest/how-to/create-a-bootable-usb-stick/).
 3. Use the current corporate autoinstall file from the internal guide. Do not
    put that file, its registration key, or company credentials in this repo.
+   Use the [SSH transfer steps](#transfer-the-autoinstall-file) below to send
+   it from your personal laptop to the live Ubuntu desktop.
 4. Select encrypted storage **with LVM**. Use different passwords for disk
    encryption and login. Verify both choices before starting installation.
 5. Complete Landscape registration with the temporary account, as instructed
@@ -24,6 +26,55 @@ Use the `canonical` role. Do not use the Arch bootstrap or the old VM bootstrap.
 Do all remaining steps as the **final work account**, without a root shell.
 Do not change its login shell. Do not disable company lock, suspend, AppArmor,
 network, update, or account policies. This repo does not own those policies.
+
+## Transfer the Autoinstall File
+
+On your personal laptop, download the current corporate `autoinstall.yaml`
+from Canonical's Google Drive through the internal setup guide. Keep it outside
+this repo. Do not use `tmp/canonical-vm/media/autoinstall.yaml`: that file is
+for the disposable test VM and does not provision a company laptop.
+
+Boot the original Ubuntu USB installer and connect to a trusted LAN. Update
+the installer if offered, then close it without starting the installation.
+Open a terminal in the live Ubuntu desktop and run:
+
+```sh
+whoami
+sudo passwd ubuntu
+sudo apt update
+sudo apt install openssh-server
+sudo systemctl start ssh
+hostname -I
+sudo ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
+```
+
+These commands assume `whoami` prints `ubuntu`. If it differs, use that name
+in the password command, transfer command, and home path below. Set a strong
+temporary password. Use the live session's LAN IP address for the transfer.
+
+On your personal laptop, run this with the actual source path and IP address:
+
+```sh
+scp /path/to/autoinstall.yaml ubuntu@<live-session-IP>:/home/ubuntu/autoinstall.yaml
+```
+
+Check that the SSH host-key fingerprint matches the one displayed in the live
+session before accepting it. Enter the temporary password. In the live session:
+
+```sh
+chmod 600 ~/autoinstall.yaml
+sudo systemctl stop ssh.socket ssh.service
+```
+
+Reopen **Install Ubuntu**, select **Automated with autoinstall file**, and use
+**Browse** to select `/home/ubuntu/autoinstall.yaml`, or enter:
+
+```text
+file:///home/ubuntu/autoinstall.yaml
+```
+
+Click **Import**. Continue with encrypted LVM and the company provisioning steps
+above. The temporary SSH setup is for the live session, not the installed system.
 
 ## Install Nix and Get the Repo
 
@@ -60,7 +111,8 @@ just canonical-setup
 
 This installs declared packages, builds the locked Home-Manager profile,
 deploys the corporate home files, loads two program-specific AppArmor profiles,
-connects Thunderbird's GPG interface, and installs the GNOME extensions.
+connects Thunderbird's GPG interface, permits Mattermost to use GNOME Keyring,
+and installs the GNOME extensions.
 It does not remove packages or switch to another source when installation fails.
 
 Log out and back in through GDM. Then run:
@@ -82,18 +134,22 @@ a terminal tool; this role does not install the pass Secret Service daemon.
 
 ## Package Sources
 
-| Source         | Applications                                                                     |
-| -------------- | -------------------------------------------------------------------------------- |
-| Snap, stable   | Firefox, Thunderbird, Ghostty, Mattermost, Zoom, Okular, LibreOffice, Keybase    |
-| Flatpak, user  | Nheko work profile, Zathura, NormCap, GPU Screen Recorder                        |
-| Nix            | Shared CLI and AI tools, Neovim, zsh, Podman, GPG, desktop helper commands       |
-| apt exceptions | Git, Flatpak, uidmap, Copyous libraries, zbar-tools, pinentry-gnome3, python3-gi |
+| Source         | Applications                                                                          |
+| -------------- | ------------------------------------------------------------------------------------- |
+| Snap, stable   | Firefox, Thunderbird, Ghostty, Mattermost, Zoom, Okular, LibreOffice                  |
+| Flatpak, user  | Nheko work profile, Zathura, NormCap, GPU Screen Recorder                             |
+| Nix            | Shared CLI and AI tools, Neovim, zsh, Podman, GPG, desktop helper commands            |
+| apt exceptions | Git, Flatpak, uidmap, Copyous libraries, zbar-tools, pinentry-gnome3, python3-gi, imv |
 
 The lists are in `meta/canonical/`. Ghostty's classic confinement is explicit.
-The stable Keybase GUI has an old Electron dependency; its risk was accepted
-for this setup. Installing the Snap does not remove that risk.
-The Snap package also starts Electron with its internal sandbox disabled.
-Snap confinement is a separate layer.
+
+Tuicr's Rust crates are fetched from the official static archive server with
+Cargo.lock checksum verification. `just nix-crate-check` tests a fresh download
+without using its cached output. Bootstrap does not need a manual crate prefetch.
+
+`wqr` displays QR codes with `imv`. `wtype` is installed for use with compatible
+compositors; it cannot inject keys into GNOME without virtual-keyboard protocol
+support.
 
 ## Work Keys and Containers
 
@@ -132,10 +188,30 @@ the system's account administration method. Do not copy another user's ranges
 or assume that an authd user can be changed with `usermod`. The setup does not
 rewrite `/etc/subuid`, `/etc/subgid`, or company account data.
 
-The repo loads only `dotfiles-nix-bwrap` and `dotfiles-nix-podman` AppArmor
+The repo loads `dotfiles-nix-bwrap` and `dotfiles-nix-podman` AppArmor
 profiles. Global user-namespace restrictions stay enabled. Test `aibox -p` and
 a rootless container. If AppArmor denies another executable, inspect the exact
 denial before adding a rule. Do not allow every program under `/nix/store`.
+
+## Mattermost Keyring
+
+The Mattermost Snap lacks the `password-manager-service` plug. `canonical-system`
+installs `dotfiles-mattermost-keyring.service` and its path watcher. They add
+Secret Service D-Bus access to the Mattermost profile at boot and when snapd
+replaces it. The Snap keeps its normal updates and AppArmor enforcement.
+This permission gives Mattermost access to the user's unlocked keyring; it
+does not restrict access to Mattermost's own entries.
+
+After applying this to a running session, quit Mattermost, including its tray
+process, and start it again. Check the result:
+
+```sh
+grep 'Secure storage initialized' ~/snap/mattermost-desktop/current/.config/Mattermost/logs/main.log | tail -n 1
+```
+
+The result must say `encryption available`. Track the missing plug in the
+[Snap package tracker](https://github.com/snapcrafters/mattermost-desktop/issues).
+When the package supplies it, connect the plug and remove this local workaround.
 
 ## Browser and Mail
 
@@ -175,7 +251,7 @@ chooser if an old portal choice overrides the default.
 
 ## Desktop Checks
 
-Mattermost, Keybase, Thunderbird, and one Nheko `work` profile autostart through
+Mattermost, Thunderbird, and one Nheko `work` profile autostart through
 GNOME. In Nheko, enable its tray and start-in-tray options for that profile.
 Disable duplicate application-owned autostart entries. Test notifications with
 another account, not a message to yourself.
@@ -207,6 +283,54 @@ Check these operations both docked and undocked:
 No existing laptop camera IDs, udev rules, firewall rules, power workarounds,
 or dock settings are copied to this machine.
 
+## Panel
+
+Vitals supplies CPU usage, maximum sensor temperature, memory usage, and
+network receive/send rates. Its monitor action opens `htop` in Ghostty.
+Public-IP lookup is disabled. Sensor names and network totals come from Vitals;
+select a specific temperature sensor or network device in its preferences if
+the defaults are not useful on the laptop.
+
+The repo-owned `corporate-panel@dotfiles` extension adds compact status text:
+
+- `EXT`: connected external display connectors, not a dock identity.
+- `APT`: upgrades listed in the local apt cache, excluding Snap and Nix.
+- `FAIL`: failed system and user units. A failed query displays `?`, not zero.
+- `REBOOT`: `/run/reboot-required` exists. The panel does not reboot the laptop.
+
+The menu opens display settings, `htop`, `pulsemixer`, Thunderbird, failed-unit
+details, available apt/Snap updates, and reboot details. Its update action runs
+`just update` in the active chezmoi source directory in a terminal. Status checks
+run each minute without sudo, package installation, or apt metadata refresh.
+The custom labels use the personal panel's green, yellow, and red colours.
+
+GNOME retains the clock, notifications, privacy indicators, and network/audio
+controls. Ubuntu AppIndicators supplies the tray. PaperWM retains workspace
+navigation. The custom panel does not copy Sway IPC modules, personal VPN
+controls, Arch checks, or the webcam process scanner. Module placement and
+actions are not identical to Waybar; custom actions are in a menu.
+
+On an existing corporate installation, run outside the sandbox:
+
+```sh
+just pkg-apply base
+just nix-switch
+just apply
+just canonical-extensions
+just canonical-desktop
+```
+
+Log out and log in again to load the new extension. After changes to its
+JavaScript, log out and in again to replace GNOME Shell's cached module.
+Check both docked and undocked that the panel fits, readings change, menu
+actions work, and tray icons appear. Check the lock screen and notifications.
+Inspect failures with `journalctl --user -b -g 'Corporate panel'` and
+`gnome-extensions info corporate-panel@dotfiles`.
+
+`just canonical-desktop-restore` restores the saved settings, including extension
+enablement, unless they were changed afterwards. The extension files remain
+installed. The personal and VM roles do not receive them.
+
 ## Updates and Rollback
 
 `just update` upgrades apt packages, refreshes Snaps without overriding holds,
@@ -226,6 +350,10 @@ with the recipe above. Remove only the `dotfiles-*` XDG autostart entries to
 stop repo-owned startup. Do not remove company software during rollback.
 
 ## Validation Boundary
+
+Use the [disposable desktop VM](canonical-vm.md) to test bootstrap and deployment
+before the laptop arrives. It does not replace company provisioning or the
+hardware checks below.
 
 `just test` checks package commands, template identities, and role file
 boundaries. CI also checks formatting, lint, and Nix profile evaluation. These
