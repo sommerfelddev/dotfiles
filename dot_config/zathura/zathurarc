@@ -1,4 +1,5 @@
 set selection-clipboard clipboard
+set double-click-follow false
 set incremental-search true
 set window-title-basename true
 set zoom-center true
