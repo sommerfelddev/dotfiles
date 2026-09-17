@@ -99,6 +99,11 @@ arch-news-read:
 # Refresh package releases and Nix flake inputs, then re-activate the profile.
 nix-update: _nix-release-update _nix-flake-update nix-switch
 
+# Fetch a locked Rust crate and repeat the download without using its cached output.
+nix-crate-check:
+    nix build --no-link ./nix#checks.x86_64-linux.crate-download
+    nix build --no-link --rebuild ./nix#checks.x86_64-linux.crate-download
+
 _nix-release-update:
     @bash "{{ justfile_directory() }}/nix/update-releases.sh"
 

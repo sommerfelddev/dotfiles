@@ -44,7 +44,11 @@
           # Expose external flake packages so common.nix can list them next to
           # nixpkgs packages without threading inputs into every module.
           (final: prev: {
-            tuicr = tuicr.packages.${system}.default;
+            tuicr =
+              (final.callPackage tuicr.inputs.naersk {
+                fetchurl = import ./fetch-crate.nix final.fetchurl;
+              }).buildPackage
+                tuicr;
             aibox = aibox.packages.${system}.default;
             claude-release = prev.claude-code.overrideAttrs {
               version = releases.claude.version;
@@ -257,6 +261,21 @@
         };
     in
     {
+      checks.${system}.crate-download =
+        let
+          lock = builtins.fromTOML (builtins.readFile "${tuicr}/Cargo.lock");
+          crate = builtins.head (
+            builtins.filter (
+              package: (package.source or "") == "registry+https://github.com/rust-lang/crates.io-index"
+            ) lock.package
+          );
+        in
+        import ./fetch-crate.nix pkgs.fetchurl {
+          name = "crate-download-check-${crate.name}-${crate.version}";
+          url = "https://crates.io/api/v1/crates/${crate.name}/${crate.version}/download";
+          sha256 = crate.checksum;
+        };
+
       devShells.${system}.default = pkgs.mkShellNoCC {
         packages = with pkgs; [
           basedpyright
