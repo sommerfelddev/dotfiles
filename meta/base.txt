@@ -5,6 +5,7 @@ base
 btrfs-progs
 cpupower
 dosfstools
+fuse2
 fwupd
 iwd
 kernel-modules-hook

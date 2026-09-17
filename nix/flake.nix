@@ -56,6 +56,10 @@
             "claude-code"
             "github-copilot-cli"
           ];
+        config.permittedInsecurePackages = [
+          # Keybase requires an EOL Electron release for desktop notifications.
+          "keybase-gui-6.5.1"
+        ];
       };
 
       mkProfile =

@@ -79,6 +79,9 @@ in
     # ── Mail: ProtonMail Bridge ───────────────────────────────────────────────
     protonmail-bridge
 
+    # ── Keybase ──────────────────────────────────────────────────────────────
+    keybase-gui
+
     # ── Secrets portal ────────────────────────────────────────────────────────
     pass-secret-service-rust
 
@@ -141,4 +144,59 @@ in
     disable-ccid
     pcsc-driver /usr/lib/libpcsclite.so.1
   '';
+
+  # ── Keybase ────────────────────────────────────────────────────────────────
+  services.keybase.enable = true;
+  services.kbfs.enable = true;
+
+  # Home Manager assumes the NixOS FUSE wrapper. Arch provides fusermount
+  # through fuse2 in /usr/bin.
+  systemd.user.services.kbfs.Service = {
+    Environment = lib.mkForce [
+      "PATH=/usr/bin:${
+        lib.makeBinPath [
+          pkgs.keybase
+          pkgs.kbfs
+        ]
+      }"
+      "KEYBASE_SYSTEMD=1"
+    ];
+    ExecStartPre = lib.mkForce "${pkgs.coreutils}/bin/mkdir -p %t/keybase/kbfs";
+    ExecStart = lib.mkForce "${lib.getExe' pkgs.kbfs "kbfsfuse"} %t/keybase/kbfs";
+    ExecStopPost = lib.mkForce "/usr/bin/fusermount -u %t/keybase/kbfs";
+  };
+
+  systemd.user.services.keybase-gui = {
+    Unit = {
+      Description = "Keybase GUI";
+      Requires = [
+        "keybase.service"
+        "kbfs.service"
+      ];
+      After = [
+        "graphical-session.target"
+        "keybase.service"
+        "kbfs.service"
+      ];
+      PartOf = [ "graphical-session.target" ];
+      ConditionEnvironment = "WAYLAND_DISPLAY";
+    };
+    Service = {
+      Environment = [
+        "KEYBASE_AUTOSTART=1"
+        "NIXOS_OZONE_WL=1"
+        "PATH=${
+          lib.makeBinPath [
+            pkgs.keybase
+            pkgs.gnugrep
+            pkgs.xdg-utils
+          ]
+        }:/usr/bin"
+      ];
+      ExecStart = lib.getExe pkgs.keybase-gui;
+      Restart = "on-failure";
+      RestartSec = 5;
+    };
+    Install.WantedBy = [ "sway-session.target" ];
+  };
 }

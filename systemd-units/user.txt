@@ -7,6 +7,7 @@ cliphist-image.service
 cliphist-text.service
 display-watcher.service
 inhibridge.service
+keybase-gui.service
 mako.service
 pass-secret-service.service
 poweralertd.service
@@ -15,6 +16,10 @@ swayidle.service
 swayrd.service
 waybar.service
 wob.service
+
+# --- keybase ---
+keybase.service
+kbfs.service
 
 # --- mail ---
 protonmail-bridge.service
