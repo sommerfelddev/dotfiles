@@ -1,2 +1,2 @@
 #!/bin/sh
-chezmoi apply -S "$(git rev-parse --show-toplevel)"
+printf '%s\n' 'Dotfiles committed. Run just apply on the target machine to deploy.'

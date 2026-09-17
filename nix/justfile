@@ -13,7 +13,7 @@ pull:
 
 # Rebuild Home-Manager profile from the current checkout (no pull)
 switch:
-    home-manager switch --impure --flake '{{ justfile_directory() }}#vm' -b backup
+    bash '{{ justfile_directory() }}/switch.sh' vm
 
 # Apply VM dotfiles with chezmoi
 apply: _ensure-vm-chezmoi-config
@@ -37,6 +37,9 @@ _ensure-vm-chezmoi-config:
 fix-gpg-agent:
     #!/usr/bin/env sh
     set -eu
+    . "{{ justfile_directory() }}/../just-lib.sh"
+    DOTFILES_SOURCE="{{ justfile_directory() }}/.."
+    [ "$(_machine_role)" = vm ]
     gpgconf_bin="$HOME/.nix-profile/bin/gpgconf"
     gpg_connect_agent_bin="$HOME/.nix-profile/bin/gpg-connect-agent"
     [ -x "$gpgconf_bin" ] || gpgconf_bin=$(command -v gpgconf)
@@ -59,7 +62,7 @@ fix-gpg-agent:
     "$gpg_connect_agent_bin" 'getinfo version' /bye
 
 # One-time migration from the old VM Home-Manager symlink deployment to chezmoi
-migrate-chezmoi: pull switch fix-gpg-agent _cleanup-home-manager-dotfiles apply
+migrate-chezmoi: pull _ensure-vm-chezmoi-config switch fix-gpg-agent _cleanup-home-manager-dotfiles apply
 
 _cleanup-home-manager-dotfiles: _ensure-vm-chezmoi-config
     #!/usr/bin/env bash
@@ -90,7 +93,7 @@ _cleanup-home-manager-dotfiles: _ensure-vm-chezmoi-config
     # remove the old file when it still exactly matches the repo source.
     ssh_config="$HOME/.ssh/config"
     if [ -f "$ssh_config" ] && [ ! -L "$ssh_config" ]; then
-      if cmp -s "$ssh_config" "$src/private_dot_ssh/config"; then
+      if cmp -s "$ssh_config" <(chezmoi execute-template -S "$src" --file "$src/private_dot_ssh/config.tmpl"); then
         rm -f "$ssh_config"
       else
         printf 'refusing to overwrite modified %s; merge it before migrating\n' "$ssh_config" >&2

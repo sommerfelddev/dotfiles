@@ -1,0 +1,9 @@
+[Unit]
+Description=Rootless Podman API socket
+
+[Socket]
+ListenStream=%t/podman/podman.sock
+SocketMode=0600
+
+[Install]
+WantedBy=sockets.target

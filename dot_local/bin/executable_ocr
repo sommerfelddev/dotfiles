@@ -21,6 +21,9 @@ if [ "${1:-}" ]; then
   }
   text="$(tesseract "$1" - -l "$lang" 2>/dev/null || true)"
 else
+  if [ "$(cat "$HOME/.config/dotfiles/role" 2>/dev/null)" = canonical ]; then
+    exec flatpak run com.github.dynobo.normcap
+  fi
   region="$(slurp 2>/dev/null)" || exit 0
   text="$(grim -g "$region" - | tesseract - - -l "$lang" 2>/dev/null || true)"
 fi

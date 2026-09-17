@@ -1,0 +1,4 @@
+org.pwmt.zathura
+com.github.dynobo.normcap
+com.dec05eba.gpu_screen_recorder
+im.nheko.Nheko

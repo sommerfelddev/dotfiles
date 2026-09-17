@@ -1,5 +1,8 @@
 {{- $defaultMachineRole := default "host" (env "CHEZMOI_MACHINE_ROLE") -}}
-{{- $machineRole := promptStringOnce . "machineRole" "Machine role (host or vm)" $defaultMachineRole -}}
+{{- $machineRole := promptStringOnce . "machineRole" "Machine role (host, vm, canonical)" $defaultMachineRole -}}
+{{- if not (has $machineRole (list "host" "vm" "canonical")) -}}
+{{- fail "machineRole must be host, vm, or canonical" -}}
+{{- end -}}
 sourceDir = {{ .chezmoi.sourceDir | quote }}
 
 [status]
@@ -9,8 +12,12 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
   exclude = ["scripts"]
 
 [data]
-  # Machine role used by templates and run hooks. Valid values: "host", "vm".
   machineRole = {{ $machineRole | quote }}
+{{- if eq $machineRole "canonical" }}
+  workName = {{ promptStringOnce . "workName" "Work Git name" | quote }}
+  workEmail = {{ promptStringOnce . "workEmail" "Canonical email address" | quote }}
+  workSigningKey = {{ promptStringOnce . "workSigningKey" "Work GPG signing key fingerprint" | quote }}
+{{- end }}
 {{- if eq $machineRole "host" }}
   # Block device holding the LUKS-encrypted root, without the /dev/ prefix
   # (e.g. "nvme0n1p2", "sda2"). Resolved to a UUID at apply time via lsblk,

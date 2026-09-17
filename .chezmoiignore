@@ -17,7 +17,84 @@ justfile
 just-lib.sh
 selene.toml
 selene-globals.yml
+scripts/
+tests/
+docs/
+canonical/
+**/__pycache__/
+**/*.pyc
 dot_config/nvim/nvim-pack-lock.json
-{{ if ne (default "host" (index . "machineRole")) "host" }}
+{{ if eq (default "host" (index . "machineRole")) "vm" }}
 .local/share/applications/org.pwmt.zathura.desktop
+{{ end }}
+{{ if eq (default "host" (index . "machineRole")) "canonical" }}
+*
+!.hushlogin
+!.zshenv
+!canonical-desktop.sh
+!canonical-nvim-lock.sh
+!.config
+.config/*
+{{ range list "bat" "cargo" "ccache" "clangd" "containers" "direnv" "dotfiles" "fd" "gdb" "ghostty" "ipython" "lsd" "nix" "npm" "opencode" "ripgrep" "sh" "tuicr" "wget" "yazi" "zellij" "zsh" "zathura" "autostart" }}
+!.config/{{ . }}/**
+{{ end }}
+!.config/nvim
+.config/nvim/*
+!.config/nvim/*.lua
+!.config/nvim/lua/**
+!.config/nvim/after/**
+!.config/git/config
+!.config/git
+.config/git/*
+!.config/git/attributes
+!.config/git/ignore
+!.config/mimeapps.list
+!.config/systemd/user/gpg-agent.service.d/canonical.conf
+!.config/systemd
+!.config/systemd/user
+.config/systemd/user/*
+!.config/systemd/user/gpg-agent.service.d/**
+!.config/systemd/user/podman.socket
+!.config/systemd/user/podman.service
+!.gnupg
+.gnupg/*
+!.gnupg/gpg.conf
+!.gnupg/gpg-agent.conf
+!.ssh/config
+!.ssh
+.ssh/*
+!.ssh/config
+!.codex/**
+!.claude/**
+!.copilot/**
+!.hermes/**
+!.omp/**
+!.local
+.local/*
+!.local/lib
+.local/lib/*
+!.local/lib/dotfiles
+.local/lib/dotfiles/*
+!.local/lib/dotfiles/*.py
+!.local/bin
+.local/bin/*
+!.local/share
+.local/share/*
+!.local/share/applications
+.local/share/applications/*
+!.local/share/applications/org.pwmt.zathura.desktop
+{{ range list "dictate" "ocr" "record" "rqr" "wqr" "linkhandler" }}
+!.local/bin/{{ . }}
+{{ end }}
+.config/nvim/nvim-pack-lock.json
+{{ else }}
+canonical-desktop.sh
+canonical-nvim-lock.sh
+.config/nix/nix.conf
+.config/autostart/dotfiles-*.desktop
+.config/systemd/user/gpg-agent.service.d/canonical.conf
+.config/systemd/user/podman.socket
+.config/systemd/user/podman.service
+.local/lib/dotfiles/
+.local/bin/canonical-desktop
 {{ end }}

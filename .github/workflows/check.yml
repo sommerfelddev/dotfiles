@@ -21,3 +21,9 @@ jobs:
 
       - name: just check
         run: nix develop ./nix --command just check
+
+      - name: Role and package tests
+        run: nix develop ./nix --command just test
+
+      - name: Evaluate the corporate profile
+        run: nix eval --impure ./nix#homeConfigurations.canonical.activationPackage.drvPath

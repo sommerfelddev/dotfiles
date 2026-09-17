@@ -260,6 +260,10 @@
       devShells.${system}.default = pkgs.mkShellNoCC {
         packages = with pkgs; [
           basedpyright
+          chezmoi
+          git
+          jq
+          python3
           just
           nixfmt
           prettier
@@ -275,6 +279,7 @@
       homeConfigurations = {
         vm = mkProfile ./vm.nix;
         host = mkProfile ./host.nix;
+        canonical = mkProfile ./canonical.nix;
       };
     };
 }

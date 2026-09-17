@@ -13,7 +13,12 @@ clipboard-read = allow
 bell-features = attention,title
 
 # Window — no decorations (sway manages windows)
+{{ if eq (default "host" (index . "machineRole")) "canonical" }}
+window-decoration = auto
+command = {{ .chezmoi.homeDir }}/.nix-profile/bin/zsh -l
+{{ else }}
 window-decoration = none
+{{ end }}
 confirm-close-surface = false
 resize-overlay = never
 

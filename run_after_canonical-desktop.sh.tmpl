@@ -1,0 +1,8 @@
+{{ if eq (default "host" (index . "machineRole")) "canonical" -}}
+#!/bin/sh
+set -eu
+case "${XDG_CURRENT_DESKTOP:-}" in
+  *GNOME*|*gnome*) /usr/bin/python3 "$HOME/.local/lib/dotfiles/canonical_desktop.py" settings ;;
+  *) echo 'Run just canonical-desktop from GNOME to apply desktop keys.' ;;
+esac
+{{ end -}}

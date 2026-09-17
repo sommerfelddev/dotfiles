@@ -8,4 +8,8 @@ keyserver-options auto-key-retrieve
 keyid-format 0xlong
 with-fingerprint
 
+{{ if eq (default "host" (index . "machineRole")) "canonical" }}
+default-key {{ .workSigningKey }}
+{{ else }}
 default-key B79DF5F37D7F9B0F390238D53298945F717C85F8
+{{ end }}

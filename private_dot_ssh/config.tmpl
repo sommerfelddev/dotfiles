@@ -1,3 +1,10 @@
+{{ if eq (default "host" (index . "machineRole")) "canonical" }}
+Include config.local
+Host *
+  HashKnownHosts yes
+  ForwardAgent no
+  ServerAliveInterval 120
+{{ else }}
 # Ensure KnownHosts are unreadable if leaked
 HashKnownHosts yes
 
@@ -17,3 +24,4 @@ Match host * exec "gpg-connect-agent UPDATESTARTUPTTY /bye"
 
 Match host *.wg,*.pulpo
   IdentityFile ~/.ssh/nym.pub
+{{ end }}

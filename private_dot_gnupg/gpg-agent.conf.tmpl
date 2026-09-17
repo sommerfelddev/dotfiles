@@ -1,0 +1,7 @@
+enable-ssh-support
+{{ if eq (default "host" (index . "machineRole")) "canonical" }}
+pinentry-program /usr/bin/pinentry-gnome3
+{{ else }}
+pinentry-program {{ .chezmoi.homeDir }}/.nix-profile/bin/pinentry-curses
+{{ end }}
+allow-loopback-pinentry

@@ -1,4 +1,7 @@
 #!/usr/bin/env dash
+if [ "$(cat "$HOME/.config/dotfiles/role" 2>/dev/null)" = canonical ]; then
+  exec /usr/bin/python3 "$HOME/.local/lib/dotfiles/record.py" "$@"
+fi
 
 pid_file="/tmp/recordpid"
 log_file="/tmp/record.log"

@@ -385,8 +385,10 @@ za() {
 # (e.g. attached over SSH, then reattached locally, or vice versa).
 reload-env() {
 	local pid
-	pid=$(pgrep -u "$UID" -x sway | head -1) || {
-		echo "reload-env: no sway process found for $USER" >&2
+	local compositor=sway
+	[[ $(<"$HOME/.config/dotfiles/role") == canonical ]] && compositor=gnome-shell
+	pid=$(pgrep -u "$UID" -x "$compositor" | head -1) || {
+		echo "reload-env: no $compositor process found for $USER" >&2
 		return 1
 	}
 	local kv
@@ -409,11 +411,9 @@ alias rj='just --justfile ~/.local/share/dotfiles/nix/justfile --working-directo
 
 # Home-Manager (flake-based; standalone HM defaults to legacy ~/.config/home-manager)
 hm() {
-    local profile=host
-    [ -r /etc/os-release ] && . /etc/os-release
-    case "${ID:-}" in
-        ubuntu|debian) profile=vm ;;
-    esac
+    local profile
+    profile=$(chezmoi data | jq -er '.machineRole') || return
+    case $profile in host|vm|canonical) ;; *) return 1 ;; esac
     local flake="$HOME/dotfiles/nix#${profile}"
     [ -d "$HOME/.local/share/dotfiles/nix" ] && flake="$HOME/.local/share/dotfiles/nix#${profile}"
     nix run home-manager/master -- "$@" --flake "$flake" --impure

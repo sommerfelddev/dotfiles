@@ -1,7 +1,13 @@
 [user]
+{{ if eq (default "host" (index . "machineRole")) "canonical" }}
+    email = {{ .workEmail | quote }}
+    name = {{ .workName | quote }}
+    signingkey = {{ .workSigningKey | quote }}
+{{ else }}
     email = sommerfeld@sommerfeld.dev
     name = sommerfeld
     signingkey = 3298945F717C85F8
+{{ end }}
 [push]
     autoSetupRemote = true
     followTags = true
@@ -9,8 +15,10 @@
 [core]
     whitespace = trailing-space,cr-at-eol
     pager = delta
+{{ if ne (default "host" (index . "machineRole")) "canonical" }}
     hooksPath = ~/.config/git/hooks
     sshCommand = "ssh -i ~/.ssh/nym.pub"
+{{ end }}
 [branch]
     sort=-committerdate
 [diff]
@@ -129,6 +137,7 @@
     swd = switch -d
     unstage = reset HEAD --
     update=!git fetch && git merge --ff-only
+{{ if ne (default "host" (index . "machineRole")) "canonical" }}
 [includeIf "gitdir:~/doxfiles/.git"]
     path = config-personal
 [includeIf "gitdir:~/dev/personal/"]
@@ -149,6 +158,7 @@
     assume8bitEncoding = UTF-8
 [credential "smtp://127.0.0.1:1016"]
     helper = "!f() { test \"$1\" = get && printf 'password=%s\\n' \"$(pass show proton/bridge-smtp)\"; }; f"
+{{ end }}
 [include]
     ; Machine-local overrides. Git silently skips this if the file is absent.
     path = ~/.config/git/config.local

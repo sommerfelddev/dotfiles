@@ -91,3 +91,20 @@ _undeclared_packages() {
     done
   fi
 }
+_machine_role() {
+  role=$(chezmoi data -S "${DOTFILES_SOURCE:-.}" | jq -er '.machineRole') || return 1
+  case "$role" in
+    host | vm | canonical) printf '%s\n' "$role" ;;
+    *)
+      echo 'error: initialize chezmoi with host, vm, or canonical role first' >&2
+      return 1
+      ;;
+  esac
+}
+
+_require_host() {
+  [ "$(_machine_role)" = host ] || {
+    echo 'error: this recipe is for the Arch host only' >&2
+    return 1
+  }
+}

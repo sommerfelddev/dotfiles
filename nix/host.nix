@@ -9,26 +9,7 @@
 # Arch host Home-Manager package profile.
 
 let
-  whisper-cpp-model-base = pkgs.stdenvNoCC.mkDerivation rec {
-    pname = "whisper-cpp-model-base";
-    version = "1.0";
-    src = pkgs.fetchurl {
-      url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin";
-      hash = "sha256-YO1bw90U7qhWST0zQ0m0BXgt3K8AKNS130CINF+6Lv4=";
-    };
-    dontUnpack = true;
-    installPhase = ''
-      runHook preInstall
-      install -Dm644 $src $out/share/whisper-cpp-models/ggml-base.bin
-      runHook postInstall
-    '';
-    meta = with lib; {
-      description = "Whisper.cpp ggml-base.bin model (142 MB, multilingual)";
-      homepage = "https://huggingface.co/ggerganov/whisper.cpp";
-      license = licenses.mit;
-      platforms = platforms.all;
-    };
-  };
+  whisper-cpp-model-base = import ./whisper-model.nix { inherit pkgs lib; };
   pass-secret-service-rust = pkgs.rustPlatform.buildRustPackage rec {
     pname = "pass-secret-service";
     version = "0.7.0";

@@ -1,5 +1,5 @@
 {{- $machineRole := default "host" (index . "machineRole") -}}
-{{- if eq $machineRole "vm" -}}
+{{- if ne $machineRole "host" -}}
 # Rootless podman storage configuration: VM ext4.
 
 [storage]

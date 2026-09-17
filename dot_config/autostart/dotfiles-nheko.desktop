@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Nheko Work
+Exec=/usr/bin/flatpak run im.nheko.Nheko --profile work
+OnlyShowIn=GNOME;

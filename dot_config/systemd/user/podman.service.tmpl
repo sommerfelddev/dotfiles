@@ -1,0 +1,9 @@
+[Unit]
+Description=Rootless Podman API
+Requires=podman.socket
+After=podman.socket
+
+[Service]
+Type=exec
+ExecStart="{{ .chezmoi.homeDir }}/.nix-profile/bin/podman" system service
+KillMode=process

@@ -77,7 +77,9 @@ stop_and_transcribe() {
   fi
 
   printf '%s' "$text" | wl-copy
-  wtype -- "$text"
+  if [ "$(cat "$HOME/.config/dotfiles/role" 2>/dev/null)" != canonical ]; then
+    wtype -- "$text"
+  fi
   notify-send -t 2500 "🎙️ Dictated" "$text"
 }
 

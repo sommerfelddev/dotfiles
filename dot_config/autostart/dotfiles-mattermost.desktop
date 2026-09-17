@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Mattermost
+Exec=/snap/bin/mattermost-desktop --hidden
+OnlyShowIn=GNOME;

@@ -1,0 +1,10 @@
+abi <abi/4.0>,
+include <tunables/global>
+
+profile dotfiles-nix-bwrap /nix/store/*-bubblewrap-*/bin/bwrap flags=(unconfined) {
+  userns,
+}
+
+profile dotfiles-nix-podman /nix/store/*-podman-*/bin/{podman,.podman-wrapped} flags=(unconfined) {
+  userns,
+}

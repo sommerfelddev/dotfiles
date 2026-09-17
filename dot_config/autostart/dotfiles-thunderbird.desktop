@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Thunderbird
+Exec=/snap/bin/thunderbird
+OnlyShowIn=GNOME;

@@ -7,7 +7,7 @@ default:
 # ═══════════════════════════════════════════════════════════════════
 
 # First-time machine setup: regenerate chezmoi config, install git hooks, deploy dotfiles, install base packages, switch Home-Manager, enable curated units
-init: _chezmoi-init _install-hooks apply (pkg-apply "base") nix-switch unit-apply
+init: _chezmoi-init _install-hooks (pkg-apply "base") nix-switch apply unit-apply _canonical-finish
 
 # ═══════════════════════════════════════════════════════════════════
 # Day-to-day
@@ -16,61 +16,81 @@ init: _chezmoi-init _install-hooks apply (pkg-apply "base") nix-switch unit-appl
 # Reconcile everything: deploy dotfiles + /etc, top up packages, sync Home-Manager, enable curated units
 sync: apply pkg-fix nix-switch unit-apply
 
-# Deploy dotfiles AND /etc atomically (chezmoi apply; /etc handled by onchange template)
+# Deploy home files and the role-specific hooks.
 apply:
     chezmoi apply -S . -v
 
-# Apply Home-Manager profile (host on Arch, vm on Ubuntu remote-dev). Falls
-
-# back to a no-op when nix isn't installed (pre-bootstrap state).
+# Build and activate the saved chezmoi role using the locked Home-Manager input.
 nix-switch:
-    #!/bin/sh
+    @bash "{{ justfile_directory() }}/nix/switch.sh"
+
+# Read-only corporate setup checks.
+canonical-check:
+    @python3 scripts/canonical.py check
+
+# Install corporate packages, profile, dotfiles, and desktop settings.
+canonical-setup: _require-canonical _install-hooks (pkg-apply "base") nix-switch apply canonical-system canonical-extensions canonical-desktop
+
+_require-canonical:
+    #!/usr/bin/env bash
     set -eu
-    if ! command -v nix >/dev/null 2>&1; then
-        echo "nix not installed; skipping home-manager switch" >&2
-        exit 0
-    fi
-    # home-manager's activation script references $USER unconditionally;
-    # just runs recipes with a sanitized env that may drop it.
-    export USER="${USER:-$(id -un)}"
-    export HOME="${HOME:-$(getent passwd "$USER" | cut -d: -f6)}"
-    profile=host
-    [ -f /etc/os-release ] && . /etc/os-release || true
-    case "${ID:-}" in
-        ubuntu|debian) profile=vm ;;
-    esac
-    sh "{{ justfile_directory() }}/nix/with-github-auth.sh" \
-        nix --extra-experimental-features 'nix-command flakes' \
-        run home-manager/master -- \
-        switch --impure --flake "{{ justfile_directory() }}/nix#${profile}" -b backup
-    # Keep the login shell pointed at the Home-Manager-managed zsh.
-    NIX_ZSH="$HOME/.nix-profile/bin/zsh"
-    if [ -x "$NIX_ZSH" ]; then
-        if ! grep -qxF "$NIX_ZSH" /etc/shells 2>/dev/null; then
-            echo "$NIX_ZSH" | sudo tee -a /etc/shells >/dev/null
-        fi
-        current_shell="$(getent passwd "$USER" | cut -d: -f7)"
-        if [ "$current_shell" != "$NIX_ZSH" ]; then
-            sudo chsh -s "$NIX_ZSH" "$USER"
-        fi
-    fi
+    source just-lib.sh
+    [ "$(_machine_role)" = canonical ]
+
+# Install the two program-scoped AppArmor profiles and Thunderbird GPG access.
+canonical-system: _require-canonical
+    @bash scripts/canonical-system.sh
+
+canonical-extensions: _require-canonical
+    @python3 scripts/canonical.py extensions
+
+canonical-desktop: _require-canonical
+    @/usr/bin/python3 dot_local/lib/dotfiles/canonical_desktop.py settings
+
+# Set preferences after the first Firefox and Thunderbird launch.
+canonical-profiles: _require-canonical
+    @python3 -m scripts.canonical_profiles
+
+# Restore only desktop keys previously changed by this repo.
+canonical-desktop-restore: _require-canonical
+    @/usr/bin/python3 dot_local/lib/dotfiles/canonical_desktop.py restore
+
+# Upgrade an upstream multi-user Nix installation separately from package inputs.
+nix-daemon-update: _require-canonical
+    @bash scripts/nix-daemon-update.sh
+
+# Check package commands and chezmoi role boundaries without deployment.
+test:
+    @python3 -m unittest discover -s tests -v
 
 # ═══════════════════════════════════════════════════════════════════
 # Updates
 # ═══════════════════════════════════════════════════════════════════
 
 # Update everything: system packages, flatpaks, nix flake inputs
-update: pkg-update flatpak-update nix-update nvim-update
+update: pkg-update flatpak-update nix-update nvim-update _desktop-update
 
 # Upgrade official Arch packages, after showing newly published Arch news.
 pkg-update: arch-news-check _pacman-upgrade
 
 _pacman-upgrade:
-    @sudo pacman -Syu
+    #!/usr/bin/env bash
+    set -eu
+    source just-lib.sh
+    role=$(_machine_role) || exit 1
+    case "$role" in
+      host) sudo pacman -Syu ;;
+      canonical) python3 scripts/canonical.py update ;;
+      vm) echo "System packages are not managed for the VM." ;;
+    esac
 
 # Show new Arch Linux news and ask whether to proceed, like paru's NewsOnUpgrade.
 arch-news-check:
-    @sh "{{ justfile_directory() }}/dot_local/bin/executable_arch-news-check"
+    #!/usr/bin/env bash
+    set -eu
+    source just-lib.sh
+    [ "$(_machine_role)" = host ] || exit 0
+    sh "{{ justfile_directory() }}/dot_local/bin/executable_arch-news-check"
 
 # Mark the current Arch Linux news feed as seen without running an upgrade.
 arch-news-read:
@@ -96,6 +116,12 @@ _nix-flake-update:
 # Update all user-scope flatpaks (Flathub apps + URL bundles when their version changes)
 flatpak-update:
     #!/usr/bin/env dash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    role=$(_machine_role) || exit 1
+    case "$role" in
+      canonical) exec python3 scripts/canonical.py flatpak-update ;;
+      vm) exit 0 ;;
+    esac
     set -eu
     flatpak update --user -y --noninteractive
     [ -f meta/flatpak.txt ] || exit 0
@@ -192,25 +218,7 @@ _lockfiles-commit:
     git commit -m "$msg" -- "${lockfiles[@]}"
 
 # Re-add changes from live files back into the repo; pass a path to target one, or omit for all
-re-add *paths:
-    #!/usr/bin/env bash
-    set -eo pipefail
-    args=({{ paths }})
-    if [ ${#args[@]} -eq 0 ]; then
-        just dotfiles-re-add
-        just etc-re-add
-        exit 0
-    fi
-    for raw in "${args[@]}"; do
-        case "$raw" in
-            /etc/*|etc/*) just etc-re-add "$raw" ;;
-            */*)          just dotfiles-re-add "$raw" ;;
-            *)
-                echo "error: re-add needs a path (got bare word: $raw)" >&2
-                exit 1
-                ;;
-        esac
-    done
+re-add *paths: (_maintenance-home "re-add" paths) (_etc-re-add "auto" paths) (_maintenance-apply-etc "auto" paths)
 
 # Format code; pass a path to format a single file, or omit to format everything
 fmt *target:
@@ -485,46 +493,21 @@ forget +args:
     just pkg-forget "${args[@]}"
 
 # Show dotfile + /etc diffs; pass a path to limit to a single file
-diff *paths:
-    #!/usr/bin/env bash
-    set -eo pipefail
-    args=({{ paths }})
-    if [ ${#args[@]} -eq 0 ]; then
-        just dotfiles-diff
-        just etc-diff
-        exit 0
-    fi
-    for raw in "${args[@]}"; do
-        case "$raw" in
-            /etc/*|etc/*) just etc-diff "$raw" ;;
-            */*)          just dotfiles-diff "$raw" ;;
-            *)
-                echo "error: diff needs a path (got bare word: $raw)" >&2
-                exit 1
-                ;;
-        esac
-    done
+diff *paths: (_maintenance-home "diff" paths) (_etc-diff "auto" paths)
 
 # 3-way merge dotfile or /etc conflicts; pass a path for one file, or omit to merge all
-merge *paths:
+merge *paths: (_maintenance-home "merge" paths) (_etc-merge "auto" paths)
+
+_maintenance-home action *paths:
     #!/usr/bin/env bash
     set -eo pipefail
-    args=({{ paths }})
-    if [ ${#args[@]} -eq 0 ]; then
-        just dotfiles-merge
-        just etc-merge
-        exit 0
-    fi
-    for raw in "${args[@]}"; do
-        case "$raw" in
-            /etc/*|etc/*) just etc-merge "$raw" ;;
-            */*)          just dotfiles-merge "$raw" ;;
-            *)
-                echo "error: merge needs a path (got bare word: $raw)" >&2
-                exit 1
-                ;;
-        esac
-    done
+    source just-lib.sh
+    source scripts/maintenance-lib.sh
+    _maintenance_select auto home {{ paths }}
+    "$maintenance_run" || exit 0
+    action={{ action }}
+    if [ "$action" = merge ] && [ ${#args[@]} -eq 0 ]; then action=merge-all; fi
+    chezmoi "$action" -S . "${args[@]}"
 
 # ═══════════════════════════════════════════════════════════════════
 # Dotfiles domain (chezmoi-backed)
@@ -575,6 +558,8 @@ dotfiles-status:
 # List curated systemd units with their enabled/active state
 unit-list:
     #!/usr/bin/env dash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    [ "$(_machine_role)" = host ] || { echo "Use canonical-check for corporate status."; exit 0; }
     _render() {
         scope=$1 file=$2
         sctl="systemctl"; [ "$scope" = user ] && sctl="systemctl --user"
@@ -604,6 +589,8 @@ unit-list:
 # Enable all curated systemd units (idempotent, soft-fail per unit); walks system + user lists
 unit-apply:
     #!/usr/bin/env dash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    [ "$(_machine_role)" = host ] || exit 0
     if [ -f systemd-units/system.txt ]; then
         sed -E 's/[[:space:]]*#.*$//; /^[[:space:]]*$/d' systemd-units/system.txt | while read -r u; do
             sudo systemctl enable --now "$u" \
@@ -620,6 +607,8 @@ unit-apply:
 # Show drift between curated units and actually-enabled systemd units (system + user)
 unit-status:
     #!/usr/bin/env dash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    [ "$(_machine_role)" = host ] || { echo "Use canonical-check for corporate status."; exit 0; }
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
     _drift() {
         scope=$1 label=$2
@@ -658,6 +647,8 @@ unit-status:
 # inferred by probing `systemctl [--user] cat <unit>` (system wins on tie).
 unit-add +units:
     #!/usr/bin/env dash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    _require_host || exit 1
     set -eu
     _scope() {
         u=$1
@@ -696,6 +687,8 @@ unit-add +units:
 # inferred from which list currently contains the unit.
 unit-forget +units:
     #!/usr/bin/env dash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    _require_host || exit 1
     set -eu
     for u in {{ units }}; do
         scope=
@@ -728,6 +721,8 @@ unit-forget +units:
 # Show /etc drift: repo-tracked files that differ from or are missing on the host
 etc-status:
     #!/usr/bin/env bash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    [ "$(_machine_role)" = host ] || { echo "Use canonical-check for corporate status."; exit 0; }
     set -eo pipefail
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
     echo "=== /etc drift ==="
@@ -749,9 +744,15 @@ etc-status:
     done < <(find etc -type f ! -name .ignore | sort)
 
 # Diff repo-managed etc/<path> against live /etc/<path> (all managed files if no args)
-etc-diff *paths:
+etc-diff *paths: (_etc-diff "host" paths)
+
+_etc-diff scope *paths:
     #!/usr/bin/env bash
+    . "{{ justfile_directory() }}/just-lib.sh"
     set -eo pipefail
+    source scripts/maintenance-lib.sh
+    _maintenance_select '{{ scope }}' etc {{ paths }}
+    "$maintenance_run" || exit 0
     diff_labels=0
     if diff -u --label old --label new /dev/null /dev/null >/dev/null 2>&1; then
         diff_labels=1
@@ -764,7 +765,6 @@ etc-diff *paths:
             diff -u "$left" "$right"
         fi
     }
-    args=({{ paths }})
     if [ ${#args[@]} -eq 0 ]; then
         mapfile -t args < <(find etc -type f ! -name .ignore | sort)
     fi
@@ -808,6 +808,8 @@ etc-diff *paths:
 # Diff live /etc/<path> against pristine pacman version (defaults to all repo-managed files)
 etc-upstream-diff *paths:
     #!/usr/bin/env bash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    _require_host || exit 1
     set -eo pipefail
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
     diff_labels=0
@@ -880,10 +882,15 @@ etc-upstream-diff *paths:
     done
 
 # 3-way merge tracked /etc files against their live /etc counterparts (edit repo side)
-etc-merge *paths:
+etc-merge *paths: (_etc-merge "host" paths)
+
+_etc-merge scope *paths:
     #!/usr/bin/env bash
+    . "{{ justfile_directory() }}/just-lib.sh"
     set -eo pipefail
-    args=({{ paths }})
+    source scripts/maintenance-lib.sh
+    _maintenance_select '{{ scope }}' etc {{ paths }}
+    "$maintenance_run" || exit 0
     if [ ${#args[@]} -eq 0 ]; then
         mapfile -t args < <(find etc -type f ! -name .ignore | sort)
     fi
@@ -926,6 +933,8 @@ etc-merge *paths:
 # Copy one or more /etc/<path> regular files into the repo's etc/ tree
 etc-add +paths:
     #!/usr/bin/env bash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    _require_host || exit 1
     set -eo pipefail
     for path in {{ paths }}; do
         case "$path" in
@@ -943,15 +952,19 @@ etc-add +paths:
     echo "Run 'chezmoi apply' to sync (no-op content-wise, refreshes deploy hash)."
 
 # Re-add changes from live /etc back into the repo (no args = all tracked files)
-etc-re-add *paths: (_etc-re-add paths) _apply-etc-re-add
+etc-re-add *paths: (_etc-re-add "host" paths) (_maintenance-apply-etc "host" paths)
 
-_etc-re-add *paths:
+_etc-re-add scope *paths:
     #!/usr/bin/env bash
+    . "{{ justfile_directory() }}/just-lib.sh"
     set -eo pipefail
+    source scripts/maintenance-lib.sh
+    _maintenance_select '{{ scope }}' etc {{ paths }}
+    "$maintenance_run" || exit 0
     # Build target list: explicit paths, or every tracked repo file.
     targets=()
-    if [ -n "{{ paths }}" ]; then
-        for raw in {{ paths }}; do
+    if [ ${#args[@]} -gt 0 ]; then
+        for raw in "${args[@]}"; do
             case "$raw" in
                 *..*|*/./*|./*|../*) echo "error: unsafe path: $raw" >&2; exit 1 ;;
             esac
@@ -999,6 +1012,8 @@ etc-forget +paths: (_etc-forget paths) _apply-etc-forget
 
 _etc-forget +paths:
     #!/usr/bin/env bash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    _require_host || exit 1
     set -eo pipefail
     for raw in {{ paths }}; do
         case "$raw" in
@@ -1022,6 +1037,8 @@ etc-reset +paths: (_etc-reset paths) _apply-etc-reset
 
 _etc-reset +paths:
     #!/usr/bin/env bash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    _require_host || exit 1
     set -eo pipefail
     for raw in {{ paths }}; do
         case "$raw" in
@@ -1058,7 +1075,13 @@ _etc-reset +paths:
 # Stop tracking one or more /etc files: reset to pristine, deploy, then drop from repo
 etc-untrack +paths: (_etc-reset paths) _apply-etc-reset (_etc-forget paths) _apply-etc-forget
 
-_apply-etc-re-add:
+_maintenance-apply-etc scope *paths:
+    #!/usr/bin/env bash
+    set -eo pipefail
+    source just-lib.sh
+    source scripts/maintenance-lib.sh
+    _maintenance_select '{{ scope }}' etc {{ paths }}
+    "$maintenance_run" || exit 0
     chezmoi apply -S . -v
 
 _apply-etc-reset:
@@ -1070,6 +1093,8 @@ _apply-etc-forget:
 # Restore live /etc/<path> to pristine pacman contents (bypasses the repo)
 etc-restore +paths:
     #!/usr/bin/env bash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    _require_host || exit 1
     set -eo pipefail
     for raw in {{ paths }}; do
         case "$raw" in
@@ -1112,6 +1137,8 @@ etc-restore +paths:
 pkg-status:
     #!/usr/bin/env dash
     . "{{ justfile_directory() }}/just-lib.sh"
+    [ "$(_machine_role)" = host ] || { echo "Use canonical-check for corporate status."; exit 0; }
+    . "{{ justfile_directory() }}/just-lib.sh"
     flatpaks=$(flatpak list --user --app --columns=application 2>/dev/null || true)
     echo "=== Package drift ==="
     _active_pacman_packages | while read -r pkg; do
@@ -1130,11 +1157,15 @@ pkg-status:
 undeclared:
     #!/usr/bin/env dash
     . "{{ justfile_directory() }}/just-lib.sh"
+    _require_host || exit 1
+    . "{{ justfile_directory() }}/just-lib.sh"
     _undeclared_packages
 
 # Show per-group install coverage; pass a group name for a per-package breakdown
 pkg-list group="":
     #!/usr/bin/env dash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    [ "$(_machine_role)" = host ] || { echo "Use canonical-check for corporate status."; exit 0; }
     is_installed() {
         # $1: group name, $2: package/app id
         if [ "$1" = "flatpak" ]; then
@@ -1194,6 +1225,12 @@ pkg-list group="":
 # Install one or more package groups, or all groups if none given (e.g. just pkg-apply base intel)
 pkg-apply *groups:
     #!/usr/bin/env dash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    role=$(_machine_role) || exit 1
+    case "$role" in
+      canonical) exec python3 scripts/canonical.py install ;;
+      vm) exit 0 ;;
+    esac
     set -eu
     . "{{ justfile_directory() }}/just-lib.sh"
     # Keep declared packages marked explicit in the local pacman DB.
@@ -1228,6 +1265,12 @@ pkg-apply *groups:
 pkg-fix:
     #!/usr/bin/env dash
     . "{{ justfile_directory() }}/just-lib.sh"
+    role=$(_machine_role) || exit 1
+    case "$role" in
+      canonical) exec python3 scripts/canonical.py install ;;
+      vm) exit 0 ;;
+    esac
+    . "{{ justfile_directory() }}/just-lib.sh"
     flatpaks=$(flatpak list --user --app --columns=application 2>/dev/null || true)
     for file in meta/*.txt; do
         group=$(basename "$file" .txt)
@@ -1258,6 +1301,8 @@ pkg-fix:
 # Append one or more packages to a group list and install them (e.g. just pkg-add base ripgrep fd)
 pkg-add group +pkgs:
     #!/usr/bin/env dash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    _require_host || exit 1
     set -eu
     file="meta/{{ group }}.txt"
     if [ ! -f "$file" ]; then
@@ -1283,6 +1328,8 @@ pkg-add group +pkgs:
 # Remove one or more packages from a group list (does NOT uninstall; the package may belong to other groups)
 pkg-forget group +pkgs:
     #!/usr/bin/env dash
+    . "{{ justfile_directory() }}/just-lib.sh"
+    _require_host || exit 1
     set -eu
     file="meta/{{ group }}.txt"
     if [ ! -f "$file" ]; then
@@ -1307,8 +1354,14 @@ _chezmoi-init:
     chezmoi init -S .
 
 _install-hooks:
-    # Let the user-level git hooks dispatch project hooks.
-    git config --local --unset core.hooksPath 2>/dev/null || true
+    #!/usr/bin/env bash
+    set -eu
+    source just-lib.sh
+    if [ "$(_machine_role)" = canonical ]; then
+        git config --local core.hooksPath .githooks
+    else
+        git config --local --unset core.hooksPath 2>/dev/null || true
+    fi
 
 # Install all flatpaks declared in meta/flatpak.txt. Flathub IDs are batched
 # into a single install call; URL bundles are downloaded and installed only
@@ -1326,3 +1379,19 @@ _active-packages:
     #!/usr/bin/env dash
     . "{{ justfile_directory() }}/just-lib.sh"
     _active_pacman_packages
+
+_desktop-update:
+    #!/usr/bin/env bash
+    set -eu
+    source just-lib.sh
+    [ "$(_machine_role)" = canonical ] || exit 0
+    gext update --install $(sed '/^#/d; /^$/d' meta/canonical/extensions.txt)
+
+_canonical-finish:
+    #!/usr/bin/env bash
+    set -eu
+    source just-lib.sh
+    [ "$(_machine_role)" = canonical ] || exit 0
+    bash scripts/canonical-system.sh
+    python3 scripts/canonical.py extensions
+    /usr/bin/python3 dot_local/lib/dotfiles/canonical_desktop.py settings

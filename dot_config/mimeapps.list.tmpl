@@ -1,3 +1,16 @@
+{{ if eq (default "host" (index . "machineRole")) "canonical" }}
+[Default Applications]
+application/pdf=org.pwmt.zathura.desktop
+x-scheme-handler/http=firefox_firefox.desktop
+x-scheme-handler/https=firefox_firefox.desktop
+text/html=firefox_firefox.desktop
+x-scheme-handler/mailto=thunderbird_thunderbird.desktop
+x-scheme-handler/webcal=thunderbird_thunderbird.desktop
+message/rfc822=thunderbird_thunderbird.desktop
+
+[Removed Associations]
+application/pdf=org.pwmt.zathura-pdf-poppler.desktop;
+{{ else }}
 [Default Applications]
 audio/x-vorbis+ogg=io.mpv.Mpv.desktop
 audio/aac=io.mpv.Mpv.desktop
@@ -115,3 +128,4 @@ x-scheme-handler/webcals=org.mozilla.thunderbird.desktop;
 [Removed Associations]
 application/pdf=org.pwmt.zathura-pdf-poppler.desktop;
 application/postscript=org.pwmt.zathura-ps.desktop;
+{{ end }}

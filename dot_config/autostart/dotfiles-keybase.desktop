@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Keybase
+Exec=env KEYBASE_AUTOSTART=1 /snap/bin/keybase
+OnlyShowIn=GNOME;

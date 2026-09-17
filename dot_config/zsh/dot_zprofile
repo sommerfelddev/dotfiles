@@ -4,6 +4,8 @@
 # Guard against double-sourcing (e.g. nested login shells)
 [[ -n $__ZPROFILE_SOURCED ]] && return
 __ZPROFILE_SOURCED=1
+_dotfiles_role=host
+[[ -r "$HOME/.config/dotfiles/role" ]] && _dotfiles_role=$(<"$HOME/.config/dotfiles/role")
 
 # ── PATH ──────────────────────────────────────────────────────────────────────
 typeset -U path  # deduplicate PATH entries
@@ -104,13 +106,15 @@ export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswi
 export _JAVA_AWT_WM_NONREPARENTING=1
 
 # ── Miscellaneous ─────────────────────────────────────────────────────────────
-export QT_QPA_PLATFORMTHEME=qt6ct
-export NO_AT_BRIDGE=1          # suppress GTK accessibility bus warnings
+if [[ $_dotfiles_role == host ]]; then
+    export QT_QPA_PLATFORMTHEME=qt6ct
+    export NO_AT_BRIDGE=1
+fi
 export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/podman/podman.sock"
 export INPUTRC="$XDG_CONFIG_HOME/sh/inputrc"
 
 # ── Wayland ───────────────────────────────────────────────────────────────────
-export XDG_CURRENT_DESKTOP=sway
+[[ $_dotfiles_role == host ]] && export XDG_CURRENT_DESKTOP=sway
 # Prefer Wayland for Qt; fall back to xcb for apps without qt{5,6}-wayland.
 export QT_QPA_PLATFORM="wayland;xcb"
 # SDL2 defaults to X11; force Wayland with X11 fallback. SDL3 ignores this.
@@ -142,7 +146,7 @@ case $(uname -n) in
 esac
 
 # ── Auto-start sway on VT1 ────────────────────────────────────────────────────
-if [[ -z $WAYLAND_DISPLAY && $XDG_VTNR == 1 ]]; then
+if [[ $_dotfiles_role == host && -z $WAYLAND_DISPLAY && $XDG_VTNR == 1 ]]; then
     export XDG_SESSION_TYPE=wayland
     exec sway
 fi

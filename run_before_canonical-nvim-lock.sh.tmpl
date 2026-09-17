@@ -1,0 +1,9 @@
+{{ if eq (default "host" (index . "machineRole")) "canonical" -}}
+#!/bin/sh
+set -eu
+target="${XDG_CONFIG_HOME:-$HOME/.config}/nvim/nvim-pack-lock.json"
+if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+  mkdir -p "$(dirname "$target")"
+  cp {{ printf "%s/dot_config/nvim/nvim-pack-lock.json" .chezmoi.sourceDir | quote }} "$target"
+fi
+{{ end -}}

@@ -1,4 +1,7 @@
 #!/usr/bin/env dash
+if [ "$(cat "$HOME/.config/dotfiles/role" 2>/dev/null)" = canonical ]; then
+  exec /usr/bin/xdg-open "$@"
+fi
 
 resolve_url() {
   if [ -f "$1" ]; then
