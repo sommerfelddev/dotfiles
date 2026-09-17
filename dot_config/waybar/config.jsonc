@@ -25,7 +25,6 @@
     "custom/arch-audit",
     "custom/failed-units",
     "custom/lostfiles",
-    "custom/thunderbird",
     "clock",
     "tray",
   ],
@@ -252,14 +251,6 @@
     "return-type": "json",
     "interval": 600,
     "on-click": "ghostty --class=floating -e nvim -R /run/lostfiles.txt",
-    "tooltip": true,
-  },
-
-  "custom/thunderbird": {
-    "exec": "~/.config/waybar/tb-unread.sh",
-    "return-type": "json",
-    "interval": 60,
-    "on-click": "~/.config/sway/tb-toggle.sh",
     "tooltip": true,
   },
 }
