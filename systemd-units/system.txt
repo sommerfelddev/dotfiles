@@ -22,6 +22,9 @@ btrfs-balance@-.timer
 arch-audit.timer
 lostfiles.timer
 
+# --- TPM policy maintenance ---
+systemd-pcrlock-make-policy.service
+
 # --- bluetooth ---
 bluetooth.service
 
