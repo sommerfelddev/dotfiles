@@ -143,6 +143,12 @@ a terminal tool; this role does not install the pass Secret Service daemon.
 
 The lists are in `meta/canonical/`. Ghostty's classic confinement is explicit.
 
+The corporate profile uses Ubuntu's coreutils for account lookup through authd.
+It does not install Nix coreutils. If a Nix program cannot resolve your user or
+group, compare it with the corresponding `/usr/bin` command. Do not change the
+account UID or add a duplicate entry to `/etc/passwd`. The test VM uses a local
+account and does not test authd lookups.
+
 Tuicr's Rust crates are fetched from the official static archive server with
 Cargo.lock checksum verification. `just nix-crate-check` tests a fresh download
 without using its cached output. Bootstrap does not need a manual crate prefetch.

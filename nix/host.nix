@@ -54,6 +54,8 @@ in
   home.sessionVariables.NVIM_TREESITTER_CC = "${pkgs.stdenv.cc}/bin/cc";
 
   home.packages = with pkgs; [
+    uutils-coreutils-noprefix
+
     # ── Thunderbird helpers ───────────────────────────────────────────────────
     external-editor-revived
 

@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 
 # VM-only Home-Manager package profile.
 {
@@ -11,5 +11,5 @@
     PODMAN_IGNORE_CGROUPSV1_WARNING = "1";
   };
 
-  home.packages = [ ];
+  home.packages = [ pkgs.uutils-coreutils-noprefix ];
 }

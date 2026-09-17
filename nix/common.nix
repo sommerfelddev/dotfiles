@@ -89,7 +89,6 @@ in
     # Prefer Rust uutils for the unprefixed replacements that pass repo-local
     # usage checks. Keep GNU tar on the system PATH for now; uutils-tar still
     # rejects common GNU tar invocations like `tar -czf`.
-    uutils-coreutils-noprefix
     uutils-diffutils
     uutils-findutils
     uutils-procps
