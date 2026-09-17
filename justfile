@@ -39,7 +39,8 @@ nix-switch:
     case "${ID:-}" in
         ubuntu|debian) profile=vm ;;
     esac
-    nix --extra-experimental-features 'nix-command flakes' \
+    sh "{{ justfile_directory() }}/nix/with-github-auth.sh" \
+        nix --extra-experimental-features 'nix-command flakes' \
         run home-manager/master -- \
         switch --impure --flake "{{ justfile_directory() }}/nix#${profile}" -b backup
     # Keep the login shell pointed at the Home-Manager-managed zsh.
@@ -88,7 +89,8 @@ _nix-flake-update:
         echo "nix not installed; skipping flake update" >&2
         exit 0
     fi
-    nix --extra-experimental-features 'nix-command flakes' \
+    sh "{{ justfile_directory() }}/nix/with-github-auth.sh" \
+        nix --extra-experimental-features 'nix-command flakes' \
         flake update --flake "{{ justfile_directory() }}/nix"
 
 # Update all user-scope flatpaks (Flathub apps + URL bundles when their version changes)
