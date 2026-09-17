@@ -1,0 +1,14 @@
+[Unit]
+Description=Nheko Matrix client (%i profile)
+PartOf=graphical-session.target
+After=graphical-session.target waybar.service
+ConditionEnvironment=DISPLAY
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/flatpak run --die-with-parent im.nheko.Nheko --profile %i
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=sway-session.target

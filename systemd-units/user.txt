@@ -9,12 +9,16 @@ display-watcher.service
 inhibridge.service
 keybase-gui.service
 mako.service
+mattermost.service
+nheko@personal.service
+nheko@work.service
 pass-secret-service.service
 poweralertd.service
 signal.service
 swayidle.service
 swayrd.service
 waybar.service
+whatsie.service
 wob.service
 
 # --- keybase ---

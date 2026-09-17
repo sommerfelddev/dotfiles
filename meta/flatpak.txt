@@ -8,6 +8,7 @@
 # Bundle entries are re-downloaded on `just flatpak-update` whenever the
 # version embedded in the URL differs from the installed version.
 
+im.nheko.Nheko
 io.gitlab.librewolf-community
 io.github.ungoogled_software.ungoogled_chromium
 io.mpv.Mpv
@@ -19,6 +20,8 @@ org.pwmt.zathura
 org.signal.Signal
 org.torproject.torbrowser-launcher
 com.mattermost.Desktop
+com.ktechpit.whatsie
+us.zoom.Zoom
 
 # Portuguese Citizen Card (eID) middleware + GUI. Not on Flathub; ships
 # as a standalone .flatpak bundle from upstream. Bump version by editing

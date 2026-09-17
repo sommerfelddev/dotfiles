@@ -157,6 +157,9 @@
 
   "tray": {
     "spacing": 8,
+    "icons": {
+      "Mattermost_status_icon_1": "com.mattermost.Desktop",
+    },
   },
 
   "idle_inhibitor": {
