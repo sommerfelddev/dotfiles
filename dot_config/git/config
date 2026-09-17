@@ -10,6 +10,7 @@
     whitespace = trailing-space,cr-at-eol
     pager = delta
     hooksPath = ~/.config/git/hooks
+    sshCommand = "ssh -i ~/.ssh/nym.pub"
 [branch]
     sort=-committerdate
 [diff]
@@ -130,10 +131,10 @@
     update=!git fetch && git merge --ff-only
 [includeIf "gitdir:~/doxfiles/.git"]
     path = config-personal
-[includeIf "gitdir:~/dev/copilot/.git"]
-    path = config-personal
 [includeIf "gitdir:~/dev/personal/"]
     path = config-personal
+[includeIf "gitdir:~/dev/canonical/"]
+    path = config-work
 [sendemail]
     smtpServer = 127.0.0.1
     smtpServerPort = 1016

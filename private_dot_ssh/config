@@ -6,11 +6,14 @@ ControlMaster auto
 ControlPersist 10
 AddressFamily inet
 ServerAliveInterval 120
-
-Match host * exec "gpg-connect-agent UPDATESTARTUPTTY /bye"
-
-IdentityFile ~/.ssh/nym.pub
 IdentitiesOnly yes
 
 Host git.sommerfeld.dev
   Hostname mandibles.wg
+
+Include work.config
+
+Match host * exec "gpg-connect-agent UPDATESTARTUPTTY /bye"
+
+Match host *.wg,*.pulpo
+  IdentityFile ~/.ssh/nym.pub
