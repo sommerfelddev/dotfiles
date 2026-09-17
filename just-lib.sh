@@ -37,7 +37,7 @@ _is_zsh() {
 }
 
 _is_shellscript() {
-  head -1 "$1" 2>/dev/null | grep -qE '^#!.*\b(ba)?sh\b'
+  head -1 "$1" 2>/dev/null | grep -qE '^#!.*[/[:space:]](ba|da)?sh([[:space:]]|$)'
 }
 
 _flatpak_install_declared() {
