@@ -6,7 +6,7 @@ ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/flatpak run org.signal.Signal --start-in-tray
+ExecStart=/usr/bin/flatpak run --own-name=org.freedesktop.StatusNotifierItem-2-1 org.signal.Signal --start-in-tray
 # Electron + "minimize to tray" turns SIGTERM into a window-close which
 # hides instead of exits, so systemd would wait for the stop timeout
 # before SIGKILLing. Use flatpak's instance manager to kill it directly.
