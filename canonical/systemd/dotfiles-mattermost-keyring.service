@@ -1,0 +1,12 @@
+[Unit]
+Description=Allow Mattermost Snap to use GNOME Keyring
+After=snapd.apparmor.service snapd.service apparmor.service
+Before=display-manager.service
+ConditionPathExists=/var/lib/snapd/apparmor/profiles/snap.mattermost-desktop.mattermost-desktop
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/lib/dotfiles/mattermost_keyring.py
+
+[Install]
+WantedBy=multi-user.target

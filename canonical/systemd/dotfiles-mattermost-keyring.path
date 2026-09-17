@@ -1,0 +1,8 @@
+[Unit]
+Description=Watch the Mattermost Snap AppArmor profile
+
+[Path]
+PathChanged=/var/lib/snapd/apparmor/profiles/snap.mattermost-desktop.mattermost-desktop
+
+[Install]
+WantedBy=multi-user.target

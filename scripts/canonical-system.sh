@@ -13,6 +13,10 @@ sudo apparmor_parser --skip-kernel-load --skip-cache canonical/apparmor/dotfiles
 sudo install -m 644 canonical/apparmor/dotfiles-nix /etc/apparmor.d/dotfiles-nix
 sudo apparmor_parser --replace /etc/apparmor.d/dotfiles-nix
 sudo snap connect thunderbird:gpg-keys
+sudo install -D -m 644 scripts/mattermost_keyring.py /usr/local/lib/dotfiles/mattermost_keyring.py
+sudo install -m 644 canonical/systemd/dotfiles-mattermost-keyring.{service,path} /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now dotfiles-mattermost-keyring.path dotfiles-mattermost-keyring.service
 systemctl --user daemon-reload
 systemctl --user enable --now gpg-agent.socket gpg-agent-ssh.socket podman.socket
 echo 'Existing GPG agent processes keep their executable until the next login.'
