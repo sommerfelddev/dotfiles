@@ -1,0 +1,7 @@
+{
+  "uuid": "corporate-panel@dotfiles",
+  "name": "Corporate Panel",
+  "description": "Display status, package updates, and failed services.",
+  "shell-version": ["50"],
+  "version": 1
+}

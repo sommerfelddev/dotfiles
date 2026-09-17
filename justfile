@@ -96,7 +96,7 @@ _require-canonical:
     source just-lib.sh
     [ "$(_machine_role)" = canonical ]
 
-# Install the two program-scoped AppArmor profiles and Thunderbird GPG access.
+# Install corporate app permissions and system integration.
 canonical-system: _require-canonical
     @bash scripts/canonical-system.sh
 
@@ -320,7 +320,7 @@ fmt *target:
 
       _fmt_prettier --ignore-unknown --log-level=warn \
         '**/*.md' '**/*.json' '**/*.jsonc' \
-        '**/*.yaml' '**/*.yml' '**/*.css'
+        '**/*.yaml' '**/*.yml' '**/*.css' 'dot_local/share/gnome-shell/extensions/**/*.js'
       exit 0
     fi
 
@@ -338,7 +338,7 @@ fmt *target:
       *.py)                                    _fmt_py   "$target" ;;
       *.toml)                                  _fmt_toml "$target" ;;
       *.nix)                                   _fmt_nix  "$target" ;;
-      *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  _fmt_prettier "$target" ;;
+      *.md|*.json|*.jsonc|*.yaml|*.yml|*.css|*.js)  _fmt_prettier "$target" ;;
       *)
         if _is_shellscript "$target"; then
           _fmt_sh "$target"
@@ -385,7 +385,7 @@ check-fmt *target:
 
       _chk_prettier --ignore-unknown --log-level=warn \
         '**/*.md' '**/*.json' '**/*.jsonc' \
-        '**/*.yaml' '**/*.yml' '**/*.css' || rc=$?
+        '**/*.yaml' '**/*.yml' '**/*.css' 'dot_local/share/gnome-shell/extensions/**/*.js' || rc=$?
       exit $rc
     fi
 
@@ -403,7 +403,7 @@ check-fmt *target:
       *.py)                                    _chk_py   "$target" ;;
       *.toml)                                  _chk_toml "$target" ;;
       *.nix)                                   _chk_nix  "$target" ;;
-      *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  _chk_prettier "$target" ;;
+      *.md|*.json|*.jsonc|*.yaml|*.yml|*.css|*.js)  _chk_prettier "$target" ;;
       *)
         if _is_shellscript "$target"; then
           _chk_sh "$target"
@@ -463,7 +463,7 @@ lint *target:
       *.sh)                                    _lint_sh   "$target" ;;
       *.py)                                    _lint_py   "$target"; _lint_pytype "$target" ;;
       *.toml)                                  _lint_toml "$target" ;;
-      *.md|*.json|*.jsonc|*.yaml|*.yml|*.css)  echo "skip: $target (no linter; use check-fmt)" >&2; exit 0 ;;
+      *.md|*.json|*.jsonc|*.yaml|*.yml|*.css|*.js)  echo "skip: $target (no linter; use check-fmt)" >&2; exit 0 ;;
       *)
         if _is_shellscript "$target"; then
           _lint_sh "$target"

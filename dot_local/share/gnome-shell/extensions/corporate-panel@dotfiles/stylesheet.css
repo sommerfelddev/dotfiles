@@ -1,0 +1,16 @@
+.corporate-panel {
+  spacing: 8px;
+  font-size: 12px;
+}
+
+.corporate-ok {
+  color: #b8bb26;
+}
+
+.corporate-warning {
+  color: #fabd2f;
+}
+
+.corporate-critical {
+  color: #fb4934;
+}

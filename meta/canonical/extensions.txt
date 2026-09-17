@@ -1,3 +1,4 @@
 paperwm@paperwm.github.com
 copyous@boerdereinar.dev
 emoji-copy@felipeftn
+Vitals@CoreCoding.com

@@ -8,10 +8,12 @@
     external-editor-revived
     gnome-extensions-cli
     wl-clipboard
+    wtype
     qrencode
     libnotify
     playerctl
     pulseaudio
+    pulsemixer
     (tesseract.override {
       enableLanguages = [
         "eng"

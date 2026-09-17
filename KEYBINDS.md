@@ -447,4 +447,5 @@ Use GNOME's screenshot UI and Emoji Copy's configured shortcut. PaperWM's
 other default shortcuts remain active. Sway modes and recovery keys do not
 apply to this role.
 Super+L remains the GNOME lock shortcut. Super+D opens the application launcher.
+XF86Display remains the display-switching key; Super+P opens clipboard history.
 Super+1 through Super+9 select workspaces 1 through 9; Super+0 selects workspace 10. Add Shift to move the current window to that workspace.

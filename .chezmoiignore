@@ -84,6 +84,11 @@ dot_config/nvim/nvim-pack-lock.json
 !.local/share/applications
 .local/share/applications/*
 !.local/share/applications/org.pwmt.zathura.desktop
+!.local/share/gnome-shell
+.local/share/gnome-shell/*
+!.local/share/gnome-shell/extensions
+.local/share/gnome-shell/extensions/*
+!.local/share/gnome-shell/extensions/corporate-panel@dotfiles/**
 {{ range list "dictate" "ocr" "record" "rqr" "wqr" "linkhandler" }}
 !.local/bin/{{ . }}
 {{ end }}
@@ -97,5 +102,6 @@ canonical-nvim-lock.sh
 .config/systemd/user/podman.socket
 .config/systemd/user/podman.service
 .local/lib/dotfiles/
+.local/share/gnome-shell/extensions/corporate-panel@dotfiles/
 .local/bin/canonical-desktop
 {{ end }}

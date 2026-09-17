@@ -8,10 +8,4 @@ else
   text="$1"
 fi
 
-if [ "$(cat "$HOME/.config/dotfiles/role" 2>/dev/null)" = canonical ]; then
-  image=$(mktemp "${XDG_RUNTIME_DIR:?}/dotfiles-qr-XXXXXX.png")
-  printf '%s' "$text" | qrencode -t PNG -o "$image"
-  /usr/bin/xdg-open "$image"
-else
-  printf '%s' "$text" | qrencode -t PNG -o - | imv -
-fi
+printf '%s' "$text" | qrencode -t PNG -o - | imv -

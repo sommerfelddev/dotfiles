@@ -14,6 +14,30 @@ SPEC.loader.exec_module(desktop)
 
 
 class DesktopTests(unittest.TestCase):
+    def test_clipboard_shortcut_preserves_other_display_bindings(self):
+        settings = MagicMock()
+        settings.get_strv.return_value = ["<Super>p", "XF86Display", "<Super>x"]
+        with (
+            patch.object(desktop, "settings_object", return_value=settings),
+            patch.object(desktop, "write_key") as write,
+        ):
+            desktop.shortcuts({})
+        write.assert_any_call(
+            "org.gnome.mutter.keybindings",
+            "switch-monitor",
+            ["XF86Display", "<Super>x"],
+            {},
+        )
+
+    def test_panel_settings_disable_external_ip_lookup(self):
+        with patch.object(desktop, "write_key") as write:
+            desktop.panel({})
+        write.assert_any_call(
+            "org.gnome.shell.extensions.vitals", "include-public-ip", False, {}
+        )
+        self.assertIn("corporate-panel@dotfiles", desktop.EXTENSIONS)
+        self.assertIn("ubuntu-appindicators@ubuntu.com", desktop.EXTENSIONS)
+
     def test_unknown_keys_fail_without_writing(self):
         settings = MagicMock()
         settings.props.settings_schema.list_keys.return_value = []

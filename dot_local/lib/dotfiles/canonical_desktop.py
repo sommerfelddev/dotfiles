@@ -13,6 +13,9 @@ EXTENSIONS = [
     "paperwm@paperwm.github.com",
     "copyous@boerdereinar.dev",
     "emoji-copy@felipeftn",
+    "Vitals@CoreCoding.com",
+    "corporate-panel@dotfiles",
+    "ubuntu-appindicators@ubuntu.com",
 ]
 
 
@@ -75,6 +78,19 @@ def merge_key(schema: str, key: str, values: list[str], saved: dict) -> None:
 
 
 def shortcuts(saved: dict) -> None:
+    display_schema = "org.gnome.mutter.keybindings"
+    display_keys = settings_object(display_schema)
+    if display_keys is not None:
+        write_key(
+            display_schema,
+            "switch-monitor",
+            [
+                key
+                for key in display_keys.get_strv("switch-monitor")
+                if key != "<Super>p"
+            ],
+            saved,
+        )
     shell = shlex.quote(str(HOME / ".nix-profile/bin/zsh"))
     actions = {
         "terminal": ("<Super>Return", "/snap/bin/ghostty"),
@@ -138,6 +154,30 @@ def apply_settings(saved: dict) -> None:
         write_key(paper, f"move-{direction}", [f"<Super><Shift>{letter}"], saved)
     shortcuts(saved)
     workspaces(saved)
+    panel(saved)
+
+
+def panel(saved: dict) -> None:
+    schema = "org.gnome.shell.extensions.vitals"
+    monitor = shlex.join(
+        ["/snap/bin/ghostty", "-e", str(HOME / ".nix-profile/bin/htop")]
+    )
+    for key, value in {
+        "hot-sensors": [
+            "_processor_usage_",
+            "__temperature_max__",
+            "_memory_usage_",
+            "__network-rx_max__",
+            "__network-tx_max__",
+        ],
+        "position-in-panel": 2,
+        "update-time": 5,
+        "include-public-ip": False,
+        "monitor-cmd": monitor,
+    }.items():
+        write_key(schema, key, value, saved)
+    write_key("org.gnome.desktop.interface", "show-battery-percentage", True, saved)
+    write_key("org.gnome.desktop.interface", "clock-show-weekday", True, saved)
 
 
 def workspaces(saved: dict) -> None:
