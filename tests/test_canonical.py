@@ -17,6 +17,12 @@ SPEC.loader.exec_module(canonical)
 
 
 class PackageTests(unittest.TestCase):
+    def test_keybase_is_not_installed_or_autostarted(self):
+        self.assertNotIn("keybase", canonical.packages("snap"))
+        self.assertFalse(
+            (ROOT / "dot_config/autostart/dotfiles-keybase.desktop").exists()
+        )
+
     def test_non_corporate_role_is_rejected_before_system_access(self):
         with (
             patch.object(

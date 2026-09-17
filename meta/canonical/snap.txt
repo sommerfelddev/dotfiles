@@ -5,4 +5,3 @@ mattermost-desktop
 zoom-client
 okular
 libreoffice
-keybase
