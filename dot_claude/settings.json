@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions"
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "env": {
+    "CLAUDE_CODE_EFFORT_LEVEL": "max",
+    "DISABLE_AUTOUPDATER": "1"
+  },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "autoMemoryEnabled": false
+}

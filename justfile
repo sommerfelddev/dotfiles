@@ -75,8 +75,11 @@ arch-news-check:
 arch-news-read:
     @sh "{{ justfile_directory() }}/dot_local/bin/executable_arch-news-check" --mark-read
 
-# Refresh nix flake inputs (nixpkgs, home-manager) then re-activate the profile.
-nix-update: _nix-flake-update nix-switch
+# Refresh package releases and Nix flake inputs, then re-activate the profile.
+nix-update: _nix-release-update _nix-flake-update nix-switch
+
+_nix-release-update:
+    @bash "{{ justfile_directory() }}/nix/update-releases.sh"
 
 _nix-flake-update:
     #!/usr/bin/env dash
@@ -149,7 +152,7 @@ _lockfiles-commit:
     set -euo pipefail
     cd "{{ justfile_directory() }}"
 
-    lockfiles=(nix/flake.lock dot_config/nvim/nvim-pack-lock.json)
+    lockfiles=(nix/flake.lock nix/releases.json dot_config/nvim/nvim-pack-lock.json)
     changed=()
     for f in "${lockfiles[@]}"; do
         if ! git diff --quiet -- "$f" || ! git diff --cached --quiet -- "$f"; then
@@ -172,7 +175,7 @@ _lockfiles-commit:
     has_nvim=0
     for f in "${staged[@]}"; do
         case "$f" in
-            nix/flake.lock) has_nix=1 ;;
+            nix/flake.lock|nix/releases.json) has_nix=1 ;;
             dot_config/nvim/nvim-pack-lock.json) has_nvim=1 ;;
         esac
     done

@@ -1,0 +1,6 @@
+defaultThinkingLevel: max
+textVerbosity: low
+tools:
+  approvalMode: yolo
+startup:
+  checkUpdate: false

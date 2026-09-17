@@ -8,6 +8,45 @@
 
 # Shared Home-Manager package profile. Chezmoi owns dotfile deployment.
 
+let
+  configuredClaude = pkgs.symlinkJoin {
+    name = "claude-configured-${pkgs.claude-release.version}";
+    paths = [ pkgs.claude-release ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram "$out/bin/claude" \
+        --add-flags --mcp-config \
+        --add-flags "${config.home.homeDirectory}/.claude/mcp-config.json"
+    '';
+  };
+  configuredCopilot = pkgs.symlinkJoin {
+    name = "copilot-configured-${pkgs.copilot-release.version}";
+    paths = [ pkgs.copilot-release ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram "$out/bin/copilot" \
+        --set COPILOT_ALLOW_ALL true
+    '';
+  };
+  configuredHermes = pkgs.symlinkJoin {
+    name = "hermes-configured-${pkgs.hermes-release.version}";
+    paths = [ pkgs.hermes-release ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram "$out/bin/hermes" \
+        --set HERMES_MANAGED_DIR "${config.home.homeDirectory}/.hermes/managed"
+    '';
+  };
+  configuredOmp = pkgs.symlinkJoin {
+    name = "omp-configured-${pkgs.omp-release.version}";
+    paths = [ pkgs.omp-release ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram "$out/bin/omp" \
+        --set PI_CONFIG_FILES "${config.home.homeDirectory}/.omp/agent/policy.yml"
+    '';
+  };
+in
 {
   home.stateVersion = "25.05";
 
@@ -139,10 +178,14 @@
     uv # for project tooling that asks for `uv`/`uvx`; brings no python
     python3Packages.ipython # interactive REPL; pulls its own python, only `ipython` lands on PATH
 
-    # AI coding agents
-    claude-code
-    codex # OpenAI Codex CLI
-    github-copilot-cli # `copilot`; prebuilt-binary derivation since 1.0.43
+    # AI tools
+    configuredClaude # Anthropic latest release pinned in nix/releases.json
+    codex-release # OpenAI stable release pinned in nix/releases.json
+    configuredCopilot # GitHub stable release pinned in nix/releases.json
+    configuredHermes # Hermes Agent stable release pinned in nix/releases.json
+    configuredOmp # Oh My Pi stable release pinned in nix/releases.json
+    opencode-release # OpenCode stable release pinned in nix/releases.json
+    ori-release # OpenRouter Ori stable release pinned in nix/releases.json
     tuicr # interactive git-change reviewer; flake input, see nix/flake.nix. Skill: dot_claude/skills/tuicr/
     aibox # Bubblewrap sandbox for AI coding agent sessions; flake input, see nix/flake.nix
 
@@ -189,7 +232,32 @@
     zsh-history-substring-search
   ];
 
-  # ── direnv + nix-direnv ─────────────────────────────────────────────────────
+  # AI agent policy
+  # Hermes keeps MCP and provider settings in one mutable file. Merge only the
+  # shared server so authentication and provider choices stay untracked.
+  home.activation.configureHermesMcp = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    config_file="$HOME/.hermes/config.yaml"
+    mkdir -p "$(dirname "$config_file")"
+    if [ ! -e "$config_file" ]; then
+      printf '{}\n' >"$config_file"
+    fi
+
+    if current_url="$(${pkgs.yq-go}/bin/yq -r '.mcp_servers.openaiDeveloperDocs.url // ""' "$config_file" 2>/dev/null)" \
+      && current_enabled="$(${pkgs.yq-go}/bin/yq -r '.mcp_servers.openaiDeveloperDocs.enabled // false' "$config_file" 2>/dev/null)"; then
+      if [ "$current_url" != "https://developers.openai.com/mcp" ] || [ "$current_enabled" != true ]; then
+        ${pkgs.yq-go}/bin/yq -i '
+          .mcp_servers.openaiDeveloperDocs = {
+            "url": "https://developers.openai.com/mcp",
+            "enabled": true
+          }
+        ' "$config_file"
+      fi
+    else
+      echo "warning: cannot update invalid Hermes config: $config_file" >&2
+    fi
+  '';
+
+  # direnv + nix-direnv
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;

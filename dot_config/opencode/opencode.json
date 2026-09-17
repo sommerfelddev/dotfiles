@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "autoupdate": false,
+  "share": "disabled",
+  "permission": "allow",
+  "mcp": {
+    "openaiDeveloperDocs": {
+      "type": "remote",
+      "url": "https://developers.openai.com/mcp",
+      "enabled": true
+    }
+  }
+}

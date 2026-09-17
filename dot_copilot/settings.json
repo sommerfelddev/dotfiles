@@ -1,0 +1,7 @@
+{
+  "model": "claude-opus-4.6",
+  "effortLevel": "max",
+  "autoUpdate": false,
+  "includeCoAuthoredBy": false,
+  "experimental": true
+}

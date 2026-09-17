@@ -428,9 +428,6 @@ alias astfc='flang -fc1 -fdebug-dump-parse-tree'
 alias symfc='flang -fc1 -fdebug-dump-symbols'
 alias gdbr='gdb -ex start --args'
 
-# GitHub Copilot CLI
-alias copilot='gh copilot --autopilot --enable-all-github-mcp-tools --yolo --resume'
-
 # ── Alias completions ─────────────────────────────────────────────────────────
 # Guard compdef calls on registered completion functions.
 # Usage: _dot_compdef <target-cmd> <alias>=<target> [<alias>=<target>...]

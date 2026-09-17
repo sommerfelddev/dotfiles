@@ -1,0 +1,4 @@
+agent:
+  reasoning_effort: max
+approvals:
+  mode: "off"
