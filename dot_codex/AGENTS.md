@@ -78,6 +78,8 @@ When running inside `aibox`:
 
 Make commits atomic, single-concern, and independently reviewable.
 
+- After completing and validating a task, commit its changes without waiting
+  for a separate request. Leave unrelated changes uncommitted.
 - Before staging, ask whether the commit can be smaller and still make sense.
 - Each commit should pass the relevant checks for the change at the HEAD of that
   commit.
