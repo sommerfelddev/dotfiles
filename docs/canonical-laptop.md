@@ -112,7 +112,7 @@ just canonical-setup
 This installs declared packages, builds the locked Home-Manager profile,
 deploys the corporate home files, loads two program-specific AppArmor profiles,
 connects Thunderbird's GPG interface, permits Mattermost to use GNOME Keyring,
-and installs the GNOME extensions.
+assigns missing subordinate ID ranges, and installs the GNOME extensions.
 It does not remove packages or switch to another source when installation fails.
 
 Log out and back in through GDM. Then run:
@@ -183,16 +183,28 @@ machine. Do not expose the private key or full agent logs in support requests.
 Rootless Podman needs subordinate UID and GID ranges for the final authd user:
 
 ```sh
-getsubids "$USER"
-getsubids -g "$USER"
+/usr/bin/getsubids "$USER"
+/usr/bin/getsubids -g "$USER"
 podman info
 podman run --rm docker.io/library/alpine:latest id
 ```
 
-If either range is missing, have a free, non-overlapping range assigned through
-the system's account administration method. Do not copy another user's ranges
-or assume that an authd user can be changed with `usermod`. The setup does not
-rewrite `/etc/subuid`, `/etc/subgid`, or company account data.
+`just canonical-system` assigns missing ranges for the current account through
+Ubuntu's system Python and account lookup. It preserves existing allocations,
+including ranges assigned by numeric UID. New ranges follow `/etc/login.defs`
+and contain at least 65,536 IDs. Allocation excludes existing subordinate ranges
+and user/group IDs returned by the system account database. An external `subid`
+provider stops setup without changing either file.
+
+The helper locks account administration while it reads and updates `/etc/subuid`
+and `/etc/subgid`. It does not modify `/etc/passwd`, authd, or the login UID.
+Each file replacement is atomic; if an I/O error interrupts setup between the
+two files, rerun it after fixing the error. Existing ranges remain unchanged.
+Do not copy another user's ranges. Coordinate allocation with IT if the company
+reserves additional ID ranges that are not visible in these databases.
+
+If Podman was used before ranges were assigned, stop its containers and run
+`podman system migrate` as your work user before testing again.
 
 The repo loads `dotfiles-nix-bwrap` and `dotfiles-nix-podman` AppArmor
 profiles. Global user-namespace restrictions stay enabled. Test `aibox -p` and

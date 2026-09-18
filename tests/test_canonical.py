@@ -17,6 +17,23 @@ SPEC.loader.exec_module(canonical)
 
 
 class PackageTests(unittest.TestCase):
+    def test_subid_failure_remains_fatal_with_setup_guidance(self):
+        def result(command, **kwargs):
+            return subprocess.CompletedProcess(
+                command, int(command[0] == "/usr/bin/getsubids")
+            )
+
+        with (
+            patch.object(canonical.subprocess, "run", side_effect=result),
+            patch("builtins.print") as printed,
+            self.assertRaises(SystemExit) as failure,
+        ):
+            canonical.check()
+        self.assertEqual(failure.exception.code, 1)
+        self.assertTrue(
+            any("just canonical-system" in str(call) for call in printed.call_args_list)
+        )
+
     def test_install_does_not_enable_experimental_snap_features(self):
         with patch.object(canonical.subprocess, "run") as command:
             canonical.install()

@@ -8,6 +8,7 @@ source just-lib.sh
   . /etc/os-release
   echo "$ID"
 ) == ubuntu ]]
+sudo /usr/bin/python3 scripts/canonical_subids.py "$(/usr/bin/id -un)"
 # Parse before replacing the installed profile.
 sudo apparmor_parser --skip-kernel-load --skip-cache canonical/apparmor/dotfiles-nix
 sudo install -m 644 canonical/apparmor/dotfiles-nix /etc/apparmor.d/dotfiles-nix

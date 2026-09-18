@@ -108,15 +108,20 @@ def check(lab: bool = False) -> None:
         ["gnome-extensions", "list", "--enabled"],
         ["flatpak", "list", "--user", "--app"],
         *[["flatpak", "info", "--user", app] for app in packages("flatpak")],
-        ["getent", "passwd", str(os.getuid())],
-        ["getsubids", os.environ.get("USER", "")],
-        ["getsubids", "-g", os.environ.get("USER", "")],
+        ["/usr/bin/getent", "passwd", str(os.getuid())],
+        ["/usr/bin/getsubids", os.environ.get("USER", "")],
+        ["/usr/bin/getsubids", "-g", os.environ.get("USER", "")],
     ]
     failed = False
     for command in commands:
         print("\n> " + " ".join(command), flush=True)
         try:
-            failed |= subprocess.run(command, check=False).returncode != 0
+            result = subprocess.run(command, check=False)
+            failed |= result.returncode != 0
+            if result.returncode and command[0] == "/usr/bin/getsubids":
+                print(
+                    "Subordinate IDs unavailable. Run just canonical-system to configure local ranges."
+                )
         except FileNotFoundError:
             print(f"Missing: {command[0]}")
             failed = True
