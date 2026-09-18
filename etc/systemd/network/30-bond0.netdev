@@ -4,5 +4,6 @@ Kind=bond
 
 [Bond]
 Mode=active-backup
+FailOverMACPolicy=active
 PrimaryReselectPolicy=always
 MIIMonitorSec=1s
