@@ -138,6 +138,15 @@ class RoleTests(unittest.TestCase):
             *args,
         ]
 
+    def test_podman_units_are_managed_for_all_roles(self):
+        for role in ["host", "vm", "canonical"]:
+            with self.subTest(role=role):
+                files = subprocess.check_output(
+                    self.command(role, "managed", "--include=files"), text=True
+                ).splitlines()
+                for unit in ["podman.socket", "podman.service"]:
+                    self.assertIn(f".config/systemd/user/{unit}", files)
+
     def test_canonical_file_boundary(self):
         files = subprocess.check_output(
             self.command("canonical", "managed", "--include=files,scripts,symlinks"),
