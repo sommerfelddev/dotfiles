@@ -69,13 +69,13 @@ class PackageTests(unittest.TestCase):
             canonical.check()
         self.assertTrue(
             any(
-                call.args[0] == ["landscape-config", "--actively-registered"]
+                call.args[0] == ["sudo", "landscape-config", "--actively-registered"]
                 for call in command.call_args_list
             )
         )
         self.assertTrue(
             any(
-                call.args[0] == ["nix", "store", "ping", "--store", "daemon"]
+                call.args[0] == ["nix", "store", "info", "--store", "daemon"]
                 for call in command.call_args_list
             )
         )

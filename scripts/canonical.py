@@ -101,8 +101,8 @@ def check(lab: bool = False) -> None:
             ["systemctl", "is-active", unit]
             for unit in ["display-manager", "snapd", "apparmor"]
         ],
-        ["nix", "store", "ping", "--store", "daemon"],
-        *([] if lab else [["landscape-config", "--actively-registered"]]),
+        ["nix", "store", "info", "--store", "daemon"],
+        *([] if lab else [["sudo", "landscape-config", "--actively-registered"]]),
         ["snap", "connections", "thunderbird"],
         ["snap", "list", *packages("snap")],
         ["gnome-extensions", "list", "--enabled"],
