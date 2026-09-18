@@ -1,20 +1,38 @@
 import json
+import os
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class CrateFetchTests(unittest.TestCase):
+    def test_checkout_path_with_special_characters(self):
+        attrs = {"url": "https://example.org/source.tar.gz", "hash": "unchanged"}
+        with tempfile.TemporaryDirectory() as directory:
+            checkout = Path(directory) / 'rui@canonical.com space " ${name}'
+            checkout.mkdir()
+            (checkout / "nix").symlink_to(ROOT / "nix", target_is_directory=True)
+            with patch(f"{__name__}.ROOT", checkout):
+                self.assertEqual(self.evaluate(attrs), attrs)
+
     def evaluate(self, attrs):
         expression = (
-            f"let fetch = import {ROOT}/nix/fetch-crate.nix (args: args); "
-            f"in fetch (builtins.fromJSON {json.dumps(json.dumps(attrs))})"
+            'let fetch = import (builtins.toPath (builtins.getEnv "CRATE_TEST_SOURCE")) (args: args); '
+            'in fetch (builtins.fromJSON (builtins.getEnv "CRATE_TEST_ATTRS"))'
         )
         return json.loads(
             subprocess.check_output(
-                ["nix", "eval", "--impure", "--json", "--expr", expression], text=True
+                ["nix", "eval", "--impure", "--json", "--expr", expression],
+                text=True,
+                env={
+                    **os.environ,
+                    "CRATE_TEST_SOURCE": str(ROOT / "nix/fetch-crate.nix"),
+                    "CRATE_TEST_ATTRS": json.dumps(attrs),
+                },
             )
         )
 
