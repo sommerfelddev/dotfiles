@@ -125,8 +125,14 @@ just canonical-check
 
 The extension schemas can be unavailable until the first new login. Repeat
 `canonical-desktop` after that login if it reported missing schemas. Keep Ubuntu
-AppIndicator enabled for tray icons. Disable Ubuntu Tiling Assistant in the
-Extensions app if it conflicts with PaperWM. Do not override a policy lock.
+AppIndicator enabled for tray icons. The desktop recipe disables PaperWM,
+Ubuntu Tiling Assistant, Ubuntu Dock, and the custom corporate status extension.
+Company-locked settings remain unchanged. Super+D opens the app grid; Alt+Tab
+switches windows. GNOME's overview remains available without the dock extension.
+
+O-Tiling splits the focused area along its longer dimension. To replace an
+existing PaperWM installation, run `just canonical-extensions`, log out and back
+in, then run `just canonical-desktop`. No `just apply` is needed for these settings.
 
 Ghostty starts Nix zsh as a login shell. It does not change the authd account's
 shell. GNOME keeps its own desktop environment and GNOME Keyring. `pass` remains
@@ -286,7 +292,7 @@ Restore skips keys changed since deployment. It does not reset all of dconf.
 
 Check these operations both docked and undocked:
 
-- PaperWM focus, window movement, terminal and browser launch.
+- O-Tiling focus, window movement, terminal and browser launch.
 - Lock, unlock, suspend, resume, lid state, and external monitors.
 - HP webcam selection with `rqr`; the integrated camera when undocked.
 - A Google Meet camera, microphone, speaker, and screen-share session.
@@ -309,24 +315,10 @@ Public-IP lookup is disabled. Sensor names and network totals come from Vitals;
 select a specific temperature sensor or network device in its preferences if
 the defaults are not useful on the laptop.
 
-The repo-owned `corporate-panel@dotfiles` extension adds compact status text:
-
-- `EXT`: connected external display connectors, not a dock identity.
-- `APT`: upgrades listed in the local apt cache, excluding Snap and Nix.
-- `FAIL`: failed system and user units. A failed query displays `?`, not zero.
-- `REBOOT`: `/run/reboot-required` exists. The panel does not reboot the laptop.
-
-The menu opens display settings, `htop`, `pulsemixer`, Thunderbird, failed-unit
-details, available apt/Snap updates, and reboot details. Its update action runs
-`just update` in the active chezmoi source directory in a terminal. Status checks
-run each minute without sudo, package installation, or apt metadata refresh.
-The custom labels use the personal panel's green, yellow, and red colours.
-
 GNOME retains the clock, notifications, privacy indicators, and network/audio
-controls. Ubuntu AppIndicators supplies the tray. PaperWM retains workspace
-navigation. The custom panel does not copy Sway IPC modules, personal VPN
-controls, Arch checks, or the webcam process scanner. Module placement and
-actions are not identical to Waybar; custom actions are in a menu.
+controls. Ubuntu AppIndicators supplies the tray. O-Tiling provides window
+tiling and movement. Emoji Copy uses Super+Period without a persistent panel
+icon. The custom `EXT`, `APT`, `FAIL`, and `REBOOT` status labels are disabled.
 
 On an existing corporate installation, run outside the sandbox:
 

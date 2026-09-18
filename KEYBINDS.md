@@ -423,7 +423,7 @@ in `~/.XCompose`. Press and release Compose, then the sequence.
 
 # Canonical GNOME Role
 
-These keys apply only to the `canonical` role with PaperWM. Company-locked
+These keys apply only to the `canonical` role with O-Tiling. Company-locked
 settings remain unchanged.
 
 | Keys                | Action                                   |
@@ -434,6 +434,8 @@ settings remain unchanged.
 | Super+T             | Thunderbird, normal window               |
 | Super+Shift+Q       | Close window                             |
 | Super+F             | Fullscreen                               |
+| Super+Shift+Space   | Toggle floating                          |
+| Super+Period        | Emoji picker                             |
 | Super+H/J/K/Right   | Focus left/down/up/right                 |
 | Super+Shift+H/J/K/L | Move window left/down/up/right           |
 | Super+I             | Toggle dictation; copy text to clipboard |
@@ -443,7 +445,7 @@ settings remain unchanged.
 | Caps Lock           | Escape                                   |
 | Right Ctrl          | Compose                                  |
 
-Use GNOME's screenshot UI and Emoji Copy's configured shortcut. PaperWM's
+Use GNOME's screenshot UI. O-Tiling's
 other default shortcuts remain active. Sway modes and recovery keys do not
 apply to this role.
 Super+L remains the GNOME lock shortcut. Super+D opens the application launcher.

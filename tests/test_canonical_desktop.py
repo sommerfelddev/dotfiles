@@ -14,6 +14,46 @@ SPEC.loader.exec_module(desktop)
 
 
 class DesktopTests(unittest.TestCase):
+    def test_extensions_replace_tiler_and_hide_dock_and_status(self):
+        settings = MagicMock()
+        settings.get_strv.side_effect = [
+            ["company", "paperwm@paperwm.github.com", "corporate-panel@dotfiles"],
+            ["unrelated", "o-tiling@oliwebd.github.com"],
+        ]
+        with (
+            patch.object(desktop, "settings_object", return_value=settings),
+            patch.object(desktop, "write_key") as write,
+        ):
+            desktop.extensions({})
+        write.assert_any_call(
+            "org.gnome.shell",
+            "enabled-extensions",
+            ["company", *desktop.EXTENSIONS],
+            {},
+        )
+        write.assert_any_call(
+            "org.gnome.shell",
+            "disabled-extensions",
+            ["unrelated", *desktop.DISABLED_EXTENSIONS],
+            {},
+        )
+
+    def test_tiling_shortcuts_do_not_claim_application_keys(self):
+        with patch.object(desktop, "write_key") as write:
+            desktop.tiling({})
+        schema = "org.gnome.shell.extensions.o-tiling"
+        for key in [
+            "tile-enter",
+            "toggle-tiling",
+            "tile-orientation",
+            "pop-workspace-up",
+            "pop-workspace-down",
+        ]:
+            write.assert_any_call(schema, key, [], {})
+        write.assert_any_call(schema, "new-window-placement", "focused", {})
+        write.assert_any_call(schema, "focus-right", ["<Super>Right"], {})
+        write.assert_any_call(schema, "tile-move-down-global", ["<Super><Shift>j"], {})
+
     def test_clipboard_shortcut_preserves_other_display_bindings(self):
         settings = MagicMock()
         settings.get_strv.return_value = ["<Super>p", "XF86Display", "<Super>x"]
@@ -35,8 +75,11 @@ class DesktopTests(unittest.TestCase):
         write.assert_any_call(
             "org.gnome.shell.extensions.vitals", "include-public-ip", False, {}
         )
-        self.assertIn("corporate-panel@dotfiles", desktop.EXTENSIONS)
+        self.assertNotIn("corporate-panel@dotfiles", desktop.EXTENSIONS)
         self.assertIn("ubuntu-appindicators@ubuntu.com", desktop.EXTENSIONS)
+        write.assert_any_call(
+            "org.gnome.shell.extensions.emoji-copy", "always-show", False, {}
+        )
 
     def test_unknown_keys_fail_without_writing(self):
         settings = MagicMock()
@@ -50,6 +93,7 @@ class DesktopTests(unittest.TestCase):
 
     def test_launcher_uses_gnome_application_view_key(self):
         with (
+            patch.object(desktop, "extensions"),
             patch.object(desktop, "merge_key"),
             patch.object(desktop, "shortcuts"),
             patch.object(desktop, "workspaces"),

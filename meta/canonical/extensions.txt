@@ -1,4 +1,4 @@
-paperwm@paperwm.github.com
+o-tiling@oliwebd.github.com
 copyous@boerdereinar.dev
 emoji-copy@felipeftn
 Vitals@CoreCoding.com

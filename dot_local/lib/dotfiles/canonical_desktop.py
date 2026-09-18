@@ -10,12 +10,17 @@ from pathlib import Path
 HOME = Path.home()
 STATE = HOME / ".local/state/dotfiles/gnome-settings.json"
 EXTENSIONS = [
-    "paperwm@paperwm.github.com",
+    "o-tiling@oliwebd.github.com",
     "copyous@boerdereinar.dev",
     "emoji-copy@felipeftn",
     "Vitals@CoreCoding.com",
-    "corporate-panel@dotfiles",
     "ubuntu-appindicators@ubuntu.com",
+]
+DISABLED_EXTENSIONS = [
+    "paperwm@paperwm.github.com",
+    "ubuntu-dock@ubuntu.com",
+    "tiling-assistant@ubuntu.com",
+    "corporate-panel@dotfiles",
 ]
 
 
@@ -119,8 +124,20 @@ def shortcuts(saved: dict) -> None:
     merge_key(schema, "custom-keybindings", paths, saved)
 
 
+def extensions(saved: dict) -> None:
+    schema = "org.gnome.shell"
+    settings = settings_object(schema)
+    if settings is None:
+        return
+    for key, added, removed in [
+        ("enabled-extensions", EXTENSIONS, DISABLED_EXTENSIONS),
+        ("disabled-extensions", DISABLED_EXTENSIONS, EXTENSIONS),
+    ]:
+        values = [value for value in settings.get_strv(key) if value not in removed]
+        write_key(schema, key, list(dict.fromkeys([*values, *added])), saved)
+
+
 def apply_settings(saved: dict) -> None:
-    merge_key("org.gnome.shell", "enabled-extensions", EXTENSIONS, saved)
     merge_key(
         "org.gnome.desktop.input-sources",
         "xkb-options",
@@ -138,26 +155,47 @@ def apply_settings(saved: dict) -> None:
     write_key(
         "org.gnome.desktop.wm.keybindings", "toggle-fullscreen", ["<Super>f"], saved
     )
-    paper = "org.gnome.shell.extensions.paperwm.keybindings"
-    for key in [
-        "new-window",
-        "take-window",
-        "toggle-maximize-width",
-        "slurp-in",
-        "barf-out-active",
-        "cycle-height",
-    ]:
-        write_key(paper, key, [], saved)
-    for direction, letter in zip(["left", "down", "up", "right"], "hjkl"):
-        binding = "<Super>Right" if direction == "right" else f"<Super>{letter}"
-        write_key(paper, f"switch-{direction}", [binding], saved)
-        write_key(paper, f"move-{direction}", [f"<Super><Shift>{letter}"], saved)
+    tiling(saved)
     shortcuts(saved)
     workspaces(saved)
     panel(saved)
+    extensions(saved)
+
+
+def tiling(saved: dict) -> None:
+    schema = "org.gnome.shell.extensions.o-tiling"
+    for key, value in {
+        "tile-by-default": True,
+        "new-window-placement": "focused",
+        "active-hint-overlay-enabled": False,
+        "workspace-switcher-style": False,
+        "workspace-number-indicator": False,
+        "panel-transparency": False,
+        "mouse-cursor-follows-active-window": False,
+        "toggle-floating": ["<Super><Shift>space"],
+    }.items():
+        write_key(schema, key, value, saved)
+    for key in [
+        "tile-enter",
+        "toggle-tiling",
+        "tile-orientation",
+        "pop-workspace-up",
+        "pop-workspace-down",
+    ]:
+        write_key(schema, key, [], saved)
+    for direction, letter in zip(["left", "down", "up", "right"], "hjkl"):
+        binding = "<Super>Right" if direction == "right" else f"<Super>{letter}"
+        write_key(schema, f"focus-{direction}", [binding], saved)
+        write_key(
+            schema, f"tile-move-{direction}-global", [f"<Super><Shift>{letter}"], saved
+        )
 
 
 def panel(saved: dict) -> None:
+    emoji = "org.gnome.shell.extensions.emoji-copy"
+    write_key(emoji, "always-show", False, saved)
+    write_key(emoji, "active-keybind", True, saved)
+    write_key(emoji, "emoji-keybind", ["<Super>period"], saved)
     schema = "org.gnome.shell.extensions.vitals"
     monitor = shlex.join(
         ["/snap/bin/ghostty", "-e", str(HOME / ".nix-profile/bin/htop")]
@@ -183,7 +221,6 @@ def panel(saved: dict) -> None:
 def workspaces(saved: dict) -> None:
     write_key("org.gnome.mutter", "dynamic-workspaces", False, saved)
     write_key("org.gnome.desktop.wm.preferences", "num-workspaces", 10, saved)
-    write_key("org.gnome.shell.extensions.dash-to-dock", "hot-keys", False, saved)
     for number in range(1, 11):
         key = str(number % 10)
         for action, modifier in [("switch", ""), ("move", "<Shift>")]:

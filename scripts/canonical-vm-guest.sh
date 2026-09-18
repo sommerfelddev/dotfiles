@@ -12,11 +12,11 @@ cd "$HOME/dotfiles"
 
 check_extensions() {
   test "$(/usr/bin/gsettings get org.gnome.shell disable-user-extensions)" = false
-  for extension in corporate-panel@dotfiles $(sed '/^#/d; /^$/d' meta/canonical/extensions.txt); do
+  while IFS= read -r extension; do
     gnome-extensions info "$extension"
     gnome-extensions list --enabled | grep -Fx "$extension"
     gnome-extensions info "$extension" | grep -Eq 'State: (ACTIVE|ENABLED)$'
-  done
+  done < <(sed '/^#/d; /^$/d' meta/canonical/extensions.txt)
 }
 
 check_mattermost_keyring() {
