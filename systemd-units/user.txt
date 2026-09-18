@@ -27,3 +27,6 @@ kbfs.service
 
 # --- mail ---
 protonmail-bridge.service
+
+# --- containers ---
+podman.socket
