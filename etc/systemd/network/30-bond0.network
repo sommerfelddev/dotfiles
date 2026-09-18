@@ -10,5 +10,7 @@ Gateway=_ipv6ra
 InitialCongestionWindow=30
 InitialAdvertisedReceiveWindow=30
 
-[DHCPV4]
+[DHCPv4]
 UseDomains=true
+ClientIdentifier=duid
+IAID=1345436600
