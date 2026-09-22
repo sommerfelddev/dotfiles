@@ -355,6 +355,73 @@ Inspect failures with `journalctl --user -b -g 'Corporate panel'` and
 enablement, unless they were changed afterwards. The extension files remain
 installed. The personal and VM roles do not receive them.
 
+## Optional Ethernet and Wi-Fi Bond
+
+This setup keeps NetworkManager. It uses active-backup mode, a one-second
+link check, the active port's MAC, and Ethernet port priority above Wi-Fi.
+DHCP runs on `bond0` only. The DHCPv4 client ID uses a machine-derived DUID
+and a fixed IAID. It does not use Halley2's identity or set a static address.
+Router reservations are managed separately.
+
+There is no home-network check. Both ports must reach the same LAN for
+failover to preserve an address. Changing networks can require a new lease
+and interrupt existing connections. IPv6 addresses can change with the MAC.
+DNS comes from the bond's automatic IP configuration.
+
+Preparation does not load profiles or change the active network. On Turing:
+
+```sh
+just canonical-bond-prepare 'Wired connection 1' 'netplan-enp195s0f0' 'TellMyWifiLoveHer'
+```
+
+The named profiles must each refer to a different physical interface present
+on the machine. Wi-Fi needs its PSK saved in the system profile; a password
+held only in the desktop keyring is not copied. Preparation stops if it cannot
+find that password. Credentials stay in root-only files, outside the repo.
+Do not share the generated `.nmconnection` files.
+
+Run activation from a local terminal, not SSH, directly after preparation:
+
+```sh
+just canonical-bond-activate
+```
+
+This interrupts networking. It installs the prepared profiles, disables
+autoconnection of the originals, and starts the bond. A system timer restores
+the original profiles after five minutes unless you cancel it. Do not reboot
+during the test: the recovery timer does not survive a reboot.
+
+Check the active port and address:
+
+```sh
+cat /proc/net/bonding/bond0
+ip -br address show bond0
+ip route
+resolvectl status bond0
+```
+
+With both links available, check that Ethernet is active. Test communication
+with Halley2 in both directions, DNS lookup, and internet access. Remove
+Ethernet and repeat through Wi-Fi. Reconnect Ethernet and check that it becomes
+active again. Repeat the transition and check `ip neigh show dev bond0` for
+persistent failures. Confirm that the IPv4 address stays the same.
+
+Only after these checks pass, before the five-minute timeout, run:
+
+```sh
+just canonical-bond-keep
+```
+
+To restore the original profiles at any time, run `just canonical-bond-rollback`.
+It removes only the generated profiles, restores the original autoconnect
+values, and requests the connections active when preparation ran. Keep
+`/var/lib/dotfiles/bond0` for recovery. Preparation refuses to overwrite it.
+
+Only the selected profiles join the bond. New adapters and Wi-Fi profiles are
+not enrolled automatically. Do not activate a separate IP profile on a bond
+member. This setup does not change company VPN profiles or access controls.
+Unlike Halley2's broad interface rules, it does not adopt every future device.
+
 ## External Displays
 
 The corporate-only `external-display@dotfiles` extension selects Mutter's

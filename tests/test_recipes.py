@@ -42,6 +42,20 @@ class RecipeTests(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0)
                 self.assertNotIn("UNEXPECTED", result.stdout)
 
+    def test_bond_recipes_reject_non_corporate_roles(self):
+        for role in ("host", "vm"):
+            for recipe in (
+                "canonical-bond-activate",
+                "canonical-bond-keep",
+                "canonical-bond-rollback",
+            ):
+                result = self.invoke(role, recipe)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertNotIn("UNEXPECTED", result.stdout)
+            result = self.invoke(role, "canonical-bond-prepare", "Wired connection 1")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertNotIn("UNEXPECTED", result.stdout)
+
     def test_non_host_maintenance_only_uses_chezmoi(self):
         for role in ["vm", "canonical"]:
             for recipe in ["diff", "merge", "re-add"]:

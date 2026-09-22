@@ -100,6 +100,22 @@ _require-canonical:
 canonical-system: _require-canonical
     @bash scripts/canonical-system.sh
 
+# Prepare bond profiles without loading them or changing the active network.
+[positional-arguments]
+canonical-bond-prepare +profiles: _require-canonical
+    @sudo /usr/bin/python3 scripts/canonical_bond.py "$@"
+
+# Run locally: changes networking and schedules rollback after five minutes.
+canonical-bond-activate: _require-canonical
+    @sudo /bin/sh /var/lib/dotfiles/bond0/activate.sh
+
+# Cancel the recovery timer only after testing both network paths.
+canonical-bond-keep: _require-canonical
+    @sudo systemctl stop dotfiles-bond-rollback.timer
+
+canonical-bond-rollback: _require-canonical
+    @sudo /bin/sh /var/lib/dotfiles/bond0/rollback.sh
+
 canonical-extensions: _require-canonical
     @python3 scripts/canonical.py extensions
 
