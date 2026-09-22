@@ -1,18 +1,18 @@
 {
   "claude": {
-    "version": "2.1.274",
-    "url": "https://downloads.claude.ai/claude-code-releases/2.1.274/linux-x64/claude.zst",
-    "hash": "sha256-6gSdXUbV5t6qre+VSfRYeZF9OaGW2RLJm9OYGgz9x9g="
+    "version": "2.1.278",
+    "url": "https://downloads.claude.ai/claude-code-releases/2.1.278/linux-x64/claude.zst",
+    "hash": "sha256-X12yBCUbhFesaLIATtFApQyP7qYuUkbMKM3o0ErXYMs="
   },
   "codex": {
-    "version": "0.154.0",
-    "url": "https://github.com/openai/codex/releases/download/rust-v0.154.0/codex-package-x86_64-unknown-linux-musl.tar.gz",
-    "hash": "sha256-/G4+O4Xyz31mRSDuXGan/kqhK659RoNPR+LxZf0Nb3g="
+    "version": "0.155.1",
+    "url": "https://github.com/openai/codex/releases/download/rust-v0.155.1/codex-package-x86_64-unknown-linux-musl.tar.gz",
+    "hash": "sha256-pluJXGrBpzYpu+S4ZGQMhhM+lKQ7TWezEDBE4aMG1aI="
   },
   "copilot": {
-    "version": "1.0.85",
-    "url": "https://github.com/github/copilot-cli/releases/download/v1.0.85/copilot-linux-x64.tar.gz",
-    "hash": "sha256-byNc6ol2Re72fo9IDjahW12cn3phZevJtrHCivyLzdo="
+    "version": "1.0.86",
+    "url": "https://github.com/github/copilot-cli/releases/download/v1.0.86/copilot-linux-x64.tar.gz",
+    "hash": "sha256-6kpRnXsv9U6cfRCumSHPSrP1BBSJ7DQIUvR/T2P8U1s="
   },
   "hermes": {
     "version": "0.21.3",
@@ -20,9 +20,9 @@
     "rev": "345cd2b057a452236de401d3534b8502a7465e8d"
   },
   "omp": {
-    "version": "18.2.3",
-    "url": "https://github.com/can1357/oh-my-pi/releases/download/v18.2.3/omp-linux-x64",
-    "hash": "sha256-+FvftKdj0zmd3RhBP4gLJrNtp2Wqdb1fzH0lIjnH8Xo="
+    "version": "18.2.7",
+    "url": "https://github.com/can1357/oh-my-pi/releases/download/v18.2.7/omp-linux-x64",
+    "hash": "sha256-HCjtZlZuyrq4FFFM/mJrSv9ZgbfKmJJHe0ZVD+a22Ds="
   },
   "opencode": {
     "version": "1.18.31",
@@ -30,8 +30,8 @@
     "hash": "sha256-6TEr517YA7dBX8Kuq9ofT+k4kSo5Zzdi3Aw4wOEeveQ="
   },
   "ori": {
-    "version": "0.14.3+6e62568",
-    "url": "https://github.com/OpenRouterLabs/ori-releases/releases/download/cli-0.14.3-6e62568/ori-linux-x64",
-    "hash": "sha256-pfiughYm7ZPCBsFiTnwsbJfyJ6gAumy5ObhJwBlIISs="
+    "version": "0.15.4+d52ba8e",
+    "url": "https://github.com/OpenRouterLabs/ori-releases/releases/download/cli-0.15.4-d52ba8e/ori-linux-x64",
+    "hash": "sha256-5KiV6kH18iWZzfS+duGiYyg7+c14MZkJnJcfXiPig44="
   }
 }
