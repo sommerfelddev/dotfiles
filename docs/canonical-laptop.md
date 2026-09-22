@@ -355,6 +355,29 @@ Inspect failures with `journalctl --user -b -g 'Corporate panel'` and
 enablement, unless they were changed afterwards. The extension files remain
 installed. The personal and VM roles do not receive them.
 
+## External Displays
+
+The corporate-only `external-display@dotfiles` extension selects Mutter's
+External Only layout when an external display is connected and the laptop
+panel is active. Mutter selects display modes and restores the laptop panel
+when the external displays are disconnected. Lid and power policies are
+unchanged. While enabled, the extension overrides a manual layout that uses
+both the laptop panel and an external display.
+
+To deploy it, run `just apply` outside the sandbox, log out and log in, then
+run `just canonical-desktop`. Enabling it can immediately change the active
+displays. Check connection, disconnection, and reconnection with the lid open.
+Also check resolution and scaling on the external display.
+
+To stop automatic selection, run:
+
+```sh
+gnome-extensions disable external-display@dotfiles
+```
+
+Then choose a layout in GNOME Settings > Displays. Running
+`just canonical-desktop` enables the extension again.
+
 ## Updates and Rollback
 
 `just update` upgrades apt packages, refreshes Snaps without overriding holds,

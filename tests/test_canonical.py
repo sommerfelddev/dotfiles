@@ -183,6 +183,7 @@ class RoleTests(unittest.TestCase):
             ".config/ghostty/config",
             ".local/bin/rqr",
             ".local/share/gnome-shell/extensions/corporate-panel@dotfiles/extension.js",
+            ".local/share/gnome-shell/extensions/external-display@dotfiles/extension.js",
         ]:
             self.assertIn(required, files)
         for path in files:
@@ -281,6 +282,7 @@ class RoleTests(unittest.TestCase):
             self.assertNotIn(".config/autostart/dotfiles-", files)
             self.assertNotIn("gpg-agent.service.d/canonical.conf", files)
             self.assertNotIn("corporate-panel@dotfiles", files)
+            self.assertNotIn("external-display@dotfiles", files)
 
 
 if __name__ == "__main__":

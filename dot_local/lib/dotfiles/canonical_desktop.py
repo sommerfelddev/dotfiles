@@ -10,6 +10,7 @@ from pathlib import Path
 HOME = Path.home()
 STATE = HOME / ".local/state/dotfiles/gnome-settings.json"
 EXTENSIONS = [
+    "external-display@dotfiles",
     "o-tiling@oliwebd.github.com",
     "copyous@boerdereinar.dev",
     "emoji-copy@felipeftn",

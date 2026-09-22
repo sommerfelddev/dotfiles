@@ -1,0 +1,7 @@
+{
+  "uuid": "external-display@dotfiles",
+  "name": "External Display",
+  "description": "Use external displays when connected to a laptop.",
+  "shell-version": ["50"],
+  "version": 1
+}

@@ -16,7 +16,10 @@ check_extensions() {
     gnome-extensions info "$extension"
     gnome-extensions list --enabled | grep -Fx "$extension"
     gnome-extensions info "$extension" | grep -Eq 'State: (ACTIVE|ENABLED)$'
-  done < <(sed '/^#/d; /^$/d' meta/canonical/extensions.txt)
+  done < <(
+    sed '/^#/d; /^$/d' meta/canonical/extensions.txt
+    printf '%s\n' external-display@dotfiles
+  )
 }
 
 check_mattermost_keyring() {
