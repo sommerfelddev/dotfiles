@@ -8,6 +8,23 @@ from scripts import mattermost_keyring
 
 
 class MattermostKeyringTests(unittest.TestCase):
+    def test_adds_tray_rules_to_existing_keyring_patch(self):
+        original = (
+            'profile "snap.mattermost-desktop.mattermost-desktop" {\n'
+            + mattermost_keyring.MARKER
+            + "\n"
+            + mattermost_keyring.RULES
+            + "}\n"
+        )
+        patched = mattermost_keyring.patch_profile(original)
+        self.assertIn("path=/org/chromium/StatusNotifierItem/[0-9]*", patched)
+        self.assertIn("interface=org.kde.StatusNotifierItem", patched)
+        self.assertIn("path=/org/chromium/DbusMenu{,/[0-9]*}", patched)
+        self.assertEqual(patched.count(mattermost_keyring.MARKER), 1)
+        self.assertEqual(mattermost_keyring.patch_profile(patched), patched)
+        self.assertNotIn("IdleMonitor", patched)
+        self.assertNotIn("smaps_rollup", patched)
+
     def test_adds_rules_only_once(self):
         original = 'profile "snap.mattermost-desktop.mattermost-desktop" {\n}\n'
         patched = mattermost_keyring.patch_profile(original)

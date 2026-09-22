@@ -1,5 +1,5 @@
 [Unit]
-Description=Allow Mattermost Snap to use GNOME Keyring
+Description=Allow Mattermost Snap to use GNOME Keyring and the tray
 After=snapd.apparmor.service snapd.service apparmor.service
 Before=display-manager.service
 ConditionPathExists=/var/lib/snapd/apparmor/profiles/snap.mattermost-desktop.mattermost-desktop

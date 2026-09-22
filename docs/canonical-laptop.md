@@ -217,14 +217,21 @@ profiles. Global user-namespace restrictions stay enabled. Test `aibox -p` and
 a rootless container. If AppArmor denies another executable, inspect the exact
 denial before adding a rule. Do not allow every program under `/nix/store`.
 
-## Mattermost Keyring
+## Mattermost Keyring And Tray
 
 The Mattermost Snap lacks the `password-manager-service` plug. `canonical-system`
 installs `dotfiles-mattermost-keyring.service` and its path watcher. They add
-Secret Service D-Bus access to the Mattermost profile at boot and when snapd
+Secret Service and Chromium tray D-Bus access to the Mattermost profile at boot and when snapd
 replaces it. The Snap keeps its normal updates and AppArmor enforcement.
 This permission gives Mattermost access to the user's unlocked keyring; it
 does not restrict access to Mattermost's own entries.
+
+The tray rules allow GNOME to read the icon, receive updates, and operate its
+menu through `/org/chromium/StatusNotifierItem/*` and `/org/chromium/DbusMenu`.
+They apply only to the Mattermost profile on the session bus, with unconfined
+desktop peers. They do not grant memory-statistics or idle-monitor access.
+Run `just canonical-system` to install the rules. To reload them explicitly, run
+`sudo systemctl restart dotfiles-mattermost-keyring.service`.
 
 After applying this to a running session, quit Mattermost, including its tray
 process, and start it again. Check the result:
