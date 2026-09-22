@@ -14,6 +14,16 @@ SPEC.loader.exec_module(desktop)
 
 
 class DesktopTests(unittest.TestCase):
+    def test_workspace_indicator_uses_numbers(self):
+        with patch.object(desktop, "write_key") as write:
+            desktop.tiling({})
+        write.assert_any_call(
+            "org.gnome.shell.extensions.o-tiling",
+            "workspace-number-indicator",
+            True,
+            {},
+        )
+
     def test_extensions_replace_tiler_and_hide_dock_and_status(self):
         settings = MagicMock()
         settings.get_strv.side_effect = [

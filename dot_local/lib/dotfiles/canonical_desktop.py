@@ -169,7 +169,7 @@ def tiling(saved: dict) -> None:
         "new-window-placement": "focused",
         "active-hint-overlay-enabled": False,
         "workspace-switcher-style": False,
-        "workspace-number-indicator": False,
+        "workspace-number-indicator": True,
         "panel-transparency": False,
         "mouse-cursor-follows-active-window": False,
         "toggle-floating": ["<Super><Shift>space"],
