@@ -140,6 +140,13 @@ a terminal tool; this role does not install the pass Secret Service daemon.
 
 ## Package Sources
 
+LXD is installed from `6/stable`. Workshop is installed from `stable` with
+classic confinement, as required by the
+[Workshop installation guide](https://ubuntu.com/workshop/docs/tutorial/part-1-get-started/).
+Package deployment does not initialize LXD storage or networking, or grant LXD
+group membership. Existing Snap installations keep their current track; check
+`snap list lxd workshop` before using Workshop with an existing LXD installation.
+
 | Source         | Applications                                                                          |
 | -------------- | ------------------------------------------------------------------------------------- |
 | Snap, stable   | Firefox, Thunderbird, Ghostty, Mattermost, Zoom, Okular, LibreOffice                  |

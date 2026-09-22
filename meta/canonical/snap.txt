@@ -5,3 +5,5 @@ mattermost-desktop
 zoom-client
 okular
 libreoffice
+lxd
+workshop

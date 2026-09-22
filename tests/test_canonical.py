@@ -97,7 +97,17 @@ class PackageTests(unittest.TestCase):
             ["sudo", "snap", "install", "ghostty", "--channel=stable", "--classic"],
             commands,
         )
-        self.assertEqual(sum("--classic" in command for command in commands), 1)
+        self.assertIn(
+            ["sudo", "snap", "install", "workshop", "--channel=stable", "--classic"],
+            commands,
+        )
+        self.assertEqual(sum("--classic" in command for command in commands), 2)
+
+    def test_lxd_uses_workshop_supported_track(self):
+        self.assertIn(
+            ["sudo", "snap", "install", "lxd", "--channel=6/stable"],
+            canonical.snap_install_commands(),
+        )
 
     def test_flatpaks_are_user_scoped(self):
         commands = canonical.flatpak_install_commands()

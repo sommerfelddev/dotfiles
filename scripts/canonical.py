@@ -20,8 +20,14 @@ def packages(source: str) -> list[str]:
 
 def snap_install_commands() -> list[list[str]]:
     return [
-        ["sudo", "snap", "install", name, "--channel=stable"]
-        + (["--classic"] if name == "ghostty" else [])
+        [
+            "sudo",
+            "snap",
+            "install",
+            name,
+            "--channel=6/stable" if name == "lxd" else "--channel=stable",
+        ]
+        + (["--classic"] if name in {"ghostty", "workshop"} else [])
         for name in packages("snap")
     ]
 
