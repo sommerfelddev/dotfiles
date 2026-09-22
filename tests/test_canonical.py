@@ -117,6 +117,20 @@ class PackageTests(unittest.TestCase):
 
 
 class RoleTests(unittest.TestCase):
+    def test_canonical_ghostty_has_no_window_decoration(self):
+        rendered = subprocess.check_output(
+            self.command(
+                "canonical",
+                "execute-template",
+                "--file",
+                str(ROOT / "dot_config/ghostty/config.tmpl"),
+            ),
+            text=True,
+        )
+        self.assertIn("window-decoration = none", rendered)
+        self.assertNotIn("window-decoration = auto", rendered)
+        self.assertIn("/.nix-profile/bin/zsh -l", rendered)
+
     def command(self, role: str, *args: str) -> list[str]:
         return [
             "chezmoi",

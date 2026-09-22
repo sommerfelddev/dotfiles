@@ -12,12 +12,10 @@ clipboard-read = allow
 # Bell — request urgency hint on BEL so sway/waybar highlight the workspace
 bell-features = attention,title
 
-# Window — no decorations (sway manages windows)
-{{ if eq (default "host" (index . "machineRole")) "canonical" }}
-window-decoration = auto
-command = {{ .chezmoi.homeDir }}/.nix-profile/bin/zsh -l
-{{ else }}
+# Window
 window-decoration = none
+{{ if eq (default "host" (index . "machineRole")) "canonical" }}
+command = {{ .chezmoi.homeDir }}/.nix-profile/bin/zsh -l
 {{ end }}
 confirm-close-surface = false
 resize-overlay = never
