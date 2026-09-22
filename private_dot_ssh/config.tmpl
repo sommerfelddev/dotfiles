@@ -1,6 +1,8 @@
 {{ if eq (default "host" (index . "machineRole")) "canonical" }}
 Include config.local
 Host *
+  IdentityFile ~/.ssh/work.pub
+  IdentitiesOnly yes
   HashKnownHosts yes
   ForwardAgent no
   ServerAliveInterval 120

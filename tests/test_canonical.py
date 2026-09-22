@@ -207,6 +207,32 @@ class RoleTests(unittest.TestCase):
             subprocess.run(["sh", "-c", rendered], env=env, check=True)
             self.assertEqual(target.read_text(), '{"local": true}\n')
 
+    def test_canonical_defaults_to_work_git_and_ssh_identity(self):
+        git = subprocess.check_output(
+            self.command(
+                "canonical",
+                "execute-template",
+                "--file",
+                str(ROOT / "dot_config/git/config.tmpl"),
+            ),
+            text=True,
+        )
+        self.assertIn('email = "work@canonical.com"', git)
+        self.assertIn('name = "Work User"', git)
+        self.assertIn('signingkey = "' + "A" * 40 + '"', git)
+        self.assertNotIn("includeIf", git)
+        ssh = subprocess.check_output(
+            self.command(
+                "canonical",
+                "execute-template",
+                "--file",
+                str(ROOT / "private_dot_ssh/config.tmpl"),
+            ),
+            text=True,
+        )
+        self.assertIn("IdentityFile ~/.ssh/work.pub", ssh)
+        self.assertIn("IdentitiesOnly yes", ssh)
+
     def test_work_identity_is_rendered_without_personal_identity(self):
         for source in [
             "dot_config/git/config.tmpl",
