@@ -14,6 +14,14 @@ SPEC.loader.exec_module(desktop)
 
 
 class DesktopTests(unittest.TestCase):
+    def test_workspaces_are_dynamic_without_a_fixed_count(self):
+        with patch.object(desktop, "write_key") as write:
+            desktop.workspaces({})
+        write.assert_any_call("org.gnome.mutter", "dynamic-workspaces", True, {})
+        self.assertFalse(
+            any(call.args[1] == "num-workspaces" for call in write.call_args_list)
+        )
+
     def test_workspace_indicator_uses_numbers(self):
         with patch.object(desktop, "write_key") as write:
             desktop.tiling({})

@@ -220,8 +220,7 @@ def panel(saved: dict) -> None:
 
 
 def workspaces(saved: dict) -> None:
-    write_key("org.gnome.mutter", "dynamic-workspaces", False, saved)
-    write_key("org.gnome.desktop.wm.preferences", "num-workspaces", 10, saved)
+    write_key("org.gnome.mutter", "dynamic-workspaces", True, saved)
     for number in range(1, 11):
         key = str(number % 10)
         for action, modifier in [("switch", ""), ("move", "<Shift>")]:

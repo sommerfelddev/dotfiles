@@ -334,6 +334,9 @@ controls. Ubuntu AppIndicators supplies the tray. O-Tiling provides window
 tiling and movement. Emoji Copy uses Super+Period without a persistent panel
 icon. The custom `EXT`, `APT`, `FAIL`, and `REBOOT` status labels are disabled.
 
+Workspaces are dynamic: unused workspaces are removed, with one empty workspace
+kept at the end. Workspace numbers can change as empty workspaces are removed.
+
 On an existing corporate installation, run outside the sandbox:
 
 ```sh
