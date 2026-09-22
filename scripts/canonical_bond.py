@@ -102,12 +102,13 @@ def port_profile(source, kind, identity, priority):
 
 
 def profile_source(identity):
-    for directory in ("/etc", "/run", "/usr/lib"):
-        for path in Path(directory, "NetworkManager/system-connections").glob("*"):
-            if path.is_file():
-                text = path.read_text()
-                if keyfile(text).get("connection", "uuid", fallback="") == identity:
-                    return text
+    profiles = nmcli("--escape", "no", "-g", "UUID,FILENAME", "connection", "show")
+    for row in profiles.splitlines():
+        uuid_value, _, filename = row.partition(":")
+        if uuid_value == identity and filename:
+            path = Path(filename)
+            if path.is_absolute() and path.is_file():
+                return path.read_text()
     raise ValueError(f"No saved NetworkManager keyfile for {identity}")
 
 

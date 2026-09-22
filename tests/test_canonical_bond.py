@@ -1,12 +1,37 @@
 import shutil
 import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from scripts import canonical_bond as bond
 
 
 class BondTests(unittest.TestCase):
+    def test_profile_source_uses_reported_filename_without_embedded_uuid(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "netplan wired:profile.nmconnection"
+            source = "[connection]\nid=netplan-ethernet\ntype=ethernet\n"
+            path.write_text(source)
+            with (
+                patch.object(
+                    bond, "nmcli", return_value=f"other:/missing\nidentity:{path}"
+                ) as command,
+                patch.object(Path, "glob", return_value=[]),
+            ):
+                self.assertEqual(bond.profile_source("identity"), source)
+            command.assert_called_once_with(
+                "--escape", "no", "-g", "UUID,FILENAME", "connection", "show"
+            )
+
+    def test_profile_source_rejects_missing_filename(self):
+        with (
+            patch.object(bond, "nmcli", return_value="identity:"),
+            self.assertRaisesRegex(ValueError, "No saved"),
+        ):
+            bond.profile_source("identity")
+
     @unittest.skipUnless(shutil.which("nmcli"), "nmcli is in the Nix development shell")
     def test_networkmanager_accepts_offline_profiles(self):
         config = bond.keyfile(bond.bond_profile())
