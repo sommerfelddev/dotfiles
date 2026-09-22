@@ -19,6 +19,7 @@ selene.toml
 selene-globals.yml
 scripts/
 tmp/
+.sesame/
 tests/
 docs/
 canonical/

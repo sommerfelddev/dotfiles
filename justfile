@@ -100,6 +100,17 @@ _require-canonical:
 canonical-system: _require-canonical
     @bash scripts/canonical-system.sh
 
+# Import only the secondary credentials; do not connect the VPN.
+canonical-vpn-install archive="tmp/canonical-vpn-credentials.zip" endpoint="uk": _require-canonical
+    @python3 -m scripts.canonical_vpn install {{ quote(archive) }} --endpoint {{ quote(endpoint) }}
+
+# Connect the secondary VPN with full or split routing.
+canonical-vpn-up mode="split": _require-canonical
+    @python3 -m scripts.canonical_vpn up {{ quote(mode) }}
+
+canonical-vpn-down: _require-canonical
+    @python3 -m scripts.canonical_vpn down
+
 # Prepare bond profiles without loading them or changing the active network.
 [positional-arguments]
 canonical-bond-prepare +profiles: _require-canonical

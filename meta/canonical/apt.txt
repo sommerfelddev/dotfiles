@@ -9,3 +9,4 @@ pinentry-gnome3
 python3-gi
 imv
 gnome-shell-ubuntu-extensions
+network-manager-openvpn-gnome

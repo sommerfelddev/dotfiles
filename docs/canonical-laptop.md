@@ -425,6 +425,58 @@ not enrolled automatically. Do not activate a separate IP profile on a bond
 member. This setup does not change company VPN profiles or access controls.
 Unlike Halley2's broad interface rules, it does not adopt every future device.
 
+## Secondary Work VPN
+
+Pulpo keeps the primary VPN identity. The laptop uses only the `@2` identity.
+Connection is manual: leave it off at home and enable it when needed elsewhere.
+The setup does not change bond profiles or add automatic VPN connections.
+
+Transfer the Enigma ZIP archive to `tmp/canonical-vpn-credentials.zip` on the
+laptop through SSH or download it there from Enigma. `tmp/` is ignored by Git.
+Do not add credentials to the repo, including with `git add -f`.
+
+On the laptop, run:
+
+```sh
+just pkg-apply base
+just canonical-vpn-install
+```
+
+The NetworkManager OpenVPN plug-in is an apt package because it must integrate
+with the system NetworkManager service. Setup selects the UK secondary profile
+and copies only its required files to `~/.sesame/canonical-secondary/`, with
+directory mode `0700` and file mode `0600`. Existing profiles and different
+credential files are not replaced. Setup leaves the VPN disconnected, with
+split routing selected. If import succeeds but configuration fails, do not
+connect it from GNOME until the routing settings have been checked.
+
+```sh
+just canonical-vpn-up        # Split routing: use the supplied VPN routes.
+just canonical-vpn-down
+just canonical-vpn-up full   # Allow default routes and prefer VPN DNS.
+just canonical-vpn-down
+just canonical-vpn-up split  # Return to split routing.
+```
+
+Disconnect before changing modes. GNOME's VPN switch uses the last selected
+mode for `canonical-secondary`. Split routing keeps normal internet traffic
+on the local connection and accepts VPN routes and DNS. Full routing permits
+IPv4 and IPv6 default routes and selects VPN DNS for all domains. It does not
+provide a kill switch: traffic can use the local connection if the VPN fails.
+Do not assume IPv6 is protected unless the VPN supplies a working IPv6 path.
+
+After connecting, check `nmcli connection show --active`, `ip route`,
+`ip -6 route`, and `resolvectl status`. Test the internal service at
+<https://platform-qa-jenkins.ps5.ubuntu.com/>. For full routing, also check
+`ip route get 1.1.1.1` and `ip -6 route get 2606:4700:4700::1111`.
+Check that general internet access and DNS work in each mode. After disconnecting,
+check that the normal routes and DNS return. A live connection must be tested
+on the laptop; the repo tests do not contact the VPN.
+
+To remove the profile, disconnect it, then run
+`nmcli connection delete id canonical-secondary`. Keep the private files until
+you no longer need the profile. Neither installation nor removal affects Pulpo.
+
 ## External Displays
 
 The corporate-only `external-display@dotfiles` extension selects Mutter's
