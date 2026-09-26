@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Keybase
+Exec=/usr/bin/run_keybase -a
+OnlyShowIn=GNOME;

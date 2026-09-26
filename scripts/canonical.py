@@ -5,6 +5,7 @@ import json
 import os
 import platform
 import subprocess
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -74,6 +75,8 @@ def require_canonical() -> None:
 
 def install() -> None:
     subprocess.run(["sudo", "apt-get", "update"], check=True)
+    if "keybase" in packages("apt"):
+        install_keybase()
     subprocess.run(["sudo", "apt-get", "install", *packages("apt")], check=True)
     for command in snap_install_commands():
         if subprocess.run(
@@ -85,6 +88,38 @@ def install() -> None:
             subprocess.run(command, check=True)
     for command in flatpak_install_commands():
         subprocess.run(command, check=True)
+
+
+def install_keybase() -> None:
+    status = subprocess.run(
+        ["dpkg-query", "-W", "-f=${Status}", "keybase"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if status.returncode == 0 and status.stdout == "install ok installed":
+        return
+    if platform.machine() != "x86_64":
+        raise SystemExit("The Keybase bootstrap package requires amd64.")
+    with tempfile.TemporaryDirectory(prefix="keybase-") as directory:
+        Path(directory).chmod(0o755)
+        package = str(Path(directory) / "keybase_amd64.deb")
+        subprocess.run(
+            [
+                "curl",
+                "--fail",
+                "--location",
+                "--proto",
+                "=https",
+                "--proto-redir",
+                "=https",
+                "--output",
+                package,
+                "https://prerelease.keybase.io/keybase_amd64.deb",
+            ],
+            check=True,
+        )
+        subprocess.run(["sudo", "apt-get", "install", package], check=True)
 
 
 def require_lab() -> None:

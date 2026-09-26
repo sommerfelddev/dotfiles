@@ -39,11 +39,34 @@ class PackageTests(unittest.TestCase):
             canonical.install()
         self.assertFalse(any("set" in call.args[0] for call in command.call_args_list))
 
-    def test_keybase_is_not_installed_or_autostarted(self):
+    def test_keybase_is_installed_and_autostarted_through_apt(self):
+        self.assertIn("keybase", canonical.packages("apt"))
         self.assertNotIn("keybase", canonical.packages("snap"))
-        self.assertFalse(
-            (ROOT / "dot_config/autostart/dotfiles-keybase.desktop").exists()
+        entry = (ROOT / "dot_config/autostart/keybase.desktop").read_text()
+        self.assertIn("Exec=/usr/bin/run_keybase -a", entry)
+        self.assertIn("OnlyShowIn=GNOME;", entry)
+
+    def test_installed_keybase_is_not_bootstrapped_again(self):
+        with patch.object(canonical.subprocess, "run") as run:
+            run.return_value = subprocess.CompletedProcess(
+                [], 0, "install ok installed"
+            )
+            canonical.install_keybase()
+        self.assertEqual(run.call_count, 1)
+
+    def test_missing_keybase_uses_official_bootstrap_package(self):
+        with (
+            patch.object(canonical.platform, "machine", return_value="x86_64"),
+            patch.object(canonical.subprocess, "run") as run,
+        ):
+            run.return_value = subprocess.CompletedProcess([], 1, "")
+            canonical.install_keybase()
+        commands = [call.args[0] for call in run.call_args_list]
+        self.assertEqual(
+            commands[1][-1], "https://prerelease.keybase.io/keybase_amd64.deb"
         )
+        self.assertEqual(commands[2][:3], ["sudo", "apt-get", "install"])
+        self.assertTrue(commands[2][-1].endswith("/keybase_amd64.deb"))
 
     def test_extensions_install_without_shell_confirmation(self):
         with (

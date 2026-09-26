@@ -177,6 +177,20 @@ without using its cached output. Bootstrap does not need a manual crate prefetch
 compositors; it cannot inject keys into GNOME without virtual-keyboard protocol
 support.
 
+## Keybase
+
+Keybase uses its [official APT installation](https://keybase.io/docs/the_app/install_linux).
+It is declared in `meta/canonical/apt.txt`. When it is absent, package setup
+downloads the official amd64 DEB over HTTPS and installs it with apt. That
+package adds Keybase's update repository. An existing installation is retained
+without downloading the bootstrap package again. Normal APT upgrades update it.
+
+The managed `~/.config/autostart/keybase.desktop` uses `/usr/bin/run_keybase -a`
+to start the service and GUI in the tray at GNOME login. It uses the same
+autostart filename as Keybase, so it does not add a second launcher. Open
+`run_keybase` once to sign in. Test the tray icon and a notification from
+another account. No Keybase Snap or Nix service is installed on this role.
+
 ## Work Keys and Containers
 
 Transfer and import only the existing **work** secret key through a protected

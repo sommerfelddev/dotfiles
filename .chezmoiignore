@@ -100,6 +100,7 @@ canonical-desktop.sh
 canonical-nvim-lock.sh
 .config/nix/nix.conf
 .config/autostart/dotfiles-*.desktop
+.config/autostart/keybase.desktop
 .config/systemd/user/gpg-agent.service.d/canonical.conf
 .local/lib/dotfiles/
 .local/share/gnome-shell/extensions/corporate-panel@dotfiles/
