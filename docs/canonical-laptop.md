@@ -162,6 +162,13 @@ group, compare it with the corresponding `/usr/bin` command. Do not change the
 account UID or add a duplicate entry to `/etc/passwd`. The test VM uses a local
 account and does not test authd lookups.
 
+Corporate Git uses `/usr/bin/ssh` so Ubuntu can resolve the authd account.
+The work key still comes from `~/.ssh/config`. If a clone reports
+`No user exists for uid 10000`, test it with
+`GIT_SSH_COMMAND=/usr/bin/ssh git clone REPOSITORY`.
+After updating this repo, run `just apply` to deploy the Git setting.
+`GIT_SSH_COMMAND`, repository settings, and `config.local` can override it.
+
 Tuicr's Rust crates are fetched from the official static archive server with
 Cargo.lock checksum verification. `just nix-crate-check` tests a fresh download
 without using its cached output. Bootstrap does not need a manual crate prefetch.

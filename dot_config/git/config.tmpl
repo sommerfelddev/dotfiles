@@ -18,6 +18,8 @@
 {{ if ne (default "host" (index . "machineRole")) "canonical" }}
     hooksPath = ~/.config/git/hooks
     sshCommand = "ssh -i ~/.ssh/nym.pub"
+{{ else }}
+    sshCommand = /usr/bin/ssh
 {{ end }}
 [branch]
     sort=-committerdate

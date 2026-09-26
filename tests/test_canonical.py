@@ -246,6 +246,7 @@ class RoleTests(unittest.TestCase):
         self.assertIn('name = "Work User"', git)
         self.assertIn('signingkey = "' + "A" * 40 + '"', git)
         self.assertNotIn("includeIf", git)
+        self.assertIn("sshCommand = /usr/bin/ssh", git)
         ssh = subprocess.check_output(
             self.command(
                 "canonical",
