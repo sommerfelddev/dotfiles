@@ -4,12 +4,14 @@ import importlib
 import json
 import os
 import shlex
+import subprocess
 import sys
 from pathlib import Path
 
 HOME = Path.home()
 STATE = HOME / ".local/state/dotfiles/gnome-settings.json"
 EXTENSIONS = [
+    "workspace-cycle@dotfiles",
     "external-display@dotfiles",
     "o-tiling@oliwebd.github.com",
     "copyous@boerdereinar.dev",
@@ -98,6 +100,7 @@ def shortcuts(saved: dict) -> None:
             saved,
         )
     shell = shlex.quote(str(HOME / ".nix-profile/bin/zsh"))
+    scratch = shlex.quote('nvim "$XDG_RUNTIME_DIR/scratch-$(date +%s).txt"')
     actions = {
         "terminal": ("<Super>Return", "/snap/bin/ghostty"),
         "files": ("<Super><Shift>Return", f"/snap/bin/ghostty -e {shell} -lc yazi"),
@@ -106,6 +109,11 @@ def shortcuts(saved: dict) -> None:
         "dictate": ("<Super>i", f"{shell} -lc dictate"),
         "ocr": ("<Super><Shift>o", f"{shell} -lc ocr"),
         "record": ("<Super><Shift>r", f"{shell} -lc 'record toggle'"),
+        "calculator": ("<Super>c", f"/snap/bin/ghostty -e {shell} -lc ipython"),
+        "scratch-editor": (
+            "<Super><Shift>t",
+            f"/snap/bin/ghostty -e {shell} -lc {scratch}",
+        ),
         "clipboard": (
             "<Super>p",
             "gdbus call --session --dest org.gnome.Shell.Extensions.Copyous --object-path /org/gnome/Shell/Extensions/Copyous --method org.gnome.Shell.Extensions.Copyous.Show",
@@ -156,11 +164,47 @@ def apply_settings(saved: dict) -> None:
     write_key(
         "org.gnome.desktop.wm.keybindings", "toggle-fullscreen", ["<Super>f"], saved
     )
+    desktop_bindings(saved)
     tiling(saved)
     shortcuts(saved)
     workspaces(saved)
     panel(saved)
     extensions(saved)
+
+
+def desktop_bindings(saved: dict) -> None:
+    for key, bindings in {
+        "switch-applications": ["<Alt>Tab"],
+        "switch-applications-backward": ["<Alt><Shift>Tab"],
+        "switch-input-source": [],
+        "switch-input-source-backward": [],
+        "cycle-windows": ["<Super>bracketright", "<Alt>Escape"],
+        "cycle-windows-backward": ["<Super>bracketleft", "<Alt><Shift>Escape"],
+    }.items():
+        write_key("org.gnome.desktop.wm.keybindings", key, bindings, saved)
+    for key, bindings in {
+        "screensaver": ["<Super><Shift>s"],
+        "volume-up": ["<Super><Control>k"],
+        "volume-down": ["<Super><Control>j"],
+        "volume-mute": ["<Super><Shift>m"],
+        "mic-mute": ["<Super>m"],
+        "play": ["<Super><Control>space"],
+        "next": ["<Super><Control>l"],
+        "previous": ["<Super><Control>h"],
+        "logout": ["<Super><Shift>e", "<Control><Alt>Delete"],
+    }.items():
+        write_key("org.gnome.settings-daemon.plugins.media-keys", key, bindings, saved)
+    for key, bindings in {
+        "toggle-message-tray": ["<Super><Control>n"],
+        "show-screenshot-ui": ["Print"],
+        "screenshot": ["<Shift>Print"],
+        "screen-brightness-up": ["XF86MonBrightnessUp", "<Super><Control>bracketright"],
+        "screen-brightness-down": [
+            "XF86MonBrightnessDown",
+            "<Super><Control>bracketleft",
+        ],
+    }.items():
+        write_key("org.gnome.shell.keybindings", key, bindings, saved)
 
 
 def tiling(saved: dict) -> None:
@@ -174,22 +218,25 @@ def tiling(saved: dict) -> None:
         "panel-transparency": False,
         "mouse-cursor-follows-active-window": False,
         "toggle-floating": ["<Super><Shift>space"],
+        "toggle-stacking-global": ["<Super>s"],
+        "tile-orientation": ["<Super>e"],
+        "tile-enter": ["<Super>r"],
     }.items():
         write_key(schema, key, value, saved)
     for key in [
-        "tile-enter",
         "toggle-tiling",
-        "tile-orientation",
         "pop-workspace-up",
         "pop-workspace-down",
     ]:
         write_key(schema, key, [], saved)
     for direction, letter in zip(["left", "down", "up", "right"], "hjkl"):
-        binding = "<Super>Right" if direction == "right" else f"<Super>{letter}"
-        write_key(schema, f"focus-{direction}", [binding], saved)
+        write_key(schema, f"focus-{direction}", [f"<Super>{letter}"], saved)
         write_key(
             schema, f"tile-move-{direction}-global", [f"<Super><Shift>{letter}"], saved
         )
+        write_key(schema, f"tile-resize-{direction}", [letter], saved)
+        write_key(schema, f"tile-move-{direction}", [f"<Shift>{letter}"], saved)
+        write_key(schema, f"tile-swap-{direction}", [], saved)
 
 
 def panel(saved: dict) -> None:
@@ -221,6 +268,11 @@ def panel(saved: dict) -> None:
 
 def workspaces(saved: dict) -> None:
     write_key("org.gnome.mutter", "dynamic-workspaces", True, saved)
+    for key, binding in [
+        ("next-workspace", "<Super>Tab"),
+        ("previous-workspace", "<Super><Shift>Tab"),
+    ]:
+        write_key("org.gnome.shell.extensions.workspace-cycle", key, [binding], saved)
     for number in range(1, 11):
         key = str(number % 10)
         for action, modifier in [("switch", ""), ("move", "<Shift>")]:
@@ -266,6 +318,16 @@ def main() -> None:
         raise SystemExit("Run this command from the GNOME desktop session.")
     saved = json.loads(STATE.read_text()) if STATE.exists() else {}
     if sys.argv[1:] == ["settings"]:
+        subprocess.run(
+            [
+                "/usr/bin/glib-compile-schemas",
+                str(
+                    HOME
+                    / ".local/share/gnome-shell/extensions/workspace-cycle@dotfiles/schemas"
+                ),
+            ],
+            check=True,
+        )
         apply_settings(saved)
     elif sys.argv[1:] == ["restore"]:
         restore(saved)

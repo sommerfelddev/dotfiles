@@ -426,32 +426,81 @@ in `~/.XCompose`. Press and release Compose, then the sequence.
 These keys apply only to the `canonical` role with O-Tiling. Company-locked
 settings remain unchanged.
 
-| Keys                | Action                                   |
-| ------------------- | ---------------------------------------- |
-| Super+Return        | Ghostty                                  |
-| Super+Shift+Return  | Yazi in Ghostty                          |
-| Super+Shift+B       | Firefox                                  |
-| Super+T             | Thunderbird, normal window               |
-| Super+Shift+Q       | Close window                             |
-| Super+F             | Fullscreen                               |
-| Super+Shift+Space   | Toggle floating                          |
-| Super+Period        | Emoji picker                             |
-| Super+H/J/K/Right   | Focus left/down/up/right                 |
-| Super+Shift+H/J/K/L | Move window left/down/up/right           |
-| Super+I             | Toggle dictation; copy text to clipboard |
-| Super+Shift+O       | NormCap OCR                              |
-| Super+Shift+R       | Toggle portal recording                  |
-| Super+P             | Copyous history                          |
-| Caps Lock           | Escape                                   |
-| Right Ctrl          | Compose                                  |
+| Keys                               | Action                                     |
+| ---------------------------------- | ------------------------------------------ |
+| Super+Return                       | Ghostty                                    |
+| Super+Shift+Return                 | Yazi in Ghostty                            |
+| Super+Shift+B                      | Firefox                                    |
+| Super+T                            | Thunderbird, normal window                 |
+| Super+Shift+Q                      | Close window                               |
+| Super+F                            | Fullscreen                                 |
+| Super+Shift+Space                  | Toggle floating                            |
+| Super+Period                       | Emoji picker                               |
+| Super+H/J/K/L                      | Focus left/down/up/right                   |
+| Super+Shift+H/J/K/L                | Move window left/down/up/right             |
+| Super+I                            | Toggle dictation; copy text to clipboard   |
+| Super+Shift+O                      | NormCap OCR                                |
+| Super+Shift+R                      | Toggle portal recording                    |
+| Super+P                            | Copyous history                            |
+| Super+Tab / Super+Shift+Tab        | Next / previous workspace, with wraparound |
+| Super+Shift+S                      | Lock screen                                |
+| Super+[ / Super+]                  | Previous / next window in GNOME order      |
+| Super+S                            | Toggle O-Tiling stacking                   |
+| Super+E                            | Toggle split orientation                   |
+| Super+R                            | Enter O-Tiling management mode             |
+| H/J/K/L in management mode         | Resize left/down/up/right                  |
+| Shift+H/J/K/L in management mode   | Move window                                |
+| Return / Escape in management mode | Accept / exit                              |
+| Super+C                            | IPython in Ghostty                         |
+| Super+Shift+T                      | Scratch editor in Ghostty                  |
+| Super+Ctrl+K / Super+Ctrl+J        | Volume up / down                           |
+| Super+Shift+M                      | Mute output                                |
+| Super+M                            | Mute microphone                            |
+| Super+Ctrl+Space                   | Play / pause                               |
+| Super+Ctrl+L / Super+Ctrl+H        | Next / previous track                      |
+| Super+Ctrl+] / Super+Ctrl+[        | Brightness up / down                       |
+| Super+Ctrl+N                       | Show notification history                  |
+| Super+Shift+E                      | GNOME logout dialog                        |
+| Print / Shift+Print                | Screenshot selection / full screenshot     |
+| Caps Lock                          | Escape                                     |
+| Right Ctrl                         | Compose                                    |
 
-Use GNOME's screenshot UI. O-Tiling's
-other default shortcuts remain active. Sway modes and recovery keys do not
-apply to this role.
-Super+L remains the GNOME lock shortcut. Super+D opens the application launcher.
+Super+D opens the application launcher. Alt+Tab still switches applications.
+Automatic screen locking and company policies are unchanged. The lock key does
+not pause media, unlike the Sway command. GNOME keeps its hardware media keys.
 XF86Display remains the display-switching key; Super+P opens clipboard history.
 Super+1 through Super+9 select workspaces 1 through 9; Super+0 selects workspace 10. Add Shift to move the current window to that workspace.
 
 GNOME uses dynamic workspaces. Number shortcuts select existing workspaces;
 they do not create missing ones. Empty workspaces are removed, so numbers can
 change. GNOME keeps one empty workspace at the end for new windows.
+Workspace cycling includes that empty workspace. GNOME workspaces are not
+independent per output as they are in Sway.
+
+## Differences From Halley2
+
+The following Sway actions have no direct equivalent in this GNOME setup:
+
+| Halley2 keys                             | Difference on GNOME                                                              |
+| ---------------------------------------- | -------------------------------------------------------------------------------- |
+| Super+B/V                                | No forced horizontal/vertical next split; Super+E toggles the current split      |
+| Super+W                                  | No separate Sway tabbed layout; Super+S toggles O-Tiling stacking                |
+| Super+Space / Super+A                    | No tiled/floating focus toggle or parent-container focus                         |
+| Super+Minus / Super+Shift+Minus          | No scratchpad                                                                    |
+| Super+T                                  | Opens Thunderbird; does not hide it in a scratchpad                              |
+| Super+R, H/J/K/L                         | O-Tiling resize follows its grid, not Sway's 10-pixel increments                 |
+| Super+N / Super+Shift+N                  | No notification dismissal binding; use GNOME's notification list                 |
+| Super+Ctrl+N                             | Opens history; does not restore a dismissed notification                         |
+| Super+Shift+P                            | No direct Copyous deletion action; delete from its interface                     |
+| Super+Shift+C                            | No Sway reload; run `just canonical-desktop`                                     |
+| Super+Shift+E                            | Logout dialog rather than the Sway power menu                                    |
+| Super+Z / Super+X                        | No QR/system key modes; run `rqr`, `wqr`, or use GNOME controls                  |
+| Super+Shift+T / Super+C                  | Editor and calculator follow normal tiling rather than forcing a floating window |
+| XF86Tools / XF86Keyboard / XF86Favorites | GNOME hardware-key behavior, not the Sway helper commands                        |
+| Super+Ctrl+Shift+R                       | No Sway display recovery command                                                 |
+
+The screenshot selection uses GNOME's UI and save location. The bracket keys
+use GNOME's window order rather than Sway's container order. Input-source
+switching on Super+Space and Super+Shift+Space is disabled to avoid conflicts.
+Policy-locked or locally added shortcuts can still conflict; check the output
+of `just canonical-desktop` and test the keys after login.

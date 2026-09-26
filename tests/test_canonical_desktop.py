@@ -60,17 +60,31 @@ class DesktopTests(unittest.TestCase):
         with patch.object(desktop, "write_key") as write:
             desktop.tiling({})
         schema = "org.gnome.shell.extensions.o-tiling"
-        for key in [
-            "tile-enter",
-            "toggle-tiling",
-            "tile-orientation",
-            "pop-workspace-up",
-            "pop-workspace-down",
-        ]:
+        for key in ["toggle-tiling", "pop-workspace-up", "pop-workspace-down"]:
             write.assert_any_call(schema, key, [], {})
         write.assert_any_call(schema, "new-window-placement", "focused", {})
-        write.assert_any_call(schema, "focus-right", ["<Super>Right"], {})
+        write.assert_any_call(schema, "focus-right", ["<Super>l"], {})
         write.assert_any_call(schema, "tile-move-down-global", ["<Super><Shift>j"], {})
+        write.assert_any_call(schema, "tile-enter", ["<Super>r"], {})
+        write.assert_any_call(schema, "tile-resize-left", ["h"], {})
+
+    def test_desktop_bindings_release_sway_keys_and_keep_lock(self):
+        with patch.object(desktop, "write_key") as write:
+            desktop.desktop_bindings({})
+        wm = "org.gnome.desktop.wm.keybindings"
+        media = "org.gnome.settings-daemon.plugins.media-keys"
+        write.assert_any_call(wm, "switch-applications", ["<Alt>Tab"], {})
+        write.assert_any_call(wm, "switch-input-source", [], {})
+        write.assert_any_call(wm, "switch-input-source-backward", [], {})
+        write.assert_any_call(media, "screensaver", ["<Super><Shift>s"], {})
+        write.assert_any_call(media, "mic-mute", ["<Super>m"], {})
+
+    def test_workspace_cycle_keys_are_configured(self):
+        with patch.object(desktop, "write_key") as write:
+            desktop.workspaces({})
+        schema = "org.gnome.shell.extensions.workspace-cycle"
+        write.assert_any_call(schema, "next-workspace", ["<Super>Tab"], {})
+        write.assert_any_call(schema, "previous-workspace", ["<Super><Shift>Tab"], {})
 
     def test_clipboard_shortcut_preserves_other_display_bindings(self):
         settings = MagicMock()

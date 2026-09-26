@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.workspace-cycle" path="/org/gnome/shell/extensions/workspace-cycle/">
+    <key name="next-workspace" type="as">
+      <default>[]</default>
+      <summary>Next workspace, with wraparound</summary>
+    </key>
+    <key name="previous-workspace" type="as">
+      <default>[]</default>
+      <summary>Previous workspace, with wraparound</summary>
+    </key>
+  </schema>
+</schemalist>

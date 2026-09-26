@@ -321,6 +321,14 @@ The managed shortcuts are listed in `KEYBINDS.md`. Settings are reapplied by
 `just apply` in GNOME. Policy-locked keys are reported and skipped. Only touched
 keys are saved in `~/.local/state/dotfiles/gnome-settings.json`.
 
+Super+H/J/K/L focuses windows. Super+Shift+S locks the screen; Super+L no longer
+locks it. This changes the manual shortcut only, not automatic locking.
+Super+Tab and Super+Shift+Tab cycle workspaces with wraparound through the local
+Workspace Cycle extension. Log out and back in after its first deployment.
+GNOME's Alt+Tab application switcher remains available. Super+R enters
+O-Tiling management mode, where H/J/K/L resizes and Return or Escape exits.
+See the shortcut table for Sway actions that GNOME cannot reproduce directly.
+
 ```sh
 just canonical-desktop-restore
 ```

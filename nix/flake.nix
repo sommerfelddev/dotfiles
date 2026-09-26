@@ -287,6 +287,7 @@
           nixfmt
           nodejs
           networkmanager
+          glib
           prettier
           ruff
           selene

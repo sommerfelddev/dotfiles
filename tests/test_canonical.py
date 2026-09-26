@@ -224,6 +224,7 @@ class RoleTests(unittest.TestCase):
             ".local/bin/rqr",
             ".local/share/gnome-shell/extensions/corporate-panel@dotfiles/extension.js",
             ".local/share/gnome-shell/extensions/external-display@dotfiles/extension.js",
+            ".local/share/gnome-shell/extensions/workspace-cycle@dotfiles/extension.js",
         ]:
             self.assertIn(required, files)
         for path in files:

@@ -1,0 +1,8 @@
+{
+  "uuid": "workspace-cycle@dotfiles",
+  "name": "Workspace Cycle",
+  "description": "Cycle through workspaces in both directions.",
+  "shell-version": ["50"],
+  "settings-schema": "org.gnome.shell.extensions.workspace-cycle",
+  "version": 1
+}
