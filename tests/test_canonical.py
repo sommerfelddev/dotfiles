@@ -150,6 +150,23 @@ class PackageTests(unittest.TestCase):
 
 
 class RoleTests(unittest.TestCase):
+    def test_canonical_zellij_uses_zsh_without_changing_other_roles(self):
+        for role in ("canonical", "host", "vm"):
+            rendered = subprocess.check_output(
+                self.command(
+                    role,
+                    "execute-template",
+                    "--file",
+                    str(ROOT / "dot_config/zellij/config.kdl.tmpl"),
+                ),
+                text=True,
+            )
+            if role == "canonical":
+                self.assertIn('/.nix-profile/bin/zsh"', rendered)
+                self.assertIn('default_shell "', rendered)
+            else:
+                self.assertNotIn("default_shell", rendered)
+
     def test_canonical_ghostty_has_no_window_decoration(self):
         rendered = subprocess.check_output(
             self.command(

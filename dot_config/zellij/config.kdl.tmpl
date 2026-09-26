@@ -1,3 +1,6 @@
+{{ if eq (default "host" (index . "machineRole")) "canonical" }}
+default_shell {{ printf "%s/.nix-profile/bin/zsh" .chezmoi.homeDir | quote }}
+{{ end }}
 // Gruvbox dark theme (built-in)
 theme "gruvbox-dark"
 

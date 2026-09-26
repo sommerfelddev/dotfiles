@@ -135,7 +135,9 @@ existing PaperWM installation, run `just canonical-extensions`, log out and back
 in, then run `just canonical-desktop`. No `just apply` is needed for these settings.
 
 Ghostty starts Nix zsh as a login shell. It does not change the authd account's
-shell. GNOME keeps its own desktop environment and GNOME Keyring. `pass` remains
+shell. Zellij explicitly starts Nix zsh for new shells. Existing bash panes
+remain bash; run `exec ~/.nix-profile/bin/zsh` in those panes, or start a new
+session after deployment. GNOME keeps its own desktop environment and GNOME Keyring. `pass` remains
 a terminal tool; this role does not install the pass Secret Service daemon.
 
 ## Package Sources
