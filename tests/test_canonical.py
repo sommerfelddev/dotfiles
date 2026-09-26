@@ -150,6 +150,24 @@ class PackageTests(unittest.TestCase):
 
 
 class RoleTests(unittest.TestCase):
+    def test_all_named_agents_receive_shared_instructions(self):
+        files = subprocess.check_output(
+            self.command("canonical", "managed", "--include=files,symlinks"),
+            text=True,
+        ).splitlines()
+        self.assertIn(".codex/AGENTS.md", files)
+        for source, target, link in (
+            ("dot_claude", ".claude", "CLAUDE.md"),
+            ("dot_copilot", ".copilot", "copilot-instructions.md"),
+            ("dot_hermes", ".hermes", "SOUL.md"),
+            ("dot_omp/agent", ".omp/agent", "AGENTS.md"),
+            ("dot_config/opencode", ".config/opencode", "AGENTS.md"),
+        ):
+            self.assertIn(f"{target}/{link}", files)
+            relative = (ROOT / source / f"symlink_{link}").read_text().strip()
+            expected = "../" * len(Path(target).parts) + ".codex/AGENTS.md"
+            self.assertEqual(relative, expected)
+
     def test_canonical_zellij_uses_zsh_without_changing_other_roles(self):
         for role in ("canonical", "host", "vm"):
             rendered = subprocess.check_output(

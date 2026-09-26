@@ -1,158 +1,106 @@
-Always write responses using only ASD-STE100 Simplified Technical English.
+Always write responses using ASD-STE100 Simplified Technical English.
 
-# Global Agent Instructions
+# Shared Agent Policy
 
-These rules apply across repositories. Merge them with any repo-specific
-`AGENTS.md` files, and let the more specific repo instructions win when they
-conflict.
+These are user-level defaults. Follow the instruction priority of the current
+agent tool. Project instructions can refine these defaults. Company policy,
+explicit user limits, and higher-priority instructions still apply.
 
-## Core Behavior
+## Work Method
 
-Think before changing files.
+- Read project instructions and relevant code before proposing changes.
+- State assumptions that affect the result. Ask when an unresolved choice can
+  change scope, safety, cost, or behavior.
+- Prefer the smallest complete solution. Do not add unrelated features or
+  abstractions without a clear need.
+- Define how to verify success. For substantial work, keep a short plan and
+  update it as work progresses.
+- Test changed behavior. Add a failing regression test before a bug fix when
+  practical. For configuration or documentation, use suitable validation.
+- Report what changed, what was verified, and what remains unverified.
+- Do not claim that deployment, a test, or a command succeeded without evidence.
 
-- State assumptions when they matter.
-- If the request has multiple plausible meanings, name the options instead of
-  picking silently.
-- If a simpler approach exists, say so.
-- If something is unclear enough to change the outcome, ask before editing.
+## Model Selection And Delegation
 
-Prefer simple, direct solutions.
+Use a strong general-purpose model below the highest-cost tier for the main
+session when model selection is available. It owns the plan, user communication,
+integration, and final verification.
 
-- Implement the requested behavior, not adjacent features.
-- Do not add abstractions for one use.
-- Do not add configurability, fallback behavior, or broad error handling unless
-  the task needs it.
-- If the solution is getting large, stop and look for the smaller shape.
+Reference example supplied by the user on 2026-09-26 for the GPT-6 family:
 
-Make surgical changes.
+- Main session and orchestration: Sol, medium effort.
+- Delegated worker: Luna, max effort.
+- Consultant: Astra, xhigh effort.
 
-- Touch only the files needed for the task.
-- Match the existing style and local patterns.
-- Clean up unused code that your change creates.
-- Mention unrelated dead code or stale comments instead of deleting them unless
-  the user asks.
+This example records the user's intended balance of capability, effort, and
+cost at that time. It is not a fixed model preference or an API configuration.
+For future releases, select current models with the same relative roles:
+a capable main agent below the top cost tier, an economical worker, and the
+strongest consultant for difficult questions. Verify supported model names,
+effort levels, and prices before changing configuration.
 
-Work toward a verifiable goal.
+Use cheaper agents for bounded work such as large-log or document summaries,
+file inventories, and straightforward edits with clear acceptance criteria.
+Give each agent only the context it needs, a defined scope, and an output format.
+Request file references and evidence, not only conclusions.
 
-- Define the success criteria before implementation.
-- For multi-step work, keep a short plan with checks.
-- Loop until the result is implemented and verified, or clearly report the
-  blocker.
+Use the strongest available frontier model for difficult design decisions,
+high-impact technical consultations, and hard problems that remain unresolved
+after a focused investigation. Ask a specific question and supply the evidence,
+constraints, and attempted solutions. Use its advice to inform the main session;
+do not treat it as proof.
 
-## Environment And Tooling
+- Delegate only when the expected benefit exceeds the cost of setup and review.
+  Keep small tasks in the main session.
+- Keep concurrent write tasks in separate files or worktrees. Assign one owner
+  for each shared change.
+- Review delegated results and verify important claims against source material.
+  The main agent remains responsible for the result.
+- Limit each consultation to a defined question. Avoid recursive delegation and
+  repeated escalation without new evidence.
+- Respect user budgets and approved providers. Do not send secrets or private
+  company data to another service without authorization.
+- Do not infer relative cost or capability from a model name alone. Use the
+  available model descriptions and current pricing when selecting paid models.
+- If model selection or delegation is unavailable, do the work in the current
+  session and state the limitation when it matters. Do not claim to have changed
+  models or consulted another agent.
+- This policy does not authorize paid services, new accounts, or tool setting
+  changes. Ask before these changes when they are needed.
 
-Prefer repo-owned workflows over ad hoc commands.
+## Tools And Environment
 
-- If a repo has a `justfile`, start with `just --list`.
-- Use `just` recipes for build, test, format, lint, deploy, and maintenance
-  workflows when they exist.
-- If a recipe is broken, fix it or flag the gap. Do not bypass it silently.
-- If a common workflow has no recipe, propose adding one before building a
-  manual workflow around it.
+- Prefer the repository's documented workflows. If a justfile exists, inspect
+  `just --list` before using separate build, test, or deployment commands.
+- Report a broken workflow. Fix it when it is within the task's scope.
+- Check the execution environment before changing installed software, user
+  configuration, services, networking, or system files.
+- Inside a sandbox, prepare and test project changes. Do not assume its home
+  directory or services belong to the target host.
+- When using aibox, follow its current instructions. Do not deploy dotfiles to
+  home or system paths from inside it.
+- Prefer project-local, declared dependencies. Do not install tools globally
+  unless the user requested that installation.
+- Use the existing project toolchain. Do not introduce Nix or another build
+  system only to obtain a one-off tool without discussing that change.
 
-When running inside `aibox`:
+## Changes And History
 
-- Treat the current working directory as the project workspace and the only
-  intended writable project tree.
-- Network access may be available, but broad host home and config state may not
-  be mounted.
-- Do not run `chezmoi apply`, `just apply`, or other commands that deploy
-  dotfiles into `$HOME` or system paths. Prepare and validate the source
-  changes, then tell the user which deployment command to run outside the
-  sandbox.
-- Do not install tools globally with apt, brew, npm global installs, pipx,
-  cargo install, or similar tools unless explicitly asked.
-- When a tool is missing, add it declaratively to the project's Nix devShell,
-  then use `direnv reload` or `nix develop` as appropriate.
-- If the project has no `.envrc` and no Nix devShell, bootstrap a minimal
-  `flake.nix` devShell and an `.envrc` containing `use flake`; run
-  `direnv allow` once before adding tools.
-- Keep tooling changes in project files such as `flake.nix`, `shell.nix`,
-  `devshell.nix`, or the existing local equivalent.
-- Treat generic `$HOME` cache, config, and local writes as sandbox-private
-  unless a path is explicitly mounted by `aibox`.
-- Run `aibox -p` or `aibox --dump-prompt` again when the sandbox rules need to
-  be refreshed.
+- Preserve unrelated user changes. Do not reset or overwrite them.
+- Keep edits within the requested behavior and the code that supports it.
+- Match local conventions. Add helpers only when they reduce real complexity.
+- Comment on non-obvious constraints and behavior. Omit comments that repeat
+  the code.
+- Commit completed, verified work in atomic commits unless the user asks
+  otherwise. Leave unrelated changes uncommitted. Never push.
+- Each commit must make sense on its own and pass its relevant checks.
+- Use a short imperative commit subject. Add a short body only when the reason
+  is not clear from the diff.
+- Do not rewrite shared history without approval.
 
-## Commits And History
+## Communication
 
-Make commits atomic, single-concern, and independently reviewable.
-
-- After completing and validating a task, commit its changes without waiting
-  for a separate request. Leave unrelated changes uncommitted.
-- Before staging, ask whether the commit can be smaller and still make sense.
-- Each commit should pass the relevant checks for the change at the HEAD of that
-  commit.
-- Do not create commits that only make sense when paired with a later commit.
-- Never run `git push`.
-
-Commit messages:
-
-- Use a short imperative subject.
-- Use the body only for non-obvious context the diff cannot supply.
-- Keep the body to at most four lines.
-- Leave the body empty when the subject is enough.
-- Do not restate the diff, include exact generated counts, list future work, or
-  give per-file and per-test breakdowns.
-
-When splitting refactors:
-
-- Split by reviewable concern even if the same file is touched in multiple
-  places.
-- Stage source changes per commit.
-- Bundle bulk generated artifacts with the final commit of that phase.
-
-When addressing review:
-
-- Prefer `git commit --amend` or `git rebase -i` with `reword` or `edit`.
-- Do not use `git reset --soft` to rebuild a commit chain by hand.
-- Rerun checks only for code or config that actually changed.
-
-## Public-Facing Prose
-
-This applies to commit messages, code comments, docs, PR descriptions, and any
-text that lands in a repo.
-
-- Write contract comments only: accepted inputs, returned outputs, observable
-  behavior, and constraints.
-- If a name and signature already explain the contract, omit the comment.
-- Remove filler, redundancy, future-work notes, and commentary about the edit.
-- Avoid rhetorical tics: "not X, but Y", stacked fragments, stylistic em dashes,
-  and unnecessary bullet lists.
-- Delete common AI phrasing such as "load-bearing", "material finding", and
-  "it is not just X, it is Y".
-- Read important prose out loud. If it sounds generated, rewrite it plainly.
-
-## Coding Tasks Only
-
-These rules apply when changing application or library code. They do not apply
-to routine dotfile maintenance, package lists, deployment manifests, or
-comment-only changes unless the task includes real code behavior.
-
-Functions:
-
-- Prefer small, single-purpose functions.
-- Treat roughly 15 lines as a soft target, not a hard limit.
-- Keep one level of abstraction inside a function.
-- Extract helpers when a function mixes intent-level steps with low-level
-  mechanics.
-
-API design:
-
-- Make invalid states unrepresentable where the language and local style allow
-  it.
-- When two mutations must happen together, expose one API that performs the
-  whole sequence.
-- Prefer scope guards, RAII, callbacks, or single transaction-style methods over
-  "call X then Y" protocols.
-- Abstract repeated 3 to 6 line patterns after they recur across several sites
-  in the same change. Do not pre-abstract for one or two uses.
-
-Testing:
-
-- For behavior changes, prefer red, green, refactor within each commit.
-- First add or adjust a test that fails for the intended reason.
-- Then write the minimum code that makes it pass.
-- Then clean up structure while checks stay green.
-- Skip TDD only with a stated reason, such as documentation-only changes,
-  mechanical moves, config-only changes, or initial build/tooling scaffolding.
+Use direct, concise technical language. Separate facts from hypotheses and
+recommendations. Use examples when they make a decision clearer. Avoid filler,
+rhetorical contrasts, and invented terminology. Keep documentation focused on
+behavior, operation, and constraints.
