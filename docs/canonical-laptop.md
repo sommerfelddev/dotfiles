@@ -312,6 +312,14 @@ chooser if an old portal choice overrides the default.
 
 ## Desktop Checks
 
+Folders open in Yazi and text files open in Neovim, each in Ghostty. Images
+open in imv. Firefox, Thunderbird, and Zathura keep their existing defaults.
+The GNOME file selection dialog stays unchanged. These settings do not replace
+the file manager's D-Bus interface or a saved application choice in a portal.
+
+After deployment, check `xdg-open "$HOME"`, `xdg-open` on a text file, and
+`xdg-open` on an image. The terminal launchers use absolute Nix profile paths.
+
 Mattermost, Thunderbird, and one Nheko `work` profile autostart through
 GNOME. In Nheko, enable its tray and start-in-tray options for that profile.
 Disable duplicate application-owned autostart entries. Test notifications with

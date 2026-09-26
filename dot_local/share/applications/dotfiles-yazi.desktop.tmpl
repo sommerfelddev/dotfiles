@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Yazi
+Exec=/snap/bin/ghostty -e {{ printf "%s/.nix-profile/bin/yazi" .chezmoi.homeDir | quote }} %f
+Icon=system-file-manager
+Terminal=false
+Categories=System;FileTools;FileManager;
+MimeType=inode/directory;

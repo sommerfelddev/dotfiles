@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Neovim
+Exec=/snap/bin/ghostty -e {{ printf "%s/.nix-profile/bin/nvim" .chezmoi.homeDir | quote }} -- %F
+Icon=nvim
+Terminal=false
+Categories=Utility;TextEditor;
+MimeType=text/plain;text/markdown;text/x-python;text/x-chdr;text/x-tex;application/x-shellscript;application/json;application/yaml;

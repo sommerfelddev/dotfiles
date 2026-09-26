@@ -1,5 +1,12 @@
 {{ if eq (default "host" (index . "machineRole")) "canonical" }}
 [Default Applications]
+inode/directory=dotfiles-yazi.desktop
+{{ range list "text/plain" "text/markdown" "text/x-python" "text/x-chdr" "text/x-tex" "application/x-shellscript" "application/json" "application/yaml" }}
+{{ . }}=dotfiles-nvim.desktop
+{{ end }}
+{{ range list "image/jpeg" "image/png" "image/gif" "image/webp" "image/bmp" "image/tiff" "image/x-nikon-nef" }}
+{{ . }}=imv.desktop
+{{ end }}
 application/pdf=org.pwmt.zathura.desktop
 x-scheme-handler/http=firefox_firefox.desktop
 x-scheme-handler/https=firefox_firefox.desktop

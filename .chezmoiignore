@@ -85,6 +85,7 @@ dot_config/nvim/nvim-pack-lock.json
 !.local/share/applications
 .local/share/applications/*
 !.local/share/applications/org.pwmt.zathura.desktop
+!.local/share/applications/dotfiles-*.desktop
 !.local/share/gnome-shell
 .local/share/gnome-shell/*
 !.local/share/gnome-shell/extensions
@@ -102,6 +103,7 @@ canonical-nvim-lock.sh
 .config/nix/nix.conf
 .config/autostart/dotfiles-*.desktop
 .config/autostart/keybase.desktop
+.local/share/applications/dotfiles-*.desktop
 .config/systemd/user/gpg-agent.service.d/canonical.conf
 .local/lib/dotfiles/
 .local/share/gnome-shell/extensions/corporate-panel@dotfiles/
