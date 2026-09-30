@@ -15,6 +15,8 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 BOOT = Path("/boot/EFI/Linux")
+PCRLOCK_POLICY = Path("/var/lib/systemd/pcrlock.json")
+GPT_COMPONENT = Path("/var/lib/pcrlock.d/600-gpt.pcrlock.d/generated.pcrlock")
 PUBLIC_KEY = Path("/etc/systemd/tpm2-pcr-public-key.pem")
 SB_CERT = Path("/var/lib/sbctl/keys/db/db.pem")
 ROOT_UUID = "81520bbc-1e7a-45e6-9465-cfc2e8b18945"
@@ -217,6 +219,49 @@ def check_image(path: Path, public_key: bytes) -> None:
     print(f"verified: {path}")
 
 
+def check_pcrlock_policy(policy: dict, boot_policy: dict) -> None:
+    values = policy.get("pcrValues")
+    if (
+        policy.get("pcrBank") != "sha256"
+        or not isinstance(values, list)
+        or len(values) != 2
+        or any(
+            not isinstance(entry, dict)
+            or entry.get("pcr") not in (5, 7)
+            or not isinstance(entry.get("values"), list)
+            or not entry["values"]
+            for entry in values
+        )
+        or {entry["pcr"] for entry in values} != {5, 7}
+    ):
+        raise ValueError("Stored pcrlock policy does not require PCR 5 and PCR 7")
+    if policy != boot_policy:
+        raise ValueError("EFI pcrlock credential differs from the stored policy")
+
+
+def check_boot_policy() -> None:
+    if not GPT_COMPONENT.is_file():
+        raise ValueError("Approved GPT component is missing")
+    policy = json.loads(PCRLOCK_POLICY.read_text())
+    credential_dir = Path(run("bootctl", "-x").strip()) / "loader/credentials"
+    credentials = list(credential_dir.glob("pcrlock.*.cred"))
+    if len(credentials) != 1:
+        raise ValueError("Expected one EFI pcrlock credential")
+    credential = credentials[0]
+    name = credential.name.removesuffix(".cred").lower()
+    boot_policy = json.loads(
+        run(
+            "systemd-creds",
+            "--allow-null",
+            f"--name={name}",
+            "decrypt",
+            str(credential),
+            "-",
+        )
+    )
+    check_pcrlock_policy(policy, boot_policy)
+
+
 def check_boot() -> None:
     active = Path("/proc/cmdline").read_text()
     if not all(option in active for option in MEASUREMENT_OPTIONS):
@@ -225,9 +270,11 @@ def check_boot() -> None:
     for name in ("cryptsetup", "hardware", "login", "verity"):
         if name not in nvpcrs:
             raise ValueError(f"NvPCR {name} is not available")
+    check_boot_policy()
     run(
         "/usr/lib/systemd/systemd-pcrlock",
         "--strict=yes",
+        "--pcr=5",
         "--pcr=7",
         "--location=770",
         "predict",
@@ -236,7 +283,7 @@ def check_boot() -> None:
     if failed.strip():
         raise ValueError("Systemd has failed units; inspect systemctl --failed")
     print(
-        "verified: current boot options, NvPCR availability, and strict PCR 7 prediction"
+        "verified: current boot options, NvPCR availability, and strict PCR 5+7 policy"
     )
 
 

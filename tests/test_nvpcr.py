@@ -59,11 +59,15 @@ class NvPCRConfigTests(unittest.TestCase):
         self.assertIn("sudo sbverify --cert", script)
         self.assertNotIn("arch-linux-hardened-nvpcr-recovery.efi", script)
 
-    def test_pcr7_policy_is_unchanged(self):
+    def test_policy_requires_gpt_and_secure_boot(self):
         policy = (
             ROOT / "etc/systemd/system/systemd-pcrlock-make-policy.service.d/pcr7.conf"
         )
-        self.assertIn("--pcr=7 --location=770", policy.read_text())
+        self.assertIn(
+            "make-policy --strict=yes --pcr=5 --pcr=7 --location=770",
+            policy.read_text(),
+        )
+        self.assertIn(str(tpm_nvpcr.GPT_COMPONENT), policy.read_text())
         for name in ("systemd-tpm2-setup.service", "systemd-tpm2-setup-early.service"):
             self.assertFalse((ROOT / "etc/systemd/system" / name).exists())
 
@@ -104,6 +108,66 @@ def sections(public_key, *, policies=None, options=None):
 
 
 class NvPCRImageTests(unittest.TestCase):
+    def test_policy_rejects_missing_gpt_and_stale_boot_credential(self):
+        policy = {
+            "pcrBank": "sha256",
+            "pcrValues": [
+                {"pcr": 5, "values": [{"sha256": "a" * 64}]},
+                {"pcr": 7, "values": [{"sha256": "b" * 64}]},
+            ],
+            "nvIndex": 1,
+        }
+        tpm_nvpcr.check_pcrlock_policy(policy, policy.copy())
+        old = {**policy, "pcrValues": policy["pcrValues"][1:]}
+        with self.assertRaisesRegex(ValueError, "PCR 5 and PCR 7"):
+            tpm_nvpcr.check_pcrlock_policy(old, old)
+        with self.assertRaisesRegex(ValueError, "EFI pcrlock credential differs"):
+            tpm_nvpcr.check_pcrlock_policy(policy, {**policy, "nvIndex": 2})
+
+    def test_boot_policy_checks_gpt_and_efi_credential(self):
+        policy = {
+            "pcrBank": "sha256",
+            "pcrValues": [
+                {"pcr": 5, "values": ["a" * 64]},
+                {"pcr": 7, "values": ["b" * 64]},
+            ],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            gpt = root / "generated.pcrlock"
+            gpt.touch()
+            policy_file = root / "pcrlock.json"
+            policy_file.write_text(json.dumps(policy))
+            credential_dir = root / "loader/credentials"
+            credential_dir.mkdir(parents=True)
+            credential = credential_dir / "pcrlock.test-token.cred"
+            credential.touch()
+            with (
+                mock.patch.object(tpm_nvpcr, "GPT_COMPONENT", gpt),
+                mock.patch.object(tpm_nvpcr, "PCRLOCK_POLICY", policy_file),
+                mock.patch.object(
+                    tpm_nvpcr,
+                    "run",
+                    side_effect=[str(root), json.dumps(policy)],
+                ) as run,
+            ):
+                tpm_nvpcr.check_boot_policy()
+            run.assert_any_call(
+                "systemd-creds",
+                "--allow-null",
+                "--name=pcrlock.test-token",
+                "decrypt",
+                str(credential),
+                "-",
+            )
+
+            gpt.unlink()
+            with (
+                mock.patch.object(tpm_nvpcr, "GPT_COMPONENT", gpt),
+                self.assertRaisesRegex(ValueError, "GPT component is missing"),
+            ):
+                tpm_nvpcr.check_boot_policy()
+
     def test_command_failure_reports_stderr(self):
         error = subprocess.CalledProcessError(1, ["ukify"], stderr="file not found")
         with (

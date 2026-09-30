@@ -176,3 +176,71 @@ For an intended Secure Boot change, review the PCR 7 prediction before
 updating its policy. See [systemd-pcrlock](https://man.archlinux.org/man/systemd-pcrlock.8.en),
 [systemd-cryptenroll](https://man.archlinux.org/man/systemd-cryptenroll.1.en),
 and [cryptsetup-token](https://man.archlinux.org/man/cryptsetup-token.8.en).
+
+## Add the GPT partition policy
+
+The current root token already requires the pcrlock policy and signed PCR 11.
+This change adds PCR 5 to the existing pcrlock policy. PCR 5 covers the disk
+partition table. It does not bind file contents, the whole disk, or a kernel
+version. Do not enroll a new LUKS token or remove the disk passphrase.
+
+Run this once on Halley2, outside aibox. Keep the disk passphrase and pcrlock
+recovery PIN available. Stop if a check fails. Confirm that `/dev/nvme0n1` is
+the disk that contains the root volume. Do not reboot during these steps.
+
+```sh
+sudo cryptsetup open --test-passphrase --key-slot 0 /dev/nvme0n1p2
+sudo /usr/lib/systemd/systemd-pcrlock --strict=yes --pcr=7 --location=770 predict
+sudo test ! -e /var/lib/pcrlock.d/600-gpt.pcrlock.d/generated.pcrlock
+sudo test ! -e /var/lib/dotfiles/tpm-gpt/pcr7-policy.json
+sudo install -d -m 0700 /var/lib/dotfiles/tpm-gpt
+sudo cp /var/lib/systemd/pcrlock.json /var/lib/dotfiles/tpm-gpt/pcr7-policy.json
+sudo cp /etc/systemd/system/systemd-pcrlock-make-policy.service.d/pcr7.conf \
+  /var/lib/dotfiles/tpm-gpt/pcr7.conf
+sudo /usr/lib/systemd/systemd-pcrlock lock-gpt /dev/nvme0n1
+sudo /usr/lib/systemd/systemd-pcrlock --strict=yes --pcr=5 --pcr=7 \
+  --location=770 predict
+just apply
+sudo /usr/lib/systemd/systemd-pcrlock make-policy \
+  --strict=yes --pcr=5 --pcr=7 --location=770
+sudo jq -e --slurpfile old /var/lib/dotfiles/tpm-gpt/pcr7-policy.json \
+  '.nvIndex == $old[0].nvIndex and .nvHandle == $old[0].nvHandle' \
+  /var/lib/systemd/pcrlock.json >/dev/null
+just tpm-nvpcr-check
+just tpm-unlock-check
+```
+
+The GPT command writes
+`/var/lib/pcrlock.d/600-gpt.pcrlock.d/generated.pcrlock`. Stop and inspect
+that file if it already exists. `just apply` installs the service override.
+The `jq` check confirms that the existing TPM NV index is still in use.
+The new checker requires both PCRs in the stored policy, a matching EFI boot
+credential, and a strict prediction. Keep the backup on encrypted root storage.
+The first normal reboot is the test of automatic unlock; do it only when you
+are ready to enter the disk passphrase if TPM unlock fails. After that boot,
+run both checks again and check `systemctl --failed`.
+
+If a planned partition change makes PCR 5 differ, use the disk passphrase to
+boot. Review the new layout before you approve it. Then run `lock-gpt` again,
+run the strict PCR 5+7 prediction, and update the policy with `make-policy`.
+The pcrlock recovery PIN can authorize the update when the old policy no
+longer matches. Do not approve an unexpected partition change.
+
+If the new policy blocks automatic unlock, use the disk passphrase. To return
+to the saved PCR 7 policy, restore the old service override and update the
+TPM policy. `--force` also rewrites the EFI credential when the prediction
+equals an earlier policy. Do not copy the old JSON directly over the active
+policy: the TPM NV index must be updated too.
+
+```sh
+sudo install -m 0644 /var/lib/dotfiles/tpm-gpt/pcr7.conf \
+  /etc/systemd/system/systemd-pcrlock-make-policy.service.d/pcr7.conf
+sudo systemctl daemon-reload
+sudo /usr/lib/systemd/systemd-pcrlock make-policy --force \
+  --recovery-pin=query --strict=yes --pcr=7 --location=770
+sudo /usr/lib/systemd/systemd-pcrlock --strict=yes --pcr=7 --location=770 predict
+```
+
+The repo checker will then fail until you restore the PCR 5 setup. Do not
+delete the saved policy or recovery PIN. The EFI boot test and root token
+checks remain necessary because an offline prediction cannot prove unlock.
