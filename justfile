@@ -151,7 +151,7 @@ test:
 
 # Check the signed UKIs and NvPCR configuration. Pass staged UKIs to omit boot checks.
 [positional-arguments]
-tpm-nvpcr-check +images: _require-host
+tpm-nvpcr-check *images: _require-host
     @sudo /usr/bin/python3 scripts/tpm_nvpcr.py "$@"
 
 # Remove only this repo's obsolete zero-byte NvPCR masks after recovery is ready.

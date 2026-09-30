@@ -12,6 +12,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class NvPCRConfigTests(unittest.TestCase):
+    def test_check_recipe_accepts_no_images_or_one_image(self):
+        for images in ((), ("candidate.efi",)):
+            output = subprocess.check_output(
+                ["just", "--dry-run", "tpm-nvpcr-check", *images],
+                cwd=ROOT,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+            self.assertIn("scripts/tpm_nvpcr.py", output)
+
     def test_hook_adds_required_initrd_services(self):
         hook = ROOT / "etc/initcpio/install/nvpcr"
         output = subprocess.check_output(
