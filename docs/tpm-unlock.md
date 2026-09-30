@@ -203,9 +203,16 @@ sudo /usr/lib/systemd/systemd-pcrlock --strict=yes --pcr=5 --pcr=7 \
 just apply
 sudo /usr/lib/systemd/systemd-pcrlock make-policy \
   --strict=yes --pcr=5 --pcr=7 --location=770
-sudo jq -e --slurpfile old /var/lib/dotfiles/tpm-gpt/pcr7-policy.json \
-  '.nvIndex == $old[0].nvIndex and .nvHandle == $old[0].nvHandle' \
-  /var/lib/systemd/pcrlock.json >/dev/null
+sudo /usr/bin/python3 - <<'PY'
+import json
+from pathlib import Path
+
+old = json.loads(Path('/var/lib/dotfiles/tpm-gpt/pcr7-policy.json').read_text())
+current = json.loads(Path('/var/lib/systemd/pcrlock.json').read_text())
+if (old['nvIndex'], old['nvHandle']) != (current['nvIndex'], current['nvHandle']):
+    raise SystemExit('TPM NV index changed; stop')
+print('verified: existing TPM NV index retained')
+PY
 just tpm-nvpcr-check
 just tpm-unlock-check
 ```
@@ -213,7 +220,7 @@ just tpm-unlock-check
 The GPT command writes
 `/var/lib/pcrlock.d/600-gpt.pcrlock.d/generated.pcrlock`. Stop and inspect
 that file if it already exists. `just apply` installs the service override.
-The `jq` check confirms that the existing TPM NV index is still in use.
+The Python check confirms that the existing TPM NV index is still in use.
 The new checker requires both PCRs in the stored policy, a matching EFI boot
 credential, and a strict prediction. Keep the backup on encrypted root storage.
 The first normal reboot is the test of automatic unlock; do it only when you
