@@ -1,37 +1,37 @@
 {
   "claude": {
-    "version": "2.1.278",
-    "url": "https://downloads.claude.ai/claude-code-releases/2.1.278/linux-x64/claude.zst",
-    "hash": "sha256-X12yBCUbhFesaLIATtFApQyP7qYuUkbMKM3o0ErXYMs="
+    "version": "2.1.285",
+    "url": "https://downloads.claude.ai/claude-code-releases/2.1.285/linux-x64/claude.zst",
+    "hash": "sha256-6IqLQO1afpITv1BH9bEsNgwzOHsbw2z3ndv/CjpAEhw="
   },
   "codex": {
-    "version": "0.155.1",
-    "url": "https://github.com/openai/codex/releases/download/rust-v0.155.1/codex-package-x86_64-unknown-linux-musl.tar.gz",
-    "hash": "sha256-pluJXGrBpzYpu+S4ZGQMhhM+lKQ7TWezEDBE4aMG1aI="
+    "version": "0.159.2",
+    "url": "https://github.com/openai/codex/releases/download/rust-v0.159.2/codex-package-x86_64-unknown-linux-musl.tar.gz",
+    "hash": "sha256-ni0ppxO5RHiyQN7C8Q4RMkzQX6123EPnxjm9+KEzems="
   },
   "copilot": {
-    "version": "1.0.86",
-    "url": "https://github.com/github/copilot-cli/releases/download/v1.0.86/copilot-linux-x64.tar.gz",
-    "hash": "sha256-6kpRnXsv9U6cfRCumSHPSrP1BBSJ7DQIUvR/T2P8U1s="
+    "version": "1.0.89",
+    "url": "https://github.com/github/copilot-cli/releases/download/v1.0.89/copilot-linux-x64.tar.gz",
+    "hash": "sha256-xcI0zLpvrit6nq5GLK9ijobCG15iQOwuiFcn/BSKHcw="
   },
   "hermes": {
-    "version": "0.21.3",
-    "tag": "v2026.9.14",
-    "rev": "345cd2b057a452236de401d3534b8502a7465e8d"
+    "version": "0.21.5",
+    "tag": "v2026.9.24",
+    "rev": "f97608f178d1ffeca59860195ab7da295f7c8e5f"
   },
   "omp": {
-    "version": "18.2.7",
-    "url": "https://github.com/can1357/oh-my-pi/releases/download/v18.2.7/omp-linux-x64",
-    "hash": "sha256-HCjtZlZuyrq4FFFM/mJrSv9ZgbfKmJJHe0ZVD+a22Ds="
+    "version": "18.4.4",
+    "url": "https://github.com/can1357/oh-my-pi/releases/download/v18.4.4/omp-linux-x64",
+    "hash": "sha256-JMgw/OsL1ohL9b8seit0B7wj+v5lXpJMaV75vjCORvM="
   },
   "opencode": {
-    "version": "1.18.31",
-    "url": "https://github.com/anomalyco/opencode/releases/download/v1.18.31/opencode-linux-x64.tar.gz",
-    "hash": "sha256-6TEr517YA7dBX8Kuq9ofT+k4kSo5Zzdi3Aw4wOEeveQ="
+    "version": "1.18.33",
+    "url": "https://github.com/anomalyco/opencode/releases/download/v1.18.33/opencode-linux-x64.tar.gz",
+    "hash": "sha256-5UYSMhOuR5CaQmhpKqS5SVDQEa/pysmTh1OiGU8cFtU="
   },
   "ori": {
-    "version": "0.15.4+d52ba8e",
-    "url": "https://github.com/OpenRouterLabs/ori-releases/releases/download/cli-0.15.4-d52ba8e/ori-linux-x64",
-    "hash": "sha256-5KiV6kH18iWZzfS+duGiYyg7+c14MZkJnJcfXiPig44="
+    "version": "0.15.5+74c4cf2",
+    "url": "https://github.com/OpenRouterLabs/ori-releases/releases/download/cli-0.15.5-74c4cf2/ori-linux-x64",
+    "hash": "sha256-6o63fkkHLR6fzGz7ZT2L7DOf+ZJTsxZPnU/8x6+So7g="
   }
 }

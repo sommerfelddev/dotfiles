@@ -51,7 +51,7 @@
       "src": "https://github.com/AndreM222/copilot-lualine"
     },
     "copilot.lua": {
-      "rev": "6483be53397611b63259ce08a35108a47d4fc794",
+      "rev": "9c8b172570105d31ff707cb0d62897f79c2ddb1f",
       "src": "https://github.com/zbirenbaum/copilot.lua"
     },
     "debugmaster.nvim": {
@@ -72,7 +72,7 @@
       "src": "https://github.com/rafamadriz/friendly-snippets"
     },
     "fzf-lua": {
-      "rev": "13bb178a299f7493dd64427a58e61904c4b58ecb",
+      "rev": "eab53acb3fd36479f084f854b4418d02b5c70382",
       "src": "https://github.com/ibhagwan/fzf-lua",
       "version": "'main'"
     },
@@ -85,7 +85,7 @@
       "src": "https://github.com/ruifm/gitlinker.nvim"
     },
     "gitsigns.nvim": {
-      "rev": "8d79f2410c76e62b92e51c28c82e28c1c5a3daeb",
+      "rev": "070a5d7b985546cc57e1fc61e5bc507fecac6045",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "gruvbox.nvim": {
@@ -109,7 +109,7 @@
       "src": "https://github.com/iamcco/markdown-preview.nvim"
     },
     "neogit": {
-      "rev": "5adc81b26232954cd7a90f158aa7844c18fc3165",
+      "rev": "c51a1dc7e0e0f40c4c396a2b1ceaa44b44e96032",
       "src": "https://github.com/NeogitOrg/neogit"
     },
     "nvim-dap": {
@@ -129,7 +129,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "ffd261c09c3dabd0bf1a438f47a8ae3b22f3c3ff",
+      "rev": "a9bb4d5f4276aa5cddc015faa3ecc5a7b5a26b14",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-surround": {
@@ -137,7 +137,7 @@
       "src": "https://github.com/kylechui/nvim-surround"
     },
     "nvim-treesitter": {
-      "rev": "f603a2f4da48728f80257fb5fbb90145fd1dc173",
+      "rev": "728e031f6b11d03d1f0708b7dc4fb0f1d9c8a137",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter",
       "version": "'main'"
     },
