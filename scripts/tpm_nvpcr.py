@@ -30,7 +30,11 @@ INITRD_UNITS = (
 
 
 def run(*command: str) -> str:
-    result = subprocess.run(command, capture_output=True, text=True, check=True)
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+    except subprocess.CalledProcessError as exc:
+        detail = (exc.stderr or exc.stdout or "no error output").strip()
+        raise RuntimeError(f"{command[0]} exited {exc.returncode}: {detail}") from exc
     return result.stdout
 
 
@@ -142,6 +146,6 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         sys.exit(main())
-    except (OSError, TypeError, ValueError, subprocess.CalledProcessError) as exc:
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
         print(f"NvPCR check failed: {exc}", file=sys.stderr)
         sys.exit(1)

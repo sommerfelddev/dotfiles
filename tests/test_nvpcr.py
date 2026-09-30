@@ -83,6 +83,14 @@ def sections(public_key, *, policies=None, options=None):
 
 
 class NvPCRImageTests(unittest.TestCase):
+    def test_command_failure_reports_stderr(self):
+        error = subprocess.CalledProcessError(1, ["ukify"], stderr="file not found")
+        with (
+            mock.patch.object(tpm_nvpcr.subprocess, "run", side_effect=error),
+            self.assertRaisesRegex(RuntimeError, "ukify exited 1: file not found"),
+        ):
+            tpm_nvpcr.run("ukify", "inspect", "missing.efi")
+
     def test_initrd_has_required_units(self):
         listing = "\n".join(
             f"usr/lib/systemd/system/{unit}" for unit in tpm_nvpcr.INITRD_UNITS
