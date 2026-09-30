@@ -91,7 +91,7 @@ in
     # rejects common GNU tar invocations like `tar -czf`.
     uutils-diffutils
     uutils-findutils
-    uutils-procps
+    # Codex's daemon needs procps-ng ps -o stat= -o lstart= from the system.
     uutils-sed
     htop
     fastfetch
