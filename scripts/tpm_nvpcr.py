@@ -21,6 +21,12 @@ MEASUREMENT_OPTIONS = (
     "tpm2-measure-pcr=15",
     "tpm2-measure-keyslot-nvpcr=cryptsetup",
 )
+INITRD_UNITS = (
+    "systemd-tpm2-setup-early.service",
+    "systemd-pcrnvdone.service",
+    "systemd-pcrextend.socket",
+    "systemd-pcrextend@.service",
+)
 
 
 def run(*command: str) -> str:
@@ -69,6 +75,13 @@ def check_sections(sections: dict, public_key: bytes) -> None:
         raise ValueError("Root measurement or TPM unlock option is missing")
 
 
+def check_initrd_listing(listing: str) -> None:
+    members = {line.strip().lstrip("./") for line in listing.splitlines()}
+    for unit in INITRD_UNITS:
+        if f"usr/lib/systemd/system/{unit}" not in members:
+            raise ValueError(f"UKI initrd lacks {unit}")
+
+
 def check_image(path: Path, public_key: bytes) -> None:
     sections = json.loads(
         run(
@@ -84,6 +97,7 @@ def check_image(path: Path, public_key: bytes) -> None:
     if not isinstance(sections, dict) or "_profiles" in sections:
         raise ValueError(f"Unsupported multi-profile UKI: {path}")
     check_sections(sections, public_key)
+    check_initrd_listing(run("lsinitcpio", "--list", str(path)))
     run("sbverify", "--cert", str(SB_CERT), str(path))
     print(f"verified: {path}")
 

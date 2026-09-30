@@ -83,6 +83,21 @@ def sections(public_key, *, policies=None, options=None):
 
 
 class NvPCRImageTests(unittest.TestCase):
+    def test_initrd_has_required_units(self):
+        listing = "\n".join(
+            f"usr/lib/systemd/system/{unit}" for unit in tpm_nvpcr.INITRD_UNITS
+        )
+        tpm_nvpcr.check_initrd_listing(listing)
+
+    def test_rejects_missing_initrd_service(self):
+        listing = "\n".join(
+            f"usr/lib/systemd/system/{unit}"
+            for unit in tpm_nvpcr.INITRD_UNITS
+            if unit != "systemd-pcrnvdone.service"
+        )
+        with self.assertRaisesRegex(ValueError, "systemd-pcrnvdone.service"):
+            tpm_nvpcr.check_initrd_listing(listing)
+
     def test_valid_initrd_signature_and_root_options(self):
         tpm_nvpcr.check_sections(sections(b"public key"), b"public key")
 

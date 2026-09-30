@@ -185,10 +185,10 @@ is agreed. Stop if any command fails.
      /var/lib/dotfiles/tpm-nvpcr/stage/arch-linux-lts-fallback.efi
    ```
 
-   The check reads `.pcrpkey`, `.pcrsig`, and `.cmdline` using ukify, then
-   verifies each Secure Boot signature with the enrolled `sbctl` certificate.
-   Stop on any mismatch. The `systemd-pcrextend` socket and early setup units
-   must be present in both initramfs variants.
+   The check reads `.pcrpkey`, `.pcrsig`, and `.cmdline` using ukify. It uses
+   `lsinitcpio` to check the four required initrd units and verifies each
+   Secure Boot signature with the enrolled `sbctl` certificate. Stop on any
+   mismatch.
 
 7. Copy each checked image to the ESP under a temporary name, then rename it
    into place before copying the next one. This needs space for only one extra
