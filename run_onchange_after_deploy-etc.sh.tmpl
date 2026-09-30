@@ -8,6 +8,41 @@
 set -eu
 
 cd "$CHEZMOI_SOURCE_DIR"
+if [ -f etc/kernel/uki.conf ]; then
+  systemd_version=$(pacman -Q systemd | awk '{ print $2 }')
+  ukify_version=$(pacman -Q systemd-ukify | awk '{ print $2 }')
+  if [ "$systemd_version" != "$ukify_version" ] || ! command -v ukify >/dev/null 2>&1; then
+    echo 'Install a systemd-ukify version that matches systemd before deploying NvPCR support.' >&2
+    exit 1
+  fi
+  if ! command -v sbverify >/dev/null 2>&1; then
+    echo 'Install sbsigntools before deploying NvPCR support.' >&2
+    exit 1
+  fi
+  if ! sudo test -s /etc/systemd/tpm2-pcr-private-key.pem ||
+     ! sudo test -s /etc/systemd/tpm2-pcr-public-key.pem ||
+     ! sudo test -s /boot/EFI/Linux/arch-linux-hardened-nvpcr-recovery.efi ||
+     ! sudo test -s /var/lib/dotfiles/tpm-nvpcr/backup/etc.tar ||
+     ! sudo test -s /var/lib/dotfiles/tpm-nvpcr/backup/arch-linux-hardened.efi ||
+     ! sudo test -s /var/lib/dotfiles/tpm-nvpcr/backup/arch-linux-hardened-fallback.efi ||
+     ! sudo test -s /var/lib/dotfiles/tpm-nvpcr/backup/arch-linux-lts.efi ||
+     ! sudo test -s /var/lib/dotfiles/tpm-nvpcr/backup/arch-linux-lts-fallback.efi ||
+     ! sudo sbverify --cert /var/lib/sbctl/keys/db/db.pem \
+       /boot/EFI/Linux/arch-linux-hardened-nvpcr-recovery.efi >/dev/null 2>&1; then
+    echo 'Create the PCR key pair, backup, and signed recovery UKI first. See docs/tpm-unlock.md.' >&2
+    exit 1
+  fi
+  if [ "$(sudo stat -c %U:%G:%a /etc/systemd/tpm2-pcr-private-key.pem)" != root:root:600 ] ||
+     ! sudo openssl pkey -in /etc/systemd/tpm2-pcr-private-key.pem -pubout 2>/dev/null |
+       sudo cmp -s /etc/systemd/tpm2-pcr-public-key.pem -; then
+    echo 'The root-owned PCR signing key pair is invalid or has unsafe permissions.' >&2
+    exit 1
+  fi
+  if sudo test -e /var/lib/dotfiles/tpm-nvpcr/rollback; then
+    echo 'NvPCR rollback is active. Restore the previous repo revision before applying.' >&2
+    exit 1
+  fi
+fi
 find etc -type f ! -name .ignore | while IFS= read -r src; do
   case "$src" in
     *.tmpl)
@@ -21,6 +56,9 @@ find etc -type f ! -name .ignore | while IFS= read -r src; do
       sudo install -D -m 0440 -o root -g root "$src" "/${src}"
       ;;
     etc/systemd/system-sleep/*)
+      sudo install -D -m 0755 -o root -g root "$src" "/${src}"
+      ;;
+    etc/initcpio/install/*)
       sudo install -D -m 0755 -o root -g root "$src" "/${src}"
       ;;
     *)

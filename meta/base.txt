@@ -22,6 +22,9 @@ ocl-icd
 pacman-contrib # paccache for etc/pacman.d/hooks/pacman-cache-cleanup.hook
 reflector
 sbctl
+sbsigntools
+systemd-ukify
+efibootmgr
 smartmontools
 sudo-rs
 systemd-resolvconf

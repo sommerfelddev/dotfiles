@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+build() {
+    # mkinitcpio 42 does not include these systemd 262 initrd services.
+    map add_systemd_unit \
+        systemd-tpm2-setup-early.service \
+        systemd-pcrnvdone.service \
+        systemd-pcrextend.socket \
+        systemd-pcrextend@.service
+}
+
+help() {
+    echo 'Include systemd NvPCR initialization and PCR extension services.'
+}

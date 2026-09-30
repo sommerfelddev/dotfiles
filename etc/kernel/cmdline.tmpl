@@ -1,1 +1,1 @@
-rd.luks.name={{ output "lsblk" "-dno" "UUID" (printf "/dev/%s" .luksRootPartition) | trim }}=root root=/dev/mapper/root rw quiet apparmor=1 lsm=landlock,lockdown,yama,integrity,apparmor,bpf
+rd.luks.name={{ output "lsblk" "-dno" "UUID" (printf "/dev/%s" .luksRootPartition) | trim }}=root rd.luks.options={{ output "lsblk" "-dno" "UUID" (printf "/dev/%s" .luksRootPartition) | trim }}=tpm2-device=auto,tpm2-measure-pcr=15,tpm2-measure-keyslot-nvpcr=cryptsetup root=/dev/mapper/root rw quiet apparmor=1 lsm=landlock,lockdown,yama,integrity,apparmor,bpf
