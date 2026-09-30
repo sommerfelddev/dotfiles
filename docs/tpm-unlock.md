@@ -262,6 +262,38 @@ default and fallback UKIs with explicit approval.
 Then rebuild with `sudo mkinitcpio -P` and repeat a normal boot test. Keep the
 recovery UKI until these checks pass.
 
+After the final boot test, verify the disk passphrase without activating a new
+mapping. Keyslot 0 is the passphrase slot on Halley2; check the LUKS header if
+this test fails. Do not type the passphrase on the command line.
+
+```sh
+sudo cryptsetup open --test-passphrase --key-slot 0 /dev/nvme0n1p2
+```
+
+If the test succeeds, remove the temporary recovery and test boot entries and
+UKIs. Check that `BootCurrent` is 0000 and that entries 0001 and 0002 still
+refer to these exact files before running the removal commands. The normal
+hardened and LTS entries must stay in `BootOrder`.
+
+```sh
+efibootmgr -v
+sudo efibootmgr -b 0001 -B
+sudo efibootmgr -b 0002 -B
+sudo rm -- /boot/EFI/Linux/arch-linux-hardened-nvpcr-recovery.efi \
+  /boot/EFI/Linux/arch-linux-hardened-nvpcr-test.efi
+efibootmgr
+sudo sbctl verify
+just tpm-nvpcr-check
+```
+
+The recovery copy is not updated by `mkinitcpio`. Keeping it on the ESP leaves
+an old signed boot path that can unlock under the current PCR 7 policy. The
+NvPCRs record boot events, but the root TPM enrollment does not require their
+values. Removal of these two copies does not prevent booting another old UKI
+signed by a trusted Secure Boot key. Keep the disk passphrase and the root-only
+backup for recovery from external media. Audit the LUKS TPM tokens separately
+before claiming that boot-image measurements are required for unlock.
+
 ### Rollback
 
 If a new image does not boot or automatic unlock fails, select the recovery
@@ -282,7 +314,8 @@ sudo sbctl verify
 ```
 
 Revert this task's repo commit before another `just apply`. The rollback marker
-blocks redeployment until then. Keep the key pair and recovery UKI for diagnosis.
+blocks redeployment until then. Keep the key pair and root-only backup for
+diagnosis; the temporary recovery UKI is only for first activation.
 
 Sources: [systemd 262 release notes](https://github.com/systemd/systemd/releases/tag/v262),
 [ukify](https://github.com/systemd/systemd/blob/v262/man/ukify.xml), and
