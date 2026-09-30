@@ -282,7 +282,10 @@
           chezmoi
           git
           jq
-          python3
+          (python3.withPackages (ps: [
+            ps.cryptography
+            ps.pefile
+          ]))
           just
           nixfmt
           nodejs

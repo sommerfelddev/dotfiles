@@ -21,15 +21,15 @@ if [ -f etc/kernel/uki.conf ]; then
   fi
   if ! sudo test -s /etc/systemd/tpm2-pcr-private-key.pem ||
      ! sudo test -s /etc/systemd/tpm2-pcr-public-key.pem ||
-     ! sudo test -s /boot/EFI/Linux/arch-linux-hardened-nvpcr-recovery.efi ||
      ! sudo test -s /var/lib/dotfiles/tpm-nvpcr/backup/etc.tar ||
      ! sudo test -s /var/lib/dotfiles/tpm-nvpcr/backup/arch-linux-hardened.efi ||
      ! sudo test -s /var/lib/dotfiles/tpm-nvpcr/backup/arch-linux-hardened-fallback.efi ||
      ! sudo test -s /var/lib/dotfiles/tpm-nvpcr/backup/arch-linux-lts.efi ||
      ! sudo test -s /var/lib/dotfiles/tpm-nvpcr/backup/arch-linux-lts-fallback.efi ||
+     ! sudo test -s /boot/EFI/Linux/arch-linux-hardened.efi ||
      ! sudo sbverify --cert /var/lib/sbctl/keys/db/db.pem \
-       /boot/EFI/Linux/arch-linux-hardened-nvpcr-recovery.efi >/dev/null 2>&1; then
-    echo 'Create the PCR key pair, backup, and signed recovery UKI first. See docs/tpm-unlock.md.' >&2
+       /boot/EFI/Linux/arch-linux-hardened.efi >/dev/null 2>&1; then
+    echo 'Check the PCR key pair, root-only backup, and signed main UKI. See docs/tpm-unlock.md.' >&2
     exit 1
   fi
   if [ "$(sudo stat -c %U:%G:%a /etc/systemd/tpm2-pcr-private-key.pem)" != root:root:600 ] ||

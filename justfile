@@ -154,6 +154,11 @@ test:
 tpm-nvpcr-check *images: _require-host
     @sudo /usr/bin/python3 scripts/tpm_nvpcr.py "$@"
 
+# Audit the combined LUKS TPM token. Use --trial until the old slot is removed.
+[positional-arguments]
+tpm-unlock-check *args: _require-host
+    @sudo /usr/bin/python3 -m scripts.tpm_unlock "$@"
+
 # Remove only this repo's obsolete zero-byte NvPCR masks after recovery is ready.
 tpm-nvpcr-unmask: _require-host
     @sudo /usr/bin/python3 scripts/tpm_nvpcr_unmask.py
