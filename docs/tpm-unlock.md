@@ -190,9 +190,10 @@ is agreed. Stop if any command fails.
    Stop on any mismatch. The `systemd-pcrextend` socket and early setup units
    must be present in both initramfs variants.
 
-7. Copy the checked images to the ESP with temporary names, then rename them
-   into place. Do not reboot after a partial copy. Restore from the backup if
-   a copy or verification fails.
+7. Copy each checked image to the ESP under a temporary name, then rename it
+   into place before copying the next one. This needs space for only one extra
+   image at a time. Do not reboot after a partial copy. Restore from the backup
+   if a copy or verification fails.
 
    ```sh
    sudo bash -euo pipefail -c '
@@ -200,9 +201,6 @@ is agreed. Stop if any command fails.
        arch-linux-lts.efi arch-linux-lts-fallback.efi; do
        install -m 0644 "/var/lib/dotfiles/tpm-nvpcr/stage/$name" \
          "/boot/EFI/Linux/$name.next"
-     done
-     for name in arch-linux-hardened.efi arch-linux-hardened-fallback.efi \
-       arch-linux-lts.efi arch-linux-lts-fallback.efi; do
        mv -f "/boot/EFI/Linux/$name.next" "/boot/EFI/Linux/$name"
      done
    '
