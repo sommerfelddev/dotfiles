@@ -190,7 +190,30 @@ is agreed. Stop if any command fails.
    Secure Boot signature with the enrolled `sbctl` certificate. Stop on any
    mismatch.
 
-7. Copy each checked image to the ESP under a temporary name, then rename it
+7. Copy only the checked hardened default image to a separate ESP path and
+   create a one-time test entry. Leave the normal and recovery images intact.
+   Read the new entry number from `efibootmgr -v`; do not assume it is `0002`.
+
+   ```sh
+   sudo install -m 0644 \
+     /var/lib/dotfiles/tpm-nvpcr/stage/arch-linux-hardened.efi \
+     /boot/EFI/Linux/arch-linux-hardened-nvpcr-test.efi
+   just tpm-nvpcr-check /boot/EFI/Linux/arch-linux-hardened-nvpcr-test.efi
+   sudo efibootmgr --create-only --disk /dev/nvme0n1 --part 1 \
+     --label 'Arch NvPCR Test' \
+     --loader '\EFI\Linux\arch-linux-hardened-nvpcr-test.efi'
+   sudo efibootmgr -v
+   ```
+
+   Only after these commands succeed, set `BootNext` to that entry and perform
+   one approved reboot. Keep the disk passphrase available. Confirm automatic
+   unlock, `BootCurrent` equal to the test entry, and the checks below. The
+   normal boot order remains unchanged. Do not publish the other images until
+   the test passes. If the test fails, boot the normal or recovery entry and
+   inspect the journal before trying again.
+
+8. After the one-time test passes, copy each checked image to the ESP under a
+   temporary name, then rename it
    into place before copying the next one. This needs space for only one extra
    image at a time. Do not reboot after a partial copy. Restore from the backup
    if a copy or verification fails.
@@ -213,10 +236,12 @@ is agreed. Stop if any command fails.
 
 ### Boot Checks
 
-After an approved reboot into a new UKI, confirm automatic unlock and run:
+After the one-time test boot, confirm automatic unlock and run:
 
 ```sh
-just tpm-nvpcr-check
+just tpm-nvpcr-check /boot/EFI/Linux/arch-linux-hardened-nvpcr-test.efi
+sudo env SYSTEMD_PAGER=cat /usr/lib/systemd/systemd-pcrlock \
+  --strict=yes --pcr=7 --location=770 predict
 sudo journalctl -b --no-pager \
   -u systemd-tpm2-setup-early.service \
   -u systemd-pcrnvdone.service \
@@ -230,8 +255,10 @@ systemd-analyze nvpcrs
 
 The early setup and NvPCR separator must succeed. The `hardware`, `login`, and
 `cryptsetup` records must appear after their events; `verity` can stay at its
-initial value. Check that PCR 7 is still the only disk-unlock policy PCR.
-Boot-test hardened and LTS default and fallback UKIs with explicit approval.
+initial value. Check that PCR 7 is still the only disk-unlock policy PCR. After
+publishing all four images, reboot into the normal hardened entry and run
+`just tpm-nvpcr-check` with no image arguments. Boot-test hardened and LTS
+default and fallback UKIs with explicit approval.
 Then rebuild with `sudo mkinitcpio -P` and repeat a normal boot test. Keep the
 recovery UKI until these checks pass.
 
