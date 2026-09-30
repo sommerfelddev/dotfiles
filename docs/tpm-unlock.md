@@ -59,6 +59,57 @@ or boot software will produce the same measurements on the next boot. Keep the
 disk passphrase available. No unattended hook relaxes protection or replaces
 LUKS enrollments.
 
+## Unused NvPCR Measurements
+
+This host uses PCR 7 for root unlock. It does not use the default `cryptsetup`,
+`hardware`, `login`, or `verity` NvPCR measurements. Systemd 262 requires a signed
+initrd PCR policy for NvPCR initialization, which this boot setup does not provide.
+This is separate from the NV index that stores the `pcrlock` policy.
+
+Empty files in `etc/nvpcr/` mask the four vendor definitions. Empty unit files
+mask only `systemd-pcrproduct.service` and `systemd-pcrlogin@.service`. Keep these
+files at zero bytes: adding comments removes the mask. SRK setup and PCR 7
+policy maintenance remain active. No TPM index or LUKS keyslot is deleted.
+The mkinitcpio drop-in includes the masks in each rebuilt initramfs.
+
+Deploy outside aibox, with the recovery passphrase available:
+
+```sh
+just apply
+sudo mkinitcpio -P
+sudo sbctl sign-all
+sudo sbctl verify
+```
+
+Stop if image generation or signing fails. Confirm that the rebuilt UKIs are
+signed before rebooting. No re-enrollment is required. The current boot's failed
+setup status can remain until the next boot; do not restart TPM setup merely
+to clear that status.
+
+After an approved reboot, confirm automatic unlock and inspect:
+
+```sh
+sudo journalctl -b --no-pager \
+  -u systemd-tpm2-setup-early.service \
+  -u systemd-tpm2-setup.service \
+  -u systemd-pcrlock-make-policy.service
+systemctl --failed --no-pager
+systemctl is-enabled systemd-pcrproduct.service systemd-pcrlogin@.service
+```
+
+The two measurement units must report `masked`. SRK setup must have no NvPCR
+initialization failures, and the policy must retain PCR 7 protection.
+
+To roll back, remove the four `/etc/nvpcr/*.nvpcr` masks listed above, the two
+empty unit files, and `/etc/mkinitcpio.conf.d/60-no-nvpcr.conf`. Remove the same
+files from the repo to prevent redeployment. Reload systemd, rebuild and sign
+the UKIs, and test at the next approved reboot. This restores the vendor
+behavior, including its errors if signed initrd PCR policies are still absent.
+
+Sources: [systemd 262 release notes](https://github.com/systemd/systemd/releases/tag/v262),
+[NvPCR setup](https://github.com/systemd/systemd/blob/v262/src/tpm2-setup/tpm2-setup.c),
+and [empty-file mask handling](https://github.com/systemd/systemd/blob/v262/src/basic/conf-files.c).
+
 ## Recovery
 
 If automatic unlock fails, use the disk passphrase. Inspect the boot journal
